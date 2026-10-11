@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of hero, in light and dark, keyed to the acceptance criteria in hero.md.">
+<meta name="crd:component" content="hero">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Hero</h1>
+    <p class="ds-lead">The promise, the search and the way into the catalogue; or a course's title and enrolment. Requirements: <a href="hero.md">hero.md</a>. Design system: <a href="../../design-system/components/hero.html">hero</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-hero</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-001, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Faith and artificial intelligence</p>
+        <h1 class="hero__title" id="hero-title">Think clearly about AI, <em>rooted in faith.</em></h1>
+        <p class="lead hero__lead">Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos Lab editors. Everything is free with an account.</p>
+        <form class="search" role="search"  style="margin-top: var(--space-8)">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <label class="vh" for="hero-search">Search courses, videos, articles and experts</label>
+          <input class="search__input" id="hero-search" name="q" type="search" placeholder="Try “personhood” or “Augustine”">
+          <button class="btn btn--primary" type="submit">Search</button>
+        </form>
+        <div class="hero__actions" style="margin-top: var(--space-6)">
+          <a class="btn btn--quiet btn--lg" href="#">Browse the catalogue <svg class="btn__arrow icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12h15"/><path d="m13.5 6 6 6-6 6"/></svg></a>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <figure class="photo">
+          <div class="photo__frame"><img src="../../mocks/assets/photos/coffee-together.jpg" alt="Two people talking over coffee at a wooden table" width="800" height="800"></div>
+          <figcaption class="photo__caption"><span>After the September panel</span><span>Ottawa</span></figcaption>
+        </figure>
+      </div>
+    </section></div></div><div class="ds-example__caption"><span>Default: the home page with search, "Browse the catalogue" and the captioned photo. <span class="crd-ac">AC-1, AC-2, AC-3</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><section class="hero hero--compact" aria-labelledby="course-title">
+      <div>
+        <p class="eyebrow">Course · Dr. Abena Mensah</p>
+        <h1 class="hero__title" id="course-title">Imago Dei in an Age of Machines</h1>
+        <p class="lead hero__lead">What does it mean to bear the image of God when machines can speak, reason and create? Dr. Abena Mensah reads Genesis alongside today’s AI and shows why the image is a calling we receive, not a set of abilities a machine could copy.</p>
+        <div class="hero__actions"><a class="btn btn--primary btn--lg" href="#">Sign in to enrol</a><a class="btn btn--quiet btn--lg" href="#">Create a free account</a></div>
+      </div>
+      <div class="hero__aside"><div class="content-card__cover tile--sage"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></div></div>
+    </section></div></div><div class="ds-example__caption"><span>Compact: the course overview for a visitor. <span class="crd-ac">AC-1</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><p class="ds-na">The hero has no interactive states of its own; its search and links follow their components. The photo zoom on hover is shown live.</p></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Faith and artificial intelligence</p>
+        <h1 class="hero__title" id="hero-title">Think clearly about AI, <em>rooted in faith.</em></h1>
+        <p class="lead hero__lead">Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos Lab editors. Everything is free with an account.</p>
+        <form class="search" role="search"  style="margin-top: var(--space-8)">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <label class="vh" for="hero-search">Search courses, videos, articles and experts</label>
+          <input class="search__input" id="hero-search" name="q" type="search" placeholder="Try “personhood” or “Augustine”">
+          <button class="btn btn--primary" type="submit">Search</button>
+        </form>
+        <div class="hero__actions" style="margin-top: var(--space-6)">
+          <a class="btn btn--quiet btn--lg" href="#">Browse the catalogue <svg class="btn__arrow icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12h15"/><path d="m13.5 6 6 6-6 6"/></svg></a>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <figure class="photo">
+          <div class="photo__frame"><img src="../../mocks/assets/photos/coffee-together.jpg" alt="Two people talking over coffee at a wooden table" width="800" height="800"></div>
+          <figcaption class="photo__caption"><span>After the September panel</span><span>Ottawa</span></figcaption>
+        </figure>
+      </div>
+    </section></div></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Faith and artificial intelligence</p>
+        <h1 class="hero__title" id="hero-title">Think clearly about AI, <em>rooted in faith.</em></h1>
+        <p class="lead hero__lead">Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos Lab editors. Everything is free with an account.</p>
+        <form class="search" role="search"  style="margin-top: var(--space-8)">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <label class="vh" for="hero-search">Search courses, videos, articles and experts</label>
+          <input class="search__input" id="hero-search" name="q" type="search" placeholder="Try “personhood” or “Augustine”">
+          <button class="btn btn--primary" type="submit">Search</button>
+        </form>
+        <div class="hero__actions" style="margin-top: var(--space-6)">
+          <a class="btn btn--quiet btn--lg" href="#">Browse the catalogue <svg class="btn__arrow icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12h15"/><path d="m13.5 6 6 6-6 6"/></svg></a>
+        </div>
+      </div>
+      <div class="hero__aside">
+        <figure class="photo">
+          <div class="photo__frame"><img src="../../mocks/assets/photos/coffee-together.jpg" alt="Two people talking over coffee at a wooden table" width="800" height="800"></div>
+          <figcaption class="photo__caption"><span>After the September panel</span><span>Ottawa</span></figcaption>
+        </figure>
+      </div>
+    </section></div></div></div><span class="crd-ac">AC-4, AC-5, AC-8</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-6, AC-7</span><iframe title="320 pixel wide frame, light theme" width="320" height="900" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;section class=&quot;hero&quot; aria-labelledby=&quot;hero-title&quot;&gt;
+      &lt;div&gt;
+        &lt;p class=&quot;eyebrow&quot;&gt;Faith and artificial intelligence&lt;/p&gt;
+        &lt;h1 class=&quot;hero__title&quot; id=&quot;hero-title&quot;&gt;Think clearly about AI, &lt;em&gt;rooted in faith.&lt;/em&gt;&lt;/h1&gt;
+        &lt;p class=&quot;lead hero__lead&quot;&gt;Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos Lab editors. Everything is free with an account.&lt;/p&gt;
+        &lt;form class=&quot;search&quot; role=&quot;search&quot;  style=&quot;margin-top: var(--space-8)&quot;&gt;
+          &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+          &lt;label class=&quot;vh&quot; for=&quot;hero-search&quot;&gt;Search courses, videos, articles and experts&lt;/label&gt;
+          &lt;input class=&quot;search__input&quot; id=&quot;hero-search&quot; name=&quot;q&quot; type=&quot;search&quot; placeholder=&quot;Try “personhood” or “Augustine”&quot;&gt;
+          &lt;button class=&quot;btn btn--primary&quot; type=&quot;submit&quot;&gt;Search&lt;/button&gt;
+        &lt;/form&gt;
+        &lt;div class=&quot;hero__actions&quot; style=&quot;margin-top: var(--space-6)&quot;&gt;
+          &lt;a class=&quot;btn btn--quiet btn--lg&quot; href=&quot;#&quot;&gt;Browse the catalogue &lt;svg class=&quot;btn__arrow icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 12h15&quot;/&gt;&lt;path d=&quot;m13.5 6 6 6-6 6&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;hero__aside&quot;&gt;
+        &lt;figure class=&quot;photo&quot;&gt;
+          &lt;div class=&quot;photo__frame&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/coffee-together.jpg&quot; alt=&quot;Two people talking over coffee at a wooden table&quot; width=&quot;800&quot; height=&quot;800&quot;&gt;&lt;/div&gt;
+          &lt;figcaption class=&quot;photo__caption&quot;&gt;&lt;span&gt;After the September panel&lt;/span&gt;&lt;span&gt;Ottawa&lt;/span&gt;&lt;/figcaption&gt;
+        &lt;/figure&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-6, AC-7</span><iframe title="360 pixel wide frame, dark theme" width="360" height="900" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;section class=&quot;hero&quot; aria-labelledby=&quot;hero-title&quot;&gt;
+      &lt;div&gt;
+        &lt;p class=&quot;eyebrow&quot;&gt;Faith and artificial intelligence&lt;/p&gt;
+        &lt;h1 class=&quot;hero__title&quot; id=&quot;hero-title&quot;&gt;Think clearly about AI, &lt;em&gt;rooted in faith.&lt;/em&gt;&lt;/h1&gt;
+        &lt;p class=&quot;lead hero__lead&quot;&gt;Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos Lab editors. Everything is free with an account.&lt;/p&gt;
+        &lt;form class=&quot;search&quot; role=&quot;search&quot;  style=&quot;margin-top: var(--space-8)&quot;&gt;
+          &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+          &lt;label class=&quot;vh&quot; for=&quot;hero-search&quot;&gt;Search courses, videos, articles and experts&lt;/label&gt;
+          &lt;input class=&quot;search__input&quot; id=&quot;hero-search&quot; name=&quot;q&quot; type=&quot;search&quot; placeholder=&quot;Try “personhood” or “Augustine”&quot;&gt;
+          &lt;button class=&quot;btn btn--primary&quot; type=&quot;submit&quot;&gt;Search&lt;/button&gt;
+        &lt;/form&gt;
+        &lt;div class=&quot;hero__actions&quot; style=&quot;margin-top: var(--space-6)&quot;&gt;
+          &lt;a class=&quot;btn btn--quiet btn--lg&quot; href=&quot;#&quot;&gt;Browse the catalogue &lt;svg class=&quot;btn__arrow icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 12h15&quot;/&gt;&lt;path d=&quot;m13.5 6 6 6-6 6&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;hero__aside&quot;&gt;
+        &lt;figure class=&quot;photo&quot;&gt;
+          &lt;div class=&quot;photo__frame&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/coffee-together.jpg&quot; alt=&quot;Two people talking over coffee at a wooden table&quot; width=&quot;800&quot; height=&quot;800&quot;&gt;&lt;/div&gt;
+          &lt;figcaption class=&quot;photo__caption&quot;&gt;&lt;span&gt;After the September panel&lt;/span&gt;&lt;span&gt;Ottawa&lt;/span&gt;&lt;/figcaption&gt;
+        &lt;/figure&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-6, AC-7</span><iframe title="768 pixel wide frame, light theme" width="768" height="900" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;section class=&quot;hero&quot; aria-labelledby=&quot;hero-title&quot;&gt;
+      &lt;div&gt;
+        &lt;p class=&quot;eyebrow&quot;&gt;Faith and artificial intelligence&lt;/p&gt;
+        &lt;h1 class=&quot;hero__title&quot; id=&quot;hero-title&quot;&gt;Think clearly about AI, &lt;em&gt;rooted in faith.&lt;/em&gt;&lt;/h1&gt;
+        &lt;p class=&quot;lead hero__lead&quot;&gt;Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos Lab editors. Everything is free with an account.&lt;/p&gt;
+        &lt;form class=&quot;search&quot; role=&quot;search&quot;  style=&quot;margin-top: var(--space-8)&quot;&gt;
+          &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+          &lt;label class=&quot;vh&quot; for=&quot;hero-search&quot;&gt;Search courses, videos, articles and experts&lt;/label&gt;
+          &lt;input class=&quot;search__input&quot; id=&quot;hero-search&quot; name=&quot;q&quot; type=&quot;search&quot; placeholder=&quot;Try “personhood” or “Augustine”&quot;&gt;
+          &lt;button class=&quot;btn btn--primary&quot; type=&quot;submit&quot;&gt;Search&lt;/button&gt;
+        &lt;/form&gt;
+        &lt;div class=&quot;hero__actions&quot; style=&quot;margin-top: var(--space-6)&quot;&gt;
+          &lt;a class=&quot;btn btn--quiet btn--lg&quot; href=&quot;#&quot;&gt;Browse the catalogue &lt;svg class=&quot;btn__arrow icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 12h15&quot;/&gt;&lt;path d=&quot;m13.5 6 6 6-6 6&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;hero__aside&quot;&gt;
+        &lt;figure class=&quot;photo&quot;&gt;
+          &lt;div class=&quot;photo__frame&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/coffee-together.jpg&quot; alt=&quot;Two people talking over coffee at a wooden table&quot; width=&quot;800&quot; height=&quot;800&quot;&gt;&lt;/div&gt;
+          &lt;figcaption class=&quot;photo__caption&quot;&gt;&lt;span&gt;After the September panel&lt;/span&gt;&lt;span&gt;Ottawa&lt;/span&gt;&lt;/figcaption&gt;
+        &lt;/figure&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Title emphasis</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-canvas" data-min="3"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Title emphasis</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-canvas" data-min="3"></span></div><div class="ds-pair"><span>Lead</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Lead</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Eyebrow and caption</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Eyebrow and caption</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div></div><span class="crd-ac">AC-5</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Title emphasis</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr><tr><td>Lead</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Caption</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr><tr><td>Photo frame</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>

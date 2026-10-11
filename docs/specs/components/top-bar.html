@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top bar — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of top bar, in light and dark, keyed to the acceptance criteria in top-bar.md.">
+<meta name="crd:component" content="top-bar">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Top bar</h1>
+    <p class="ds-lead">Brand, five destinations and the person's actions, with one hairline beneath. Requirements: <a href="top-bar.md">top-bar.md</a>. Design system: <a href="../../design-system/components/top-bar.html">top-bar</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-top-bar</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>Product bar, visitor: Primary navigation, search, theme, Sign in and Create account. <span class="crd-ac">AC-1, AC-3, AC-7</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="#" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="#" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../mocks/assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>Product bar, member: search, notifications with a count and the account button. <span class="crd-ac">AC-1</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <div class="header__actions">
+      <a class="btn btn--text btn--sm" href="#">Create account</a>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>Minimal bar for focused flows: full brand and one action, no navigation. <span class="crd-ac">AC-4</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#" aria-current="page">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>Current destination: "Events" with aria-current="page" and the accent dot. <span class="crd-ac">AC-2</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#" data-state="hover">Courses</a></li>
+        <li><a class="nav__link" href="#">Events</a></li>
+        <li><a class="nav__link" href="#" data-state="focus">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>Forced hover on "Courses" and focus on "Experts". <span class="crd-ac">AC-7, AC-13</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="true" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>Menu expanded while the drawer is open (shown below 64rem). <span class="crd-ac">AC-5, AC-6</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#" aria-current="page">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#" aria-current="page">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="#" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div></div><span class="crd-ac">AC-8, AC-9</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-5, AC-10, AC-11, AC-12</span><iframe title="320 pixel wide frame, light theme" width="320" height="120" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;header class=&quot;header&quot;&gt;
+  &lt;div class=&quot;wrap header__inner&quot;&gt;
+    &lt;a class=&quot;brand brand--compact&quot; href=&quot;#&quot; aria-label=&quot;Logos Lab home&quot;&gt;&lt;svg class=&quot;brand__mark&quot; viewBox=&quot;0 0 32 32&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle class=&quot;brand__sun&quot; cx=&quot;25.5&quot; cy=&quot;4.5&quot; r=&quot;2.4&quot;/&gt;&lt;/svg&gt;&lt;span&gt;logos lab&lt;/span&gt;&lt;/a&gt;
+    &lt;nav class=&quot;nav&quot; id=&quot;primary-nav&quot; popover aria-label=&quot;Primary&quot;&gt;
+      &lt;ul class=&quot;nav__list&quot;&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Explore&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Courses&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Events&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Experts&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Collections&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;header__actions&quot;&gt;
+      &lt;form class=&quot;search header__search--wide&quot; role=&quot;search&quot; &gt;
+        &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+        &lt;label class=&quot;vh&quot; for=&quot;site-search&quot;&gt;Search Logos Lab&lt;/label&gt;
+        &lt;input class=&quot;search__input&quot; id=&quot;site-search&quot; name=&quot;q&quot; type=&quot;search&quot; placeholder=&quot;Search Logos Lab&quot; autocomplete=&quot;off&quot;&gt;
+      &lt;/form&gt;
+      &lt;a class=&quot;icon-btn header__search-btn&quot; href=&quot;#&quot; aria-label=&quot;Search&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+      &lt;a class=&quot;icon-btn header__lg&quot; href=&quot;#&quot; aria-label=&quot;Theme: match my device&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+      &lt;a class=&quot;btn btn--text header__signin&quot; href=&quot;#&quot;&gt;Sign in&lt;/a&gt;
+      &lt;a class=&quot;btn btn--primary btn--sm header__cta&quot; href=&quot;#&quot;&gt;Create account&lt;/a&gt;
+      &lt;button type=&quot;button&quot; class=&quot;menu-btn&quot; aria-expanded=&quot;false&quot; aria-haspopup=&quot;dialog&quot; aria-label=&quot;Menu&quot;&gt;&lt;svg class=&quot;icon icon--sm&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 7h16M4 12h16M4 17h10&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;menu-btn__label&quot;&gt;Menu&lt;/span&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-5, AC-10, AC-11, AC-12</span><iframe title="360 pixel wide frame, dark theme" width="360" height="120" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;header class=&quot;header&quot;&gt;
+  &lt;div class=&quot;wrap header__inner&quot;&gt;
+    &lt;a class=&quot;brand brand--compact&quot; href=&quot;#&quot; aria-label=&quot;Logos Lab home&quot;&gt;&lt;svg class=&quot;brand__mark&quot; viewBox=&quot;0 0 32 32&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle class=&quot;brand__sun&quot; cx=&quot;25.5&quot; cy=&quot;4.5&quot; r=&quot;2.4&quot;/&gt;&lt;/svg&gt;&lt;span&gt;logos lab&lt;/span&gt;&lt;/a&gt;
+    &lt;nav class=&quot;nav&quot; id=&quot;primary-nav&quot; popover aria-label=&quot;Primary&quot;&gt;
+      &lt;ul class=&quot;nav__list&quot;&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Explore&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Courses&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Events&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Experts&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Collections&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;header__actions&quot;&gt;
+      &lt;form class=&quot;search header__search--wide&quot; role=&quot;search&quot; &gt;
+        &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+        &lt;label class=&quot;vh&quot; for=&quot;site-search&quot;&gt;Search Logos Lab&lt;/label&gt;
+        &lt;input class=&quot;search__input&quot; id=&quot;site-search&quot; name=&quot;q&quot; type=&quot;search&quot; placeholder=&quot;Search Logos Lab&quot; autocomplete=&quot;off&quot;&gt;
+      &lt;/form&gt;
+      &lt;a class=&quot;icon-btn header__search-btn&quot; href=&quot;#&quot; aria-label=&quot;Search&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+      &lt;a class=&quot;icon-btn header__lg&quot; href=&quot;#&quot; aria-label=&quot;Theme: match my device&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+      &lt;a class=&quot;btn btn--text header__signin&quot; href=&quot;#&quot;&gt;Sign in&lt;/a&gt;
+      &lt;a class=&quot;btn btn--primary btn--sm header__cta&quot; href=&quot;#&quot;&gt;Create account&lt;/a&gt;
+      &lt;button type=&quot;button&quot; class=&quot;menu-btn&quot; aria-expanded=&quot;false&quot; aria-haspopup=&quot;dialog&quot; aria-label=&quot;Menu&quot;&gt;&lt;svg class=&quot;icon icon--sm&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 7h16M4 12h16M4 17h10&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;menu-btn__label&quot;&gt;Menu&lt;/span&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-5, AC-10, AC-11, AC-12</span><iframe title="768 pixel wide frame, light theme" width="768" height="120" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;header class=&quot;header&quot;&gt;
+  &lt;div class=&quot;wrap header__inner&quot;&gt;
+    &lt;a class=&quot;brand brand--compact&quot; href=&quot;#&quot; aria-label=&quot;Logos Lab home&quot;&gt;&lt;svg class=&quot;brand__mark&quot; viewBox=&quot;0 0 32 32&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle class=&quot;brand__sun&quot; cx=&quot;25.5&quot; cy=&quot;4.5&quot; r=&quot;2.4&quot;/&gt;&lt;/svg&gt;&lt;span&gt;logos lab&lt;/span&gt;&lt;/a&gt;
+    &lt;nav class=&quot;nav&quot; id=&quot;primary-nav&quot; popover aria-label=&quot;Primary&quot;&gt;
+      &lt;ul class=&quot;nav__list&quot;&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Explore&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Courses&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Events&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Experts&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a class=&quot;nav__link&quot; href=&quot;#&quot;&gt;Collections&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+    &lt;div class=&quot;header__actions&quot;&gt;
+      &lt;form class=&quot;search header__search--wide&quot; role=&quot;search&quot; &gt;
+        &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+        &lt;label class=&quot;vh&quot; for=&quot;site-search&quot;&gt;Search Logos Lab&lt;/label&gt;
+        &lt;input class=&quot;search__input&quot; id=&quot;site-search&quot; name=&quot;q&quot; type=&quot;search&quot; placeholder=&quot;Search Logos Lab&quot; autocomplete=&quot;off&quot;&gt;
+      &lt;/form&gt;
+      &lt;a class=&quot;icon-btn header__search-btn&quot; href=&quot;#&quot; aria-label=&quot;Search&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+      &lt;a class=&quot;icon-btn header__lg&quot; href=&quot;#&quot; aria-label=&quot;Theme: match my device&quot; aria-haspopup=&quot;menu&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z&quot;/&gt;&lt;/svg&gt;&lt;/a&gt;
+      &lt;a class=&quot;btn btn--text header__signin&quot; href=&quot;#&quot;&gt;Sign in&lt;/a&gt;
+      &lt;a class=&quot;btn btn--primary btn--sm header__cta&quot; href=&quot;#&quot;&gt;Create account&lt;/a&gt;
+      &lt;button type=&quot;button&quot; class=&quot;menu-btn&quot; aria-expanded=&quot;false&quot; aria-haspopup=&quot;dialog&quot; aria-label=&quot;Menu&quot;&gt;&lt;svg class=&quot;icon icon--sm&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 7h16M4 12h16M4 17h10&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;menu-btn__label&quot;&gt;Menu&lt;/span&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Links at rest</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Links at rest</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Current link</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Current link</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Current dot</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-canvas" data-min="3"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Current dot</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-canvas" data-min="3"></span></div><div class="ds-pair"><span>Focus</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-canvas" data-min="3"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Focus</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-canvas" data-min="3"></span></div></div><span class="crd-ac">AC-8, AC-9</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Hairline</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr><tr><td>Link</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Current link</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Current dot</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr><tr><td>Menu fill</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>

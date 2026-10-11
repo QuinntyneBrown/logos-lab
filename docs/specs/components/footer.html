@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Footer — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of footer, in light and dark, keyed to the acceptance criteria in footer.md.">
+<meta name="crd:component" content="footer">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Footer</h1>
+    <p class="ds-lead">Policies, help and one sentence about Logos Lab at the end of every page. Requirements: <a href="footer.md">footer.md</a>. Design system: <a href="../../design-system/components/footer.html">footer</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-footer</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-127, L2-130, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Community guidelines</a></li><li><a href="#">Accessibility</a></li><li><a href="#">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer></div><div class="ds-example__caption"><span>Full: public and learner pages. <span class="crd-ac">AC-1</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab · your data is stored in Canada</p>
+  </div>
+</footer></div><div class="ds-example__caption"><span>Quiet: focused flows, admin and moderation. <span class="crd-ac">AC-2</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="#">Privacy</a></li><li><a href="#" data-state="hover">Terms</a></li><li><a href="#">Community guidelines</a></li><li><a href="#" data-state="focus">Accessibility</a></li><li><a href="#">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer></div><div class="ds-example__caption"><span>Forced hover on "Terms" and focus on "Accessibility". <span class="crd-ac">AC-1</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Community guidelines</a></li><li><a href="#">Accessibility</a></li><li><a href="#">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Community guidelines</a></li><li><a href="#">Accessibility</a></li><li><a href="#">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer></div></div><span class="crd-ac">AC-5</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-3, AC-4</span><iframe title="320 pixel wide frame, light theme" width="320" height="420" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;footer class=&quot;footer&quot;&gt;
+  &lt;div class=&quot;wrap footer__grid&quot;&gt;
+    &lt;a class=&quot;brand&quot; href=&quot;#&quot; aria-label=&quot;Logos Lab home&quot;&gt;&lt;svg class=&quot;brand__mark&quot; viewBox=&quot;0 0 32 32&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle class=&quot;brand__sun&quot; cx=&quot;25.5&quot; cy=&quot;4.5&quot; r=&quot;2.4&quot;/&gt;&lt;/svg&gt;&lt;span&gt;logos lab&lt;/span&gt;&lt;/a&gt;
+    &lt;nav aria-label=&quot;Footer&quot;&gt;&lt;ul class=&quot;footer__links&quot;&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Privacy&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Terms&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Community guidelines&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Accessibility&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Cookie settings&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;mailto:help@logoslab.ca&quot;&gt;help@logoslab.ca&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;
+    &lt;p class=&quot;footer__land&quot;&gt;Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-3, AC-4</span><iframe title="360 pixel wide frame, dark theme" width="360" height="420" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;footer class=&quot;footer&quot;&gt;
+  &lt;div class=&quot;wrap footer__grid&quot;&gt;
+    &lt;a class=&quot;brand&quot; href=&quot;#&quot; aria-label=&quot;Logos Lab home&quot;&gt;&lt;svg class=&quot;brand__mark&quot; viewBox=&quot;0 0 32 32&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle class=&quot;brand__sun&quot; cx=&quot;25.5&quot; cy=&quot;4.5&quot; r=&quot;2.4&quot;/&gt;&lt;/svg&gt;&lt;span&gt;logos lab&lt;/span&gt;&lt;/a&gt;
+    &lt;nav aria-label=&quot;Footer&quot;&gt;&lt;ul class=&quot;footer__links&quot;&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Privacy&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Terms&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Community guidelines&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Accessibility&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Cookie settings&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;mailto:help@logoslab.ca&quot;&gt;help@logoslab.ca&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;
+    &lt;p class=&quot;footer__land&quot;&gt;Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-3, AC-4</span><iframe title="768 pixel wide frame, light theme" width="768" height="420" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;footer class=&quot;footer&quot;&gt;
+  &lt;div class=&quot;wrap footer__grid&quot;&gt;
+    &lt;a class=&quot;brand&quot; href=&quot;#&quot; aria-label=&quot;Logos Lab home&quot;&gt;&lt;svg class=&quot;brand__mark&quot; viewBox=&quot;0 0 32 32&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;circle class=&quot;brand__sun&quot; cx=&quot;25.5&quot; cy=&quot;4.5&quot; r=&quot;2.4&quot;/&gt;&lt;/svg&gt;&lt;span&gt;logos lab&lt;/span&gt;&lt;/a&gt;
+    &lt;nav aria-label=&quot;Footer&quot;&gt;&lt;ul class=&quot;footer__links&quot;&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Privacy&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Terms&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Community guidelines&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Accessibility&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#&quot;&gt;Cookie settings&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;mailto:help@logoslab.ca&quot;&gt;help@logoslab.ca&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;
+    &lt;p class=&quot;footer__land&quot;&gt;Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/footer&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Links</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Links</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Land sentence</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Land sentence</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div></div><span class="crd-ac">AC-5</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Rule</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr><tr><td>Links</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Link hover</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Land sentence</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>
