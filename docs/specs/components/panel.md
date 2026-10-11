@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-panel` |
 | Library path | `frontend/projects/components/src/lib/panel/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`panel.html`](../../design-system/components/panel.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/home/signed-in`](../../mocks/pages/home/signed-in.html), [`pages/dashboard/default`](../../mocks/pages/dashboard/default.html), [`pages/course-complete/default`](../../mocks/pages/course-complete/default.html), [`pages/studio/default`](../../mocks/pages/studio/default.html) |

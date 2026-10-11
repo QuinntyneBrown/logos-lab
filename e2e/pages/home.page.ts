@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { AppShell } from './app-shell';
+import { ContentCard } from './content-card';
 
 export class HomePage {
   readonly shell: AppShell;
@@ -9,6 +10,9 @@ export class HomePage {
   readonly heroSearchButton: Locator;
   readonly browseCatalogue: Locator;
   readonly heroPhoto: Locator;
+  readonly featured: Locator;
+  readonly latest: Locator;
+  readonly startPanel: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -20,11 +24,33 @@ export class HomePage {
     this.heroSearchButton = this.hero.getByRole('button', { name: 'Search' });
     this.browseCatalogue = this.hero.getByRole('link', { name: 'Browse the catalogue' });
     this.heroPhoto = this.hero.locator('.photo img');
+    this.featured = page.getByRole('region', { name: 'Featured' });
+    this.latest = page.getByRole('region', { name: 'Latest' });
+    this.startPanel = page.getByRole('region', { name: 'Start with twelve short pieces' });
   }
 
   async open(): Promise<void> {
     await this.page.goto('/');
     await this.heading.waitFor();
+  }
+
+  card(section: Locator, index: number): ContentCard {
+    return new ContentCard(section.locator('article.content-card').nth(index));
+  }
+
+  async cardTitles(section: Locator): Promise<string[]> {
+    return section.locator('.content-card__title').allInnerTexts();
+  }
+
+  seeAll(section: Locator): Locator {
+    return section.locator('.section__more');
+  }
+
+  /** How many columns the section's card grid shows. */
+  async gridColumns(section: Locator): Promise<number> {
+    return section
+      .locator('.content-grid')
+      .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length);
   }
 
   async searchFor(query: string): Promise<void> {

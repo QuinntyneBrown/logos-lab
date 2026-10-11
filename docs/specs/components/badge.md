@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `span[llBadge]` |
 | Library path | `frontend/projects/components/src/lib/badge/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-127, L2-129, L2-134, L2-150 |
 | Design system | [`badge.html`](../../design-system/components/badge.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/my-learning/default`](../../mocks/pages/my-learning/default.html), [`pages/admin-users/default`](../../mocks/pages/admin-users/default.html), [`pages/moderation-queue/default`](../../mocks/pages/moderation-queue/default.html), [`pages/review-queue/default`](../../mocks/pages/review-queue/default.html), [`pages/saved/default`](../../mocks/pages/saved/default.html) |

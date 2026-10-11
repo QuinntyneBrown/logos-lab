@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-content-card` |
 | Library path | `frontend/projects/components/src/lib/content-card/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-071, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 |
 | Design system | [`content-card.html`](../../design-system/components/content-card.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/explore/default`](../../mocks/pages/explore/default.html), [`pages/article-page/default`](../../mocks/pages/article-page/default.html), [`pages/my-learning/default`](../../mocks/pages/my-learning/default.html), [`pages/collection-page/default`](../../mocks/pages/collection-page/default.html), [`pages/saved/default`](../../mocks/pages/saved/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/gone/default`](../../mocks/pages/gone/default.html) |

@@ -1,0 +1,231 @@
+// The content-card block of docs/design-system/assets/components.css (without .content-grid,
+// which lives in the layout foundations: content-card CRD D-2).
+:host {
+  display: contents;
+}
+:host ::ng-deep {
+  .content-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-surface);
+    border: var(--border-width-hairline) solid var(--color-border-default);
+  }
+  .content-card__cover {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    color: var(--color-tile-fg);
+    background: var(--color-tile-oat);
+  }
+  .content-card__cover img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .content-card__glyph {
+    width: var(--size-cover-glyph);
+    height: var(--size-cover-glyph);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .content-card__duration {
+    position: absolute;
+    right: var(--space-3);
+    bottom: var(--space-3);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-xs);
+    background: var(--color-bg-media);
+    color: var(--color-fg-on-media);
+    font: var(--text-caption);
+    font-variant-numeric: tabular-nums;
+  }
+  .content-card__body {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    padding: var(--space-5) var(--space-5) var(--space-6);
+    min-width: 0;
+  }
+  .content-card__type {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: var(--text-overline);
+    letter-spacing: var(--letter-spacing-wide);
+    text-transform: uppercase;
+    color: var(--color-fg-subtle);
+  }
+  .content-card__type .icon {
+    width: var(--space-4);
+    height: var(--space-4);
+  }
+  .content-card__title {
+    font: var(--text-h4);
+    font-size: var(--font-size-lg);
+    overflow-wrap: break-word;
+  }
+  .content-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .content-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .content-card__title a:hover,
+  .content-card__title a[data-state='hover'] {
+    text-decoration: underline;
+  }
+  .content-card__title a:focus-visible {
+    outline: 0;
+  }
+  .content-card:has(.content-card__title a:focus-visible),
+  .content-card:has(.content-card__title a[data-state='focus']) {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .content-card__by {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    font: var(--text-body-sm);
+    color: var(--color-fg-muted);
+  }
+  .content-card__by img,
+  .content-card__by .content-card__mark {
+    flex: none;
+    width: var(--space-6);
+    height: var(--space-6);
+    border-radius: var(--radius-xs);
+    object-fit: cover;
+  }
+  .content-card__mark {
+    display: grid;
+    place-items: center;
+    background: var(--color-tile-oat);
+    color: var(--color-accent);
+  }
+  .content-card__mark svg {
+    width: var(--space-5);
+    height: var(--space-5);
+  }
+  .content-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    font: var(--text-caption);
+    color: var(--color-fg-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .content-card__progress {
+    display: grid;
+    gap: var(--space-2);
+    font: var(--text-caption);
+    color: var(--color-fg-muted);
+  }
+  .content-card__status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .content-card__save {
+    position: absolute;
+    z-index: var(--z-raised);
+    top: var(--space-3);
+    right: var(--space-3);
+    background: var(--color-bg-surface);
+    color: var(--color-fg-default);
+  }
+  .content-card__save:hover,
+  .content-card__save[data-state='hover'] {
+    background: var(--color-bg-surface-raised);
+  }
+  .content-card__save[aria-pressed='true'] {
+    color: var(--color-fg-accent);
+  }
+  .content-card__save[aria-pressed='true'] .icon {
+    fill: currentColor;
+  }
+  .content-card:hover,
+  .content-card[data-state='hover'] {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-3);
+  }
+  .content-card.is-unavailable {
+    background: var(--color-bg-subtle);
+  }
+  .content-card.is-unavailable .content-card__title,
+  .content-card.is-unavailable .content-card__cover {
+    color: var(--color-fg-subtle);
+  }
+  .content-card--row {
+    grid-template-columns: var(--space-32) minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+  .content-card--row .content-card__cover {
+    aspect-ratio: auto;
+    min-height: 100%;
+  }
+  .content-card--row .content-card__body {
+    padding: var(--space-4) var(--space-5);
+  }
+  .content-card--row .content-card__save {
+    top: var(--space-2);
+    right: var(--space-2);
+  }
+  @media (max-width: 29.99rem) {
+    .content-card:not(.content-card--row) .content-card__cover {
+      aspect-ratio: 21 / 9;
+    }
+    .content-card--row {
+      grid-template-columns: var(--space-20) minmax(0, 1fr);
+    }
+    .content-card--row .content-card__glyph {
+      width: var(--space-6);
+      height: var(--space-6);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .content-card {
+      transition:
+        transform var(--duration-base) var(--ease-standard),
+        box-shadow var(--duration-slow) var(--ease-standard),
+        border-color var(--duration-base) var(--ease-standard);
+    }
+    .content-card:hover,
+    .content-card:focus-within {
+      transform: translateY(var(--lift));
+    }
+    .content-card__cover img {
+      transition: scale var(--duration-deliberate) var(--ease-standard);
+    }
+    .content-card:hover .content-card__cover img {
+      scale: 1.03;
+    }
+  }
+  .content-card__topics {
+    position: relative;
+    z-index: var(--z-raised);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    font: var(--text-caption);
+  }
+  .content-card__topics a {
+    color: var(--color-fg-muted);
+  }
+}

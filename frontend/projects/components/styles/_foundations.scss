@@ -351,3 +351,14 @@ a[data-state='hover'] {
 .stack > * {
   min-width: 0;
 }
+
+/* Content grid: pages lay out content cards with it (content-card CRD D-2). */
+.content-grid {
+  display: grid;
+  gap: var(--layout-gutter);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--size-content-card-min)), 1fr));
+}
+.content-grid--rows {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}

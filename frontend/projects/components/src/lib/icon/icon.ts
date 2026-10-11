@@ -4,8 +4,6 @@ import { ICONS } from './icons';
 
 /** Inlines a named line icon into the consumer's own `<svg>`; always decorative. */
 @Component({
-  // The selector rule does not parse SVG hosts; the selector follows the attribute convention.
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'svg[llIcon]',
   templateUrl: './icon.html',
   styleUrl: './icon.scss',

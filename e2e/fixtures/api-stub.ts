@@ -1,4 +1,9 @@
 import type { Page, Request, Route } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+/** Media the API would serve from its CDN: the design system's cast photographs. */
+const PHOTOS = join(__dirname, '../../docs/design-system/assets/photos');
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -29,6 +34,17 @@ export class ApiStub {
 
   async install(): Promise<void> {
     await this.page.route('**/api/v1/**', (route) => this.handle(route));
+    await this.page.route('**/media/*.jpg', async (route) => {
+      const name = new URL(route.request().url()).pathname.split('/').pop() ?? '';
+      try {
+        await route.fulfill({
+          contentType: 'image/jpeg',
+          body: await readFile(join(PHOTOS, name)),
+        });
+      } catch {
+        await route.fulfill({ status: 404 });
+      }
+    });
   }
 
   /** Answer `method path` with `body`. The latest declaration for a path wins. */

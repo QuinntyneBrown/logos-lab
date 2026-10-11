@@ -68,6 +68,20 @@ Logos Lab database.
   `ContentRepository` (`content_items`), `EventRepository` (`events`), `ExpertProfileRepository`
   (`expert_profiles`) and `LearningProgressRepository` (`learning_progress`).
 
+**Logos Lab Web decisions**
+
+- **Start here panel** — the visitor's "Start with twelve short pieces" panel is editorial copy that
+  ships with the page, not API data: the mocks show it unchanged while the sections load.
+- **Card facts** — the page formats each card's facts from `ContentSummary` for the locale (`L2-148`):
+  course — lessons and duration ("24 lessons", "5 h 40 min"); module — duration and "Scored"; video —
+  "Free preview" for a public preview, otherwise its topic (the duration sits on the cover); article —
+  reading time ("12 min read"); collection — item count ("8 items"); event — start and attendance.
+- **Dates and times** — formatted with the platform's `Intl` for the active locale in the viewer's time
+  zone with the zone named ("Tue, Oct 27, 12:00 PM EDT"), as `L2-148` requires, rather than the mocks'
+  hand-written "Tue 27 Oct, 12:00 pm ET".
+- **"See everything"** — the Latest section links to the catalogue without a total, because the home
+  response carries no count.
+
 **Key rules**
 
 - Featured: up to 6 items, in the order the editor set.

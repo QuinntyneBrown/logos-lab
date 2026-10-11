@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-progress-bar` |
 | Library path | `frontend/projects/components/src/lib/progress-bar/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-030, L2-127, L2-129, L2-134 |
 | Design system | [`progress-bar.html`](../../design-system/components/progress-bar.html) |
 | Source mocks | [`pages/home/signed-in`](../../mocks/pages/home/signed-in.html), [`pages/dashboard/default`](../../mocks/pages/dashboard/default.html), [`pages/my-learning/default`](../../mocks/pages/my-learning/default.html), [`pages/course-overview/enrolled`](../../mocks/pages/course-overview/enrolled.html), [`dialogs/avatar-upload/busy`](../../mocks/dialogs/avatar-upload/busy.html) |

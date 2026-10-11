@@ -1,0 +1,118 @@
+// The panel block of docs/design-system/assets/components.css, scoped to this component's
+// subtree so the projected title, text, actions and list take their roles.
+:host {
+  display: contents;
+}
+:host ::ng-deep {
+  .panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-panel);
+    padding: var(--space-12) var(--space-6);
+  }
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--color-grain);
+    opacity: var(--grain-opacity);
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='420'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.11' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.2 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='420'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.11' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.2 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    -webkit-mask-size: var(--grain-tile-width) var(--grain-tile-height);
+    mask-size: var(--grain-tile-width) var(--grain-tile-height);
+  }
+  .panel__grid {
+    display: grid;
+    gap: var(--space-10);
+  }
+  .panel__title {
+    font: var(--text-h2);
+    letter-spacing: var(--letter-spacing-tight);
+    max-width: var(--layout-measure-title);
+  }
+  .panel .eyebrow + .panel__title {
+    margin-top: var(--space-5);
+  }
+  .panel .eyebrow + .panel__list {
+    margin-top: var(--space-4);
+  }
+  .panel__note {
+    font: var(--text-body-sm);
+    color: var(--color-fg-muted);
+  }
+  .panel__text {
+    margin-top: var(--space-5);
+    color: var(--color-fg-muted);
+    max-width: var(--layout-measure-short);
+  }
+  .panel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+  .panel__list {
+    display: grid;
+    gap: var(--space-3);
+    align-content: center;
+  }
+  .panel__item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-1);
+  }
+  .panel__item img {
+    width: var(--space-10);
+    height: var(--space-10);
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+  .panel__item p {
+    font: var(--text-body-sm);
+  }
+  .panel__item strong {
+    display: block;
+    font-weight: var(--font-weight-semibold);
+  }
+  .panel__meta {
+    font: var(--text-caption);
+    color: var(--color-fg-subtle);
+  }
+  .panel--compact {
+    padding: var(--space-8) var(--space-6);
+  }
+  @media (min-width: 64rem) {
+    .panel {
+      padding: var(--space-20) var(--space-16);
+    }
+    .panel--compact {
+      padding: var(--space-10);
+    }
+    .panel__grid {
+      grid-template-columns: 1.2fr 1fr;
+      align-items: center;
+      gap: var(--space-20);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .panel__item {
+      transition:
+        transform var(--duration-base) var(--ease-standard),
+        box-shadow var(--duration-slow) var(--ease-standard);
+    }
+    .panel__item:hover {
+      transform: translateY(var(--lift));
+      box-shadow: var(--shadow-2);
+    }
+  }
+}

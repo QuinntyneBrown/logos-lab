@@ -44,4 +44,102 @@
       </figcaption>
     </figure>
   </ll-hero>
+
+  <section class="section home__first" aria-labelledby="featured-title">
+    <div class="section__head">
+      <p class="eyebrow" i18n="@@home.featured.eyebrow">Chosen by our editors</p>
+      <h2 class="section__title" id="featured-title" i18n="@@home.featured.title">Featured</h2>
+      <a class="section__more" routerLink="/explore"
+        ><ng-container i18n="@@home.featured.more">Explore everything</ng-container>
+        <svg llIcon name="arrow-right" size="sm"></svg
+      ></a>
+    </div>
+    <div class="content-grid">
+      @for (card of featured(); track card.id) {
+        <ll-content-card
+          [type]="card.type"
+          [typeLabel]="card.typeLabel"
+          [title]="card.title"
+          [path]="card.path"
+          [author]="card.author"
+          [meta]="card.meta"
+          [duration]="card.duration"
+          [coverUrl]="card.coverUrl"
+        />
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="start-title">
+    <ll-panel>
+      <p class="eyebrow" i18n="@@home.start.eyebrow">New to Logos Lab</p>
+      <h2 class="panel__title" id="start-title" i18n="@@home.start.title">
+        Start with twelve short pieces
+      </h2>
+      <p class="panel__text" i18n="@@home.start.text">
+        Start Here: Faith and AI walks through the questions people ask first, in about three hours,
+        at your own pace.
+      </p>
+      <div class="panel__actions">
+        <a
+          llButton
+          variant="primary"
+          routerLink="/collections/start-here-faith-and-ai"
+          i18n="@@home.start.action"
+          >Open the collection</a
+        >
+      </div>
+      <ul class="panel__list" slot="list">
+        <li class="panel__item">
+          <img src="images/start-here/daniel-reyes.jpg" alt="" width="40" height="40" />
+          <p>
+            <strong>Inside a Neural Network in Ten Minutes</strong
+            ><span class="panel__meta" i18n="@@home.start.item1">Video · 10:12</span>
+          </p>
+          <span class="panel__meta">1</span>
+        </li>
+        <li class="panel__item">
+          <img src="images/start-here/amara-osei.jpg" alt="" width="40" height="40" />
+          <p>
+            <strong>Sabbath for the Always-On Mind</strong
+            ><span class="panel__meta" i18n="@@home.start.item2">Article · 8 min</span>
+          </p>
+          <span class="panel__meta">2</span>
+        </li>
+        <li class="panel__item">
+          <img src="images/start-here/peter-walsh.jpg" alt="" width="40" height="40" />
+          <p>
+            <strong>Case Study: The Chatbot Chaplain</strong
+            ><span class="panel__meta" i18n="@@home.start.item3">Module · 25 min</span>
+          </p>
+          <span class="panel__meta">3</span>
+        </li>
+      </ul>
+    </ll-panel>
+  </section>
+
+  <section class="section" aria-labelledby="latest-title">
+    <div class="section__head">
+      <p class="eyebrow" i18n="@@home.latest.eyebrow">Newest first</p>
+      <h2 class="section__title" id="latest-title" i18n="@@home.latest.title">Latest</h2>
+      <a class="section__more" routerLink="/explore"
+        ><ng-container i18n="@@home.latest.more">See everything</ng-container>
+        <svg llIcon name="arrow-right" size="sm"></svg
+      ></a>
+    </div>
+    <div class="content-grid">
+      @for (card of latest(); track card.id) {
+        <ll-content-card
+          [type]="card.type"
+          [typeLabel]="card.typeLabel"
+          [title]="card.title"
+          [path]="card.path"
+          [author]="card.author"
+          [meta]="card.meta"
+          [duration]="card.duration"
+          [coverUrl]="card.coverUrl"
+        />
+      }
+    </div>
+  </section>
 </div>
