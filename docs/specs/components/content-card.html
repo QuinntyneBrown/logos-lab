@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content card — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of content card, in light and dark, keyed to the acceptance criteria in content-card.md.">
+<meta name="crd:component" content="content-card">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Content card</h1>
+    <p class="ds-lead">One published item: cover, type, title, author and facts; in grids and as rows. Requirements: <a href="content-card.md">content-card.md</a>. Design system: <a href="../../design-system/components/content-card.html">content-card</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-content-card</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-001, L2-071, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid">
+        <article class="content-card">
+          <div class="content-card__cover tile--sage"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Course</p>
+            <h3 class="content-card__title"><a href="#">Imago Dei in an Age of Machines</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p>
+            <p class="content-card__meta"><span>24 lessons</span><span>5 h 40 min</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--fjord"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m10.5 9.5 4 2.5-4 2.5z"/></svg><span class="content-card__duration">24:18</span></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Video</p>
+            <h3 class="content-card__title"><a href="#">Can a Machine Pray?</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/marcus-bennett.jpg" alt="">Prof. Simon Keller</p>
+            <p class="content-card__meta"><span>Philosophy of mind</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--clay"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Article</p>
+            <h3 class="content-card__title"><a href="#">What Augustine Might Say About Large Language Models</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/ruth-alvarez.jpg" alt="">Dr. Lucía Ortega</p>
+            <p class="content-card__meta"><span>12 min read</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--oat"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Collection</p>
+            <h3 class="content-card__title"><a href="#">AI in the Pulpit</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt="">Rev. Dr. Thomas Hale</p>
+            <p class="content-card__meta"><span>8 items</span></p>
+          </div>
+        </article>
+      </div><div class="ds-example__caption"><span>Card grid: course, video with duration, article, collection. <span class="crd-ac">AC-1, AC-2, AC-4, AC-11</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid"><article class="content-card"><div class="content-card__cover tile--fjord"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m10.5 9.5 4 2.5-4 2.5z"/></svg><span class="content-card__duration">31:05</span></div><button type="button" class="icon-btn content-card__save" aria-pressed="false" aria-label="Save Augustine and the Algorithm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16.5l-5-3.5-5 3.5z"/></svg></button><div class="content-card__body"><p class="content-card__type">Video</p><h3 class="content-card__title"><a href="#">Augustine and the Algorithm</a></h3><p class="content-card__by"><img src="../../mocks/assets/photos/ruth-alvarez.jpg" alt="">Dr. Lucía Ortega</p><p class="content-card__meta"><span>Theology of technology</span></p></div></article><article class="content-card"><div class="content-card__cover tile--clay"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div><button type="button" class="icon-btn content-card__save" aria-pressed="true" aria-label="Saved: Sabbath for the Always-On Mind"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16.5l-5-3.5-5 3.5z"/></svg></button><div class="content-card__body"><p class="content-card__type">Article</p><h3 class="content-card__title"><a href="#">Sabbath for the Always-On Mind</a></h3><p class="content-card__by"><img src="../../mocks/assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p><p class="content-card__meta"><span>8 min read</span></p></div></article></div></div><div class="ds-example__caption"><span>Save toggle: not saved and saved. <span class="crd-ac">AC-5, AC-12</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid content-grid--rows"><article class="content-card content-card--row"><div class="content-card__cover tile--sage"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></div><div class="content-card__body"><p class="content-card__type">Course</p><h3 class="content-card__title"><a href="#">Imago Dei in an Age of Machines</a></h3><p class="content-card__by"><img src="../../mocks/assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p><div class="content-card__progress"><div class="progress" role="progressbar" aria-label="Course progress: 42%" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" style="--ll-progress-value: 42%"><div class="progress__bar"></div></div><span>42% · 10 of 24 lessons · Next: 3.2 Representing, not resembling · Opened today, 9:58 am</span></div></div></article><article class="content-card content-card--row"><div class="content-card__cover tile--clay"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div><div class="content-card__body"><p class="content-card__type">1 · Article</p><h3 class="content-card__title"><a href="#">Five Questions to Ask Before Your Church Adopts AI</a></h3><p class="content-card__by"><span class="content-card__mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Logos Lab</p><p class="content-card__meta"><span>6 min read</span></p><p class="content-card__status"><span class="badge badge--success"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Completed</span></p></div></article></div></div><div class="ds-example__caption"><span>Rows: in progress, completed. <span class="crd-ac">AC-7</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid"><article class="content-card is-unavailable"><div class="content-card__cover"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div><div class="content-card__body"><p class="content-card__type">Article</p><h3 class="content-card__title">Notes Toward a Digital Liturgy</h3><p class="content-card__status"><span class="badge">No longer available</span></p><p class="content-card__meta"><span>Archived by its author on 9 Oct 2026</span></p><a class="btn btn--text btn--sm" href="default.html">Remove from Saved</a></div></article></div></div><div class="ds-example__caption"><span>Unavailable saved item. <span class="crd-ac">AC-6</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid"><article class="content-card" data-state="hover"><div class="content-card__cover tile--fjord"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m10.5 9.5 4 2.5-4 2.5z"/></svg><span class="content-card__duration">31:05</span></div><button type="button" class="icon-btn content-card__save" aria-pressed="false" aria-label="Save Augustine and the Algorithm"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16.5l-5-3.5-5 3.5z"/></svg></button><div class="content-card__body"><p class="content-card__type">Video</p><h3 class="content-card__title"><a href="#">Augustine and the Algorithm</a></h3><p class="content-card__by"><img src="../../mocks/assets/photos/ruth-alvarez.jpg" alt="">Dr. Lucía Ortega</p><p class="content-card__meta"><span>Theology of technology</span></p></div></article><article class="content-card"><div class="content-card__cover tile--clay"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div><button type="button" class="icon-btn content-card__save" aria-pressed="true" aria-label="Saved: Sabbath for the Always-On Mind"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16.5l-5-3.5-5 3.5z"/></svg></button><div class="content-card__body"><p class="content-card__type">Article</p><h3 class="content-card__title"><a href="#" data-state="focus">Sabbath for the Always-On Mind</a></h3><p class="content-card__by"><img src="../../mocks/assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p><p class="content-card__meta"><span>8 min read</span></p></div></article></div></div><div class="ds-example__caption"><span>Hover and focus (the ring surrounds the card). <span class="crd-ac">AC-8, AC-14</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid">
+        <article class="content-card">
+          <div class="content-card__cover tile--sage"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Course</p>
+            <h3 class="content-card__title"><a href="#">Imago Dei in an Age of Machines</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p>
+            <p class="content-card__meta"><span>24 lessons</span><span>5 h 40 min</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--fjord"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m10.5 9.5 4 2.5-4 2.5z"/></svg><span class="content-card__duration">24:18</span></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Video</p>
+            <h3 class="content-card__title"><a href="#">Can a Machine Pray?</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/marcus-bennett.jpg" alt="">Prof. Simon Keller</p>
+            <p class="content-card__meta"><span>Philosophy of mind</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--clay"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Article</p>
+            <h3 class="content-card__title"><a href="#">What Augustine Might Say About Large Language Models</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/ruth-alvarez.jpg" alt="">Dr. Lucía Ortega</p>
+            <p class="content-card__meta"><span>12 min read</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--oat"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Collection</p>
+            <h3 class="content-card__title"><a href="#">AI in the Pulpit</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt="">Rev. Dr. Thomas Hale</p>
+            <p class="content-card__meta"><span>8 items</span></p>
+          </div>
+        </article>
+      </div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div class="content-grid">
+        <article class="content-card">
+          <div class="content-card__cover tile--sage"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Course</p>
+            <h3 class="content-card__title"><a href="#">Imago Dei in an Age of Machines</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p>
+            <p class="content-card__meta"><span>24 lessons</span><span>5 h 40 min</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--fjord"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m10.5 9.5 4 2.5-4 2.5z"/></svg><span class="content-card__duration">24:18</span></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Video</p>
+            <h3 class="content-card__title"><a href="#">Can a Machine Pray?</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/marcus-bennett.jpg" alt="">Prof. Simon Keller</p>
+            <p class="content-card__meta"><span>Philosophy of mind</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--clay"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Article</p>
+            <h3 class="content-card__title"><a href="#">What Augustine Might Say About Large Language Models</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/ruth-alvarez.jpg" alt="">Dr. Lucía Ortega</p>
+            <p class="content-card__meta"><span>12 min read</span></p>
+          </div>
+        </article>
+        <article class="content-card">
+          <div class="content-card__cover tile--oat"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg></div>
+          <div class="content-card__body">
+            <p class="content-card__type">Collection</p>
+            <h3 class="content-card__title"><a href="#">AI in the Pulpit</a></h3>
+            <p class="content-card__by"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt="">Rev. Dr. Thomas Hale</p>
+            <p class="content-card__meta"><span>8 items</span></p>
+          </div>
+        </article>
+      </div></div><span class="crd-ac">AC-3, AC-9, AC-10</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-11, AC-13</span><iframe title="320 pixel wide frame, light theme" width="320" height="900" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block:12px&quot;&gt;&lt;div class=&quot;content-grid&quot;&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--sage&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Course&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;Imago Dei in an Age of Machines&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/amara-osei.jpg&quot; alt=&quot;&quot;&gt;Dr. Abena Mensah&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;24 lessons&lt;/span&gt;&lt;span&gt;5 h 40 min&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--fjord&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;3.5&quot; y=&quot;5.5&quot; width=&quot;17&quot; height=&quot;13&quot; rx=&quot;2.5&quot;/&gt;&lt;path d=&quot;m10.5 9.5 4 2.5-4 2.5z&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;content-card__duration&quot;&gt;24:18&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Video&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;Can a Machine Pray?&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/marcus-bennett.jpg&quot; alt=&quot;&quot;&gt;Prof. Simon Keller&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;Philosophy of mind&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--clay&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M6.5 3.5h8l3 3v14h-11z&quot;/&gt;&lt;path d=&quot;M9 11h6M9 14.5h6M9 18h3.5&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Article&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;What Augustine Might Say About Large Language Models&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/ruth-alvarez.jpg&quot; alt=&quot;&quot;&gt;Dr. Lucía Ortega&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;12 min read&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--oat&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 8.5 12 4l8 4.5-8 4.5z&quot;/&gt;&lt;path d=&quot;m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Collection&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;AI in the Pulpit&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/peter-walsh.jpg&quot; alt=&quot;&quot;&gt;Rev. Dr. Thomas Hale&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;8 items&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+      &lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-11, AC-13</span><iframe title="360 pixel wide frame, dark theme" width="360" height="900" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block:12px&quot;&gt;&lt;div class=&quot;content-grid&quot;&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--sage&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Course&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;Imago Dei in an Age of Machines&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/amara-osei.jpg&quot; alt=&quot;&quot;&gt;Dr. Abena Mensah&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;24 lessons&lt;/span&gt;&lt;span&gt;5 h 40 min&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--fjord&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;3.5&quot; y=&quot;5.5&quot; width=&quot;17&quot; height=&quot;13&quot; rx=&quot;2.5&quot;/&gt;&lt;path d=&quot;m10.5 9.5 4 2.5-4 2.5z&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;content-card__duration&quot;&gt;24:18&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Video&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;Can a Machine Pray?&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/marcus-bennett.jpg&quot; alt=&quot;&quot;&gt;Prof. Simon Keller&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;Philosophy of mind&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--clay&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M6.5 3.5h8l3 3v14h-11z&quot;/&gt;&lt;path d=&quot;M9 11h6M9 14.5h6M9 18h3.5&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Article&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;What Augustine Might Say About Large Language Models&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/ruth-alvarez.jpg&quot; alt=&quot;&quot;&gt;Dr. Lucía Ortega&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;12 min read&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--oat&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 8.5 12 4l8 4.5-8 4.5z&quot;/&gt;&lt;path d=&quot;m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Collection&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;AI in the Pulpit&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/peter-walsh.jpg&quot; alt=&quot;&quot;&gt;Rev. Dr. Thomas Hale&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;8 items&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+      &lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-11, AC-13</span><iframe title="768 pixel wide frame, light theme" width="768" height="900" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block:12px&quot;&gt;&lt;div class=&quot;content-grid&quot;&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--sage&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Course&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;Imago Dei in an Age of Machines&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/amara-osei.jpg&quot; alt=&quot;&quot;&gt;Dr. Abena Mensah&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;24 lessons&lt;/span&gt;&lt;span&gt;5 h 40 min&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--fjord&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;3.5&quot; y=&quot;5.5&quot; width=&quot;17&quot; height=&quot;13&quot; rx=&quot;2.5&quot;/&gt;&lt;path d=&quot;m10.5 9.5 4 2.5-4 2.5z&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;content-card__duration&quot;&gt;24:18&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Video&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;Can a Machine Pray?&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/marcus-bennett.jpg&quot; alt=&quot;&quot;&gt;Prof. Simon Keller&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;Philosophy of mind&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--clay&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M6.5 3.5h8l3 3v14h-11z&quot;/&gt;&lt;path d=&quot;M9 11h6M9 14.5h6M9 18h3.5&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Article&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;What Augustine Might Say About Large Language Models&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/ruth-alvarez.jpg&quot; alt=&quot;&quot;&gt;Dr. Lucía Ortega&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;12 min read&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+        &lt;article class=&quot;content-card&quot;&gt;
+          &lt;div class=&quot;content-card__cover tile--oat&quot;&gt;&lt;svg class=&quot;content-card__glyph&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 8.5 12 4l8 4.5-8 4.5z&quot;/&gt;&lt;path d=&quot;m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+          &lt;div class=&quot;content-card__body&quot;&gt;
+            &lt;p class=&quot;content-card__type&quot;&gt;Collection&lt;/p&gt;
+            &lt;h3 class=&quot;content-card__title&quot;&gt;&lt;a href=&quot;#&quot;&gt;AI in the Pulpit&lt;/a&gt;&lt;/h3&gt;
+            &lt;p class=&quot;content-card__by&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/peter-walsh.jpg&quot; alt=&quot;&quot;&gt;Rev. Dr. Thomas Hale&lt;/p&gt;
+            &lt;p class=&quot;content-card__meta&quot;&gt;&lt;span&gt;8 items&lt;/span&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+      &lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Type and meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Type and meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Duration</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-media|--color-bg-media" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Duration</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-media|--color-bg-media" data-min="4.5"></span></div><div class="ds-pair"><span>Glyph</span><span class="ds-pair__ratio" data-contrast="--color-tile-fg|--color-tile-sage" data-min="3"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Glyph</span><span class="ds-pair__ratio" data-contrast="--color-tile-fg|--color-tile-sage" data-min="3"></span></div></div><span class="crd-ac">AC-9, AC-10</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Card</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr><tr><td>Border</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr><tr><td>Sage tile</td><td><code>--color-tile-sage</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-tile-sage" data-swatch></i><span data-token="--color-tile-sage"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-tile-sage" data-swatch></i><span data-token="--color-tile-sage"></span></span></td></tr><tr><td>Fjord tile</td><td><code>--color-tile-fjord</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-tile-fjord" data-swatch></i><span data-token="--color-tile-fjord"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-tile-fjord" data-swatch></i><span data-token="--color-tile-fjord"></span></span></td></tr><tr><td>Clay tile</td><td><code>--color-tile-clay</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-tile-clay" data-swatch></i><span data-token="--color-tile-clay"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-tile-clay" data-swatch></i><span data-token="--color-tile-clay"></span></span></td></tr><tr><td>Oat tile</td><td><code>--color-tile-oat</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-tile-oat" data-swatch></i><span data-token="--color-tile-oat"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-tile-oat" data-swatch></i><span data-token="--color-tile-oat"></span></span></td></tr><tr><td>Glyph</td><td><code>--color-tile-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-tile-fg" data-swatch></i><span data-token="--color-tile-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-tile-fg" data-swatch></i><span data-token="--color-tile-fg"></span></span></td></tr><tr><td>Meta</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>
