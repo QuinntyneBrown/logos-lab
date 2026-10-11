@@ -24,7 +24,8 @@ The slice runs from the registration page to the database and the email provider
 - The form shows the rules up front: display name 2 to 50 characters, password 12 to 128 characters. The "Email me Platform news" box renders unchecked and is optional.
 - The `success` state asks the visitor to check their email. It looks the same whether or not the address already had an account.
 - Submitting shows "Creating your account…" on a busy button. A `202` replaces the form with "Check your email", naming the address, with "Wrong address? Start again" to return to an empty form. The mock's "Send the email again" needs an anonymous resend for an address that has no session or token. `POST /api/v1/auth/email-verifications/resend` accepts neither, so the endpoint is `<TO SUPPLY>`, and the page leaves the button out until it exists.
-- The `rate-limited` state reads the wait time from the `Retry-After` header and keeps the form as typed.
+- A `422` lists field errors as `errors: [{ field, code }]`, with `field` one of `displayName`, `email`, `password` or `acceptedTerms`. The page shows the matching message on the field and in the summary. For `password` / `breached` that is "This password has appeared in a data breach. Choose a different one." A `422` the page cannot map, and any other failure, shows the danger alert "We couldn't create your account just now", and the form keeps what was typed.
+- The `rate-limited` state reads the wait time from the `Retry-After` header and keeps the form as typed. The warning alert "Too many attempts from this connection" names the time the pause ends. The form is disabled until then and reopens by itself.
 
 **API contract (shared API library)**
 

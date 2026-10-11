@@ -41,6 +41,35 @@
         Enrol in courses, save what you want to come back to and join the conversation.
       </p>
     </div>
+    @if (failure(); as failure) {
+      @switch (failure.kind) {
+        @case ('paused') {
+          <ll-alert
+            tone="warning"
+            heading="Too many attempts from this connection"
+            i18n-heading="@@register.paused.title"
+          >
+            <ng-container i18n="@@register.paused.body"
+              >We've paused new accounts from this connection for 10 minutes to stop automated
+              sign-ups. What you typed is kept. Try again at
+              {{ time(failure.until) }}.</ng-container
+            >
+          </ll-alert>
+        }
+        @case ('unavailable') {
+          <ll-alert
+            tone="danger"
+            heading="We couldn't create your account just now"
+            i18n-heading="@@register.unavailable.title"
+          >
+            <ng-container i18n="@@register.unavailable.body"
+              >Something went wrong on our side and nothing was saved. Try again in a minute; if it
+              keeps happening, write to help&#64;logoslab.ca.</ng-container
+            >
+          </ll-alert>
+        }
+      }
+    }
     <form llForm (submit)="$event.preventDefault(); submit()">
       @if (errors().length) {
         <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
@@ -61,6 +90,7 @@
           type="text"
           autocomplete="name"
           required
+          [disabled]="paused()"
           maxlength="50"
           (input)="name.set($any($event.target).value)"
         />
@@ -82,6 +112,7 @@
           autocomplete="email"
           inputmode="email"
           required
+          [disabled]="paused()"
           (input)="email.set($any($event.target).value)"
         />
       </ll-form-field>
@@ -102,6 +133,7 @@
             [type]="passwordShown() ? 'text' : 'password'"
             autocomplete="new-password"
             required
+            [disabled]="paused()"
             minlength="12"
             maxlength="128"
             (input)="password.set($any($event.target).value)"
@@ -111,6 +143,7 @@
             variant="quiet"
             type="button"
             aria-controls="password"
+            [disabled]="paused()"
             [pressed]="passwordShown()"
             (click)="passwordShown.set(!passwordShown())"
             i18n="@@register.show"
@@ -127,6 +160,7 @@
             id="terms"
             name="terms"
             required
+            [disabled]="paused()"
             (change)="terms.set($any($event.target).checked)"
           /><span i18n="@@register.terms"
             >I accept the Terms of Use and the Privacy Policy</span
@@ -145,6 +179,7 @@
             type="checkbox"
             id="news"
             name="news"
+            [disabled]="paused()"
             aria-describedby="news-desc"
             (change)="news.set($any($event.target).checked)"
           /><span class="check__text"
@@ -161,7 +196,15 @@
           ></label
         >
       </ll-form-field>
-      <button llButton variant="primary" size="lg" block type="submit" [busy]="busy()">
+      <button
+        llButton
+        variant="primary"
+        size="lg"
+        block
+        type="submit"
+        [busy]="busy()"
+        [disabled]="paused()"
+      >
         @if (busy()) {
           <ng-container i18n="@@register.submitting">Creating your account…</ng-container>
         } @else {

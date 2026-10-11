@@ -68,6 +68,10 @@ export class RegisterPage {
     return this.card.locator('.auth__sub');
   }
 
+  alertTitle(): Locator {
+    return this.alert.locator('.alert__title');
+  }
+
   summaryLinks(): Locator {
     return this.summary.getByRole('link');
   }

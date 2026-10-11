@@ -186,3 +186,78 @@ test.describe('Registering', () => {
     await expect(register.terms).not.toBeChecked();
   });
 });
+
+test.describe('Registration failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  const details = {
+    name: 'Miriam Clarke',
+    email: 'miriam.clarke@example.ca',
+    password: 'quiet-harbour-at-dawn',
+    terms: true,
+  };
+
+  // L2-006 AC3
+  test('a breached password is refused on the field', async ({ page, api }) => {
+    api.fail('POST', '/auth/registrations', 422, 'validation-failed', {
+      errors: [{ field: 'password', code: 'breached' }],
+    });
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill(details);
+
+    await register.create();
+
+    await expect(register.summary).toBeFocused();
+    await expect(register.summary.getByRole('heading')).toHaveText(
+      'One thing to fix before you can create your account',
+    );
+    await expect(register.errorFor('password')).toHaveText(
+      'This password has appeared in a data breach. Choose a different one.',
+    );
+    await expect(register.password).toHaveAttribute('aria-invalid', 'true');
+    await expect(register.submit).toHaveText('Create account');
+  });
+
+  // L2-006 AC7
+  test('too many attempts pause the form, keep what was typed, then reopen it', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.install({ time: new Date('2026-10-11T14:24:00Z') });
+    api.fail('POST', '/auth/registrations', 429, 'too-many-requests', {}, { 'Retry-After': '600' });
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill(details);
+
+    await register.create();
+
+    await expect(register.alertTitle()).toHaveText('Too many attempts from this connection');
+    await expect(register.alert).toHaveAttribute('role', 'status');
+    await expect(register.alert).toContainText('Try again at 10:34 AM EDT.');
+    await expect(register.name).toBeDisabled();
+    await expect(register.name).toHaveValue('Miriam Clarke');
+    await expect(register.terms).toBeDisabled();
+    await expect(register.terms).toBeChecked();
+    await expect(register.submit).toBeDisabled();
+
+    await page.clock.runFor('10:01');
+
+    await expect(register.alert).toHaveCount(0);
+    await expect(register.submit).toBeEnabled();
+  });
+
+  test('a server failure says nothing was saved and keeps the form', async ({ page, api }) => {
+    api.fail('POST', '/auth/registrations', 500);
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill(details);
+
+    await register.create();
+
+    await expect(register.alertTitle()).toHaveText("We couldn't create your account just now");
+    await expect(register.alert).toHaveAttribute('role', 'alert');
+    await expect(register.email).toHaveValue('miriam.clarke@example.ca');
+    await expect(register.submit).toBeEnabled();
+  });
+});
