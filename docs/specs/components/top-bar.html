@@ -91,7 +91,44 @@
       <a class="btn btn--text btn--sm" href="#">Create account</a>
     </div>
   </div>
-</header></div><div class="ds-example__caption"><span>Minimal bar for focused flows: full brand and one action, no navigation. <span class="crd-ac">AC-4</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+</header></div><div class="ds-example__caption"><span>Minimal bar for focused flows: full brand and one action, no navigation. <span class="crd-ac">AC-4</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="#">Explore</a></li>
+        <li><a class="nav__link" href="#">Courses</a></li>
+        <li><a class="nav__link" href="#">Events</a></li>
+        <li><a class="nav__link" href="#">Experts</a></li>
+        <li><a class="nav__link" href="#">Collections</a></li>
+      </ul>
+    </nav>
+    <div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="imag" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off" aria-activedescendant="sg-1">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for imag">
+<li class="combobox__group" role="presentation">Courses</li>
+<li role="presentation"><a class="combobox__option" id="sg-1" role="option" aria-selected="true" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg><span class="combobox__text"><mark>Imag</mark>o Dei in an Age of Machines</span><span class="combobox__meta">Course</span></a></li>
+<li class="combobox__group" role="presentation">Experts</li>
+<li role="presentation"><a class="combobox__option" id="sg-2" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3"/></svg><span class="combobox__text">Dr. Abena Mensah</span><span class="combobox__meta">Expert</span></a></li>
+<li class="combobox__group" role="presentation">Topics</li>
+<li role="presentation"><a class="combobox__option" id="sg-3" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg><span class="combobox__text">The <mark>imag</mark>e of God and personhood</span><span class="combobox__meta">28 items</span></a></li>
+<li class="combobox__foot" role="option" aria-selected="false" id="sg-all">See all results for “imag”</li>
+      </ul>
+      <p class="vh" aria-live="polite">3 suggestions. Use the up and down arrows to move through them.</p>
+      
+    </div>
+    <div class="header__actions">
+      <a class="icon-btn header__lg" href="#" aria-label="Theme: match my device" aria-haspopup="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10z"/></svg></a>
+      <a class="btn btn--text header__signin" href="#">Sign in</a>
+      <a class="btn btn--primary btn--sm header__cta" href="#">Create account</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-haspopup="dialog" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header></div><div class="ds-example__caption"><span>With search: the search row and its suggestions (below XL, opened from the search icon). <span class="crd-ac">AC-14, AC-15</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><header class="header">
   <div class="wrap header__inner">
     <a class="brand brand--compact" href="#" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
     <nav class="nav" id="primary-nav" popover aria-label="Primary">

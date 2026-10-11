@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combobox — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of combobox, in light and dark, keyed to the acceptance criteria in combobox.md.">
+<meta name="crd:component" content="combobox">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Combobox</h1>
+    <p class="ds-lead">The site search with suggestions as you type. Requirements: <a href="combobox.md">combobox.md</a>. Design system: <a href="../../design-system/components/combobox.html">combobox</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-combobox</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-003, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem;min-height:24rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="imag" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off" aria-activedescendant="sg-1">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for imag">
+<li class="combobox__group" role="presentation">Courses</li>
+<li role="presentation"><a class="combobox__option" id="sg-1" role="option" aria-selected="true" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg><span class="combobox__text"><mark>Imag</mark>o Dei in an Age of Machines</span><span class="combobox__meta">Course</span></a></li>
+<li class="combobox__group" role="presentation">Experts</li>
+<li role="presentation"><a class="combobox__option" id="sg-2" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3"/></svg><span class="combobox__text">Dr. Abena Mensah</span><span class="combobox__meta">Expert</span></a></li>
+<li class="combobox__group" role="presentation">Topics</li>
+<li role="presentation"><a class="combobox__option" id="sg-3" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg><span class="combobox__text">The <mark>imag</mark>e of God and personhood</span><span class="combobox__meta">28 items</span></a></li>
+<li class="combobox__foot" role="option" aria-selected="false" id="sg-all">See all results for “imag”</li>
+      </ul>
+      <p class="vh" aria-live="polite">3 suggestions. Use the up and down arrows to move through them.</p>
+      
+    </div>
+    </div></div><div class="ds-example__caption"><span>Open: grouped suggestions, the first active, and the foot. <span class="crd-ac">AC-1, AC-2, AC-7, AC-12</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem;min-height:10rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="imag" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for imag" aria-busy="true">
+<li class="combobox__status" role="presentation"><span class="spinner" aria-hidden="true"></span>Searching…</li>
+      </ul>
+      <p class="vh" aria-live="polite">Searching…</p>
+    </div>
+    </div></div><div class="ds-example__caption"><span>Busy: "Searching…". <span class="crd-ac">AC-3</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem;min-height:10rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="i" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off" aria-invalid="true" aria-describedby="sg-status">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for i">
+<li class="combobox__status" role="presentation" id="sg-status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Enter at least 2 characters.</li>
+      </ul>
+      <p class="vh" aria-live="polite">Enter at least 2 characters.</p>
+    </div>
+    </div></div><div class="ds-example__caption"><span>Invalid: fewer than 2 characters. <span class="crd-ac">AC-4</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem;min-height:12rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="liturgy" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for liturgy">
+<li class="combobox__status" role="presentation">No courses, experts or topics match “liturgy”.</li>
+<li class="combobox__foot" role="option" aria-selected="false" id="sg-all">Search for “liturgy”</li>
+      </ul>
+      <p class="vh" aria-live="polite">No suggestions. Press Enter to search for liturgy.</p>
+    </div>
+    </div></div><div class="ds-example__caption"><span>Empty: no matches, search anyway. <span class="crd-ac">AC-5</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem;min-height:10rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="imag" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for imag">
+<li class="combobox__status combobox__status--danger" role="presentation"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Suggestions aren’t available right now. Press Enter to search.</li>
+      </ul>
+      <p class="vh" aria-live="polite">Suggestions aren’t available right now. Press Enter to search.</p>
+    </div>
+    </div></div><div class="ds-example__caption"><span>Failed: suggestions unavailable. <span class="crd-ac">AC-6</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem;min-height:16rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="How should a small rural congregation use AI to draft sermons, prayers for the weekly bulletin and the replies to pastoral emails without losing the personal care and presence that ministry depends on" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off" aria-describedby="sg-status">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for How should a small rural congregation us">
+<li class="combobox__status" role="presentation" id="sg-status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Searches can be up to 200 characters, so the field stops there.</li>
+<li class="combobox__foot" role="option" aria-selected="false" id="sg-all">See all results for “How should a small rural congregation use AI to draft sermons, prayers for the weekly bulletin and the replies to pastoral emails without losing the personal care and presence that ministry depends on”</li>
+      </ul>
+      <p class="vh" aria-live="polite">200 of 200 characters.</p>
+    </div>
+    </div></div><div class="ds-example__caption"><span>Limit: 200 characters. <span class="crd-ac">AC-8, AC-13</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div style="max-width:30rem;min-height:24rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="imag" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off" aria-activedescendant="sg-1">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for imag">
+<li class="combobox__group" role="presentation">Courses</li>
+<li role="presentation"><a class="combobox__option" id="sg-1" role="option" aria-selected="true" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg><span class="combobox__text"><mark>Imag</mark>o Dei in an Age of Machines</span><span class="combobox__meta">Course</span></a></li>
+<li class="combobox__group" role="presentation">Experts</li>
+<li role="presentation"><a class="combobox__option" id="sg-2" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3"/></svg><span class="combobox__text">Dr. Abena Mensah</span><span class="combobox__meta">Expert</span></a></li>
+<li class="combobox__group" role="presentation">Topics</li>
+<li role="presentation"><a class="combobox__option" id="sg-3" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg><span class="combobox__text">The <mark>imag</mark>e of God and personhood</span><span class="combobox__meta">28 items</span></a></li>
+<li class="combobox__foot" role="option" aria-selected="false" id="sg-all">See all results for “imag”</li>
+      </ul>
+      <p class="vh" aria-live="polite">3 suggestions. Use the up and down arrows to move through them.</p>
+      
+    </div>
+    </div></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div style="max-width:30rem;min-height:24rem"><div class="combobox header__search">
+      <form class="search" role="search" >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" value="imag" maxlength="200" role="combobox" aria-expanded="true" aria-controls="sg-list" aria-autocomplete="list" autocomplete="off" aria-activedescendant="sg-1">
+      </form>
+      <ul class="combobox__list" id="sg-list" role="listbox" aria-label="Suggestions for imag">
+<li class="combobox__group" role="presentation">Courses</li>
+<li role="presentation"><a class="combobox__option" id="sg-1" role="option" aria-selected="true" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg><span class="combobox__text"><mark>Imag</mark>o Dei in an Age of Machines</span><span class="combobox__meta">Course</span></a></li>
+<li class="combobox__group" role="presentation">Experts</li>
+<li role="presentation"><a class="combobox__option" id="sg-2" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3"/></svg><span class="combobox__text">Dr. Abena Mensah</span><span class="combobox__meta">Expert</span></a></li>
+<li class="combobox__group" role="presentation">Topics</li>
+<li role="presentation"><a class="combobox__option" id="sg-3" role="option" aria-selected="false" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg><span class="combobox__text">The <mark>imag</mark>e of God and personhood</span><span class="combobox__meta">28 items</span></a></li>
+<li class="combobox__foot" role="option" aria-selected="false" id="sg-all">See all results for “imag”</li>
+      </ul>
+      <p class="vh" aria-live="polite">3 suggestions. Use the up and down arrows to move through them.</p>
+      
+    </div>
+    </div></div></div><span class="crd-ac">AC-9, AC-10</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-11, AC-12, AC-13</span><iframe title="320 pixel wide frame, light theme" width="320" height="460" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px;min-height:420px&quot;&gt;&lt;div class=&quot;combobox header__search&quot;&gt;
+      &lt;form class=&quot;search&quot; role=&quot;search&quot; &gt;
+        &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+        &lt;label class=&quot;vh&quot; for=&quot;site-search&quot;&gt;Search Logos Lab&lt;/label&gt;
+        &lt;input class=&quot;search__input&quot; id=&quot;site-search&quot; name=&quot;q&quot; type=&quot;search&quot; value=&quot;imag&quot; maxlength=&quot;200&quot; role=&quot;combobox&quot; aria-expanded=&quot;true&quot; aria-controls=&quot;sg-list&quot; aria-autocomplete=&quot;list&quot; autocomplete=&quot;off&quot; aria-activedescendant=&quot;sg-1&quot;&gt;
+      &lt;/form&gt;
+      &lt;ul class=&quot;combobox__list&quot; id=&quot;sg-list&quot; role=&quot;listbox&quot; aria-label=&quot;Suggestions for imag&quot;&gt;
+&lt;li class=&quot;combobox__group&quot; role=&quot;presentation&quot;&gt;Courses&lt;/li&gt;
+&lt;li role=&quot;presentation&quot;&gt;&lt;a class=&quot;combobox__option&quot; id=&quot;sg-1&quot; role=&quot;option&quot; aria-selected=&quot;true&quot; href=&quot;#&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;combobox__text&quot;&gt;&lt;mark&gt;Imag&lt;/mark&gt;o Dei in an Age of Machines&lt;/span&gt;&lt;span class=&quot;combobox__meta&quot;&gt;Course&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class=&quot;combobox__group&quot; role=&quot;presentation&quot;&gt;Experts&lt;/li&gt;
+&lt;li role=&quot;presentation&quot;&gt;&lt;a class=&quot;combobox__option&quot; id=&quot;sg-2&quot; role=&quot;option&quot; aria-selected=&quot;false&quot; href=&quot;#&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;9&quot; cy=&quot;8.5&quot; r=&quot;3&quot;/&gt;&lt;path d=&quot;M3.5 19a5.5 5.5 0 0 1 11 0&quot;/&gt;&lt;path d=&quot;M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;combobox__text&quot;&gt;Dr. Abena Mensah&lt;/span&gt;&lt;span class=&quot;combobox__meta&quot;&gt;Expert&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class=&quot;combobox__group&quot; role=&quot;presentation&quot;&gt;Topics&lt;/li&gt;
+&lt;li role=&quot;presentation&quot;&gt;&lt;a class=&quot;combobox__option&quot; id=&quot;sg-3&quot; role=&quot;option&quot; aria-selected=&quot;false&quot; href=&quot;#&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 8.5 12 4l8 4.5-8 4.5z&quot;/&gt;&lt;path d=&quot;m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;combobox__text&quot;&gt;The &lt;mark&gt;imag&lt;/mark&gt;e of God and personhood&lt;/span&gt;&lt;span class=&quot;combobox__meta&quot;&gt;28 items&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class=&quot;combobox__foot&quot; role=&quot;option&quot; aria-selected=&quot;false&quot; id=&quot;sg-all&quot;&gt;See all results for “imag”&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;p class=&quot;vh&quot; aria-live=&quot;polite&quot;&gt;3 suggestions. Use the up and down arrows to move through them.&lt;/p&gt;
+      
+    &lt;/div&gt;
+    &lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-11, AC-12, AC-13</span><iframe title="360 pixel wide frame, dark theme" width="360" height="460" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px;min-height:420px&quot;&gt;&lt;div class=&quot;combobox header__search&quot;&gt;
+      &lt;form class=&quot;search&quot; role=&quot;search&quot; &gt;
+        &lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;6.5&quot;/&gt;&lt;path d=&quot;m20 20-4.2-4.2&quot;/&gt;&lt;/svg&gt;
+        &lt;label class=&quot;vh&quot; for=&quot;site-search&quot;&gt;Search Logos Lab&lt;/label&gt;
+        &lt;input class=&quot;search__input&quot; id=&quot;site-search&quot; name=&quot;q&quot; type=&quot;search&quot; value=&quot;imag&quot; maxlength=&quot;200&quot; role=&quot;combobox&quot; aria-expanded=&quot;true&quot; aria-controls=&quot;sg-list&quot; aria-autocomplete=&quot;list&quot; autocomplete=&quot;off&quot; aria-activedescendant=&quot;sg-1&quot;&gt;
+      &lt;/form&gt;
+      &lt;ul class=&quot;combobox__list&quot; id=&quot;sg-list&quot; role=&quot;listbox&quot; aria-label=&quot;Suggestions for imag&quot;&gt;
+&lt;li class=&quot;combobox__group&quot; role=&quot;presentation&quot;&gt;Courses&lt;/li&gt;
+&lt;li role=&quot;presentation&quot;&gt;&lt;a class=&quot;combobox__option&quot; id=&quot;sg-1&quot; role=&quot;option&quot; aria-selected=&quot;true&quot; href=&quot;#&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;combobox__text&quot;&gt;&lt;mark&gt;Imag&lt;/mark&gt;o Dei in an Age of Machines&lt;/span&gt;&lt;span class=&quot;combobox__meta&quot;&gt;Course&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class=&quot;combobox__group&quot; role=&quot;presentation&quot;&gt;Experts&lt;/li&gt;
+&lt;li role=&quot;presentation&quot;&gt;&lt;a class=&quot;combobox__option&quot; id=&quot;sg-2&quot; role=&quot;option&quot; aria-selected=&quot;false&quot; href=&quot;#&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;9&quot; cy=&quot;8.5&quot; r=&quot;3&quot;/&gt;&lt;path d=&quot;M3.5 19a5.5 5.5 0 0 1 11 0&quot;/&gt;&lt;path d=&quot;M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;combobox__text&quot;&gt;Dr. Abena Mensah&lt;/span&gt;&lt;span class=&quot;combobox__meta&quot;&gt;Expert&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class=&quot;combobox__group&quot; role=&quot;presentation&quot;&gt;Topics&lt;/li&gt;
+&lt;li role=&quot;presentation&quot;&gt;&lt;a class=&quot;combobox__option&quot; id=&quot;sg-3&quot; role=&quot;option&quot; aria-selected=&quot;false&quot; href=&quot;#&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 8.5 12 4l8 4.5-8 4.5z&quot;/&gt;&lt;path d=&quot;m4 12.5 8 4.5 8-4.5M4 16.5l8 4.5 8-4.5&quot;/&gt;&lt;/svg&gt;&lt;span class=&quot;combobox__text&quot;&gt;The &lt;mark&gt;imag&lt;/mark&gt;e of God and personhood&lt;/span&gt;&lt;span class=&quot;combobox__meta&quot;&gt;28 items&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class=&quot;combobox__foot&quot; role=&quot;option&quot; aria-selected=&quot;false&quot; id=&quot;sg-all&quot;&gt;See all results for “imag”&lt;/li&gt;
+      &lt;/ul&gt;
+      &lt;p class=&quot;vh&quot; aria-live=&quot;polite&quot;&gt;3 suggestions. Use the up and down arrows to move through them.&lt;/p&gt;
+      
+    &lt;/div&gt;
+    &lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Options</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Options</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Active option</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Group and meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Group and meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Failed status</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Failed status</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-surface-raised" data-min="4.5"></span></div></div><span class="crd-ac">AC-9, AC-10</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>List</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr><tr><td>Option</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Active</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr><tr><td>Meta</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr><tr><td>Danger</td><td><code>--color-danger-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>

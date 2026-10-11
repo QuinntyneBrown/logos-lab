@@ -35,6 +35,7 @@ Out of scope:
 | `pages/not-found/*`, `pages/gone/*` | search, `form`, with "Search" action | label "Search Logos Lab" | default | canvas |
 | `pages/certificate-verify/*` | search, `form`, with "Check code" action | label "Certificate code" | default, invalid | canvas |
 | `pages/admin-users/*`, `pages/studio/*`, `dialogs/item-picker/*` | search, `form` | "Search users by name or email", "Search published items" | default | surface |
+| `dialogs/search-suggest/*` (top bar) | search, `form`, combobox query, `maxlength` 200 | label "Search Logos Lab" | default, busy, invalid, empty, failed, long | canvas |
 | `pages/search-results/*`, `pages/experts/*` | search, `div` inside the page's filter form, with "Search" action | "Search all content", "Search experts by name" | default, focus | canvas |
 | `pages/sign-in/*`, `pages/register/*`, `pages/settings-*/*`, studio editors, admin dialogs | input, lg (default) | types text, email, password, url, date, search; `autocomplete`, `inputmode`, `maxlength`, `aria-describedby` | default, hover, focus, invalid, readonly, disabled | surface, dialog |
 | filter toolbars, dense admin rows | input, md or sm | type search or date | default | surface |
@@ -68,6 +69,10 @@ query inside and projects the action after them.
 | `value` (`llSearch`) | `string` | `''` | no | Initial query text, for example the current search on the results page. |
 | `invalid` (`llSearch`) | `boolean` | `false` | no | Sets `aria-invalid="true"` on the query. |
 | `describedBy` (`llSearch`) | `string \| null` | `null` | no | `aria-describedby` on the query, for an error or hint the page renders. |
+| `maxlength` (`llSearch`) | `number \| null` | `null` | no | The query's `maxlength`; the site search sets 200. |
+| `listboxId` (`llSearch`) | `string \| null` | `null` | no | Makes the query a combobox: `role="combobox"`, `aria-autocomplete="list"`, `aria-controls` set to this id. Used by the [combobox](combobox.md). |
+| `expanded` (`llSearch`) | `boolean` | `false` | no | `aria-expanded` when `listboxId` is set. |
+| `activeDescendant` (`llSearch`) | `string \| null` | `null` | no | `aria-activedescendant` when `listboxId` is set. |
 
 Native attributes on `input[llInput]` (`type`, `name`, `autocomplete`, `inputmode`, `required`,
 `readonly`, `disabled`, `maxlength`, `aria-describedby`) are set by the consumer and never blocked.
@@ -77,6 +82,8 @@ Native attributes on `input[llInput]` (`type`, `name`, `autocomplete`, `inputmod
 | Output | Payload | Emitted when |
 |---|---|---|
 | `searched` (`form[llSearch]`) | `string` — the trimmed query | The form is submitted with Enter or the action; the native submit is prevented. |
+| `queryChanged` (`llSearch`) | `string` — the raw query | The person types or clears the query. |
+| `queryKeydown` (`llSearch`) | `KeyboardEvent` | A key is pressed in the query, so a combobox can handle arrows, Enter and Escape. |
 
 ### Content slots
 
@@ -241,6 +248,8 @@ Border and fill transitions are removed under reduced motion.
 ### Keyboard and focus
 
 - **AC-7** Given the hero search, when its query receives keyboard focus, then the focus ring surrounds the whole pill with at least 3:1 contrast and 2 CSS px thickness. (L2-126)
+
+- **AC-14** Given the site search as a combobox with suggestions open, when it is inspected, then the query has `role="combobox"`, `aria-autocomplete="list"`, `aria-controls` naming the listbox, `aria-expanded="true"` and `maxlength="200"`. (L2-003)
 
 ### Screen readers
 

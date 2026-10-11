@@ -43,10 +43,12 @@ Out of scope:
 3. **Primary navigation** — `nav.nav[popover]` with `ul.nav__list` of `a.nav__link`. Visible inline from
    LG; hidden below LG (the `popover` attribute keeps it out of the layout and it is never opened).
    The current destination has `aria-current="page"` and a 4 px accent dot.
-4. **Actions** — `div.header__actions`, pushed to the trailing edge, holding the projected actions.
+4. **Search row (optional)** — the projected `.header__search` (a [combobox](combobox.md) around a search
+   form) between the navigation and the actions.
+5. **Actions** — `div.header__actions`, pushed to the trailing edge, holding the projected actions.
    The top bar styles the action roles it knows: `.header__search--wide`, `.header__search-btn`,
    `.header__lg`, `.header__signin`, `.header__cta`, `.header__link` and `.avatar-btn`.
-5. **Menu button** — `button.menu-btn` with `span.menu-btn__label`, last in the actions, shown below LG
+6. **Menu button** — `button.menu-btn` with `span.menu-btn__label`, last in the actions, shown below LG
    (at every width when compact). It carries `aria-expanded` and `aria-haspopup="dialog"`.
 
 Host: `ll-top-bar` is `display: contents`; it renders the `<header class="header">`, which is the
@@ -82,6 +84,7 @@ whose query parameters match exactly, so "Courses" (`/explore?type=course`) and 
 | Slot | Accepts | Rule |
 |---|---|---|
 | `[slot=actions]` | search form, icon buttons, buttons, avatar button | Projected in order before the Menu button, inside `.header__actions`. |
+| `[slot=search]` | the site search field with class `header__search` | Projected between the navigation and the actions; it grows to fill the row and wraps to its own row below MD. The application projects it only while search is open below XL. |
 
 ## Variants and sizes
 
@@ -90,6 +93,7 @@ whose query parameters match exactly, so "Courses" (`/explore?type=course`) and 
 | Product | — | Public, learner, admin, moderation and studio pages. |
 | Compact | `.header--compact` | Focused shells whose sidebar holds the navigation. |
 | Minimal | no `links` | Sign-in, registration and account flows: brand plus one action. |
+| With search | `.header__search` projected | Below XL while the search icon's search row is open. |
 
 One size: `--layout-topbar-height` at every width; nav links `--target-comfortable` tall below LG and
 `--control-height-md` from LG; every action keeps a 44 px target.
@@ -180,6 +184,8 @@ Component tokens: none.
   account" shows from 30rem.
 - LG (64rem) and up: nav inline after the brand; "Sign in" and the theme button show; Menu hides.
 - XL (80rem) and up: the wide search field replaces the search icon button.
+- Below XL, while search is open: the search row sits between the navigation and the actions and wraps
+  to a full-width second row below MD.
 - At 320 px nothing scrolls horizontally; every action is at least 44 × 44 CSS px; nav labels 30 %
   longer wrap rather than overflow.
 
@@ -257,6 +263,9 @@ Link and Menu colour transitions are removed under reduced motion.
 - **AC-10** Given viewports of 320, 768, 1024 and 1440 px, when the top bar renders, then the page does not scroll horizontally. (L2-130)
 - **AC-11** Given a viewport of 375 px, when the Menu and Search buttons are measured, then each is at least 44 × 44 CSS px. (L2-132)
 - **AC-12** Given nav labels 30 % longer in the pseudo-locale at 1024 px, when the top bar renders, then no label is clipped or overlaps another. (L2-150)
+
+- **AC-14** Given a visitor at 375 px, when they press the "Search" icon button, then a search row opens with focus in the field labelled "Search Logos Lab", and Escape closes it and returns focus to the button. (L2-131)
+- **AC-15** Given a viewport of 1440 px, when the top bar renders, then the wide search field labelled "Search Logos Lab" is visible and the search icon button is not. (L2-131)
 
 ### Motion
 
