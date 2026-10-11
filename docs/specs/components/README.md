@@ -13,6 +13,7 @@ python .claude/skills/writing-component-requirements-documents/scripts/check_crd
 
 | Component | Selector | Status | Traces to | Requirements | Rendering | Design system |
 |---|---|---|---|---|---|---|
+| Avatar | `ll-avatar` | planned | L2-120, L2-127, L2-129, L2-134 | [avatar.md](avatar.md) | [avatar.html](avatar.html) | [avatar](../../design-system/components/avatar.html) |
 | Badge | `span[llBadge]` | built | L2-001, L2-127, L2-129, L2-134, L2-150 | [badge.md](badge.md) | [badge.html](badge.html) | [badge](../../design-system/components/badge.html) |
 | Brand | `ll-brand` | built | L2-127, L2-130, L2-132, L2-134 | [brand.md](brand.md) | [brand.html](brand.html) | [brand](../../design-system/components/brand.html) |
 | Button | `button[llButton]`, `a[llButton]`, `button[llIconButton]`, `a[llIconButton]` | built | L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 | [button.md](button.md) | [button.html](button.html) | [button](../../design-system/components/button.html) |
