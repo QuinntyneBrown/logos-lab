@@ -27,6 +27,11 @@ export class HomePage {
     await this.heading.waitFor();
   }
 
+  async searchFor(query: string): Promise<void> {
+    await this.heroSearch.fill(query);
+    await this.heroSearch.press('Enter');
+  }
+
   async headingCount(): Promise<number> {
     return this.page.getByRole('heading', { level: 1 }).count();
   }

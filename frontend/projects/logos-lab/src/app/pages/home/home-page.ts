@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Button, Hero, Search } from '@logos-lab/components';
+import { SearchNavigation } from '../../search-navigation';
 
 @Component({
   selector: 'll-home-page',
@@ -9,4 +10,6 @@ import { Button, Hero, Search } from '@logos-lab/components';
   styleUrl: './home-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePage {}
+export class HomePage {
+  protected readonly searchNavigation = inject(SearchNavigation);
+}

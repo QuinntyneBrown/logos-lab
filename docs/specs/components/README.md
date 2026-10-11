@@ -15,7 +15,7 @@ python .claude/skills/writing-component-requirements-documents/scripts/check_crd
 |---|---|---|---|---|---|---|
 | Brand | `ll-brand` | built | L2-127, L2-130, L2-132, L2-134 | [brand.md](brand.md) | [brand.html](brand.html) | [brand](../../design-system/components/brand.html) |
 | Button | `button[llButton]`, `a[llButton]`, `button[llIconButton]`, `a[llIconButton]` | built | L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 | [button.md](button.md) | [button.html](button.html) | [button](../../design-system/components/button.html) |
-| Error page | `ll-error-page` | planned | L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [error-page.md](error-page.md) | [error-page.html](error-page.html) | [error-page](../../design-system/components/error-page.html) |
+| Error page | `ll-error-page` | built | L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [error-page.md](error-page.md) | [error-page.html](error-page.html) | [error-page](../../design-system/components/error-page.html) |
 | Footer | `ll-footer` | built | L2-127, L2-130, L2-134, L2-150 | [footer.md](footer.md) | [footer.html](footer.html) | [footer](../../design-system/components/footer.html) |
 | Hero | `ll-hero` | built | L2-001, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 | [hero.md](hero.md) | [hero.html](hero.html) | [hero](../../design-system/components/hero.html) |
 | Skip link | `ll-skip-link` | built | L2-126, L2-129, L2-134, L2-147 | [skip-link.md](skip-link.md) | [skip-link.html](skip-link.html) | [skip-link](../../design-system/components/skip-link.html) |

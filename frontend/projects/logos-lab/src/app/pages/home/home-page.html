@@ -13,13 +13,12 @@
       class="home__search"
       inputId="hero-search"
       label="Search courses, videos, articles and experts"
-      i18n-label="@@home.hero.searchLabel"
+      i18n-label="@@search.label"
       placeholder="Try “personhood” or “Augustine”"
-      i18n-placeholder="@@home.hero.searchPlaceholder"
+      i18n-placeholder="@@search.placeholder"
+      (searched)="searchNavigation.search($event)"
     >
-      <button llButton variant="primary" type="submit" i18n="@@home.hero.searchAction">
-        Search
-      </button>
+      <button llButton variant="primary" type="submit" i18n="@@search.action">Search</button>
     </form>
     <div class="hero__actions home__browse">
       <a llButton variant="quiet" size="lg" routerLink="/explore"

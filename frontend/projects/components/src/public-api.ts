@@ -4,6 +4,7 @@ export * from './lib/button/button';
 export * from './lib/button/button-size';
 export * from './lib/button/button-variant';
 export * from './lib/button/icon-button';
+export * from './lib/error-page/error-page';
 export * from './lib/footer/footer';
 export * from './lib/hero/hero';
 export * from './lib/skip-link/skip-link';

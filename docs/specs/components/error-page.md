@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-error-page` |
 | Library path | `frontend/projects/components/src/lib/error-page/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 |
 | Design system | [`error-page.html`](../../design-system/components/error-page.html) |
 | Source mocks | [`pages/not-found/default`](../../mocks/pages/not-found/default.html), [`pages/not-found/signed-in`](../../mocks/pages/not-found/signed-in.html), [`pages/forbidden/default`](../../mocks/pages/forbidden/default.html), [`pages/gone/default`](../../mocks/pages/gone/default.html), [`pages/too-many-requests/default`](../../mocks/pages/too-many-requests/default.html), [`pages/server-error/default`](../../mocks/pages/server-error/default.html), [`pages/maintenance/default`](../../mocks/pages/maintenance/default.html), [`pages/offline/default`](../../mocks/pages/offline/default.html), [`pages/offline/retrying`](../../mocks/pages/offline/retrying.html) |
