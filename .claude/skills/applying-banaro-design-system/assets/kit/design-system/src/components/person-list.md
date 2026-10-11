@@ -32,7 +32,7 @@ summary, use a [card](card.html) grid; for a single person's page, use a [profil
     <div>
       <h3 class="person__name"><a href="#">Amara Osei</a></h3>
       <p class="person__meta">Product designer · Northwind</p>
-      <p class="person__open"><span class="pill pill--accent">Free for feedback this week</span></p>
+      <p class="person__open"><span class="pill pill--accent">Free for feedback</span></p>
     </div>
   </li>
 </ul>
@@ -44,12 +44,12 @@ summary, use a [card](card.html) grid; for a single person's page, use a [profil
 The default list: three across on wide screens, each person with a status pill.
 ```html
 <ul class="people">
-  <li class="person"><img class="person__photo" src="../assets/photos/amara-osei.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Amara Osei</a></h3><p class="person__meta">Product designer · Northwind</p><p class="person__open"><span class="pill pill--accent">Free for feedback this week</span></p></div></li>
-  <li class="person"><img class="person__photo" src="../assets/photos/daniel-reyes.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Daniel Reyes</a></h3><p class="person__meta">Engineer · Northwind</p><p class="person__open"><span class="pill">In focus time until 2:00 pm</span></p></div></li>
-  <li class="person"><img class="person__photo" src="../assets/photos/grace-liu.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Grace Liu</a></h3><p class="person__meta">Designer · Harbour Notes</p><p class="person__open"><span class="pill pill--accent">Free for feedback this week</span></p></div></li>
+  <li class="person"><img class="person__photo" src="../assets/photos/amara-osei.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Amara Osei</a></h3><p class="person__meta">Product designer · Northwind</p><p class="person__open"><span class="pill pill--accent">Free for feedback</span></p></div></li>
+  <li class="person"><img class="person__photo" src="../assets/photos/daniel-reyes.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Daniel Reyes</a></h3><p class="person__meta">Engineer · Northwind</p><p class="person__open"><span class="pill">Focused until 2 pm</span></p></div></li>
+  <li class="person"><img class="person__photo" src="../assets/photos/grace-liu.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Grace Liu</a></h3><p class="person__meta">Designer · Harbour Notes</p><p class="person__open"><span class="pill pill--accent">Free for feedback</span></p></div></li>
   <li class="person"><img class="person__photo" src="../assets/photos/hannah-kowalski.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Hannah Kowalski</a></h3><p class="person__meta">Researcher · Harbour Notes</p><p class="person__open"><span class="pill">Away until Monday</span></p></div></li>
   <li class="person"><img class="person__photo" src="../assets/photos/caleb-morgan.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Caleb Morgan</a></h3><p class="person__meta">Founder · Northwind</p><p class="person__open"><span class="pill pill--accent">Hosting Field Day</span></p></div></li>
-  <li class="person"><img class="person__photo" src="../assets/photos/noah-fischer.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Noah Fischer</a></h3><p class="person__meta">Engineer · Platform</p><p class="person__open"><span class="pill">In focus time until 4:30 pm</span></p></div></li>
+  <li class="person"><img class="person__photo" src="../assets/photos/noah-fischer.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Noah Fischer</a></h3><p class="person__meta">Engineer · Platform</p><p class="person__open"><span class="pill">Focused until 4:30</span></p></div></li>
 </ul>
 ```
 
@@ -129,7 +129,7 @@ written beside them. Action links name the person: **Message Leah**, never just 
 
 - Names are full names as people write them: **Hannah Kowalski**.
 - Meta is **role · team or place**, under 40 characters: "Researcher · Harbour Notes".
-- A status pill states availability in plain words, with a time when it ends: "In focus time until 2:00 pm".
+- A status pill states availability in plain words, with a time when it ends: "Focused until 2 pm".
 - In a stacked list, start the meta with the person's relation to the thing: "Hosting", "Going".
 
 ## Do and don't
