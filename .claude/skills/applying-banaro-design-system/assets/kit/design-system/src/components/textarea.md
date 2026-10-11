@@ -64,8 +64,9 @@ N/A: Set the height with `rows` (3 for a reply, 4–5 for a summary, 8 or more f
 
 ## States
 
-Hover darkens the border to the muted role; focus draws the sage ring. Read-only fills with linen but keeps
-the text in the default colour so it stays easy to read and copy; disabled also mutes the text. Invalid
+Hover darkens the border to the muted role; focus draws the sage ring. Read-only fills with linen and softens
+the border but keeps the text in the default colour, so it stays easy to read and copy; disabled drops the
+border and fades the text. Invalid
 turns the border to danger, tints the fill and adds an error message below, keeping everything the person
 wrote.
 

@@ -82,7 +82,7 @@ takes one focus ring; keep other controls out of an interactive card.
   </div>
   <p class="card__text">The roadmap, research notes and launch checklist for the private beta.</p>
   <dl class="card__facts"><div><dt>Stage</dt><dd>Private beta</dd></div><div><dt>Updated</dt><dd>Today, 9:40 am</dd></div></dl>
-  <div class="card__foot"><div class="avatar-group" aria-hidden="true"><img class="avatar avatar--sm" src="../assets/photos/amara-osei.jpg" width="32" height="32" alt=""><img class="avatar avatar--sm" src="../assets/photos/daniel-reyes.jpg" width="32" height="32" alt=""><img class="avatar avatar--sm" src="../assets/photos/grace-liu.jpg" width="32" height="32" alt=""></div><p class="card__place">Amara, Daniel and 2 others</p></div>
+  <div class="card__foot"><div class="avatar-group" role="img" aria-label="Amara Osei, Daniel Reyes, Grace Liu and 1 other"><img class="avatar avatar--sm" src="../assets/photos/amara-osei.jpg" width="32" height="32" alt=""><img class="avatar avatar--sm" src="../assets/photos/daniel-reyes.jpg" width="32" height="32" alt=""><img class="avatar avatar--sm" src="../assets/photos/grace-liu.jpg" width="32" height="32" alt=""><span class="avatar-group__more">+1</span></div></div>
 </article>
 ```
 

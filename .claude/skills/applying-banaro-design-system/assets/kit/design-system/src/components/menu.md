@@ -116,7 +116,7 @@ bottom [sheet](drawer.html) with the same items. At 768px and 1024px and up noth
 ## Theming
 
 Every colour reads a semantic role. In dark mode the surface is the raised charcoal, the wash is a lighter
-charcoal and the danger label turns light coral; the shadow is deeper so the panel still lifts from the page.
+charcoal and the danger label lightens to stay readable; the shadow is deeper so the panel still lifts from the page.
 There are no component knobs; tint the surface by changing `--color-bg-surface-raised`.
 
 ## Accessibility

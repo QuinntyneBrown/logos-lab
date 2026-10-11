@@ -1,0 +1,12 @@
+{
+  "app": "Logos Lab",
+  "prefix": "ll",
+  "description": "Courses and conversations on faith and AI, curated by experts.",
+  "version": "1.0",
+  "accent": {
+    "name": "sage",
+    "source": "#55715a"
+  },
+  "kit": "banaro-1.0",
+  "seeded": "2026-10-11"
+}

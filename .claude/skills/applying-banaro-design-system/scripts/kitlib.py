@@ -180,16 +180,16 @@ ALLOWED_INLINE = ("kbd", "abbr", "em", "strong", "code", "small", "br", "sup", "
 
 
 def inline(text: str) -> str:
-    out = esc(text, quote=False)
-    for tag in ALLOWED_INLINE:
-        out = re.sub(rf"&lt;(/?){tag}( [^&]*?)?&gt;", lambda m, t=tag: f"<{m.group(1)}{t}{html.unescape(m.group(2) or '')}>", out)
     codes: list = []
 
     def keep_code(m):
-        codes.append(m.group(1))
+        codes.append(esc(m.group(1), quote=False))
         return f"\x00{len(codes) - 1}\x00"
 
-    out = re.sub(r"`([^`]+)`", keep_code, out)
+    out = re.sub(r"`([^`]+)`", keep_code, text)  # code spans first, so tags inside them stay text
+    out = esc(out, quote=False)
+    for tag in ALLOWED_INLINE:
+        out = re.sub(rf"&lt;(/?){tag}( [^&]*?)?&gt;", lambda m, t=tag: f"<{m.group(1)}{t}{html.unescape(m.group(2) or '')}>", out)
     out = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", out)
     out = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<em>\1</em>", out)
     out = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>', out)

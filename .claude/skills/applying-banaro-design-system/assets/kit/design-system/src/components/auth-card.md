@@ -7,6 +7,7 @@ selector: .auth
 target: input
 states: default, focus, invalid, submitting, error
 matrix-variants: sign in, create account
+matrix-cell: 30rem
 error: Enter your email address, like amara.osei@example.com.
 contrast: --color-fg-default|--color-bg-surface|4.5; --color-fg-muted|--color-bg-surface|4.5; --color-fg-link|--color-bg-surface|4.5; --color-danger-fg|--color-danger-bg|4.5; --color-focus-ring|--color-bg-surface|3
 ---
@@ -39,7 +40,7 @@ Email and password, a way back in if the password is forgotten, and a link to cr
   <div><h1 class="auth__title" id="auth-in">Sign in</h1><p class="auth__sub">Welcome back. Your notes are where you left them.</p></div>
   <form class="form" action="#" novalidate aria-labelledby="auth-in">
     <div class="field"><label class="field__label" for="in-email">Email</label><input class="input" id="in-email" name="email" type="email" autocomplete="email" required></div>
-    <div class="field"><label class="field__label" for="in-pass">Password</label><div class="input-group"><input class="input" id="in-pass" name="password" type="password" autocomplete="current-password" required><button class="btn btn--text btn--sm" type="button" data-password-toggle>Show password</button></div></div>
+    <div class="field"><label class="field__label" for="in-pass">Password</label><input class="input" id="in-pass" name="password" type="password" autocomplete="current-password" required></div>
     <p class="field__help"><a href="#">Forgot your password?</a></p>
     <button class="btn btn--primary btn--lg btn--block" type="submit">Sign in</button>
   </form>
@@ -163,7 +164,7 @@ email that already has an account.
 ```html
 <div class="auth"><section class="auth__card" aria-labelledby="new4-title">
   <div><h1 class="auth__title" id="new4-title">Create your account</h1><p class="auth__sub">Set up {{app}} for you and your team in a minute.</p></div>
-  <div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg><p class="alert__title">That email already has an account</p><p class="alert__body">Sign in with amara.osei@example.com instead, or use a different email.</p><div class="alert__actions"><a href="#">Sign in instead</a></div></div>
+  <div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg><p class="alert__title">That email already has an account</p><p class="alert__body">Sign in to that account instead, or use a different email.</p><div class="alert__actions"><a href="#">Sign in instead</a></div></div>
   <form class="form" action="#" novalidate aria-labelledby="new4-title">
     <div class="field"><label class="field__label" for="new4-name">Your name</label><input class="input" id="new4-name" type="text" autocomplete="name" value="Amara Osei"></div>
     <div class="field"><label class="field__label" for="new4-email">Email</label><input class="input" id="new4-email" type="email" autocomplete="email" value="amara.osei@example.com"></div>
@@ -196,14 +197,15 @@ labelled by the same title. Each field has a visible `<label>`.
 |---|---|
 | Tab / Shift+Tab | Moves through the fields, the help link, the button and the alternative link. |
 | Enter | Submits the form from any field. |
-| Space | Toggles the checkbox; activates the show-password button. |
+| Space | Toggles the checkbox and activates buttons. |
 
 **Focus:** on load, focus goes to the first field. After an invalid submit it moves to the form summary
 (or to the only invalid field); after a server error it moves to the alert.
 
 **Labelling:** fields use the right `type` and `autocomplete` (`email`, `current-password`, `new-password`,
-`name`) so password managers and autofill work. The show-password button names its action and switches to
-**Hide password**. A busy button keeps a readable label (**Signing in…**) and sets `aria-busy`.
+`name`) so password managers and autofill work, and pasting into password fields is never blocked (WCAG
+3.3.8). Offer the show-password toggle from the [text field](text-field.html) on longer forms. A busy button
+keeps a readable label (**Signing in…**) and sets `aria-busy`.
 
 **Motion:** only the spinner moves while submitting; it stops under reduced motion and the label carries the meaning.
 

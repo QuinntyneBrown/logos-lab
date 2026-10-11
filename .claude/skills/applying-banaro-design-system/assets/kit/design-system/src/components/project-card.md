@@ -13,7 +13,7 @@ contrast: --color-fg-default|--color-bg-surface|4.5; --color-fg-muted|--color-bg
 
 ## Overview
 
-**This is a sample component.** It comes from the original Banaro domain (people sharing products they
+**This is a sample component.** It comes from the kit's original domain (people sharing products they
 are building) and ships as a worked example of a domain card, not as part of every system. An app should
 either prune it (`audit_usage.py --prune` removes it when no mock uses `.project`) or adapt it into its
 own card (a course, a listing, a case) by copying the block, renaming the classes (`.project` to `.course`,
@@ -125,15 +125,15 @@ Fill the card with buttons; each one competes with the name.
 ```
 
 ### Do
-Rename the classes when you adapt the card to your own domain.
+Give each stage its own word and a calm status colour.
 ```html
-<article class="project project--compact" aria-labelledby="d-course"><div class="project__head"><span class="project__mark tile--clay" aria-hidden="true">R</span><div><h3 class="project__name" id="d-course"><a href="#">Reading slowly</a></h3><p class="project__owner">Taught by Hannah Kowalski</p></div></div><p class="project__line">Becomes <code>.course</code>, <code>.course__mark</code> and <code>.course__name</code> in your system.</p></article>
+<p class="project__more"><span>Updated today</span><span class="badge badge--info">Building</span></p>
 ```
 
 ### Don't
-Ship the sample unchanged into a product about something else.
+Use the danger colour for an ordinary stage; red reads as a problem.
 ```html
-<article class="project project--compact" aria-labelledby="x-sample"><div class="project__head"><span class="project__mark tile--sage" aria-hidden="true">N</span><div><h3 class="project__name" id="x-sample"><a href="#">Northwind</a></h3><p class="project__owner">Led by Caleb Morgan</p></div></div><p class="project__line">Sample copy left in a product that has no projects.</p></article>
+<p class="project__more"><span>Updated today</span><span class="badge badge--danger">Building</span></p>
 ```
 
 ## Tokens

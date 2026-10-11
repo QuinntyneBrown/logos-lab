@@ -67,9 +67,10 @@ text fields.
 
 ## States
 
-Hover darkens the border to the muted role. Focus draws the sage ring; while the native list is open
-(active) the border takes the focus colour. Disabled fills with linen and uses the disabled text role.
-Invalid turns the border to danger and adds an error message under the control. The empty placeholder
+Hover darkens the border and adds a linen wash, like a quiet button. Focus draws the sage ring; while the
+native list is open (active) the border thickens in the focus colour. Disabled fills with linen and uses
+the disabled text role. Invalid turns the border to danger, tints the fill and adds an error message under
+the control. The empty placeholder
 option reads in the subtle role so it is not mistaken for an answer.
 
 ### placeholder / invalid
@@ -148,7 +149,7 @@ An unlabelled select whose first option pretends to be the label.
 ## Tokens
 
 Selects read the surface, default and muted text roles, the strong border (muted on hover, focus colour when
-open), the danger border for invalid, the control heights and the full or medium radius.
+open), the danger roles for invalid, the control heights and the full or medium radius.
 
 ## Code
 

@@ -32,6 +32,7 @@ error: Enter a task name.        # optional; message used for the derived "inval
 knobs: --bn-button-bg = default `--color-bg-surface`; primary `--color-accent`   # optional; ';'-separated
 contrast: --color-fg-on-accent|--color-accent|4.5; --color-focus-ring|--color-bg-surface|3   # optional
 matrix-variants: primary, quiet  # optional; limit the rows of the state matrix
+matrix-cell: 28rem               # optional; minimum width of each state cell (block default 24rem)
 tokens: --color-accent, --space-4 # optional; otherwise derived from the component's CSS block
 ---
 

@@ -47,7 +47,7 @@ A long form on its own surface, split into titled sections.
 ### inline
 `.form-inline` puts a short form on one line and wraps it on narrow screens.
 ```html
-<form class="form-inline" action="#"><div class="field"><label class="field__label" for="fl-invite">Invite by email</label><input class="input input--md" id="fl-invite" name="invite" type="email" autocomplete="off" placeholder="hannah.kowalski@example.com"></div><div class="field"><label class="field__label" for="fl-role">Role</label><span class="select__wrap"><select class="select__control" id="fl-role" name="role"><option selected>Can edit</option><option>Can comment</option><option>Can view</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></span></div><button class="btn btn--primary" type="submit">Send invite</button></form>
+<form class="form-inline" action="#"><div class="field"><label class="field__label" for="fl-invite">Invite by email</label><input class="input" id="fl-invite" name="invite" type="email" autocomplete="off" placeholder="hannah.kowalski@example.com"></div><div class="field"><label class="field__label" for="fl-role">Role</label><span class="select__wrap"><select class="select__control" id="fl-role" name="role"><option selected>Can edit</option><option>Can comment</option><option>Can view</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></span></div><button class="btn btn--primary btn--lg" type="submit">Send invite</button></form>
 ```
 
 ### error summary

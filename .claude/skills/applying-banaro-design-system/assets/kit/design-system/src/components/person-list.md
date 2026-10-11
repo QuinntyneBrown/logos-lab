@@ -49,7 +49,7 @@ The default list: three across on wide screens, each person with a status pill.
   <li class="person"><img class="person__photo" src="../assets/photos/grace-liu.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Grace Liu</a></h3><p class="person__meta">Designer · Harbour Notes</p><p class="person__open"><span class="pill pill--accent">Free for feedback</span></p></div></li>
   <li class="person"><img class="person__photo" src="../assets/photos/hannah-kowalski.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Hannah Kowalski</a></h3><p class="person__meta">Researcher · Harbour Notes</p><p class="person__open"><span class="pill">Away until Monday</span></p></div></li>
   <li class="person"><img class="person__photo" src="../assets/photos/caleb-morgan.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Caleb Morgan</a></h3><p class="person__meta">Founder · Northwind</p><p class="person__open"><span class="pill pill--accent">Hosting Field Day</span></p></div></li>
-  <li class="person"><img class="person__photo" src="../assets/photos/noah-fischer.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Noah Fischer</a></h3><p class="person__meta">Engineer · Platform</p><p class="person__open"><span class="pill">Focused until 4:30</span></p></div></li>
+  <li class="person"><img class="person__photo" src="../assets/photos/noah-fischer.jpg" width="64" height="64" alt=""><div><h3 class="person__name"><a href="#">Noah Fischer</a></h3><p class="person__meta">Engineer · Platform</p><p class="person__open"><span class="pill">Back at 4:30 pm</span></p></div></li>
 </ul>
 ```
 

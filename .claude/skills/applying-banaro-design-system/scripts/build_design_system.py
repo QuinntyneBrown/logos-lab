@@ -189,8 +189,8 @@ class Specimens:
 
 def section(sid, body, na=None, title=None):
     title = title or K.SECTION_TITLES.get(sid, sid.replace("-", " ").capitalize())
-    na_attr = f' data-na="{esc(na, quote=True)}"' if na else ""
-    na_note = f'<p class="ds-na">{esc(na)}</p>' if na else ""
+    na_attr = f' data-na="{esc(na.replace("`", ""), quote=True)}"' if na else ""
+    na_note = f'<p class="ds-na">{K.inline(na)}</p>' if na else ""
     return f'<section class="ds-section" id="{sid}"{na_attr}><h2><a href="#{sid}">{esc(title)}</a></h2>{na_note}{body}</section>'
 
 
@@ -356,7 +356,7 @@ class Site:
         body.append(section("overview", md(s.sections.get("overview", s.summary)) + f"<p>{provenance}</p>"))
 
         # anatomy
-        anat = s.sections.get("anatomy", "")
+        anat = re.sub(r"\n[ \t]+(?=\S)", " ", s.sections.get("anatomy", ""))  # join wrapped list lines
         anat_code = (K.fences(anat) or [base_markup])[0]
         parts = re.findall(r"^\s*\d+\.\s+(.*)$", K.strip_fences(anat), re.M)
         items = []
@@ -389,11 +389,13 @@ class Site:
 
         def matrix(theme):
             rows = []
+            cell = s.meta.get("matrix-cell", "")
+            td_open = f'<td style="min-width: {esc(cell, quote=True)}">' if re.fullmatch(r"\d+(\.\d+)?rem", cell) else "<td>"
             for name, markup, _ in matrix_variants:
                 cells = []
                 for state in states:
                     override = overrides.get((name.lower(), state)) or overrides.get(("*", state))
-                    cells.append("<td>" + (self.spec.render(override, s) if override else self.spec.render(markup, s, state)) + "</td>")
+                    cells.append(td_open + (self.spec.render(override, s) if override else self.spec.render(markup, s, state)) + "</td>")
                 rows.append(f'<tr><th scope="row">{esc(name)}</th>{"".join(cells)}</tr>')
             head = "".join(f'<th scope="col">{esc(x.capitalize())}</th>' for x in states)
             mod = "block" if s.meta.get("layout", "block") == "block" else "inline"

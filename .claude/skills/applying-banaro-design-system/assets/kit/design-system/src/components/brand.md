@@ -20,7 +20,7 @@ out, such as sign-in and e-mail. The brand is not a heading and not a button: pa
 
 The kit ships a placeholder mark: a leaf with its midrib and stem, the sun dot in the open corner above it. **Each product replaces it** with its own
 mark, drawn in the same style: a 32×32 `viewBox`, `fill="none" stroke="currentColor"`, a 1.6 stroke with round
-caps, and one small filled circle with `class="brand__sun"` — the warm sun dot that every Banaro-style product
+caps, and one small filled circle with `class="brand__sun"` — the warm sun dot that every product in this family
 keeps.
 
 ## Anatomy

@@ -12,7 +12,7 @@ contrast: --color-fg-default|--color-bg-panel|4.5; --color-fg-muted|--color-bg-p
 
 ## Overview
 
-The grain panel is the Banaro look in one component: a clay-tinted surface (`--color-bg-panel`) with large
+The grain panel is the whole look in one component: a clay-tinted surface (`--color-bg-panel`) with large
 rounded corners and a barely-there wood grain, holding a short invitation and one primary action. Use it
 for the **one** moment on a screen that deserves a pause: turning on a digest, saving a seat, inviting the
 team. The grain is **decorative and used at most once per screen**; a second panel on the same screen drops

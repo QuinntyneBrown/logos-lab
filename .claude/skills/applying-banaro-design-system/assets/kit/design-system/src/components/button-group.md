@@ -9,7 +9,7 @@ target: button:not([aria-pressed="true"])
 states: default, hover, focus, active, pressed, disabled
 matrix-variants: segmented, toolbar
 apg: toolbar
-contrast: --color-fg-default|--color-bg-subtle|4.5; --color-fg-default|--color-bg-surface|4.5; --color-fg-on-accent|--color-accent|4.5; --color-accent|--color-bg-surface|3; --color-focus-ring|--color-bg-surface|3
+contrast: --color-fg-default|--color-bg-subtle|4.5; --color-fg-default|--color-bg-surface|4.5; --color-fg-accent|--color-accent-subtle|4.5; --color-fg-on-accent|--color-accent|4.5; --color-accent|--color-bg-surface|3; --color-focus-ring|--color-bg-surface|3
 ---
 
 ## Overview
@@ -54,7 +54,7 @@ A view switcher. Exactly one segment is pressed; switching changes the view in p
 ### toolbar
 Independent toggles for formatting in Harbour Notes. Any number can be pressed.
 ```html
-<div class="btn-group" role="toolbar" aria-label="Text formatting"><button class="btn btn--ghost btn--icon" type="button" aria-pressed="false" aria-label="Bold"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7z"/><path d="M7 12h7a3.5 3.5 0 0 1 0 7H7z"/></svg></button><button class="btn btn--ghost btn--icon" type="button" aria-pressed="true" aria-label="Italic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5h8M6 19h8M14 5l-4 14"/></svg></button><button class="btn btn--ghost btn--icon" type="button" aria-pressed="false" aria-label="Bulleted list"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7h11M9 12h11M9 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01"/></svg></button><button class="btn btn--ghost btn--icon" type="button" aria-pressed="false" aria-label="Link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button></div>
+<div class="btn-group btn-group--toolbar" role="toolbar" aria-label="Text formatting"><button class="btn btn--ghost btn--icon" type="button" aria-pressed="false" aria-label="Bold"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7z"/><path d="M7 12h7a3.5 3.5 0 0 1 0 7H7z"/></svg></button><button class="btn btn--ghost btn--icon" type="button" aria-pressed="true" aria-label="Italic"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5h8M6 19h8M14 5l-4 14"/></svg></button><button class="btn btn--ghost btn--icon" type="button" aria-pressed="false" aria-label="Bulleted list"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7h11M9 12h11M9 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01"/></svg></button><button class="btn btn--ghost btn--icon" type="button" aria-pressed="false" aria-label="Link"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button></div>
 ```
 
 ## Sizes
@@ -65,8 +65,8 @@ N/A: The group follows its buttons. Add `.btn--sm` to every button for dense too
 
 Each button keeps its own hover, focus, active and disabled states. In a segmented group, hovering an
 unpressed segment deepens the linen; the pressed segment sits on the surface with a soft shadow and moves
-when another segment is chosen. In a toolbar, a pressed toggle shows the 2px sage outline, and several can
-be pressed at once. Disabling the group disables every button in it.
+when another segment is chosen. In a toolbar (`.btn-group--toolbar`), a pressed toggle fills with the sage wash and accent
+text, and several can be pressed at once; the focus ring stays distinct from the pressed fill. Disabling the group disables every button in it.
 
 ### segmented / pressed
 ```html
@@ -140,4 +140,4 @@ The group reads the 8px gap, the subtle background and full radius for the segme
 ## Code
 
 Wrap the buttons in `.btn-group` with `role="group"` and an `aria-label`. Add `.btn-group--segmented` and
-`aria-pressed` for a view switcher; use `role="toolbar"`, ghost icon buttons and roving `tabindex` for toggles.
+`aria-pressed` for a view switcher; use `.btn-group--toolbar` with `role="toolbar"`, ghost icon buttons and roving `tabindex` for toggles.

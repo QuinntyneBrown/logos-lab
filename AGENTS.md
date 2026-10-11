@@ -28,7 +28,8 @@ Founder and Chief Product Officer: Quinntyne Brown.
   `<component>.html` per component, tracing to L2; see `docs/specs/components/README.md`
 - `docs/detailed-designs/` — one detailed design per feature, grouped by subsystem; see `docs/detailed-designs/README.md`
 - `docs/mocks/` — static design reference (every page and state, light and dark); see `docs/mocks/README.md`
-- `docs/design-system/` — tokens, foundations, components, and patterns extracted from the mocks
+- `docs/design-system/` — tokens, foundations, components, and patterns extracted from the mocks; to give
+  the product the Banaro look, seed it and write the mocks with the `applying-banaro-design-system` skill
 - `docs/adr/` — architecture decisions; read relevant ADRs before changing the areas they cover
 - `.claude/skills/` and `.agents/skills/` — the skills this repository expects agents to follow
 - `.claude/references/` and `.agents/references/` — shared references the skills link to, such as the

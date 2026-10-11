@@ -92,9 +92,10 @@ size per form. The search pill is one size: 44px controls inside a pill.
 
 ## States
 
-Hover darkens the border to the muted role. Focus draws the 2px sage ring offset 3px. Read-only and
-disabled fields fill with linen; read-only text stays selectable and is still submitted, disabled text is
-skipped by assistive technology and by the form, so prefer read-only to show a fixed value. Invalid turns
+Hover darkens the border to the muted role. Focus draws the 2px sage ring offset 3px. Read-only fills
+with linen, softens the border and keeps full-strength text that can still be selected and is submitted.
+Disabled also fills with linen but drops the border and fades the text; it is skipped by the form, so
+prefer read-only to show a fixed value. Invalid turns
 the border to danger, tints the fill and adds an error message linked by `aria-describedby`.
 
 ### password / invalid

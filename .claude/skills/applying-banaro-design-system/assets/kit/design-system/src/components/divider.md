@@ -44,7 +44,7 @@ height of the row.
 ### labelled
 A short overline between two alternatives, most often between two ways to continue.
 ```html
-<div class="stack"><button class="btn btn--block" type="button">Continue with a sign-in link</button><p class="divider--label">or</p><button class="btn btn--quiet btn--block" type="button">Use a password</button></div>
+<div class="stack"><button class="btn btn--primary btn--block" type="button">Continue with a sign-in link</button><p class="divider--label">or</p><button class="btn btn--quiet btn--block" type="button">Use a password</button></div>
 ```
 
 ## Sizes

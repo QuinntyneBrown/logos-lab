@@ -51,12 +51,14 @@
     }
   });
   function activateTab(tab) {
-    var group = tab.closest('[data-demo-tabs]');
+    var group = tab.closest('[data-demo-tabs]') || tab.closest('[role="tablist"]');
+    if (!group || tab.disabled) return;
     group.querySelectorAll('[role="tab"]').forEach(function (item) {
       var active = item === tab;
       item.setAttribute('aria-selected', active);
       item.tabIndex = active ? 0 : -1;
-      document.getElementById(item.getAttribute('aria-controls')).hidden = !active;
+      var panel = item.getAttribute('aria-controls') && document.getElementById(item.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !active;
     });
   }
   document.addEventListener('keydown', function (event) {

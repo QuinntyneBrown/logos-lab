@@ -7,7 +7,7 @@ selector: .shots, .shot
 layout: block
 target: .shot__tile
 states: default, hover, focus, loading, error
-matrix-variants: gallery
+matrix-variants: linked
 contrast: --color-fg-subtle|--color-bg-canvas|4.5; --color-fg-muted|--color-bg-subtle|4.5; --color-focus-ring|--color-bg-canvas|3
 ---
 
@@ -33,6 +33,12 @@ content. For one large image use the hero's photo frame, and for a person's pict
 Three tiles that open a larger view: a photo and two placeholders still waiting for screenshots.
 ```html
 <div class="shots"><figure class="shot"><a class="shot__tile" href="#" aria-label="Open photo: The team planning Northwind"><img src="../assets/photos/coffee-together.jpg" width="400" height="300" alt="Two people planning at a wooden table"></a><figcaption>Planning the board view</figcaption></figure><figure class="shot"><a class="shot__tile tile--sage" href="#" aria-label="Open screenshot: The board view"><span class="shot__bars" aria-hidden="true"><span></span><span></span><span></span></span></a><figcaption>The board view</figcaption></figure><figure class="shot"><a class="shot__tile tile--fjord" href="#" aria-label="Open screenshot: Weekly summary e-mail"><span class="shot__bars" aria-hidden="true"><span></span><span></span><span></span></span></a><figcaption>Weekly summary e-mail</figcaption></figure></div>
+```
+
+### linked
+One tile that opens a larger view: the whole frame is the link.
+```html
+<figure class="shot"><a class="shot__tile" href="#" aria-label="Open photo: Planning the board view"><img src="../assets/photos/coffee-together.jpg" width="400" height="300" alt="Two people planning at a wooden table"></a><figcaption>Planning the board view</figcaption></figure>
 ```
 
 ### photo
@@ -66,7 +72,7 @@ until the image arrives. **Error** keeps the tile's place with a dashed outline,
 
 ### error
 ```html
-<div class="shots"><figure class="shot"><div class="shot__tile shot__tile--error" role="img" aria-label="Image didn't load: Planning the board view"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.5"/><path d="m4 18 5-5 4 4 3-3 4 4"/><path d="M4 4l16 16"/></svg><span>Image didn't load</span></div><figcaption>Planning the board view</figcaption></figure><figure class="shot"><a class="shot__tile tile--sage" href="#" aria-label="Open screenshot: The board view"><span class="shot__bars" aria-hidden="true"><span></span><span></span><span></span></span></a><figcaption>The board view</figcaption></figure><figure class="shot"><a class="shot__tile tile--fjord" href="#" aria-label="Open screenshot: Weekly summary e-mail"><span class="shot__bars" aria-hidden="true"><span></span><span></span><span></span></span></a><figcaption>Weekly summary e-mail</figcaption></figure></div>
+<figure class="shot"><div class="shot__tile shot__tile--error" role="img" aria-label="Image didn't load: Planning the board view"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.5"/><path d="m4 18 5-5 4 4 3-3 4 4"/><path d="M4 4l16 16"/></svg><span>Image didn't load</span></div><figcaption>Planning the board view</figcaption></figure>
 ```
 
 ## Responsive

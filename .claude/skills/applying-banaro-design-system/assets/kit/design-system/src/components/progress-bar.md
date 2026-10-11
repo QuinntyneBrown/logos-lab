@@ -51,7 +51,7 @@ For a setup checklist, read the value as a step with `aria-valuetext`.
 ```
 
 ### indeterminate
-When the size is unknown: `aria-busy="true"` and no `aria-valuenow`. The short fill breathes in place.
+When the size is unknown: `aria-busy="true"` and no `aria-valuenow`. A short fill floats free of the start, so it never reads as a value, and drifts slowly across the track.
 ```html
 <div><div class="progress-label"><span id="pi-label">Preparing your export…</span></div><div class="progress" role="progressbar" aria-labelledby="pi-label" aria-busy="true"><div class="progress__bar"></div></div></div>
 ```
@@ -75,8 +75,7 @@ N/A: one 8px track. A taller bar does not make progress clearer; put the bar nea
 ## States
 
 **Default** shows the measured value and animates the fill to each new width over 420ms. **Loading**
-(indeterminate) is for the moment before the size is known: `aria-busy="true"` removes the value and a
-40% fill breathes in place until the first real value arrives. Success and danger are outcomes, shown as
+(indeterminate) is for the moment before the size is known: `aria-busy="true"` removes the value, and a short fill lifts off the start of the track and drifts across it until the first real value arrives. Success and danger are outcomes, shown as
 variants above.
 
 ### determinate / loading
@@ -117,8 +116,9 @@ leaves out `aria-valuenow` and sets `aria-busy="true"`.
 bar. Do not announce every percent; announce the start and the result in a `role="status"` message
 ("Upload complete. 12 photos added.").
 
-**Motion:** the fill eases to each new width and the indeterminate fill breathes; under reduced motion the
-width jumps and the breathing stops, and the label still says what is happening.
+**Motion:** the fill eases to each new width and the indeterminate fill drifts across the track over 3.6 seconds;
+under reduced motion the width jumps and the indeterminate fill rests in the middle of the track, and the
+label still says what is happening.
 
 **Touch:** N/A: a progress bar has no target. Any cancel or retry button beside it keeps 36px.
 

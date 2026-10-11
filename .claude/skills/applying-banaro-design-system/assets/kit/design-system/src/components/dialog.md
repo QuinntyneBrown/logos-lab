@@ -7,6 +7,7 @@ selector: .dialog
 target: .dialog__footer .btn--primary, .dialog__footer .btn--danger
 states: default, busy, invalid, failed
 matrix-variants: form, destructive, with person
+matrix-cell: 30rem
 apg: dialog-modal
 contrast: --color-fg-default|--color-bg-surface-raised|4.5; --color-fg-muted|--color-bg-surface-raised|4.5; --color-danger-icon|--color-danger-bg|3; --color-danger-fg|--color-danger-bg|4.5; --color-focus-ring|--color-bg-surface-raised|3
 ---

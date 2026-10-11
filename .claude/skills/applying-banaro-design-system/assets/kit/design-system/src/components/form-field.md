@@ -71,7 +71,8 @@ N/A: The field has one rhythm (an 8px gap between label, control, help and error
 ## States
 
 The field itself has no states; it shows the state of its control. Hover darkens the control's border,
-focus draws the sage ring around the control, disabled and read-only fill it with the linen surface, and
+focus draws the sage ring around the control, read-only fills it with linen and keeps the text strong,
+disabled fills it with linen and fades the text, and
 invalid turns the border and fill to the danger roles and inserts an error message linked with
 `aria-describedby`. Help text stays visible in every state so the reason for the question is never lost.
 

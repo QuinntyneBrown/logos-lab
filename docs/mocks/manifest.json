@@ -1,0 +1,3673 @@
+{
+  "project": "Logos Lab",
+  "screens": [
+    {
+      "id": "nav-drawer",
+      "kind": "dialog",
+      "title": "Navigation menu",
+      "area": "chrome",
+      "opens_from": "home",
+      "requirements": [
+        "L2-131",
+        "L2-016"
+      ],
+      "states": [
+        "default",
+        "signed-in",
+        "staff"
+      ],
+      "not_applicable": {
+        "busy": "Links only",
+        "invalid": "Links only"
+      }
+    },
+    {
+      "id": "search-suggest",
+      "kind": "dialog",
+      "title": "Search suggestions",
+      "area": "chrome",
+      "opens_from": "home",
+      "requirements": [
+        "L2-003",
+        "L2-004",
+        "L2-141"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "empty",
+        "failed",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "account-menu",
+      "kind": "dialog",
+      "title": "Account menu",
+      "area": "chrome",
+      "opens_from": "dashboard",
+      "requirements": [
+        "L2-133",
+        "L2-010",
+        "L2-016"
+      ],
+      "states": [
+        "default",
+        "staff",
+        "selected"
+      ],
+      "not_applicable": {
+        "busy": "Choosing a theme applies instantly",
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "theme-menu",
+      "kind": "dialog",
+      "title": "Theme menu",
+      "area": "chrome",
+      "opens_from": "home",
+      "requirements": [
+        "L2-133"
+      ],
+      "states": [
+        "default",
+        "selected"
+      ],
+      "not_applicable": {
+        "busy": "The theme applies instantly",
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "sign-in-required",
+      "kind": "dialog",
+      "title": "Sign in to continue",
+      "area": "chrome",
+      "opens_from": "course-overview",
+      "requirements": [
+        "L2-015"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "busy": "It only links to sign in and register",
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "verify-email-prompt",
+      "kind": "dialog",
+      "title": "Verify your email",
+      "area": "chrome",
+      "opens_from": "article-page",
+      "requirements": [
+        "L2-007",
+        "L2-027",
+        "L2-065"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "success",
+        "cooldown",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "session-timeout",
+      "kind": "dialog",
+      "title": "Session about to end",
+      "area": "chrome",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-010",
+        "L2-128"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "success",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "site-announcement",
+      "kind": "notification",
+      "title": "Site announcement",
+      "area": "chrome",
+      "opens_from": "home",
+      "requirements": [
+        "L2-098",
+        "L2-135"
+      ],
+      "states": [
+        "info",
+        "warning",
+        "with-action",
+        "stacked"
+      ],
+      "not_applicable": {
+        "success": "Announcements have Info and Warning severities only",
+        "danger": "Announcements have Info and Warning severities only"
+      }
+    },
+    {
+      "id": "account-banner",
+      "kind": "notification",
+      "title": "Account banner",
+      "area": "chrome",
+      "opens_from": "dashboard",
+      "requirements": [
+        "L2-007",
+        "L2-092"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "persistent"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "toast",
+      "kind": "notification",
+      "title": "Toast",
+      "area": "chrome",
+      "opens_from": "article-page",
+      "requirements": [
+        "L2-071",
+        "L2-085",
+        "L2-031",
+        "L2-062",
+        "L2-067",
+        "L2-103",
+        "L2-127"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "with-action",
+        "stacked"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "offline-notice",
+      "kind": "notification",
+      "title": "Offline notice",
+      "area": "chrome",
+      "opens_from": "lesson-player",
+      "requirements": [
+        "L2-141",
+        "L2-084",
+        "L2-036"
+      ],
+      "states": [
+        "warning",
+        "success",
+        "with-action",
+        "persistent"
+      ],
+      "not_applicable": {
+        "info": "Losing the connection is always a warning",
+        "danger": "Offline is recoverable, so it never uses the danger tone"
+      }
+    },
+    {
+      "id": "service-notice",
+      "kind": "notification",
+      "title": "Service notice",
+      "area": "chrome",
+      "opens_from": "search-results",
+      "requirements": [
+        "L2-141"
+      ],
+      "states": [
+        "warning",
+        "danger",
+        "with-action"
+      ],
+      "not_applicable": {
+        "info": "Shown only when a service is degraded",
+        "success": "Recovery is silent"
+      }
+    },
+    {
+      "id": "home",
+      "kind": "page",
+      "title": "Home",
+      "area": "discovery",
+      "route": "/",
+      "requirements": [
+        "L2-001",
+        "L2-015",
+        "L2-097",
+        "L2-120",
+        "L2-142",
+        "L2-143",
+        "L2-144"
+      ],
+      "states": [
+        "default",
+        "signed-in",
+        "loading",
+        "empty",
+        "error",
+        "partial",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "explore",
+      "kind": "page",
+      "title": "Explore",
+      "area": "discovery",
+      "route": "/explore",
+      "requirements": [
+        "L2-002",
+        "L2-005",
+        "L2-130",
+        "L2-141"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "selected",
+        "partial",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "explore-filters",
+      "kind": "dialog",
+      "title": "Filters",
+      "area": "discovery",
+      "opens_from": "explore",
+      "requirements": [
+        "L2-002",
+        "L2-051",
+        "L2-022"
+      ],
+      "states": [
+        "default",
+        "selected",
+        "busy"
+      ],
+      "not_applicable": {
+        "invalid": "Filters are choices from fixed lists"
+      }
+    },
+    {
+      "id": "search-results",
+      "kind": "page",
+      "title": "Search",
+      "area": "discovery",
+      "route": "/search?q=",
+      "requirements": [
+        "L2-003",
+        "L2-004",
+        "L2-141",
+        "L2-107"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "selected",
+        "corrected",
+        "invalid",
+        "rate-limited",
+        "partial",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "topic",
+      "kind": "page",
+      "title": "Topic",
+      "area": "discovery",
+      "route": "/topics/{slug}",
+      "requirements": [
+        "L2-005",
+        "L2-022"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "accessibility-statement",
+      "kind": "page",
+      "title": "Accessibility statement",
+      "area": "discovery",
+      "route": "/accessibility",
+      "requirements": [
+        "L2-125"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered static page",
+        "empty": "Static page with fixed content",
+        "error": "A failure shows the server error page"
+      }
+    },
+    {
+      "id": "sign-in",
+      "kind": "page",
+      "title": "Sign in",
+      "area": "auth",
+      "route": "/sign-in",
+      "requirements": [
+        "L2-008",
+        "L2-009",
+        "L2-010",
+        "L2-015",
+        "L2-019"
+      ],
+      "states": [
+        "default",
+        "submitting",
+        "invalid",
+        "error",
+        "rate-limited",
+        "suspended",
+        "deactivated",
+        "context",
+        "session-expired",
+        "signed-out"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered form",
+        "empty": "A form has no empty state"
+      }
+    },
+    {
+      "id": "sign-in-verify",
+      "kind": "page",
+      "title": "Two-step verification",
+      "area": "auth",
+      "route": "/sign-in/verify",
+      "requirements": [
+        "L2-008",
+        "L2-014"
+      ],
+      "states": [
+        "default",
+        "recovery-code",
+        "submitting",
+        "invalid",
+        "locked",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered form",
+        "empty": "A form has no empty state"
+      }
+    },
+    {
+      "id": "register",
+      "kind": "page",
+      "title": "Create account",
+      "area": "auth",
+      "route": "/register",
+      "requirements": [
+        "L2-006",
+        "L2-114",
+        "L2-094"
+      ],
+      "states": [
+        "default",
+        "submitting",
+        "invalid",
+        "breached",
+        "rate-limited",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered form",
+        "empty": "A form has no empty state"
+      }
+    },
+    {
+      "id": "verify-email",
+      "kind": "page",
+      "title": "Verify your email",
+      "area": "auth",
+      "route": "/verify-email",
+      "requirements": [
+        "L2-007"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "success",
+        "expired",
+        "resend-sent",
+        "cooldown",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "The page always explains the link it was opened with"
+      }
+    },
+    {
+      "id": "forgot-password",
+      "kind": "page",
+      "title": "Forgot password",
+      "area": "auth",
+      "route": "/forgot-password",
+      "requirements": [
+        "L2-011"
+      ],
+      "states": [
+        "default",
+        "submitting",
+        "invalid",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered form",
+        "empty": "A form has no empty state"
+      }
+    },
+    {
+      "id": "reset-password",
+      "kind": "page",
+      "title": "Reset password",
+      "area": "auth",
+      "route": "/reset-password",
+      "requirements": [
+        "L2-011",
+        "L2-006"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "submitting",
+        "invalid",
+        "success",
+        "expired",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A form has no empty state"
+      }
+    },
+    {
+      "id": "mfa-setup",
+      "kind": "page",
+      "title": "Set up two-step verification",
+      "area": "auth",
+      "route": "/settings/security/two-step",
+      "requirements": [
+        "L2-014",
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "mandatory",
+        "loading",
+        "submitting",
+        "invalid",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Setup always shows a key to scan"
+      }
+    },
+    {
+      "id": "email-change-confirm",
+      "kind": "page",
+      "title": "Confirm new email",
+      "area": "auth",
+      "route": "/account/confirm-email",
+      "requirements": [
+        "L2-012"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "success",
+        "expired",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "The page always explains the link it was opened with"
+      }
+    },
+    {
+      "id": "report-change",
+      "kind": "page",
+      "title": "Secure your account",
+      "area": "auth",
+      "route": "/account/report-change",
+      "requirements": [
+        "L2-012"
+      ],
+      "states": [
+        "default",
+        "submitting",
+        "success",
+        "expired",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered from the link",
+        "empty": "The page always explains the link it was opened with"
+      }
+    },
+    {
+      "id": "restore-account",
+      "kind": "page",
+      "title": "Restore your account",
+      "area": "auth",
+      "route": "/account/restore",
+      "requirements": [
+        "L2-117"
+      ],
+      "states": [
+        "default",
+        "submitting",
+        "success",
+        "expired",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered from the link",
+        "empty": "The page always explains the link it was opened with"
+      }
+    },
+    {
+      "id": "account-deleted",
+      "kind": "page",
+      "title": "Account deleted",
+      "area": "auth",
+      "route": "/account/deleted",
+      "requirements": [
+        "L2-117"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Static confirmation",
+        "empty": "Static confirmation",
+        "error": "Shown only after deletion succeeds"
+      }
+    },
+    {
+      "id": "expert-invitation",
+      "kind": "page",
+      "title": "Expert invitation",
+      "area": "auth",
+      "route": "/invitations/{token}",
+      "requirements": [
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "expired",
+        "revoked",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "The page always explains the invitation it was opened with"
+      }
+    },
+    {
+      "id": "settings-profile",
+      "kind": "page",
+      "title": "Profile settings",
+      "area": "settings",
+      "route": "/settings/profile",
+      "requirements": [
+        "L2-013"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "invalid",
+        "submitting",
+        "success",
+        "long"
+      ],
+      "not_applicable": {
+        "empty": "Every account has a display name"
+      }
+    },
+    {
+      "id": "avatar-upload",
+      "kind": "dialog",
+      "title": "Change photo",
+      "area": "settings",
+      "opens_from": "settings-profile",
+      "requirements": [
+        "L2-013",
+        "L2-108"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "crop",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "settings-account",
+      "kind": "page",
+      "title": "Email and password",
+      "area": "settings",
+      "route": "/settings/account",
+      "requirements": [
+        "L2-012",
+        "L2-010",
+        "L2-092"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "invalid",
+        "submitting",
+        "success",
+        "pending-email",
+        "bounced"
+      ],
+      "not_applicable": {
+        "empty": "Every account has an email address"
+      }
+    },
+    {
+      "id": "settings-security",
+      "kind": "page",
+      "title": "Security",
+      "area": "settings",
+      "route": "/settings/security",
+      "requirements": [
+        "L2-014"
+      ],
+      "states": [
+        "default",
+        "enabled",
+        "mandatory",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Two-step verification is always on or off"
+      }
+    },
+    {
+      "id": "mfa-disable",
+      "kind": "dialog",
+      "title": "Turn off two-step verification",
+      "area": "settings",
+      "opens_from": "settings-security",
+      "requirements": [
+        "L2-014"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "settings-sessions",
+      "kind": "page",
+      "title": "Active sessions",
+      "area": "settings",
+      "route": "/settings/sessions",
+      "requirements": [
+        "L2-010"
+      ],
+      "states": [
+        "default",
+        "single",
+        "loading",
+        "error",
+        "success",
+        "long"
+      ],
+      "not_applicable": {
+        "empty": "The current session is always listed"
+      }
+    },
+    {
+      "id": "sign-out-others",
+      "kind": "dialog",
+      "title": "Sign out other sessions",
+      "area": "settings",
+      "opens_from": "settings-sessions",
+      "requirements": [
+        "L2-010"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "settings-notifications",
+      "kind": "page",
+      "title": "Notification settings",
+      "area": "settings",
+      "route": "/settings/notifications",
+      "requirements": [
+        "L2-093",
+        "L2-094",
+        "L2-057"
+      ],
+      "states": [
+        "default",
+        "read-only",
+        "locked",
+        "loading",
+        "error",
+        "submitting",
+        "success"
+      ],
+      "not_applicable": {
+        "empty": "Every category is always listed"
+      }
+    },
+    {
+      "id": "settings-privacy",
+      "kind": "page",
+      "title": "Privacy and messaging",
+      "area": "settings",
+      "route": "/settings/privacy",
+      "requirements": [
+        "L2-065",
+        "L2-066",
+        "L2-094",
+        "L2-115"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "submitting",
+        "success"
+      ],
+      "not_applicable": {
+        "empty": "Every setting is always listed"
+      }
+    },
+    {
+      "id": "settings-data",
+      "kind": "page",
+      "title": "Your data",
+      "area": "settings",
+      "route": "/settings/data",
+      "requirements": [
+        "L2-116",
+        "L2-117",
+        "L2-119"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "export-pending",
+        "export-ready",
+        "rate-limited",
+        "deletion-blocked",
+        "limited"
+      ],
+      "not_applicable": {
+        "empty": "Export and deletion are always offered"
+      }
+    },
+    {
+      "id": "data-export",
+      "kind": "dialog",
+      "title": "Download your data",
+      "area": "settings",
+      "opens_from": "settings-data",
+      "requirements": [
+        "L2-116"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "data-export-download",
+      "kind": "page",
+      "title": "Your data export",
+      "area": "settings",
+      "route": "/settings/data/exports/{id}",
+      "requirements": [
+        "L2-116"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "expired"
+      ],
+      "not_applicable": {
+        "empty": "An export always contains your account file"
+      }
+    },
+    {
+      "id": "delete-account",
+      "kind": "dialog",
+      "title": "Delete your account",
+      "area": "settings",
+      "opens_from": "settings-data",
+      "requirements": [
+        "L2-117"
+      ],
+      "states": [
+        "default",
+        "scroll",
+        "busy",
+        "invalid",
+        "failed",
+        "blocked"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "settings-blocked",
+      "kind": "page",
+      "title": "Blocked members",
+      "area": "settings",
+      "route": "/settings/blocked",
+      "requirements": [
+        "L2-067"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "experts",
+      "kind": "page",
+      "title": "Experts",
+      "area": "experts",
+      "route": "/experts",
+      "requirements": [
+        "L2-022",
+        "L2-130"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "invalid",
+        "selected",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "expert-profile",
+      "kind": "page",
+      "title": "Expert profile",
+      "area": "experts",
+      "route": "/experts/{slug}",
+      "requirements": [
+        "L2-021",
+        "L2-024",
+        "L2-144"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "following",
+        "rate-limited",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "unfollow",
+      "kind": "dialog",
+      "title": "Unfollow",
+      "area": "experts",
+      "opens_from": "expert-profile",
+      "requirements": [
+        "L2-024",
+        "L2-074",
+        "L2-050"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "studio-profile",
+      "kind": "page",
+      "title": "Your expert profile",
+      "area": "experts",
+      "route": "/studio/profile",
+      "requirements": [
+        "L2-020",
+        "L2-021",
+        "L2-023"
+      ],
+      "states": [
+        "default",
+        "onboarding",
+        "loading",
+        "error",
+        "invalid",
+        "submitting",
+        "success",
+        "restored"
+      ],
+      "not_applicable": {
+        "empty": "The profile form always shows"
+      }
+    },
+    {
+      "id": "expert-profile-history",
+      "kind": "page",
+      "title": "Profile history",
+      "area": "experts",
+      "route": "/studio/experts/{id}/history",
+      "requirements": [
+        "L2-023"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "restore-profile-version",
+      "kind": "dialog",
+      "title": "Restore profile version",
+      "area": "experts",
+      "opens_from": "expert-profile-history",
+      "requirements": [
+        "L2-023"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "course-overview",
+      "kind": "page",
+      "title": "Course overview",
+      "area": "courses",
+      "route": "/courses/{slug}",
+      "requirements": [
+        "L2-025",
+        "L2-026",
+        "L2-027",
+        "L2-030",
+        "L2-031",
+        "L2-047",
+        "L2-064",
+        "L2-081"
+      ],
+      "states": [
+        "default",
+        "visitor",
+        "submitting",
+        "enrolled",
+        "completed",
+        "cohort",
+        "archived",
+        "loading",
+        "error",
+        "long"
+      ],
+      "not_applicable": {
+        "empty": "A published course always has at least one lesson"
+      }
+    },
+    {
+      "id": "leave-course",
+      "kind": "dialog",
+      "title": "Leave course",
+      "area": "courses",
+      "opens_from": "course-overview",
+      "requirements": [
+        "L2-027"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "lesson-player",
+      "kind": "page",
+      "title": "Lesson",
+      "area": "courses",
+      "route": "/courses/{slug}/lessons/{id}",
+      "requirements": [
+        "L2-026",
+        "L2-028",
+        "L2-029",
+        "L2-030",
+        "L2-042"
+      ],
+      "states": [
+        "default",
+        "video",
+        "article",
+        "module",
+        "locked",
+        "scroll-to-complete",
+        "completed",
+        "archived",
+        "offline",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A lesson always has content"
+      }
+    },
+    {
+      "id": "course-outline",
+      "kind": "dialog",
+      "title": "Course outline",
+      "area": "courses",
+      "opens_from": "lesson-player",
+      "requirements": [
+        "L2-028"
+      ],
+      "states": [
+        "default",
+        "locked",
+        "scroll"
+      ],
+      "not_applicable": {
+        "busy": "Links only",
+        "invalid": "Links only"
+      }
+    },
+    {
+      "id": "course-complete",
+      "kind": "page",
+      "title": "Course complete",
+      "area": "courses",
+      "route": "/courses/{slug}/complete",
+      "requirements": [
+        "L2-031"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Shown only when a course is complete"
+      }
+    },
+    {
+      "id": "certificate",
+      "kind": "page",
+      "title": "Certificate",
+      "area": "courses",
+      "route": "/dashboard/certificates/{id}",
+      "requirements": [
+        "L2-031",
+        "L2-030"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "name-changed",
+        "revoked"
+      ],
+      "not_applicable": {
+        "empty": "Shown only for an issued certificate"
+      }
+    },
+    {
+      "id": "certificate-download",
+      "kind": "dialog",
+      "title": "Download certificate",
+      "area": "courses",
+      "opens_from": "certificate",
+      "requirements": [
+        "L2-031"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Paper size is a choice of two"
+      }
+    },
+    {
+      "id": "certificate-share",
+      "kind": "dialog",
+      "title": "Share certificate",
+      "area": "courses",
+      "opens_from": "certificate",
+      "requirements": [
+        "L2-031",
+        "L2-073"
+      ],
+      "states": [
+        "default",
+        "success",
+        "failed"
+      ],
+      "not_applicable": {
+        "busy": "Copying a link is instant",
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "reissue-certificate",
+      "kind": "dialog",
+      "title": "Reissue certificate",
+      "area": "courses",
+      "opens_from": "certificate",
+      "requirements": [
+        "L2-031"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "certificate-verify",
+      "kind": "page",
+      "title": "Certificate verification",
+      "area": "courses",
+      "route": "/certificates/{code}",
+      "requirements": [
+        "L2-032",
+        "L2-117"
+      ],
+      "states": [
+        "default",
+        "not-found",
+        "revoked",
+        "unavailable",
+        "rate-limited",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered",
+        "empty": "The page always reports on the code it was opened with"
+      }
+    },
+    {
+      "id": "module-page",
+      "kind": "page",
+      "title": "Learning module",
+      "area": "modules",
+      "route": "/modules/{slug}",
+      "requirements": [
+        "L2-038",
+        "L2-035",
+        "L2-037",
+        "L2-047"
+      ],
+      "states": [
+        "default",
+        "visitor",
+        "in-progress",
+        "completed",
+        "failed",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A published module always has a package"
+      }
+    },
+    {
+      "id": "module-player",
+      "kind": "page",
+      "title": "Module player",
+      "area": "modules",
+      "route": "/modules/{slug}/play",
+      "requirements": [
+        "L2-034",
+        "L2-035",
+        "L2-036",
+        "L2-037",
+        "L2-129"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "fullscreen",
+        "saving",
+        "offline",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "The player always has a package to launch"
+      }
+    },
+    {
+      "id": "report-problem",
+      "kind": "dialog",
+      "title": "Report a problem",
+      "area": "modules",
+      "opens_from": "module-player",
+      "requirements": [
+        "L2-035",
+        "L2-040"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "studio-module-package",
+      "kind": "page",
+      "title": "Module package",
+      "area": "modules",
+      "route": "/studio/modules/{id}/package",
+      "requirements": [
+        "L2-033",
+        "L2-108"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "uploading",
+        "validating",
+        "failed",
+        "quarantined",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "video-page",
+      "kind": "page",
+      "title": "Video",
+      "area": "videos",
+      "route": "/videos/{slug}",
+      "requirements": [
+        "L2-044",
+        "L2-040",
+        "L2-041",
+        "L2-042",
+        "L2-043",
+        "L2-015",
+        "L2-047"
+      ],
+      "states": [
+        "default",
+        "visitor",
+        "preview",
+        "resume",
+        "transcript",
+        "player-error",
+        "loading",
+        "error",
+        "long"
+      ],
+      "not_applicable": {
+        "empty": "A published video always has media"
+      }
+    },
+    {
+      "id": "player-settings",
+      "kind": "dialog",
+      "title": "Player settings",
+      "area": "videos",
+      "opens_from": "video-page",
+      "requirements": [
+        "L2-040",
+        "L2-041"
+      ],
+      "states": [
+        "default",
+        "selected"
+      ],
+      "not_applicable": {
+        "busy": "Settings apply instantly",
+        "invalid": "Choices only"
+      }
+    },
+    {
+      "id": "studio-video-media",
+      "kind": "page",
+      "title": "Video media",
+      "area": "videos",
+      "route": "/studio/videos/{id}/media",
+      "requirements": [
+        "L2-039",
+        "L2-108"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "uploading",
+        "interrupted",
+        "processing",
+        "failed",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "studio-video-captions",
+      "kind": "page",
+      "title": "Captions and transcript",
+      "area": "videos",
+      "route": "/studio/videos/{id}/captions",
+      "requirements": [
+        "L2-041",
+        "L2-039",
+        "L2-149"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "uploading",
+        "invalid",
+        "generating",
+        "review-required",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "confirm-captions",
+      "kind": "dialog",
+      "title": "Confirm captions reviewed",
+      "area": "videos",
+      "opens_from": "studio-video-captions",
+      "requirements": [
+        "L2-041"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "success",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "article-page",
+      "kind": "page",
+      "title": "Article",
+      "area": "reading",
+      "route": "/articles/{slug}",
+      "requirements": [
+        "L2-045",
+        "L2-046",
+        "L2-047",
+        "L2-060",
+        "L2-071",
+        "L2-149"
+      ],
+      "states": [
+        "default",
+        "visitor",
+        "updated",
+        "saved",
+        "long",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A published article always has a body"
+      }
+    },
+    {
+      "id": "collection-page",
+      "kind": "page",
+      "title": "Collection",
+      "area": "reading",
+      "route": "/collections/{slug}",
+      "requirements": [
+        "L2-048",
+        "L2-050"
+      ],
+      "states": [
+        "default",
+        "progress",
+        "following",
+        "partial",
+        "empty",
+        "loading",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "events",
+      "kind": "page",
+      "title": "Events",
+      "area": "events",
+      "route": "/events",
+      "requirements": [
+        "L2-051",
+        "L2-059"
+      ],
+      "states": [
+        "default",
+        "past",
+        "live",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "event-page",
+      "kind": "page",
+      "title": "Event",
+      "area": "events",
+      "route": "/events/{slug}",
+      "requirements": [
+        "L2-052",
+        "L2-053",
+        "L2-054",
+        "L2-055",
+        "L2-056",
+        "L2-057",
+        "L2-058",
+        "L2-059"
+      ],
+      "states": [
+        "default",
+        "visitor",
+        "registered",
+        "join-open",
+        "full",
+        "waitlisted",
+        "closed",
+        "cancelled",
+        "live",
+        "past",
+        "in-person",
+        "changed",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A published event always has details"
+      }
+    },
+    {
+      "id": "add-to-calendar",
+      "kind": "dialog",
+      "title": "Add to calendar",
+      "area": "events",
+      "opens_from": "event-page",
+      "requirements": [
+        "L2-056"
+      ],
+      "states": [
+        "default",
+        "success"
+      ],
+      "not_applicable": {
+        "busy": "Downloads and links are instant",
+        "invalid": "Choices only"
+      }
+    },
+    {
+      "id": "cancel-registration",
+      "kind": "dialog",
+      "title": "Cancel registration",
+      "area": "events",
+      "opens_from": "event-page",
+      "requirements": [
+        "L2-055"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "leave-waitlist",
+      "kind": "dialog",
+      "title": "Leave waitlist",
+      "area": "events",
+      "opens_from": "event-page",
+      "requirements": [
+        "L2-054"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "waitlist-offer",
+      "kind": "dialog",
+      "title": "A place is available",
+      "area": "events",
+      "opens_from": "event-page",
+      "requirements": [
+        "L2-054"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "success",
+        "expired"
+      ],
+      "not_applicable": {
+        "invalid": "Accept or decline only"
+      }
+    },
+    {
+      "id": "event-full",
+      "kind": "dialog",
+      "title": "Event full",
+      "area": "events",
+      "opens_from": "event-page",
+      "requirements": [
+        "L2-053"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Join the waitlist or close only"
+      }
+    },
+    {
+      "id": "comments",
+      "kind": "page",
+      "title": "Comments",
+      "area": "community",
+      "route": "/articles/{slug}#comments",
+      "requirements": [
+        "L2-060",
+        "L2-061",
+        "L2-062",
+        "L2-067",
+        "L2-068",
+        "L2-087",
+        "L2-019"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "long",
+        "submitting",
+        "invalid",
+        "held",
+        "rate-limited",
+        "closed",
+        "edited",
+        "deleted",
+        "blocked",
+        "visitor",
+        "unverified"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "delete-comment",
+      "kind": "dialog",
+      "title": "Delete comment",
+      "area": "community",
+      "opens_from": "comments",
+      "requirements": [
+        "L2-061"
+      ],
+      "states": [
+        "default",
+        "with-replies",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "report-content",
+      "kind": "dialog",
+      "title": "Report",
+      "area": "community",
+      "opens_from": "comments",
+      "requirements": [
+        "L2-085"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success",
+        "already-reported",
+        "rate-limited"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "community-guidelines",
+      "kind": "dialog",
+      "title": "Community guidelines",
+      "area": "community",
+      "opens_from": "comments",
+      "requirements": [
+        "L2-068"
+      ],
+      "states": [
+        "default",
+        "scroll",
+        "updated",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A single accept action"
+      }
+    },
+    {
+      "id": "block-member",
+      "kind": "dialog",
+      "title": "Block member",
+      "area": "community",
+      "opens_from": "member-profile",
+      "requirements": [
+        "L2-067"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "member-profile",
+      "kind": "page",
+      "title": "Member profile",
+      "area": "community",
+      "route": "/members/{id}",
+      "requirements": [
+        "L2-013",
+        "L2-065",
+        "L2-067",
+        "L2-019",
+        "L2-085"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "can-message",
+        "own",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "cohort-space",
+      "kind": "page",
+      "title": "Cohort",
+      "area": "community",
+      "route": "/cohorts/{id}",
+      "requirements": [
+        "L2-064",
+        "L2-063",
+        "L2-102"
+      ],
+      "states": [
+        "default",
+        "leader",
+        "loading",
+        "empty",
+        "error",
+        "read-only",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "cohort-join",
+      "kind": "page",
+      "title": "Join cohort",
+      "area": "community",
+      "route": "/cohorts/join/{token}",
+      "requirements": [
+        "L2-063"
+      ],
+      "states": [
+        "default",
+        "submitting",
+        "success",
+        "full",
+        "ended",
+        "invalid-link",
+        "unverified",
+        "visitor",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "The page always explains the link it was opened with"
+      }
+    },
+    {
+      "id": "cohort-announcement",
+      "kind": "dialog",
+      "title": "Post announcement",
+      "area": "community",
+      "opens_from": "cohort-space",
+      "requirements": [
+        "L2-064"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "studio-cohorts",
+      "kind": "page",
+      "title": "Your cohorts",
+      "area": "community",
+      "route": "/studio/cohorts",
+      "requirements": [
+        "L2-063"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "cohort-settings",
+      "kind": "page",
+      "title": "Cohort settings",
+      "area": "community",
+      "route": "/studio/cohorts/{id}",
+      "requirements": [
+        "L2-063"
+      ],
+      "states": [
+        "default",
+        "new",
+        "members",
+        "loading",
+        "error",
+        "invalid",
+        "submitting",
+        "success"
+      ],
+      "not_applicable": {
+        "empty": "A new cohort opens the blank form (state: new)"
+      }
+    },
+    {
+      "id": "cohort-invite",
+      "kind": "dialog",
+      "title": "Invite to cohort",
+      "area": "community",
+      "opens_from": "cohort-settings",
+      "requirements": [
+        "L2-063"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "partial",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "regenerate-link",
+      "kind": "dialog",
+      "title": "Regenerate join link",
+      "area": "community",
+      "opens_from": "cohort-settings",
+      "requirements": [
+        "L2-063"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "remove-cohort-member",
+      "kind": "dialog",
+      "title": "Remove member",
+      "area": "community",
+      "opens_from": "cohort-settings",
+      "requirements": [
+        "L2-063"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "messages",
+      "kind": "page",
+      "title": "Messages",
+      "area": "community",
+      "route": "/messages",
+      "requirements": [
+        "L2-066"
+      ],
+      "states": [
+        "default",
+        "unread",
+        "loading",
+        "empty",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "conversation",
+      "kind": "page",
+      "title": "Conversation",
+      "area": "community",
+      "route": "/messages/{id}",
+      "requirements": [
+        "L2-065",
+        "L2-066",
+        "L2-067",
+        "L2-085"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "empty",
+        "submitting",
+        "seen",
+        "invalid",
+        "rate-limited",
+        "blocked",
+        "not-eligible",
+        "offline",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "dashboard",
+      "kind": "page",
+      "title": "Dashboard",
+      "area": "dashboard",
+      "route": "/dashboard",
+      "requirements": [
+        "L2-069",
+        "L2-030"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "partial",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "my-learning",
+      "kind": "page",
+      "title": "My learning",
+      "area": "dashboard",
+      "route": "/dashboard/learning",
+      "requirements": [
+        "L2-070"
+      ],
+      "states": [
+        "default",
+        "completed",
+        "loading",
+        "empty",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "saved",
+      "kind": "page",
+      "title": "Saved",
+      "area": "dashboard",
+      "route": "/dashboard/saved",
+      "requirements": [
+        "L2-071"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "unavailable",
+        "limit",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "my-events",
+      "kind": "page",
+      "title": "My events",
+      "area": "dashboard",
+      "route": "/dashboard/events",
+      "requirements": [
+        "L2-072"
+      ],
+      "states": [
+        "default",
+        "past",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "my-certificates",
+      "kind": "page",
+      "title": "My certificates",
+      "area": "dashboard",
+      "route": "/dashboard/certificates",
+      "requirements": [
+        "L2-073"
+      ],
+      "states": [
+        "default",
+        "revoked",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "following",
+      "kind": "page",
+      "title": "Following",
+      "area": "dashboard",
+      "route": "/dashboard/following",
+      "requirements": [
+        "L2-074",
+        "L2-050"
+      ],
+      "states": [
+        "default",
+        "collections",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "studio",
+      "kind": "page",
+      "title": "Studio",
+      "area": "studio",
+      "route": "/studio",
+      "requirements": [
+        "L2-075",
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "editor",
+        "onboarding",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "review-queue",
+      "kind": "page",
+      "title": "Review queue",
+      "area": "studio",
+      "route": "/studio/review",
+      "requirements": [
+        "L2-075",
+        "L2-077"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "new-content",
+      "kind": "dialog",
+      "title": "New item",
+      "area": "studio",
+      "opens_from": "studio",
+      "requirements": [
+        "L2-075"
+      ],
+      "states": [
+        "default",
+        "editor",
+        "busy",
+        "invalid",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "studio-editor",
+      "kind": "page",
+      "title": "Editor",
+      "area": "studio",
+      "route": "/studio/{type}/{id}",
+      "requirements": [
+        "L2-076",
+        "L2-077",
+        "L2-080",
+        "L2-082",
+        "L2-084",
+        "L2-128"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "loading",
+        "error",
+        "saving",
+        "not-saved",
+        "offline",
+        "invalid",
+        "in-review",
+        "changes-requested",
+        "approved",
+        "scheduled",
+        "published",
+        "revision",
+        "archived",
+        "co-editing"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "course-builder",
+      "kind": "page",
+      "title": "Course builder",
+      "area": "studio",
+      "route": "/studio/courses/{id}",
+      "requirements": [
+        "L2-026",
+        "L2-028",
+        "L2-025",
+        "L2-047",
+        "L2-060"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "reordering",
+        "loading",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "article-editor",
+      "kind": "page",
+      "title": "Article editor",
+      "area": "studio",
+      "route": "/studio/articles/{id}",
+      "requirements": [
+        "L2-046",
+        "L2-083",
+        "L2-149"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "scripture",
+        "loading",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "collection-builder",
+      "kind": "page",
+      "title": "Collection builder",
+      "area": "studio",
+      "route": "/studio/collections/{id}",
+      "requirements": [
+        "L2-049"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "loading",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "event-editor",
+      "kind": "page",
+      "title": "Event editor",
+      "area": "studio",
+      "route": "/studio/events/{id}",
+      "requirements": [
+        "L2-052",
+        "L2-053",
+        "L2-055",
+        "L2-058",
+        "L2-059"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "in-person",
+        "past",
+        "cancelled",
+        "invalid",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "item-picker",
+      "kind": "dialog",
+      "title": "Add items",
+      "area": "studio",
+      "opens_from": "course-builder",
+      "requirements": [
+        "L2-026",
+        "L2-049",
+        "L2-059",
+        "L2-097",
+        "L2-047"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "empty",
+        "no-results",
+        "selected",
+        "invalid"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "image-upload",
+      "kind": "dialog",
+      "title": "Upload image",
+      "area": "studio",
+      "opens_from": "article-editor",
+      "requirements": [
+        "L2-083",
+        "L2-108",
+        "L2-046"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "alt-text",
+        "focal-point",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "submit-for-review",
+      "kind": "dialog",
+      "title": "Submit for review",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-077",
+        "L2-082"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "review-item",
+      "kind": "page",
+      "title": "Review",
+      "area": "studio",
+      "route": "/studio/review/{id}",
+      "requirements": [
+        "L2-077",
+        "L2-076"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "commenting",
+        "resubmitted",
+        "self-authored"
+      ],
+      "not_applicable": {
+        "empty": "Only submitted items reach review"
+      }
+    },
+    {
+      "id": "request-changes",
+      "kind": "dialog",
+      "title": "Request changes",
+      "area": "studio",
+      "opens_from": "review-item",
+      "requirements": [
+        "L2-077"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "approve",
+      "kind": "dialog",
+      "title": "Approve",
+      "area": "studio",
+      "opens_from": "review-item",
+      "requirements": [
+        "L2-077",
+        "L2-076"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "publish-schedule",
+      "kind": "dialog",
+      "title": "Publish or schedule",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-079"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "unschedule",
+      "kind": "dialog",
+      "title": "Unschedule",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-076",
+        "L2-079"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "archive-content",
+      "kind": "dialog",
+      "title": "Archive",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-081",
+        "L2-026"
+      ],
+      "states": [
+        "default",
+        "in-use",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "restore-archived",
+      "kind": "dialog",
+      "title": "Restore",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-081"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "publish-correction",
+      "kind": "dialog",
+      "title": "Publish correction",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-080"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "content-history",
+      "kind": "page",
+      "title": "History",
+      "area": "studio",
+      "route": "/studio/{type}/{id}/history",
+      "requirements": [
+        "L2-076",
+        "L2-080"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "restore-version",
+      "kind": "dialog",
+      "title": "Restore version",
+      "area": "studio",
+      "opens_from": "content-history",
+      "requirements": [
+        "L2-080"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "preview",
+      "kind": "page",
+      "title": "Preview",
+      "area": "studio",
+      "route": "/studio/preview/{id}",
+      "requirements": [
+        "L2-078"
+      ],
+      "states": [
+        "default",
+        "phone",
+        "dark",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Preview always renders the current draft"
+      }
+    },
+    {
+      "id": "preview-banner",
+      "kind": "notification",
+      "title": "Preview banner",
+      "area": "studio",
+      "opens_from": "preview",
+      "requirements": [
+        "L2-078"
+      ],
+      "states": [
+        "info",
+        "with-action",
+        "persistent"
+      ],
+      "not_applicable": {
+        "success": "The preview banner is always informational",
+        "warning": "The preview banner is always informational",
+        "danger": "The preview banner is always informational"
+      }
+    },
+    {
+      "id": "conflict",
+      "kind": "dialog",
+      "title": "Resolve changes",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-084"
+      ],
+      "states": [
+        "default",
+        "scroll",
+        "busy",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Choose a version"
+      }
+    },
+    {
+      "id": "unsaved-changes",
+      "kind": "dialog",
+      "title": "Leave without saving",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-084",
+        "L2-126"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "busy": "Leaving or staying is instant",
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "change-attribution",
+      "kind": "dialog",
+      "title": "Change attribution",
+      "area": "studio",
+      "opens_from": "studio-editor",
+      "requirements": [
+        "L2-075",
+        "L2-117"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "event-change-notify",
+      "kind": "dialog",
+      "title": "Notify registrants",
+      "area": "studio",
+      "opens_from": "event-editor",
+      "requirements": [
+        "L2-055"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "cancel-event",
+      "kind": "dialog",
+      "title": "Cancel event",
+      "area": "studio",
+      "opens_from": "event-editor",
+      "requirements": [
+        "L2-055",
+        "L2-052"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "moderation-queue",
+      "kind": "page",
+      "title": "Moderation queue",
+      "area": "moderation",
+      "route": "/moderation",
+      "requirements": [
+        "L2-086",
+        "L2-088",
+        "L2-062"
+      ],
+      "states": [
+        "default",
+        "held",
+        "overdue",
+        "loading",
+        "empty",
+        "error",
+        "forbidden",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "report-detail",
+      "kind": "page",
+      "title": "Report",
+      "area": "moderation",
+      "route": "/moderation/reports/{id}",
+      "requirements": [
+        "L2-086",
+        "L2-087",
+        "L2-088",
+        "L2-066"
+      ],
+      "states": [
+        "default",
+        "claimed",
+        "read-only",
+        "message-context",
+        "resolved",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Only filed reports have a page"
+      }
+    },
+    {
+      "id": "moderation-action",
+      "kind": "dialog",
+      "title": "Take action",
+      "area": "moderation",
+      "opens_from": "report-detail",
+      "requirements": [
+        "L2-087"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "appeals",
+      "kind": "page",
+      "title": "Appeals",
+      "area": "moderation",
+      "route": "/moderation/appeals",
+      "requirements": [
+        "L2-090"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "appeal-review",
+      "kind": "page",
+      "title": "Appeal",
+      "area": "moderation",
+      "route": "/moderation/appeals/{id}",
+      "requirements": [
+        "L2-090"
+      ],
+      "states": [
+        "default",
+        "decided",
+        "loading",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {
+        "empty": "Only filed appeals have a page"
+      }
+    },
+    {
+      "id": "appeal-decision",
+      "kind": "dialog",
+      "title": "Decide appeal",
+      "area": "moderation",
+      "opens_from": "appeal-review",
+      "requirements": [
+        "L2-090"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "account-notice",
+      "kind": "page",
+      "title": "Account notice",
+      "area": "moderation",
+      "route": "/account/notices/{id}",
+      "requirements": [
+        "L2-087",
+        "L2-090",
+        "L2-019"
+      ],
+      "states": [
+        "default",
+        "appeal",
+        "submitting",
+        "invalid",
+        "appealed",
+        "decided",
+        "expired",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Only issued notices have a page"
+      }
+    },
+    {
+      "id": "moderation-audit",
+      "kind": "page",
+      "title": "Moderation audit trail",
+      "area": "moderation",
+      "route": "/moderation/audit",
+      "requirements": [
+        "L2-089"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "notification-centre",
+      "kind": "dialog",
+      "title": "Notifications",
+      "area": "notifications",
+      "opens_from": "dashboard",
+      "requirements": [
+        "L2-091"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "empty",
+        "failed",
+        "long",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "No input"
+      }
+    },
+    {
+      "id": "notification",
+      "kind": "notification",
+      "title": "Notification item",
+      "area": "notifications",
+      "opens_from": "dashboard",
+      "requirements": [
+        "L2-018",
+        "L2-019",
+        "L2-023",
+        "L2-024",
+        "L2-050",
+        "L2-054",
+        "L2-055",
+        "L2-057",
+        "L2-059",
+        "L2-064",
+        "L2-066",
+        "L2-077",
+        "L2-086",
+        "L2-087",
+        "L2-090",
+        "L2-097",
+        "L2-103",
+        "L2-108",
+        "L2-116"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "with-action",
+        "unread",
+        "read",
+        "stacked"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "admin",
+      "kind": "page",
+      "title": "Admin",
+      "area": "admin",
+      "route": "/admin",
+      "requirements": [
+        "L2-016"
+      ],
+      "states": [
+        "default",
+        "editor",
+        "loading",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {
+        "empty": "The admin home always lists its sections"
+      }
+    },
+    {
+      "id": "admin-users",
+      "kind": "page",
+      "title": "Users",
+      "area": "admin",
+      "route": "/admin/users",
+      "requirements": [
+        "L2-095"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "no-results",
+        "invalid",
+        "long",
+        "forbidden"
+      ],
+      "not_applicable": {
+        "empty": "At least one Administrator always exists"
+      }
+    },
+    {
+      "id": "admin-user",
+      "kind": "page",
+      "title": "User",
+      "area": "admin",
+      "route": "/admin/users/{id}",
+      "requirements": [
+        "L2-095",
+        "L2-018",
+        "L2-019",
+        "L2-014",
+        "L2-094",
+        "L2-032"
+      ],
+      "states": [
+        "default",
+        "unverified",
+        "suspended",
+        "deactivated",
+        "last-admin",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Only existing users have a page"
+      }
+    },
+    {
+      "id": "edit-roles",
+      "kind": "dialog",
+      "title": "Edit roles",
+      "area": "admin",
+      "opens_from": "admin-user",
+      "requirements": [
+        "L2-018"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "user-action",
+      "kind": "dialog",
+      "title": "Suspend user",
+      "area": "admin",
+      "opens_from": "admin-user",
+      "requirements": [
+        "L2-095",
+        "L2-019"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "revoke-certificate",
+      "kind": "dialog",
+      "title": "Revoke certificate",
+      "area": "admin",
+      "opens_from": "admin-user",
+      "requirements": [
+        "L2-032"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "admin-invitations",
+      "kind": "page",
+      "title": "Expert invitations",
+      "area": "admin",
+      "route": "/admin/invitations",
+      "requirements": [
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "invite-expert",
+      "kind": "dialog",
+      "title": "Invite expert",
+      "area": "admin",
+      "opens_from": "admin-invitations",
+      "requirements": [
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "revoke-invitation",
+      "kind": "dialog",
+      "title": "Revoke invitation",
+      "area": "admin",
+      "opens_from": "admin-invitations",
+      "requirements": [
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "admin-topics",
+      "kind": "page",
+      "title": "Topics",
+      "area": "admin",
+      "route": "/admin/topics",
+      "requirements": [
+        "L2-096"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "topic-edit",
+      "kind": "dialog",
+      "title": "Edit topic",
+      "area": "admin",
+      "opens_from": "admin-topics",
+      "requirements": [
+        "L2-096"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "merge-topic",
+      "kind": "dialog",
+      "title": "Merge topic",
+      "area": "admin",
+      "opens_from": "admin-topics",
+      "requirements": [
+        "L2-096"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "delete-topic",
+      "kind": "dialog",
+      "title": "Delete topic",
+      "area": "admin",
+      "opens_from": "admin-topics",
+      "requirements": [
+        "L2-096"
+      ],
+      "states": [
+        "default",
+        "in-use",
+        "busy",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "Confirmation only"
+      }
+    },
+    {
+      "id": "admin-featured",
+      "kind": "page",
+      "title": "Featured content",
+      "area": "admin",
+      "route": "/admin/featured",
+      "requirements": [
+        "L2-097",
+        "L2-001"
+      ],
+      "states": [
+        "default",
+        "full",
+        "scheduled",
+        "slot-warning",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "admin-announcements",
+      "kind": "page",
+      "title": "Announcements",
+      "area": "admin",
+      "route": "/admin/announcements",
+      "requirements": [
+        "L2-098",
+        "L2-135"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "announcement-edit",
+      "kind": "dialog",
+      "title": "Announcement",
+      "area": "admin",
+      "opens_from": "admin-announcements",
+      "requirements": [
+        "L2-098"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "admin-policies",
+      "kind": "page",
+      "title": "Policies",
+      "area": "admin",
+      "route": "/admin/policies",
+      "requirements": [
+        "L2-098",
+        "L2-119",
+        "L2-068"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Every policy is seeded at launch"
+      }
+    },
+    {
+      "id": "policy-editor",
+      "kind": "page",
+      "title": "New policy version",
+      "area": "admin",
+      "route": "/admin/policies/{type}/new",
+      "requirements": [
+        "L2-098",
+        "L2-119",
+        "L2-068"
+      ],
+      "states": [
+        "default",
+        "material-change",
+        "invalid",
+        "submitting",
+        "success",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A new version starts from the current text"
+      }
+    },
+    {
+      "id": "admin-settings",
+      "kind": "page",
+      "title": "Site settings",
+      "area": "admin",
+      "route": "/admin/settings",
+      "requirements": [
+        "L2-098"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "invalid",
+        "submitting",
+        "success"
+      ],
+      "not_applicable": {
+        "empty": "Settings are seeded at launch"
+      }
+    },
+    {
+      "id": "admin-audit",
+      "kind": "page",
+      "title": "Audit log",
+      "area": "admin",
+      "route": "/admin/audit",
+      "requirements": [
+        "L2-099",
+        "L2-018"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "long"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "studio-analytics",
+      "kind": "page",
+      "title": "Your analytics",
+      "area": "analytics",
+      "route": "/studio/analytics",
+      "requirements": [
+        "L2-100",
+        "L2-102",
+        "L2-103"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "suppressed",
+        "exporting",
+        "export-queued"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "analytics-item",
+      "kind": "page",
+      "title": "Item analytics",
+      "area": "analytics",
+      "route": "/studio/analytics/{id}",
+      "requirements": [
+        "L2-100",
+        "L2-101"
+      ],
+      "states": [
+        "default",
+        "video",
+        "suppressed",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Only published items have analytics"
+      }
+    },
+    {
+      "id": "admin-analytics",
+      "kind": "page",
+      "title": "Platform analytics",
+      "area": "analytics",
+      "route": "/admin/analytics",
+      "requirements": [
+        "L2-101",
+        "L2-103"
+      ],
+      "states": [
+        "default",
+        "comparison",
+        "table",
+        "loading",
+        "empty",
+        "error",
+        "export-queued",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "date-range",
+      "kind": "dialog",
+      "title": "Date range",
+      "area": "analytics",
+      "opens_from": "studio-analytics",
+      "requirements": [
+        "L2-100",
+        "L2-101"
+      ],
+      "states": [
+        "default",
+        "selected",
+        "invalid"
+      ],
+      "not_applicable": {
+        "busy": "The range applies instantly"
+      }
+    },
+    {
+      "id": "cookie-banner",
+      "kind": "notification",
+      "title": "Cookie consent",
+      "area": "system",
+      "opens_from": "home",
+      "requirements": [
+        "L2-115"
+      ],
+      "states": [
+        "info",
+        "persistent",
+        "stacked"
+      ],
+      "not_applicable": {
+        "success": "Consent is a neutral choice",
+        "warning": "Consent is a neutral choice",
+        "danger": "Consent is a neutral choice"
+      }
+    },
+    {
+      "id": "cookie-settings",
+      "kind": "dialog",
+      "title": "Cookie settings",
+      "area": "system",
+      "opens_from": "home",
+      "requirements": [
+        "L2-115"
+      ],
+      "states": [
+        "default",
+        "selected",
+        "success",
+        "scroll"
+      ],
+      "not_applicable": {
+        "busy": "Saved instantly in the browser",
+        "invalid": "Switches only"
+      }
+    },
+    {
+      "id": "policy-reconsent",
+      "kind": "page",
+      "title": "Updated terms",
+      "area": "system",
+      "route": "/consent",
+      "requirements": [
+        "L2-119"
+      ],
+      "states": [
+        "default",
+        "long",
+        "submitting",
+        "declined",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "Shown only when a policy has changed"
+      }
+    },
+    {
+      "id": "policy",
+      "kind": "page",
+      "title": "Privacy policy",
+      "area": "system",
+      "route": "/privacy",
+      "requirements": [
+        "L2-098",
+        "L2-113",
+        "L2-114",
+        "L2-118",
+        "L2-068"
+      ],
+      "states": [
+        "default",
+        "previous-version",
+        "upcoming",
+        "long",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "Server-rendered",
+        "empty": "Every policy has published text"
+      }
+    },
+    {
+      "id": "unsubscribe",
+      "kind": "page",
+      "title": "Unsubscribe",
+      "area": "system",
+      "route": "/unsubscribe",
+      "requirements": [
+        "L2-094"
+      ],
+      "states": [
+        "default",
+        "already",
+        "invalid-link",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "The page always reports on the link it was opened with"
+      }
+    },
+    {
+      "id": "not-found",
+      "kind": "page",
+      "title": "Page not found",
+      "area": "system",
+      "route": "/404",
+      "requirements": [
+        "L2-141",
+        "L2-005",
+        "L2-021"
+      ],
+      "states": [
+        "default",
+        "signed-in"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    },
+    {
+      "id": "forbidden",
+      "kind": "page",
+      "title": "No access",
+      "area": "system",
+      "route": "/403",
+      "requirements": [
+        "L2-141",
+        "L2-016",
+        "L2-075"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    },
+    {
+      "id": "gone",
+      "kind": "page",
+      "title": "No longer available",
+      "area": "system",
+      "route": "/410",
+      "requirements": [
+        "L2-081"
+      ],
+      "states": [
+        "default",
+        "no-related"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    },
+    {
+      "id": "too-many-requests",
+      "kind": "page",
+      "title": "Too many requests",
+      "area": "system",
+      "route": "/429",
+      "requirements": [
+        "L2-141",
+        "L2-107"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    },
+    {
+      "id": "server-error",
+      "kind": "page",
+      "title": "Something went wrong",
+      "area": "system",
+      "route": "/500",
+      "requirements": [
+        "L2-141",
+        "L2-137"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    },
+    {
+      "id": "offline",
+      "kind": "page",
+      "title": "You're offline",
+      "area": "system",
+      "route": "/offline",
+      "requirements": [
+        "L2-141"
+      ],
+      "states": [
+        "default",
+        "retrying"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    },
+    {
+      "id": "maintenance",
+      "kind": "page",
+      "title": "Down for maintenance",
+      "area": "system",
+      "route": "/503",
+      "requirements": [
+        "L2-135"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "This page is itself an error state",
+        "empty": "This page is itself an error state",
+        "error": "This page is itself an error state"
+      }
+    }
+  ]
+}

@@ -76,9 +76,9 @@ Opened from a name, it shows who someone is and the next step, without leaving t
 <div class="popover-anchor">
   <button class="btn btn--text" type="button" aria-expanded="true" aria-controls="pop-grace">Grace Liu</button>
   <div class="popover" id="pop-grace" role="dialog" aria-labelledby="pop-grace-title">
-    <div class="cluster"><img class="avatar avatar--md" src="../assets/photos/grace-liu.jpg" width="48" height="48" alt=""><div><p class="popover__title" id="pop-grace-title">Grace Liu</p><p class="muted">Designer · Lisbon</p></div></div>
+    <div class="cluster"><img class="avatar avatar--md" src="../assets/photos/grace-liu.jpg" width="48" height="48" alt=""><div><p class="popover__title" id="pop-grace-title">Grace Liu</p><p class="rows__meta">Designer · Lisbon</p></div></div>
     <p class="popover__body">Working on Harbour Notes. Usually replies within a day.</p>
-    <div class="popover__actions"><a class="btn btn--quiet btn--sm" href="#">View profile</a><button class="btn btn--primary btn--sm" type="button">Message Grace</button></div>
+    <div class="popover__actions"><a class="btn btn--quiet btn--sm" href="#">View profile</a><button class="btn btn--primary btn--sm" type="button">Message</button></div>
   </div>
 </div>
 ```

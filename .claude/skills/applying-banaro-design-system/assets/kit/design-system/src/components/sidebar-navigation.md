@@ -55,7 +55,7 @@ A trailing count badge marks what is waiting. The count is part of the link's na
 A `<details>` group folds away links people visit rarely. It works without script and remembers nothing; open it
 when it holds the current page.
 ```html
-<nav class="sidebar-nav" aria-label="Northwind"><a href="#">Overview</a><a href="#" aria-current="page">Launch checklist</a><a href="#">Decisions</a><details open><summary>Archived pages</summary><div class="sidebar-nav"><a href="#">Spring kickoff notes</a><a href="#">Old roadmap</a></div></details></nav>
+<nav class="sidebar-nav" aria-label="Northwind"><a href="#">Overview</a><a href="#" aria-current="page">Launch checklist</a><a href="#">Decisions</a><details open><summary>Archived pages<svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></summary><div class="sidebar-nav"><a href="#">Spring kickoff notes</a><a href="#">Old roadmap</a></div></details></nav>
 ```
 
 ### settings

@@ -1,0 +1,2 @@
+/* Mock entry point: component styles come from the design system. Add new components there, not here. */
+@import url("../../design-system/assets/components.css");
