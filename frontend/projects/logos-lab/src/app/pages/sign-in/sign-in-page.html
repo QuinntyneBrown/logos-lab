@@ -6,6 +6,76 @@
       Pick up your courses, saved items and conversations where you left them.
     </p>
   </div>
+  @if (failure(); as failure) {
+    @switch (failure.kind) {
+      @case ('invalid-credentials') {
+        <ll-alert
+          tone="danger"
+          heading="Email or password is incorrect"
+          i18n-heading="@@signIn.invalid.title"
+        >
+          <ng-container i18n="@@signIn.invalid.body"
+            >Check both and try again. If you've forgotten your password, you can reset it by
+            email.</ng-container
+          >
+          <a slot="actions" routerLink="/forgot-password" i18n="@@signIn.resetPassword"
+            >Reset your password</a
+          >
+        </ll-alert>
+      }
+      @case ('paused') {
+        <ll-alert tone="warning" [heading]="pausedHeading(failure.minutes)">
+          <ng-container i18n="@@signIn.paused.body"
+            >There have been a lot of sign-in attempts from this connection, so we've paused them to
+            keep accounts safe. Try again at {{ time(failure.until) }}.</ng-container
+          >
+          <ng-container ngProjectAs="[slot=actions]">
+            <a routerLink="/forgot-password" i18n="@@signIn.resetPassword">Reset your password</a>
+            <a href="mailto:help@logoslab.ca" i18n="@@signIn.writeToHelp"
+              >Write to help&#64;logoslab.ca</a
+            >
+          </ng-container>
+        </ll-alert>
+      }
+      @case ('suspended') {
+        <ll-alert
+          tone="warning"
+          heading="Your account is suspended until {{ day(failure.until) }}"
+          i18n-heading="@@signIn.suspended.title"
+        >
+          <ng-container i18n="@@signIn.suspended.body"
+            >We emailed you the details and how to appeal. You can sign in again after the
+            suspension ends.</ng-container
+          >
+          <ng-container ngProjectAs="[slot=actions]">
+            <a routerLink="/account-notice" i18n="@@signIn.readNotice">Read the notice</a>
+            <a href="mailto:help@logoslab.ca" i18n="@@signIn.writeToHelp"
+              >Write to help&#64;logoslab.ca</a
+            >
+          </ng-container>
+        </ll-alert>
+      }
+      @case ('deactivated') {
+        <ll-alert
+          tone="warning"
+          heading="This account is set to be deleted"
+          i18n-heading="@@signIn.deactivated.title"
+        >
+          <ng-container i18n="@@signIn.deactivated.body"
+            >You asked us to delete it on {{ day(failure.requestedAt) }}. Until
+            {{ day(failure.purgeAt) }} you can restore it, with everything intact, from the link in
+            our confirmation email.</ng-container
+          >
+          <ng-container ngProjectAs="[slot=actions]">
+            <a routerLink="/restore-account" i18n="@@signIn.restore">Restore your account</a>
+            <a href="mailto:help@logoslab.ca" i18n="@@signIn.writeToHelp"
+              >Write to help&#64;logoslab.ca</a
+            >
+          </ng-container>
+        </ll-alert>
+      }
+    }
+  }
   <form llForm (submit)="$event.preventDefault(); submit()">
     @if (errors().length) {
       <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
@@ -24,6 +94,7 @@
         autocomplete="email"
         inputmode="email"
         required
+        [disabled]="paused()"
         (input)="email.set($any($event.target).value)"
       />
     </ll-form-field>
@@ -50,6 +121,7 @@
           [type]="passwordShown() ? 'text' : 'password'"
           autocomplete="current-password"
           required
+          [disabled]="paused()"
           (input)="password.set($any($event.target).value)"
         />
         <button
@@ -57,6 +129,7 @@
           variant="quiet"
           type="button"
           aria-controls="password"
+          [disabled]="paused()"
           [pressed]="passwordShown()"
           (click)="passwordShown.set(!passwordShown())"
           i18n="@@signIn.show"
@@ -65,7 +138,15 @@
         </button>
       </div>
     </ll-form-field>
-    <button llButton variant="primary" size="lg" block type="submit" [busy]="busy()">
+    <button
+      llButton
+      variant="primary"
+      size="lg"
+      block
+      type="submit"
+      [busy]="busy()"
+      [disabled]="paused()"
+    >
       @if (busy()) {
         <ng-container i18n="@@signIn.submitting">Signing in…</ng-container>
       } @else {

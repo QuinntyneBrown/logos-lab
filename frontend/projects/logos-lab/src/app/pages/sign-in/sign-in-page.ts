@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   LOCALE_ID,
   signal,
@@ -11,6 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AUTH_API } from '@logos-lab/api';
 import {
+  Alert,
   AuthCard,
   Button,
   Form,
@@ -22,12 +24,14 @@ import {
 import { plural } from '../../content/plural';
 import { safeReturnUrl } from '../../return-url';
 import { Session } from '../../session';
+import { readSignInFailure } from './read-sign-in-failure';
+import { SignInFailure } from './sign-in-failure';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({
   selector: 'll-sign-in-page',
-  imports: [RouterLink, AuthCard, Form, FormField, FormSummary, Input, Button],
+  imports: [RouterLink, Alert, AuthCard, Form, FormField, FormSummary, Input, Button],
   templateUrl: './sign-in-page.html',
   styleUrl: './sign-in-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +45,9 @@ export class SignInPage {
   private readonly returnUrl = computed(() => safeReturnUrl(this.query().get('returnUrl')));
 
   protected readonly busy = signal(false);
+  protected readonly failure = signal<SignInFailure | null>(null);
+  protected readonly paused = computed(() => this.failure()?.kind === 'paused');
+  private resumeTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly summary = viewChild(FormSummary);
 
   protected readonly passwordShown = signal(false);
@@ -57,7 +64,12 @@ export class SignInPage {
     }),
   );
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.resumeTimer));
+  }
+
   protected submit(): void {
+    if (this.paused()) return;
     const errors = this.validate();
     this.errors.set(errors);
     if (errors.length) {
@@ -65,6 +77,7 @@ export class SignInPage {
       return;
     }
     this.busy.set(true);
+    this.failure.set(null);
     const returnUrl = this.returnUrl();
     this.authApi
       .signIn({ email: this.email().trim(), password: this.password(), returnUrl })
@@ -77,8 +90,48 @@ export class SignInPage {
           this.session.load();
           void this.router.navigateByUrl(returnUrl);
         },
-        error: () => this.busy.set(false),
+        error: (error: unknown) => {
+          this.busy.set(false);
+          this.fail(readSignInFailure(error, new Date()));
+        },
       });
+  }
+
+  /** "Tue, Oct 20, 2026" in the viewer's time zone. */
+  protected day(date: Date): string {
+    return new Intl.DateTimeFormat(this.locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
+  }
+
+  /** "10:39 AM EDT" in the viewer's time zone. */
+  protected time(date: Date): string {
+    return new Intl.DateTimeFormat(this.locale, {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    }).format(date);
+  }
+
+  protected pausedHeading(minutes: number): string {
+    return plural(this.locale, minutes, {
+      one: $localize`:@@signIn.paused.one:Sign-in is paused for 1 minute`,
+      other: $localize`:@@signIn.paused.other:Sign-in is paused for ${minutes}:count: minutes`,
+    });
+  }
+
+  private fail(failure: SignInFailure | null): void {
+    this.failure.set(failure);
+    if (failure?.kind !== 'paused') return;
+    // L2-009: the form reopens on its own once the throttle lifts.
+    clearTimeout(this.resumeTimer);
+    this.resumeTimer = setTimeout(
+      () => this.failure.set(null),
+      failure.until.getTime() - Date.now(),
+    );
   }
 
   private validate(): FormError[] {

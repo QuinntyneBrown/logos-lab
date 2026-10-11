@@ -10,6 +10,7 @@ type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 interface StubbedResponse {
   status: number;
   body?: unknown;
+  headers?: Record<string, string>;
   /** Hold the response until release() is called, to observe loading and busy states. */
   held?: boolean;
 }
@@ -54,13 +55,24 @@ export class ApiStub {
   }
 
   /** Answer with an RFC 9457 problem response. */
-  fail(method: Method, path: string, status = 500, code = 'internal_error'): this {
-    return this.respond(
+  fail(
+    method: Method,
+    path: string,
+    status = 500,
+    code = 'internal_error',
+    extra: Record<string, unknown> = {},
+    headers: Record<string, string> = {},
+  ): this {
+    this.stubs.unshift({
       method,
       path,
-      { type: 'about:blank', status, code, title: 'Error' },
-      status,
-    );
+      response: {
+        status,
+        body: { type: 'about:blank', status, code, title: 'Error', ...extra },
+        headers,
+      },
+    });
+    return this;
   }
 
   /** Hold `method path` until the returned function is called, then answer with `body`. */
@@ -95,9 +107,10 @@ export class ApiStub {
       return;
     }
     if (stub.gate) await stub.gate;
-    const { status, body } = stub.response;
+    const { status, body, headers } = stub.response;
     await route.fulfill({
       status,
+      headers: { ...headers, 'access-control-expose-headers': 'Retry-After' },
       contentType: status >= 400 ? 'application/problem+json' : 'application/json',
       body: body === undefined ? '' : JSON.stringify(body),
     });

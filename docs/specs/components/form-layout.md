@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `form[llForm]`, `ll-form-summary` |
 | Library path | `frontend/projects/components/src/lib/form-layout/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`form-layout.html`](../../design-system/components/form-layout.html) |
 | Source mocks | [`pages/sign-in/invalid`](../../mocks/pages/sign-in/invalid.html), [`pages/register/invalid`](../../mocks/pages/register/invalid.html), [`pages/settings-account/default`](../../mocks/pages/settings-account/default.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`pages/studio-editor/default`](../../mocks/pages/studio-editor/default.html), [`dialogs/report-content/invalid`](../../mocks/dialogs/report-content/invalid.html) |

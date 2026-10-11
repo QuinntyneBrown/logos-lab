@@ -200,3 +200,96 @@ test.describe('Signing in', () => {
     await expect(page).toHaveURL('/sign-in/verify?returnUrl=%2Fsaved');
   });
 });
+
+test.describe('Sign-in failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-008 AC2 · alert AC-1
+  test('wrong details say so without saying which, and offer a reset', async ({ page, api }) => {
+    api.fail('POST', '/auth/sessions', 401, 'invalid-credentials');
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await signIn.signIn('miriam.clarke@example.ca', 'not-my-password');
+
+    await expect(signIn.alert).toHaveAttribute('role', 'alert');
+    await expect(signIn.alertTitle()).toHaveText('Email or password is incorrect');
+    await expect(signIn.alertAction('Reset your password')).toHaveAttribute(
+      'href',
+      '/forgot-password',
+    );
+    await expect(signIn.submit).toHaveText('Sign in');
+  });
+
+  // L2-009 · alert AC-2
+  test('too many attempts pause sign-in until the time the server gives', async ({ page, api }) => {
+    await page.clock.setFixedTime(new Date('2026-10-11T14:24:00Z'));
+    api.fail('POST', '/auth/sessions', 429, 'too-many-requests', {}, { 'Retry-After': '900' });
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(signIn.alertTitle()).toHaveText('Sign-in is paused for 15 minutes');
+    await expect(signIn.alert).toContainText('Try again at 10:39 AM EDT.');
+    await expect(signIn.email).toBeDisabled();
+    await expect(signIn.password).toBeDisabled();
+    await expect(signIn.submit).toBeDisabled();
+  });
+
+  // L2-009
+  test('the form reopens once the pause is over', async ({ page, api }) => {
+    await page.clock.install({ time: new Date('2026-10-11T14:24:00Z') });
+    api.fail('POST', '/auth/sessions', 429, 'too-many-requests', {}, { 'Retry-After': '900' });
+    const signIn = new SignInPage(page);
+    await signIn.open();
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+    await expect(signIn.submit).toBeDisabled();
+
+    await page.clock.runFor('15:01');
+
+    await expect(signIn.alert).toHaveCount(0);
+    await expect(signIn.email).toBeEnabled();
+    await expect(signIn.submit).toBeEnabled();
+  });
+
+  // L2-019 · alert AC-3
+  test('a suspended account sees when the suspension ends and the notice', async ({
+    page,
+    api,
+  }) => {
+    api.fail('POST', '/auth/sessions', 403, 'account-suspended', {
+      suspendedUntil: '2026-10-20T16:00:00Z',
+    });
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await signIn.signIn('samuel.okafor@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(signIn.alertTitle()).toHaveText(
+      'Your account is suspended until Tue, Oct 20, 2026',
+    );
+    await expect(signIn.alertAction('Read the notice')).toHaveAttribute('href', '/account-notice');
+  });
+
+  // L2-019
+  test('an account set to be deleted can be restored', async ({ page, api }) => {
+    api.fail('POST', '/auth/sessions', 403, 'account-deactivated', {
+      deletionRequestedAt: '2026-10-05T15:00:00Z',
+      purgeAt: '2026-11-04T15:00:00Z',
+    });
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await signIn.signIn('peter.lindqvist@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(signIn.alertTitle()).toHaveText('This account is set to be deleted');
+    await expect(signIn.alert).toContainText(
+      'You asked us to delete it on Mon, Oct 5, 2026. Until Wed, Nov 4, 2026 you can restore it',
+    );
+    await expect(signIn.alertAction('Restore your account')).toHaveAttribute(
+      'href',
+      '/restore-account',
+    );
+  });
+});

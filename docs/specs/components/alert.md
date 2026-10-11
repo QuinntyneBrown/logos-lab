@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-alert` |
 | Library path | `frontend/projects/components/src/lib/alert/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-008, L2-009, L2-010, L2-019, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`alert.html`](../../design-system/components/alert.html) |
 | Source mocks | [`pages/sign-in/error`](../../mocks/pages/sign-in/error.html), [`pages/sign-in/rate-limited`](../../mocks/pages/sign-in/rate-limited.html), [`pages/sign-in/suspended`](../../mocks/pages/sign-in/suspended.html), [`pages/sign-in/deactivated`](../../mocks/pages/sign-in/deactivated.html), [`pages/sign-in/session-expired`](../../mocks/pages/sign-in/session-expired.html), [`pages/sign-in/signed-out`](../../mocks/pages/sign-in/signed-out.html), [`dialogs/delete-account/default`](../../mocks/dialogs/delete-account/default.html), [`notifications/service-notice/warning`](../../mocks/notifications/service-notice/warning.html) |
