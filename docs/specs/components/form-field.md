@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-form-field` |
 | Library path | `frontend/projects/components/src/lib/form-field/` |
-| Status | built (help placement and a label-less field planned) |
+| Status | built (help placement, rich help and a label-less field planned) |
 | Traces to | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`form-field.html`](../../design-system/components/form-field.html) |
 | Source mocks | [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/sign-in/invalid`](../../mocks/pages/sign-in/invalid.html), [`pages/register/invalid`](../../mocks/pages/register/invalid.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`pages/studio-editor/default`](../../mocks/pages/studio-editor/default.html), [`dialogs/report-content/default`](../../mocks/dialogs/report-content/default.html) |
@@ -76,6 +76,7 @@ None.
 |---|---|---|
 | default | one control, or a control row `div.input-group` | Rendered after the label row. |
 | `[slot=label-action]` | a small text button or link | Rendered at the end of the label row. |
+| `[llFieldHelp]` | inline content with links, on any element (`span llFieldHelp`) | Help with links ("Read the Terms of Use and the Privacy Policy…"), rendered in `p.field__help` at `helpPlacement` with the help id, in place of `help`. The `FieldHelp` directive marks it so the field knows it is there. |
 
 ## Variants and sizes
 
@@ -207,6 +208,7 @@ None.
 - **AC-3** Given a field with help and a counter, when it renders, then the control's `aria-describedby` lists both. (L2-127)
 - **AC-9** Given the registration name field with help placed before the control, when it renders, then the help sits between the label and the input and the input's `aria-describedby` names it. (L2-127)
 - **AC-10** Given the terms field with no label and the error "Accept the Terms of Use and the Privacy Policy to create an account", when it renders, then no field label shows, the checkbox has `aria-invalid="true"` and its `aria-describedby` names the help and the error. (L2-128)
+- **AC-11** Given the terms field with help containing the links "Terms of Use" and "Privacy Policy", when it renders, then the links show inside the help and the checkbox's `aria-describedby` names the help. (L2-127)
 
 ### Keyboard and focus
 
@@ -224,7 +226,8 @@ None.
 
 ## Implementation notes
 
-- Folder `frontend/projects/components/src/lib/form-field/`: `form-field.ts` (`FormField`), `.html`,
+- Folder `frontend/projects/components/src/lib/form-field/`: `form-field.ts` (`FormField`),
+  `field-help.ts` (`FieldHelp`, selector `[llFieldHelp]`, no behaviour), `.html`,
   `.scss` with the `form-field` block and the `.input-group` rules under `:host ::ng-deep`. Composes
   `Icon`.
 
@@ -238,3 +241,5 @@ None.
   put it after the control, the registration mocks before. `helpPlacement` keeps both without page CSS.
 - **D-4** *A field without a label?* Only for a control that names itself (a checkbox row); the field
   still ties its help and error to the control.
+- **D-5** *Help with links?* A projected `[llFieldHelp]` element rather than an HTML string input, so
+  links keep their router bindings and the copy stays in the page's translated template.
