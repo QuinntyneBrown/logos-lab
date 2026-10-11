@@ -28,6 +28,7 @@ Out of scope:
 |---|---|---|---|---|
 | `pages/home/*` Experts | stacked, 3 people | "Dr. Abena Mensah" · "Theological anthropology · 7 items" | default, hover | canvas |
 | `pages/experts/*`, `pages/topic/*`, `pages/search-results/*` | grid | name; "Theologian · theological anthropology and the image of God"; "7 published items" | default | canvas |
+| `pages/home/loading`, `pages/experts/loading` | 3 skeleton people, list busy | status "Loading experts…" | loading | canvas |
 | `pages/course-overview/*`, `pages/module-page/*`, `pages/event-page/*` | stacked | instructor or hosts with one meta line | default | canvas |
 
 ## Anatomy
@@ -47,11 +48,13 @@ Host: the consumer's own `ul` and `li`; the components add the classes and rende
 | Input | Type | Default | Required | Rule |
 |---|---|---|---|---|
 | `stacked` (`llPersonList`) | `boolean` | `false` | no | Adds `.people--stacked`. |
-| `name` (`llPerson`) | `string` | — | yes | Link text. |
-| `path` (`llPerson`) | `string` | — | yes | Router link of the profile. |
+| `name` (`llPerson`) | `string` | `''` | unless `loading` | Link text. |
+| `path` (`llPerson`) | `string` | `''` | unless `loading` | Router link of the profile. |
 | `photoUrl` (`llPerson`) | `string \| null` | `null` | no | The photo; without one an initials tile is shown. |
 | `meta` (`llPerson`) | `readonly string[]` | `[]` | no | One `p.person__meta` each. |
 | `plain` (`llPerson`) | `boolean` | `false` | no | Adds `.person--plain` (no padding or hairline) for a single person in a card. |
+| `loading` (`llPerson`) | `boolean` | `false` | no | Renders a skeleton person (photo, title, short line) with `aria-hidden="true"`; the other inputs may be empty. |
+| `loadingLabel` (`llPersonList`) | `string \| null` | `null` | no | While set, the list has `aria-busy="true"` and starts with a visually hidden `role="status"` item ("Loading experts…"). |
 
 ### Outputs
 
@@ -77,6 +80,7 @@ None.
 | Hover | `:hover` on the person | Photo scales to 1.03; name underlined on link hover | — |
 | Focus | name `:focus-visible` | Shared focus ring | — |
 | No photo | `photoUrl` null | Initials on the oat tile | Initials hidden |
+| Loading | `loading` | [Skeleton](skeleton.md) photo, title and short line | Person hidden; the list's status item reads "Loading experts…" |
 
 ## Markup
 
@@ -164,6 +168,7 @@ The photo zoom is removed under reduced motion.
 - **AC-2** Given the expert directory, when it renders, then each expert shows two meta lines. (L2-022)
 - **AC-3** Given a person, when it is inspected, then the photo has empty `alt` and the name is a link. (L2-127)
 - **AC-4** Given a photo, when it loads, then its width and height are reserved. (L2-120)
+- **AC-9** Given the home page while its sections load, when the experts list renders, then it is busy, announces "Loading experts…" once and shows three skeleton people hidden from assistive technology. (L2-127)
 
 ### Theming
 
@@ -178,7 +183,7 @@ The photo zoom is removed under reduced motion.
 ## Implementation notes
 
 - Folder `frontend/projects/components/src/lib/person-list/`: `person-list.ts` (`PersonList`),
-  `person.ts` (`Person`), each with `.html` and `.scss` from the `person-list` block.
+  `person.ts` (`Person`), each with `.html` and `.scss` from the `person-list` block. Composes `Skeleton`.
 
 ## Decisions
 

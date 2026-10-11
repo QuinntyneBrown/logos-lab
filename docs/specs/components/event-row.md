@@ -32,6 +32,7 @@ Out of scope:
 | `pages/home/*` Upcoming events (narrow column) | 3 rows | "Faith and AI Evening: Is Creativity Sacred?"; when "Thu, Oct 22, 7:00 – 9:00 PM EDT"; where "St. Brigid's Hall, Ottawa" (place icon) or "Online" (monitor icon); side "33 places left", "312 registered", warning badge "Full · waitlist open" | default | canvas |
 | `pages/events/*` | many rows | where with host "hosted by Dr. Abena Mensah"; side "You're registered" status, places left | default, live "Happening now" | canvas |
 | `pages/events/past` | past rows | "ended"; side badge "Recording available", quiet sm "Watch" | past | canvas |
+| `pages/home/loading`, `pages/events/loading`, `pages/my-events/loading` | 3 skeleton rows, list busy | status "Loading upcoming events…" | loading | canvas |
 | `pages/my-events/*`, `pages/dashboard/*` | rows | side "Registered" status, warning "Waitlisted · number 3", quiet sm "Add to calendar" | default | canvas |
 
 ## Anatomy
@@ -54,17 +55,19 @@ the classes and render the row's parts.
 
 | Input | Type | Default | Required | Rule |
 |---|---|---|---|---|
-| `title` (`llEventRow`) | `string` | — | yes | The link text. |
-| `path` (`llEventRow`) | `string` | — | yes | Router link of the event page. |
-| `datetime` (`llEventRow`) | `string` | — | yes | ISO start, set on `time[datetime]`. |
-| `day` (`llEventRow`) | `string` | — | yes | Day of the month, formatted ("22"). |
-| `month` (`llEventRow`) | `string` | — | yes | Short month, formatted ("Oct"). |
-| `when` (`llEventRow`) | `string` | — | yes | Date and time range, formatted. |
+| `title` (`llEventRow`) | `string` | `''` | unless `loading` | The link text. |
+| `path` (`llEventRow`) | `string` | `''` | unless `loading` | Router link of the event page. |
+| `datetime` (`llEventRow`) | `string` | `''` | unless `loading` | ISO start, set on `time[datetime]`. |
+| `day` (`llEventRow`) | `string` | `''` | unless `loading` | Day of the month, formatted ("22"). |
+| `month` (`llEventRow`) | `string` | `''` | unless `loading` | Short month, formatted ("Oct"). |
+| `when` (`llEventRow`) | `string` | `''` | unless `loading` | Date and time range, formatted. |
 | `where` (`llEventRow`) | `string \| null` | `null` | no | Place or "Online", with host when given. |
 | `online` (`llEventRow`) | `boolean` | `false` | no | Shows the monitor icon instead of the place icon. |
 | `headingLevel` (`llEventRow`) | `2 \| 3` | `3` | no | Title heading level. |
 | `past` (`llEventRow`) | `boolean` | `false` | no | Adds `.is-past`. |
 | `cancelled` (`llEventRow`) | `boolean` | `false` | no | Adds `.is-cancelled` (title struck through). |
+| `loading` (`llEventRow`) | `boolean` | `false` | no | Renders a skeleton row (photo, title and short line) with `aria-hidden="true"`; the other inputs are ignored and may be empty. |
+| `loadingLabel` (`llEventList`) | `string \| null` | `null` | no | While set, the list has `aria-busy="true"` and starts with a visually hidden `role="status"` item carrying the text ("Loading upcoming events…"). |
 
 ### Outputs
 
@@ -97,6 +100,7 @@ the side moves to a third column.
 | Focus | title `:focus-visible` | Shared focus ring | — |
 | Past | `.is-past` | Day and title `--color-fg-subtle` | Side states "ended" in words |
 | Cancelled | `.is-cancelled` | Strike-through, subtle | Side says "Cancelled" in words |
+| Loading | `loading` | [Skeleton](skeleton.md) photo in the date column, title and short line in the main | Row hidden; the list's status item reads "Loading upcoming events…" |
 
 ## Markup
 
@@ -195,6 +199,7 @@ None.
 ### States
 
 - **AC-4** Given a past event on the events page, when its row renders, then it carries `.is-past` and the side shows "Recording available" and "Watch". (L2-051)
+- **AC-10** Given the home page while its sections load, when the events list renders, then it is busy, announces "Loading upcoming events…" once and shows three skeleton rows hidden from assistive technology. (L2-127)
 
 ### Keyboard and focus
 
@@ -214,7 +219,7 @@ None.
 
 - Folder `frontend/projects/components/src/lib/event-row/`: `event-list.ts` (`EventList`),
   `event-row.ts` (`EventRow`), each with `.html` and `.scss`; the list carries the container and
-  hairline rules, the row the rest of the block under `:host` and `:host ::ng-deep`. Composes `Icon`.
+  hairline rules, the row the rest of the block under `:host` and `:host ::ng-deep`. Composes `Icon` and `Skeleton`.
 
 ## Decisions
 
