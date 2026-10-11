@@ -2,6 +2,16 @@
 <html lang="en-CA">
   <head>
     <meta charset="utf-8" />
+    <!-- ThemeBootScript: applies a stored theme before first paint (L2-133 AC3). Keep it first and
+         in step with ThemeService's storage key. -->
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem('ll-theme');
+          if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+        } catch (e) {}
+      })();
+    </script>
     <title>Logos Lab</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

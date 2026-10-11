@@ -1,0 +1,81 @@
+<div
+  class="menu"
+  [class.menu--inline]="inline()"
+  cdkMenu
+  [attr.aria-label]="label()"
+  [attr.aria-labelledby]="labelledBy()"
+>
+  @if (header(); as header) {
+    <div class="menu__header" role="presentation">
+      <p class="rows__title">{{ header.title }}</p>
+      @if (header.meta) {
+        <p class="rows__meta">{{ header.meta }}</p>
+      }
+    </div>
+  }
+  @for (section of sections(); track $index; let index = $index) {
+    @if (index > 0) {
+      <hr class="menu__divider" role="separator" />
+    }
+    @if (section.label) {
+      <div role="group" cdkMenuGroup [attr.aria-labelledby]="idPrefix + '-' + index">
+        <p class="menu__label" [id]="idPrefix + '-' + index">{{ section.label }}</p>
+        <ng-container *ngTemplateOutlet="items; context: { $implicit: section }" />
+      </div>
+    } @else {
+      <ng-container *ngTemplateOutlet="items; context: { $implicit: section }" />
+    }
+  }
+
+  <!-- Declared inside the cdkMenu element so the CDK menu finds the items they render. -->
+  <ng-template #items let-section>
+    @for (item of section.items; track item.id) {
+      @if (item.path) {
+        <a
+          class="menu__item"
+          [class.menu__item--danger]="item.danger"
+          cdkMenuItem
+          [routerLink]="item.path"
+          [queryParams]="item.queryParams ?? null"
+          (cdkMenuItemTriggered)="itemSelected.emit(item.id)"
+          ><ng-container *ngTemplateOutlet="content; context: { $implicit: item }"
+        /></a>
+      } @else if (item.checked !== undefined) {
+        <button
+          class="menu__item"
+          type="button"
+          cdkMenuItemRadio
+          [cdkMenuItemChecked]="item.checked"
+          (cdkMenuItemTriggered)="itemSelected.emit(item.id)"
+        >
+          <svg llIcon name="check" size="sm" class="menu__check"></svg>{{ item.label }}
+        </button>
+      } @else {
+        <button
+          class="menu__item"
+          [class.menu__item--danger]="item.danger"
+          type="button"
+          cdkMenuItem
+          (cdkMenuItemTriggered)="itemSelected.emit(item.id)"
+        >
+          <ng-container *ngTemplateOutlet="content; context: { $implicit: item }" />
+        </button>
+      }
+    }
+  </ng-template>
+
+  <ng-template #content let-item>
+    @if (item.icon) {
+      <svg llIcon [name]="item.icon" size="sm"></svg>
+    }
+    {{ item.label }}
+    @if (item.shortcut) {
+      <span class="menu__shortcut" [attr.aria-hidden]="item.shortcutLabel ? 'true' : null">{{
+        item.shortcut
+      }}</span>
+      @if (item.shortcutLabel) {
+        <span class="vh">{{ item.shortcutLabel }}</span>
+      }
+    }
+  </ng-template>
+</div>

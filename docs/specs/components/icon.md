@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `svg[llIcon]` |
 | Library path | `frontend/projects/components/src/lib/icon/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-127, L2-129, L2-134 |
 | Design system | [`iconography.html`](../../design-system/foundations/iconography.html) |
 | Source mocks | every page; for example [`pages/home/default`](../../mocks/pages/home/default.html), [`dialogs/account-menu/default`](../../mocks/dialogs/account-menu/default.html), [`pages/lesson-player/default`](../../mocks/pages/lesson-player/default.html), [`pages/studio-editor/default`](../../mocks/pages/studio-editor/default.html) |

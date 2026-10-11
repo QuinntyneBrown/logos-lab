@@ -12,6 +12,14 @@
     [groups]="groups"
     (itemSelected)="close()"
   />
+  <ll-sidebar-nav label="Display" i18n-label="@@drawer.display" [groups]="displayGroup" />
+  <ll-menu
+    inline
+    label="Theme"
+    i18n-label="@@theme.menu"
+    [sections]="themeSections()"
+    (itemSelected)="chooseTheme($event)"
+  />
   <a
     llButton
     variant="primary"

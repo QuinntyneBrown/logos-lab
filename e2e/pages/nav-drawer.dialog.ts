@@ -17,7 +17,9 @@ export class NavDrawerDialog {
   }
 
   async groupLabels(): Promise<string[]> {
-    const labels = await this.siteNav.locator('.sidebar-nav__group').allTextContents();
+    const labels = await this.dialog
+      .locator('.sidebar-nav__group, .menu__label, .nav-drawer__group')
+      .allTextContents();
     return labels.map((label) => label.trim());
   }
 

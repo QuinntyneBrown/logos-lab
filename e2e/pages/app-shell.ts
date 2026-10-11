@@ -12,6 +12,7 @@ export class AppShell {
   readonly createAccount: Locator;
   readonly menuButton: Locator;
   readonly searchButton: Locator;
+  readonly themeButton: Locator;
 
   constructor(private readonly page: Page) {
     this.skipLink = page.locator('a.skip-link');
@@ -25,6 +26,7 @@ export class AppShell {
     // Located by class: while a modal is open the page behind is hidden from the accessibility tree.
     this.menuButton = page.locator('header.header button.menu-btn');
     this.searchButton = this.banner.locator('.header__search-btn');
+    this.themeButton = page.locator('header.header .header__lg');
   }
 
   async openMenu(): Promise<void> {
@@ -37,6 +39,20 @@ export class AppShell {
 
   async resizeTo(width: number, height = 900): Promise<void> {
     await this.page.setViewportSize({ width, height });
+  }
+
+  async openThemeMenu(): Promise<void> {
+    await this.themeButton.click();
+  }
+
+  /** The theme the page asked for: 'light', 'dark' or null when it follows the device. */
+  async requestedTheme(): Promise<string | null> {
+    return this.page.locator('html').getAttribute('data-theme');
+  }
+
+  /** The canvas colour the page actually paints. */
+  async canvasColour(): Promise<string> {
+    return this.page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   }
 
   navLink(name: string): Locator {

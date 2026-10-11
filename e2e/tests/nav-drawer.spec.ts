@@ -28,7 +28,7 @@ test.describe('Navigation drawer below LG', () => {
     await expect(drawer.dialog).toBeVisible();
     expect(await drawer.isModal()).toBe(true);
     expect(await drawer.headingLevel()).toBe('H2');
-    expect(await drawer.groupLabels()).toEqual(['Browse']);
+    expect(await drawer.groupLabels()).toEqual(['Browse', 'Display']);
     expect(await drawer.linkNames()).toEqual([
       'Explore',
       'Courses',

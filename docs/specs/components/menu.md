@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-menu` |
 | Library path | `frontend/projects/components/src/lib/menu/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-129, L2-130, L2-132, L2-133, L2-134, L2-150 |
 | Design system | [`menu.html`](../../design-system/components/menu.html) |
 | Source mocks | [`dialogs/theme-menu/default`](../../mocks/dialogs/theme-menu/default.html), [`dialogs/theme-menu/selected`](../../mocks/dialogs/theme-menu/selected.html), [`dialogs/account-menu/default`](../../mocks/dialogs/account-menu/default.html), [`dialogs/account-menu/staff`](../../mocks/dialogs/account-menu/staff.html), [`dialogs/nav-drawer/default`](../../mocks/dialogs/nav-drawer/default.html), [`pages/studio/default`](../../mocks/pages/studio/default.html) |
