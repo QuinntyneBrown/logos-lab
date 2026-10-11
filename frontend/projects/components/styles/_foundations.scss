@@ -389,3 +389,41 @@ a[data-state='hover'] {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+// Prose: typography for authored and long-form content (the prose block of components.css). Global
+// because it styles rich text that arrives as HTML, where component encapsulation cannot reach.
+.prose {
+  max-width: var(--layout-narrow);
+  display: grid;
+  gap: var(--space-5);
+}
+.prose h2 {
+  font: var(--text-h2);
+  font-size: var(--font-size-2xl);
+  margin-top: var(--space-6);
+}
+.prose h3 {
+  font: var(--text-h3);
+  margin-top: var(--space-4);
+}
+.prose p,
+.prose li {
+  color: var(--color-fg-muted);
+  font: var(--text-body-lg);
+}
+.prose ul,
+.prose ol {
+  padding-left: var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-default);
+}
+.prose a {
+  overflow-wrap: anywhere;
+}

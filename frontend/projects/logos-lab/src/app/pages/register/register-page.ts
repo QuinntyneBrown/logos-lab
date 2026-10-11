@@ -2,12 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   LOCALE_ID,
   signal,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AUTH_API } from '@logos-lab/api';
 import {
   AuthCard,
   Button,
@@ -33,7 +35,13 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 })
 export class RegisterPage {
   private readonly locale = inject(LOCALE_ID);
+  private readonly authApi = inject(AUTH_API);
   private readonly summary = viewChild(FormSummary);
+  private readonly sentHeading = viewChild<ElementRef<HTMLElement>>('sentHeading');
+
+  protected readonly busy = signal(false);
+  /** The address the verification email went to, once the API accepted the registration. */
+  protected readonly sentTo = signal<string | null>(null);
 
   protected readonly passwordShown = signal(false);
   protected readonly name = signal('');
@@ -57,7 +65,44 @@ export class RegisterPage {
   protected submit(): void {
     const errors = this.validate();
     this.errors.set(errors);
-    if (errors.length) this.summary()?.focus();
+    if (errors.length) {
+      this.summary()?.focus();
+      return;
+    }
+    this.busy.set(true);
+    const email = this.email().trim();
+    this.authApi
+      .register({
+        displayName: this.name().trim(),
+        email,
+        password: this.password(),
+        acceptedTerms: this.terms(),
+        marketingConsent: this.news(),
+      })
+      .subscribe({
+        next: () => {
+          this.busy.set(false);
+          this.sentTo.set(email);
+          // The form gives way to the confirmation; its heading takes focus so it is read out.
+          setTimeout(() => {
+            window.scrollTo({ top: 0 });
+            this.sentHeading()?.nativeElement.focus();
+          });
+        },
+        error: () => this.busy.set(false),
+      });
+  }
+
+  /** "Wrong address? Start again": back to an empty form. */
+  protected startAgain(): void {
+    this.name.set('');
+    this.email.set('');
+    this.password.set('');
+    this.terms.set(false);
+    this.news.set(false);
+    this.passwordShown.set(false);
+    this.errors.set([]);
+    this.sentTo.set(null);
   }
 
   private validate(): FormError[] {

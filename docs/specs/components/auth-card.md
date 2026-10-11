@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-auth-card` |
 | Library path | `frontend/projects/components/src/lib/auth-card/` |
-| Status | built (icon tile planned) |
+| Status | built |
 | Traces to | L2-008, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`auth-card.html`](../../design-system/components/auth-card.html) |
 | Source mocks | [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/register/default`](../../mocks/pages/register/default.html), [`pages/forgot-password/default`](../../mocks/pages/forgot-password/default.html), [`pages/reset-password/default`](../../mocks/pages/reset-password/default.html), [`pages/verify-email/default`](../../mocks/pages/verify-email/default.html), [`pages/mfa-setup/default`](../../mocks/pages/mfa-setup/default.html), [`pages/account-notice/default`](../../mocks/pages/account-notice/default.html), [`pages/expert-invitation/default`](../../mocks/pages/expert-invitation/default.html) |

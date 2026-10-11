@@ -51,6 +51,23 @@ export class RegisterPage {
     await this.submit.click();
   }
 
+  /** The "Check your email" card's next steps. */
+  nextSteps(): Locator {
+    return this.card.locator('.prose li');
+  }
+
+  iconTile(): Locator {
+    return this.card.locator('.empty__icon');
+  }
+
+  startAgain(): Locator {
+    return this.card.locator('.auth__alt').getByRole('link', { name: 'Start again' });
+  }
+
+  sub(): Locator {
+    return this.card.locator('.auth__sub');
+  }
+
   summaryLinks(): Locator {
     return this.summary.getByRole('link');
   }

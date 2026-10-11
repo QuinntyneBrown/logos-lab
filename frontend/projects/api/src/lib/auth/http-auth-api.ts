@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthApi } from './auth-api';
+import { RegisterRequest } from './register-request';
 import { SignInRequest } from './sign-in-request';
 import { SignInResult } from './sign-in-result';
 
@@ -11,6 +12,10 @@ export class HttpAuthApi implements AuthApi {
 
   signIn(request: SignInRequest): Observable<SignInResult> {
     return this.http.post<SignInResult>('/api/v1/auth/sessions', request);
+  }
+
+  register(request: RegisterRequest): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/registrations', request);
   }
 
   signOut(): Observable<void> {

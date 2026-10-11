@@ -41,4 +41,18 @@
   .eyebrow + .auth__title {
     margin-top: var(--space-4);
   }
+  // The icon tile, as the empty state draws it (auth-card CRD D-2).
+  .empty__icon {
+    display: grid;
+    place-items: center;
+    width: var(--size-empty-icon);
+    height: var(--size-empty-icon);
+    border-radius: var(--radius-md);
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+  .empty__icon .icon {
+    width: var(--size-empty-glyph);
+    height: var(--size-empty-glyph);
+  }
 }

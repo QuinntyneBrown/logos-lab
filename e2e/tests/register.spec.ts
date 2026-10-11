@@ -114,3 +114,75 @@ test.describe('Register validation', () => {
     await expect(register.summary).toHaveCount(0);
   });
 });
+
+test.describe('Registering', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  const details = {
+    name: 'Miriam Clarke',
+    email: 'miriam.clarke@example.ca',
+    password: 'quiet-harbour-at-dawn',
+    terms: true,
+  };
+
+  // L2-006 AC1, AC6
+  test('the request carries the details and the button shows progress', async ({ page, api }) => {
+    const release = api.hold('POST', '/auth/registrations', undefined, 202);
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill(details);
+
+    await register.create();
+
+    await expect(register.submit).toHaveText('Creating your account…');
+    await expect(register.submit).toHaveAttribute('aria-busy', 'true');
+    expect(api.requestsTo('POST', '/auth/registrations')[0].body).toEqual({
+      displayName: 'Miriam Clarke',
+      email: 'miriam.clarke@example.ca',
+      password: 'quiet-harbour-at-dawn',
+      acceptedTerms: true,
+      marketingConsent: false,
+    });
+    release();
+    await expect(register.heading).toHaveText('Check your email');
+  });
+
+  // L2-006 AC1, AC4 · auth-card AC-7
+  test('an accepted registration asks the visitor to check their email', async ({ page, api }) => {
+    api.respond('POST', '/auth/registrations', undefined, 202);
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill({ ...details, news: true });
+
+    await register.create();
+
+    await expect(register.heading).toHaveText('Check your email');
+    await expect(register.heading).toBeFocused();
+    await expect(register.sub()).toHaveText(
+      'We sent a link to miriam.clarke@example.ca. Open it within 24 hours to finish creating your account.',
+    );
+    await expect(register.iconTile()).toHaveAttribute('aria-hidden', 'true');
+    await expect(register.nextSteps()).toHaveText([
+      'The email comes from help@logoslab.ca and can take a few minutes.',
+      "Check your spam or promotions folder if it hasn't arrived.",
+      'Until you verify, you can browse Logos Lab but not enrol, comment or register for events.',
+    ]);
+    expect(api.requestsTo('POST', '/auth/registrations')[0].body).toMatchObject({
+      marketingConsent: true,
+    });
+  });
+
+  test('"Start again" returns to an empty form', async ({ page, api }) => {
+    api.respond('POST', '/auth/registrations', undefined, 202);
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill(details);
+    await register.create();
+
+    await register.startAgain().click();
+
+    await expect(register.heading).toHaveText('Create your Logos Lab account');
+    await expect(register.email).toHaveValue('');
+    await expect(register.terms).not.toBeChecked();
+  });
+});

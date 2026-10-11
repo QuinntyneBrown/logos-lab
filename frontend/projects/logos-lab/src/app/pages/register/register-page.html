@@ -1,137 +1,177 @@
-<ll-auth-card>
-  <div slot="intro">
-    <p class="eyebrow" i18n="@@register.eyebrow">Free for everyone</p>
-    <h1 class="auth__title" i18n="@@register.title">Create your Logos Lab account</h1>
-    <p class="auth__sub" i18n="@@register.sub">
-      Enrol in courses, save what you want to come back to and join the conversation.
+@if (sentTo(); as sentTo) {
+  <ll-auth-card icon="mail">
+    <div slot="intro">
+      <h1 class="auth__title" tabindex="-1" #sentHeading i18n="@@register.sent.title">
+        Check your email
+      </h1>
+      <p class="auth__sub" i18n="@@register.sent.sub">
+        We sent a link to <strong>{{ sentTo }}</strong
+        >. Open it within 24 hours to finish creating your account.
+      </p>
+    </div>
+    <div class="prose">
+      <ul>
+        <li i18n="@@register.sent.from">
+          The email comes from help&#64;logoslab.ca and can take a few minutes.
+        </li>
+        <li i18n="@@register.sent.spam">
+          Check your spam or promotions folder if it hasn't arrived.
+        </li>
+        <li i18n="@@register.sent.unverified">
+          Until you verify, you can browse Logos Lab but not enrol, comment or register for events.
+        </li>
+      </ul>
+    </div>
+    <p class="auth__alt" slot="alt">
+      <ng-container i18n="@@register.sent.wrong">Wrong address?</ng-container>&ngsp;
+      <a
+        href="/register"
+        (click)="$event.preventDefault(); startAgain()"
+        i18n="@@register.sent.again"
+        >Start again</a
+      >
     </p>
-  </div>
-  <form llForm (submit)="$event.preventDefault(); submit()">
-    @if (errors().length) {
-      <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
-    }
-    <ll-form-field
-      label="Your name"
-      i18n-label="@@register.name"
-      controlId="name"
-      [error]="nameError()"
-      help="Shown on your comments and certificates. 2 to 50 characters."
-      i18n-help="@@register.nameHelp"
-      helpPlacement="before"
-    >
-      <input
-        llInput
-        id="name"
-        name="name"
-        type="text"
-        autocomplete="name"
-        required
-        maxlength="50"
-        (input)="name.set($any($event.target).value)"
-      />
-    </ll-form-field>
-    <ll-form-field
-      label="Email"
-      i18n-label="@@register.email"
-      controlId="email"
-      [error]="emailError()"
-      help="We use it to sign you in and to send account emails, such as password resets."
-      i18n-help="@@register.emailHelp"
-      helpPlacement="before"
-    >
-      <input
-        llInput
-        id="email"
-        name="email"
-        type="email"
-        autocomplete="email"
-        inputmode="email"
-        required
-        (input)="email.set($any($event.target).value)"
-      />
-    </ll-form-field>
-    <ll-form-field
-      label="Password"
-      i18n-label="@@register.password"
-      controlId="password"
-      [error]="passwordError()"
-      help="12 to 128 characters. A short sentence you'll remember works well."
-      i18n-help="@@register.passwordHelp"
-      helpPlacement="before"
-    >
-      <div class="input-group">
+  </ll-auth-card>
+} @else {
+  <ll-auth-card>
+    <div slot="intro">
+      <p class="eyebrow" i18n="@@register.eyebrow">Free for everyone</p>
+      <h1 class="auth__title" i18n="@@register.title">Create your Logos Lab account</h1>
+      <p class="auth__sub" i18n="@@register.sub">
+        Enrol in courses, save what you want to come back to and join the conversation.
+      </p>
+    </div>
+    <form llForm (submit)="$event.preventDefault(); submit()">
+      @if (errors().length) {
+        <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
+      }
+      <ll-form-field
+        label="Your name"
+        i18n-label="@@register.name"
+        controlId="name"
+        [error]="nameError()"
+        help="Shown on your comments and certificates. 2 to 50 characters."
+        i18n-help="@@register.nameHelp"
+        helpPlacement="before"
+      >
         <input
           llInput
-          id="password"
-          name="password"
-          [type]="passwordShown() ? 'text' : 'password'"
-          autocomplete="new-password"
+          id="name"
+          name="name"
+          type="text"
+          autocomplete="name"
           required
-          minlength="12"
-          maxlength="128"
-          (input)="password.set($any($event.target).value)"
+          maxlength="50"
+          (input)="name.set($any($event.target).value)"
         />
-        <button
-          llButton
-          variant="quiet"
-          type="button"
-          aria-controls="password"
-          [pressed]="passwordShown()"
-          (click)="passwordShown.set(!passwordShown())"
-          i18n="@@register.show"
-        >
-          Show
-        </button>
-      </div>
-    </ll-form-field>
-    <ll-form-field controlId="terms" [error]="termsError()">
-      <label llCheck
-        ><input
-          class="check__box"
-          type="checkbox"
-          id="terms"
-          name="terms"
+      </ll-form-field>
+      <ll-form-field
+        label="Email"
+        i18n-label="@@register.email"
+        controlId="email"
+        [error]="emailError()"
+        help="We use it to sign you in and to send account emails, such as password resets."
+        i18n-help="@@register.emailHelp"
+        helpPlacement="before"
+      >
+        <input
+          llInput
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          inputmode="email"
           required
-          (change)="terms.set($any($event.target).checked)"
-        /><span i18n="@@register.terms"
-          >I accept the Terms of Use and the Privacy Policy</span
-        ></label
+          (input)="email.set($any($event.target).value)"
+        />
+      </ll-form-field>
+      <ll-form-field
+        label="Password"
+        i18n-label="@@register.password"
+        controlId="password"
+        [error]="passwordError()"
+        help="12 to 128 characters. A short sentence you'll remember works well."
+        i18n-help="@@register.passwordHelp"
+        helpPlacement="before"
       >
-      <span llFieldHelp i18n="@@register.termsHelp"
-        >Read the <a routerLink="/policies/terms">Terms of Use</a> and the
-        <a routerLink="/policies/privacy">Privacy Policy</a>. We record which versions you accepted
-        and when.</span
-      >
-    </ll-form-field>
-    <ll-form-field controlId="news">
-      <label llCheck
-        ><input
-          class="check__box"
-          type="checkbox"
-          id="news"
-          name="news"
-          aria-describedby="news-desc"
-          (change)="news.set($any($event.target).checked)"
-        /><span class="check__text"
-          ><span
-            ><ng-container i18n="@@register.news">Email me Platform news</ng-container>&ngsp;<span
-              class="field__optional"
-              i18n="@@register.optional"
-              >Optional</span
+        <div class="input-group">
+          <input
+            llInput
+            id="password"
+            name="password"
+            [type]="passwordShown() ? 'text' : 'password'"
+            autocomplete="new-password"
+            required
+            minlength="12"
+            maxlength="128"
+            (input)="password.set($any($event.target).value)"
+          />
+          <button
+            llButton
+            variant="quiet"
+            type="button"
+            aria-controls="password"
+            [pressed]="passwordShown()"
+            (click)="passwordShown.set(!passwordShown())"
+            i18n="@@register.show"
+          >
+            Show
+          </button>
+        </div>
+      </ll-form-field>
+      <ll-form-field controlId="terms" [error]="termsError()">
+        <label llCheck
+          ><input
+            class="check__box"
+            type="checkbox"
+            id="terms"
+            name="terms"
+            required
+            (change)="terms.set($any($event.target).checked)"
+          /><span i18n="@@register.terms"
+            >I accept the Terms of Use and the Privacy Policy</span
+          ></label
+        >
+        <span llFieldHelp i18n="@@register.termsHelp"
+          >Read the <a routerLink="/policies/terms">Terms of Use</a> and the
+          <a routerLink="/policies/privacy">Privacy Policy</a>. We record which versions you
+          accepted and when.</span
+        >
+      </ll-form-field>
+      <ll-form-field controlId="news">
+        <label llCheck
+          ><input
+            class="check__box"
+            type="checkbox"
+            id="news"
+            name="news"
+            aria-describedby="news-desc"
+            (change)="news.set($any($event.target).checked)"
+          /><span class="check__text"
+            ><span
+              ><ng-container i18n="@@register.news">Email me Platform news</ng-container>&ngsp;<span
+                class="field__optional"
+                i18n="@@register.optional"
+                >Optional</span
+              ></span
+            ><span class="check__desc" id="news-desc" i18n="@@register.newsDesc"
+              >New courses and events, about once a month. Unsubscribe from any email with one
+              click.</span
             ></span
-          ><span class="check__desc" id="news-desc" i18n="@@register.newsDesc"
-            >New courses and events, about once a month. Unsubscribe from any email with one
-            click.</span
-          ></span
-        ></label
-      >
-    </ll-form-field>
-    <button llButton variant="primary" size="lg" block type="submit" i18n="@@register.submit">
-      Create account
-    </button>
-  </form>
-  <p class="auth__alt" slot="alt">
-    <ng-container i18n="@@register.haveAccount">Already have an account?</ng-container>&ngsp;
-    <a routerLink="/sign-in" i18n="@@register.signIn">Sign in</a>
-  </p>
-</ll-auth-card>
+          ></label
+        >
+      </ll-form-field>
+      <button llButton variant="primary" size="lg" block type="submit" [busy]="busy()">
+        @if (busy()) {
+          <ng-container i18n="@@register.submitting">Creating your account…</ng-container>
+        } @else {
+          <ng-container i18n="@@register.submit">Create account</ng-container>
+        }
+      </button>
+    </form>
+    <p class="auth__alt" slot="alt">
+      <ng-container i18n="@@register.haveAccount">Already have an account?</ng-container>&ngsp;
+      <a routerLink="/sign-in" i18n="@@register.signIn">Sign in</a>
+    </p>
+  </ll-auth-card>
+}
