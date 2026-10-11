@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Meet API response times
+
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(log, "Request logging middleware", "Middleware", "Times every request")
+  Component(lat, "LatencyMetricRecorder", "Function", "Publishes ApiLatency by route and class")
+  Component(list, "List route handlers", "app/api/v1/.../route.ts", "Parse PageRequest")
+  Component(pol, "PaginationPolicy", "Validation", "Caps limit at 100")
+  Component(repo, "Repositories", "<Noun>Repository", "Keyset pagination")
+  Component(opr, "GET /api/v1/operations/{operationId}", "Route handler", "Operation status")
+  Component(get, "GetOperationStatusAction", "Action", "Reads an owned operation")
+  Component(svc, "BackgroundOperationService", "Domain service", "Creates, enqueues, tracks progress")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "background_operations")
+ComponentQueue(sqs, "Job queue", "Amazon SQS", "Jobs")
+System_Ext(cw, "Amazon CloudWatch", "ApiLatencyAlarm")
+
+Rel(log, lat, "Calls with duration")
+Rel(lat, cw, "Writes metric to")
+Rel(list, pol, "Validates through")
+Rel(list, repo, "Reads one page through")
+Rel(opr, get, "Calls")
+Rel(get, svc, "Reads status through")
+Rel(svc, db, "Writes operations to")
+Rel(svc, sqs, "Enqueues job to")
+@enduml

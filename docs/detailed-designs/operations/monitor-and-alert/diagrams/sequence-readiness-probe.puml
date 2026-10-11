@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Readiness probe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Load balancer or synthetic check" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "ready route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ReadinessCheckService" as svc
+  participant "DatabaseProbe" as dbp
+  participant "CacheProbe" as cp
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Cache" as cache
+end box
+actor -> route : GET /health/ready (anonymous)
+route -> svc : check()
+par probes run in parallel
+  svc -> dbp : probe()
+  dbp -> db : SELECT 1 with timeout
+  db --> dbp : Result or timeout
+  dbp --> svc : true or false
+else
+  svc -> cp : probe()
+  cp -> cache : PING with timeout
+  cache --> cp : PONG or timeout
+  cp --> svc : true or false
+end
+alt both probes succeed
+  svc --> route : HealthStatus.Ok
+  route --> actor : 200 {"status":"ok"} (Apply L2-136, no versions or details)
+else any probe fails
+  svc --> route : HealthStatus.Unavailable
+  route --> actor : 503 {"status":"unavailable"} (Apply L2-136)
+end
+@enduml

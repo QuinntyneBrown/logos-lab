@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile history · empty — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="expert-profile-history">
+<meta name="mock:state" content="empty">
+<meta name="mock:requirements" content="L2-023">
+<meta name="description" content="Profile history for an expert who hasn't changed the profile since creating it: an empty state says changes will appear here.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/editor.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/review-queue/default.html">Review queue</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 4 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">4</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Naomi Ellis" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/sofia-marquez.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/studio/editor.html">Studio</a></li><li><a href="../../pages/expert-profile/empty.html">Dr. Mei Lin Chen</a></li><li><span aria-current="page">Profile history</span></li></ol></nav>
+    <div class="page-head page-head--actions" style="padding-top: var(--space-8)">
+      <p class="eyebrow">Dr. Mei Lin Chen</p>
+      <h1 class="page-head__title">Profile history</h1>
+      <p class="page-head__sub">Every saved change to Dr. Mei Lin Chen's public profile, newest first.</p>
+      <div class="page-head__actions"><a class="btn btn--quiet" href="../../pages/expert-profile/empty.html">View public profile</a></div>
+    </div>
+    <div class="narrow" style="padding-bottom: var(--space-16)">
+      <div class="empty"><span class="empty__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><h2 class="empty__title">No changes since the profile was created</h2><p>Dr. Mei Lin Chen created this profile on Fri 9 Oct 2026 and hasn't changed it since. Changes will appear here, newest first.</p><div class="empty__actions"><a class="btn btn--quiet" href="../../pages/expert-profile/empty.html">View public profile</a></div></div>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Profile history</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html" aria-current="page">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="forbidden.html">forbidden</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

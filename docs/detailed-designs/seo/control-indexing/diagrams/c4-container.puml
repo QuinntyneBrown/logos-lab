@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Control indexing
+
+System_Ext(crawler, "Search-engine crawler", "")
+System_Ext(scheduler, "Amazon EventBridge Scheduler", "Hourly trigger")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Routes sitemap paths to storage; gate and headers outside production")
+  Container(ssr, "Logos Lab Web — SSR server", "Angular SSR", "Serves /robots.txt")
+  Container(api, "Logos Lab API", "Next.js", "Enqueues on publish or archive")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "")
+  Container(worker, "Logos Lab Worker", "Node.js", "SitemapGenerateJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Published items")
+  ContainerDb(s3, "Media storage", "Amazon S3", "sitemap.xml and sitemaps/*")
+}
+Rel(crawler, cdn, "Requests", "HTTPS")
+Rel(cdn, s3, "Serves sitemap files from")
+Rel(cdn, ssr, "Forwards /robots.txt and pages")
+Rel(api, queue, "Enqueues")
+Rel(scheduler, queue, "Enqueues hourly")
+Rel(worker, queue, "Consumes")
+Rel(worker, db, "Reads public URLs", "SQL")
+Rel(worker, s3, "Writes files")
+@enduml

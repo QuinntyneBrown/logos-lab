@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record privacy consent
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(rPol, "policies route handlers", "app/api/v1/policies/[type]", "Anonymous read of current and earlier versions")
+  Component(rAdm, "admin policy route handler", "app/api/v1/admin/policies/[type]/versions", "Creates a version")
+  Component(rAcc, "policy acceptance route handlers", "app/api/v1/me/policy-acceptances", "Pending, accept and decline")
+  Component(rReg, "registration route handler", "app/api/v1/auth/register", "Owned by the registration design (L2-006)")
+  Component(gate, "ReconsentGate", "Authorization step", "Holds a member with a pending material version to the allow-list")
+  Component(aReg, "RegisterMemberAction", "Action", "Creates the account and records acceptances")
+  Component(aPub, "PublishPolicyVersionAction", "Action", "Validates and stores a version, audits, enqueues notices")
+  Component(aAcc, "AcceptPolicyVersionsAction", "Action", "Records acceptance and clears the gate")
+  Component(aDec, "DeclinePolicyVersionsAction", "Action", "Records a decline and keeps limited access")
+  Component(svcC, "ConsentService", "Domain service", "Records decisions and computes pending versions")
+  Component(svcP, "PolicyService", "Domain service", "Version numbering, effective dates and material-change rules")
+  Component(audit, "AuditLogService", "Domain service", "Append-only audit entries (L2-099)")
+  ComponentDb(db, "Logos Lab database", "PostgreSQL", "policy_versions, policy_acceptances")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "PolicyChangeNoticeJob", "Job", "Emails each member about a material change")
+}
+Rel(rReg, aReg, "Calls")
+Rel(rAdm, aPub, "Calls")
+Rel(rAcc, aAcc, "Calls")
+Rel(rAcc, aDec, "Calls")
+Rel(gate, svcC, "Asks for pending material versions")
+Rel(aReg, svcC, "Records acceptances")
+Rel(aPub, svcP, "Validates version")
+Rel(aPub, audit, "Writes audit entry")
+Rel(aPub, job, "Enqueues", "SQS")
+Rel(aAcc, svcC, "Records acceptance")
+Rel(aDec, svcC, "Records decline")
+Rel(rPol, svcP, "Reads versions")
+Rel(svcC, db, "Reads and writes", "SQL")
+Rel(svcP, db, "Reads and writes", "SQL")
+@enduml

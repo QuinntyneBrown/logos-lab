@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage notification preferences
+Person(member, "Member", "Signed-in user")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Settings > Notifications page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Preference endpoints; applies preferences when notifying")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "notification_preferences, consent_records")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Reads and saves preferences", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

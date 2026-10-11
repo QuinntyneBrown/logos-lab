@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Take part in a cohort
+
+Person(member, "Cohort member", "Learner in the cohort")
+Person(leader, "Cohort leader", "Expert or editor who leads the cohort")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends notification emails")
+
+Rel(member, ll, "Reads announcements and discusses using")
+Rel(leader, ll, "Posts announcements and follows progress using")
+Rel(ll, ses, "Sends announcement emails via", "HTTPS API")
+@enduml

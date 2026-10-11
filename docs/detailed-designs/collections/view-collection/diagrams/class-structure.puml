@@ -1,0 +1,93 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View a collection
+
+package "Logos Lab Web" {
+  class CollectionPage {
+    -collectionsApi: CollectionsApi
+    +collection: Signal<CollectionView>
+    +progress: Signal<CollectionProgress>
+    +retryProgress(): void
+  }
+  interface CollectionsApi {
+    +getCollection(slug: string): Observable<CollectionView>
+    +getMyProgress(collectionId: UUID): Observable<CollectionProgress>
+  }
+  class HttpCollectionsApi
+  class COLLECTIONS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class GetCollectionAction {
+    +execute(slug: string): Promise<CollectionView>
+  }
+  class GetCollectionProgressAction {
+    +execute(userId: UUID, collectionId: UUID): Promise<CollectionProgress>
+  }
+  class CollectionService {
+    +getPublished(slug: string, now: Date): Promise<CollectionView>
+    +visibleItems(collection: Collection, now: Date): CollectionItem[]
+  }
+  class LearningProgressService {
+    +statesFor(userId: UUID, contentIds: UUID[]): Promise<ItemProgress[]>
+  }
+  class CollectionRepository {
+    +findPublishedBySlug(slug: string, now: Date): Promise<Collection>
+  }
+  class Collection {
+    +id: UUID
+    +slug: string
+    +title: string
+    +description: string
+    +coverImageId: UUID
+    +curator: ContributorAttribution
+    +workflowState: WorkflowState
+  }
+  class CollectionItem {
+    +contentId: UUID
+    +position: number
+    +note: string
+  }
+  class CollectionView {
+    +collection: Collection
+    +items: ContentSummary[]
+    +itemCount: number
+    +estimatedMinutes: number
+    +followerCount: number
+  }
+  class CollectionProgress {
+    +items: ItemProgress[]
+    +completedCount: number
+    +totalCount: number
+  }
+  class ItemProgress {
+    +contentId: UUID
+    +state: CompletionState
+  }
+  enum CompletionState {
+    Completed
+    InProgress
+    NotPassed
+    NotStarted
+  }
+}
+CollectionPage ..> CollectionsApi
+HttpCollectionsApi ..|> CollectionsApi
+COLLECTIONS_API ..> CollectionsApi : provides
+GetCollectionAction --> CollectionService
+GetCollectionProgressAction --> CollectionService
+GetCollectionProgressAction --> LearningProgressService
+CollectionService --> CollectionRepository
+Collection "1" *-- "1..100" CollectionItem
+CollectionView --> Collection
+CollectionProgress *-- ItemProgress
+ItemProgress --> CompletionState
+@enduml

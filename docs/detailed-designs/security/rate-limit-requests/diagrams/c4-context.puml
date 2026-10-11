@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Rate limit requests
+
+Person(member, "Visitor or member", "Uses Logos Lab")
+Person_Ext(bot, "Abusive client", "Bad bot or volumetric attacker")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(cw, "Amazon CloudWatch", "Security logs and metrics")
+Rel(member, ll, "Sends requests to", "HTTPS")
+Rel(bot, ll, "Floods or scrapes", "HTTPS")
+Rel(ll, cw, "Logs rate-limit blocks to")
+@enduml

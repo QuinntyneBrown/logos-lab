@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Control indexing
+
+Container_Boundary(cdn, "CDN (non-production distributions)") {
+  Component(gate, "EnvironmentGate", "CloudFront Function", "Requires credentials")
+  Component(headers, "Noindex response headers policy", "CloudFront policy", "X-Robots-Tag: noindex, nofollow")
+}
+Container_Boundary(web, "Logos Lab Web") {
+  Component(robots, "RobotsTxtHandler", "Express handler", "Rules per environment")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "SitemapGenerateJob", "Job", "Rebuilds sitemap files")
+  Component(svc, "SitemapService", "Domain service", "Splits at 50,000 URLs")
+  Component(repo, "PublicUrlRepository", "Repository", "Published items with lastmod")
+  Component(builder, "PublicUrlBuilder", "Module", "Builds /{type}/{slug} URLs")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+ContainerDb(s3, "Media storage", "Amazon S3", "")
+Rel(gate, robots, "Passes authenticated requests to")
+Rel(job, svc, "Calls")
+Rel(svc, repo, "Reads through")
+Rel(svc, builder, "Builds URLs with")
+Rel(repo, db, "Queries", "SQL")
+Rel(job, s3, "Writes index and child files")
+@enduml

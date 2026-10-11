@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — View one item's analytics
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AnalyticsItemPage" as page
+  participant "AnalyticsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/studio/analytics/items/{id}" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetItemAnalyticsAction" as action
+  participant "AnalyticsQueryService" as query
+  participant "AnalyticsPrivacyService" as privacy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open an item from the per-item table
+page -> client : item(id, period)
+client -> route : HTTPS GET
+route -> action : execute(currentUserId, id, period)
+action -> db : Is the item owned by the current user?
+alt not owned or not found
+  db --> action : No
+  action --> route : Not found
+  route --> client : 404, no hint of existence (L2-100, L2-017)
+  page --> actor : Error state
+else owned
+  action -> query : itemMetrics([id], period)
+  query -> db : Rollups for item
+  opt item is a course
+    action -> query : lessonDropOff(courseId, period)
+    query -> db : Share of enrolled learners completing each lesson (L2-100)
+  end
+  opt item is a video
+    query -> db : Average percentage watched and viewers per quarter
+  end
+  query --> action : Metrics
+  action -> privacy : suppress(metrics)
+  privacy --> action : Groups under 5 learners hidden (L2-102)
+  action --> route : ItemAnalytics with updatedAt
+  route --> client : 200 JSON
+  alt figures suppressed
+    page --> actor : "Most numbers are hidden for this period"; chart replaced by a sentence
+  else figures shown
+    page --> actor : Figures, drop-off chart and its data table twin
+  end
+end
+@enduml

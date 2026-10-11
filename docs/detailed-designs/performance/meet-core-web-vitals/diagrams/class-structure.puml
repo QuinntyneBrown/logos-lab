@@ -1,0 +1,100 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Meet Core Web Vitals
+
+
+enum WebVitalMetric {
+  LCP
+  INP
+  CLS
+}
+
+enum DeviceClass {
+  mobile
+  desktop
+}
+
+class WebVitalsSample {
+  +metric: WebVitalMetric
+  +value: number
+  +deviceClass: DeviceClass
+  +route: string
+  +navigationType: string
+}
+
+interface TelemetryApi {
+  +reportWebVitals(sample: WebVitalsSample): void
+}
+
+class HttpTelemetryApi {
+  +reportWebVitals(sample: WebVitalsSample): void
+}
+
+class WebVitalsReporter {
+  -api: TelemetryApi
+  +start(): void
+  -onMetric(metric: WebVitalMetric, value: number): void
+}
+
+class ResponsiveImageDirective {
+  +src: string
+  +width: number
+  +height: number
+  +priority: boolean
+  +sizes: string
+}
+
+class WebVitalsRoute <<route handler>> {
+  +path = "/api/v1/telemetry/web-vitals"
+  +POST(request: Request): Response
+}
+
+class RecordWebVitalsAction {
+  +execute(sample: WebVitalsSample): void
+}
+
+class MetricsPublisher {
+  +putMetric(name: string, value: number, dimensions: Map<string,string>): void
+}
+
+class PerformanceBudget {
+  +initialJsKb: number = 200
+  +initialCssKb: number = 50
+  +minLighthouseScore: number = 90
+  +maxScoreRegression: number = 5
+  +lcpSeconds: number = 2.5
+  +inpMs: number = 200
+  +cls: number = 0.1
+}
+
+class BundleBudgetCheck {
+  +run(buildOutput: string, budget: PerformanceBudget): boolean
+}
+
+class LighthouseGate {
+  +pages: string[]
+  +run(previewUrl: string, budget: PerformanceBudget): boolean
+}
+
+HttpTelemetryApi ..|> TelemetryApi
+WebVitalsReporter --> TelemetryApi : reports through
+WebVitalsReporter ..> WebVitalsSample : creates
+WebVitalsSample --> WebVitalMetric
+WebVitalsSample --> DeviceClass
+WebVitalsRoute ..> RecordWebVitalsAction : calls
+RecordWebVitalsAction --> MetricsPublisher : publishes through
+RecordWebVitalsAction ..> WebVitalsSample : validates
+BundleBudgetCheck ..> PerformanceBudget : reads
+LighthouseGate ..> PerformanceBudget : reads
+@enduml

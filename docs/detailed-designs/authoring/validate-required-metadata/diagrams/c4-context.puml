@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Validate required metadata
+
+Person(author, "Expert or Editor", "Enters metadata and submits content")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(author, logoslab, "Saves drafts and submits content to", "HTTPS")
+@enduml

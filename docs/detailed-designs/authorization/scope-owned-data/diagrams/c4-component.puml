@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Scope owned data
+
+Container(web, "Logos Lab Web", "Angular", "Pages calling owned-data endpoints")
+Container_Boundary(api, "Logos Lab API") {
+  Component(authn, "AuthenticationMiddleware", "Middleware", "Sets CurrentUser from session")
+  Component(route, "Route handlers", "app/api/v1/me/..., resource routes", "Strict request schemas")
+  Component(action, "Owned-data actions", "Actions", "Take CurrentUser")
+  Component(repo, "Owner-scoped repositories", "Repositories", "findOwned(id, ownerId), listForOwner(ownerId)")
+  Component(drafts, "ContentDraftRepository", "Repository", "findForAuthor(id, authorId)")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "UUID primary keys, owner columns")
+Rel(web, authn, "Requests", "JSON/HTTPS")
+Rel(authn, route, "Request with CurrentUser")
+Rel(route, action, "Validated input and CurrentUser")
+Rel(action, repo, "Owner-scoped calls")
+Rel(action, drafts, "Author-scoped calls")
+Rel(repo, db, "WHERE owner_id = caller", "SQL")
+Rel(drafts, db, "WHERE author_id = caller", "SQL")
+@enduml

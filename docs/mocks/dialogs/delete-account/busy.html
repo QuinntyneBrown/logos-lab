@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delete your account · busy — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="delete-account">
+<meta name="mock:state" content="busy">
+<meta name="mock:requirements" content="L2-117">
+<meta name="description" content="The account is being deleted, with a busy Deleting button.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Settings">
+      <p class="sidebar-nav__group">Settings</p>
+      <a href="../../pages/settings-profile/default.html">Profile</a>
+      <a href="../../pages/settings-account/default.html">Email and password</a>
+      <a href="../../pages/settings-security/default.html">Security</a>
+      <a href="../../pages/settings-sessions/default.html">Sessions</a>
+      <a href="../../pages/settings-notifications/default.html">Notifications</a>
+      <a href="../../pages/settings-privacy/default.html">Privacy and messaging</a>
+      <a href="../../pages/settings-data/default.html" aria-current="page">Your data</a>
+      <a href="../../pages/settings-blocked/default.html">Blocked members</a>
+    </nav>
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Settings</p>
+        <p class="page-head__title">Your data</p>
+        <p class="page-head__sub">Download a copy of everything Logos Lab holds about you, or delete your account.</p>
+      </div>
+      <div class="form-card"><p class="form-section__title">Download your data</p></div>
+      <div class="danger-zone"><p class="danger-zone__title">Delete your account</p><div class="form-actions"><span class="btn btn--danger">Delete my account</span></div></div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <span class="dialog__icon dialog__icon--danger"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/></svg></span><h1 class="dialog__title" id="dialog-title">Delete your account?</h1>
+        <a class="icon-btn" href="../../pages/settings-data/default.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">Here's what happens when you delete your account:</p>
+        <ul class="list list--plain"><li>Your account is deactivated now, and you're signed out on every device.</li><li>We email you a link to cancel. It works until Thu 12 Nov 2026; after that, your personal data is deleted.</li><li>Your comments and cohort posts stay, shown as “Former member”.</li><li>Direct messages you sent are deleted.</li><li>Your certificate for Christian Ethics for AI Builders will show “No longer available” to anyone who checks it.</li></ul>
+        <div class="field">
+          <label class="field__label" for="delete-password">Your password</label>
+          <div class="input-group"><input class="input" id="delete-password" name="password" type="password" autocomplete="current-password" value="correct-horse-battery"><button type="button" class="btn btn--quiet" aria-pressed="false" aria-controls="delete-password">Show</button></div>
+          
+        </div>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/settings-data/default.html">Keep my account</a><button class="btn btn--danger" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Deleting…</button>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Delete your account</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="scroll.html">scroll</a></li>
+    <li><a href="busy.html" aria-current="page">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="blocked.html">blocked</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

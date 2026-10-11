@@ -1,0 +1,79 @@
+@startuml
+title UML sequence behaviour — Run a search
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SearchResultsPage" as SearchResultsPage
+  participant "SearchApi" as SearchApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Rate-limiting middleware" as rl
+  participant "GET /api/v1/search" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SearchContentAction" as SearchContentAction
+  participant "SearchService" as SearchService
+  participant "SpellingCorrectionService" as SpellingCorrectionService
+  participant "SnippetHighlighter" as SnippetHighlighter
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> SearchResultsPage : Submit query
+alt trimmed query shorter than 2 characters
+  SearchResultsPage --> actor : No request sent; field shows "Enter at least 2 characters" (L2-004)
+else query of 2 to 200 characters
+  SearchResultsPage -> SearchApi : search(q, type)
+  SearchApi -> rl : HTTPS GET /api/v1/search?q=...
+  rl -> cache : Increment client counter for current minute
+  cache --> rl : Count
+  alt more than 60 requests this minute
+    rl --> SearchApi : 429 with Retry-After (L2-004)
+    SearchApi --> SearchResultsPage : Rate limited
+    SearchResultsPage --> actor : Notice says when searching works again
+  else under the limit
+    rl -> route : Forward
+    route -> route : Validate q; over 200 characters returns 400 problem (L2-004)
+    route -> SearchContentAction : execute(query)
+    SearchContentAction -> SearchService : search(query, now)
+    SearchService -> db : Full-text match with q as bound parameter, unaccented and case-folded (L2-003)
+    note right of db : Metacharacters such as quote or angle brackets are literal text
+    db --> SearchService : Published, unhidden hits grouped by type
+    alt no exact match
+      SearchContentAction -> SpellingCorrectionService : correct(q)
+      SpellingCorrectionService -> db : Nearest indexed term within edit distance 2
+      db --> SpellingCorrectionService : Corrected term
+      SpellingCorrectionService --> SearchContentAction : "theology"
+      SearchContentAction -> SearchService : search(corrected query, now)
+      SearchService -> db : Full-text match
+      db --> SearchService : Hits
+    end
+    SearchContentAction -> SnippetHighlighter : Mark matched terms as typed segments (L2-003)
+    SnippetHighlighter --> SearchContentAction : SnippetSegment[] per hit
+    SearchContentAction --> route : SearchResults with groups and counts
+    route --> SearchApi : 200 JSON
+    SearchApi --> SearchResultsPage : SearchResults
+    alt corrected
+      SearchResultsPage --> actor : "Showing results for theology" and results
+    else no results
+      SearchResultsPage --> actor : Query, 5 most popular topics and catalogue link
+    else results
+      SearchResultsPage --> actor : Groups with counts, type tabs and highlighted snippets
+    end
+  end
+end
+@enduml

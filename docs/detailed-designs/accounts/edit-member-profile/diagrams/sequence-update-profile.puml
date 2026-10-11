@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Update profile details
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsProfilePage" as page
+  participant "AccountApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me/profile route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateProfileAction" as action
+  participant "User" as user
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Edit name, bio, pronouns, visibility; press "Save changes"
+page -> client : updateProfile(update)
+client -> route : PUT /api/v1/me/profile
+route -> action : execute(currentUser, update)
+action -> action : Apply L2-013 display name 2-50 and bio up to 500 rules
+alt invalid
+  action --> route : ValidationProblem
+  route --> client : 422 problem with field errors
+  page --> actor : Invalid state, summary links to each field
+else valid
+  action -> db : Load user where id = caller
+  action -> user : Apply fields (stored as entered)
+  action -> db : Save
+  db --> action : Saved
+  action --> route : OwnProfile
+  route --> client : 200
+  client --> page : OwnProfile
+  page --> actor : Success state; name rendered as text (L2-013)
+end
+@enduml

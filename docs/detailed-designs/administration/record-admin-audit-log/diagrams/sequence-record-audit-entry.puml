@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Record an audit entry
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Admin or studio page" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Admin route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Change action\n(for example SuspendUserAction)" as action
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Save a change
+page -> route : HTTPS request with CSRF token
+route -> route : Authenticate, authorize, capture client IP from the trusted proxy header
+route -> action : execute(actor with IP, input)
+action -> db : Begin; load target state (before)
+action -> action : Apply the change (after)
+action -> audit : record(actor, action, target, before, after, IP) (L2-099)
+audit -> db : INSERT audit_entries with occurred_at = now()
+alt insert fails
+  db --> audit : Error
+  audit --> action : Error
+  action -> db : Roll back the whole change
+  action --> route : 500 problem; nothing saved
+else inserted
+  action -> db : Commit change and entry together
+  action --> route : Result
+end
+route --> page : Response
+note over audit, db : The API database role holds INSERT and SELECT only on audit_entries; a trigger rejects UPDATE and DELETE (append-only)
+@enduml

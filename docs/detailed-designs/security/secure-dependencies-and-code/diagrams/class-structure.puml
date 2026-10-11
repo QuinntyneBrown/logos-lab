@@ -1,0 +1,70 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Secure dependencies and code
+
+enum Severity {
+  Critical
+  High
+  Medium
+  Low
+}
+enum FindingSource {
+  DependencyScan
+  Sast
+  SecretScan
+  PenetrationTest
+  Advisory
+}
+class Finding {
+  +id: string
+  +source: FindingSource
+  +severity: Severity
+  +component: string
+  +detectedAt: Instant
+  +resolvedAt: Instant?
+  +remediationDueAt(): Instant
+}
+class RemediationPolicy {
+  +criticalDays: number = 7
+  +highDays: number = 30
+  +penTestCriticalHighDays: number = 30
+  +dueAt(finding: Finding): Instant
+}
+class SecurityGate {
+  +failingSeverities: Severity[] = [Critical, High]
+  +evaluate(findings: Finding[]): GateResult
+}
+class Release {
+  +version: string
+  +commit: string
+  +builtAt: Instant
+  +sbomKey: string
+}
+class SbomArtifact {
+  +format: string = <TO SUPPLY>
+  +components: number
+  +storageKey: string
+}
+class PenetrationTest {
+  +performedAt: Instant
+  +scope: string
+  +findings: Finding[]
+}
+Finding --> Severity : has
+Finding --> FindingSource : from
+SecurityGate ..> Finding : evaluates
+RemediationPolicy ..> Finding : sets due date
+Release "1" *-- "1" SbomArtifact : stored with
+PenetrationTest "1" o-- "*" Finding : reports
+@enduml

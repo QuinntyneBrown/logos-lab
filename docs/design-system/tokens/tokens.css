@@ -286,6 +286,9 @@
   --size-certificate: 48rem;
   --size-transcript-max: 22rem;
   --size-consent: 30rem;
+  --size-header-search: 20rem;
+  --size-header-search-min: 14rem;
+  --size-content-card-min: 15rem;
 
   /* ---------- Semantic: shape ------------------------------------------ */
   --radius-xs: 0.25rem;

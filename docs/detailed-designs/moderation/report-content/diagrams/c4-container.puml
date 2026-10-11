@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Report content
+
+Person(member, "Member", "Reports an item")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "ReportContentDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "POST /api/v1/reports")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Hourly report counters")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "reports, moderation_cases")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls ReportsApi", "JSON/HTTPS")
+Rel(api, cache, "Counts reports per hour in", "Redis protocol")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

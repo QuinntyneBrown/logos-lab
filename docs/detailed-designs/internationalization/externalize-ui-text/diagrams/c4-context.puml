@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Externalize UI text
+
+
+Person(learner, "Learner", "Reads pages and emails")
+Person(author, "Expert or editor", "Marks passage and track languages")
+Person(translator, "Translator", "Supplies locale resource files <TO SUPPLY>")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ci, "CI pipeline", "Extraction and pseudo-locale suite")
+System_Ext(ses, "Amazon SES", "Email delivery")
+
+Rel(learner, ll, "Reads translated text in")
+Rel(author, ll, "Tags content language in")
+Rel(translator, ll, "Adds translation resource files to")
+Rel(ci, ll, "Builds and tests pseudo-locale of")
+Rel(ll, ses, "Sends localized email through")
+@enduml

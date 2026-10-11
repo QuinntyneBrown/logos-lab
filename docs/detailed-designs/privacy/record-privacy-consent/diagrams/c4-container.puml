@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Record privacy consent
+
+Person(member, "Member", "Visitor or member")
+Person(admin, "Administrator", "Policy owner")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Register, policy, re-consent and policy editor pages")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Policy and consent endpoints, re-consent gate")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Policy change notice jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Sends policy change notices")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "policy_versions, policy_acceptances")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Uses", "HTTPS")
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues PolicyChangeNoticeJob", "SQS")
+Rel(queue, worker, "Delivers jobs to")
+Rel(worker, db, "Reads members and versions", "SQL")
+Rel(worker, ses, "Sends notices", "SES API")
+@enduml

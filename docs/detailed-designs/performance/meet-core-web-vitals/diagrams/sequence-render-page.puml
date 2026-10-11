@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Render a page within budget
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+  participant "AppShell (SSR)" as shell
+  participant "ResponsiveImageDirective" as img
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN (CloudFront)" as cdn
+  database "Media storage" as s3
+end box
+actor -> browser : Open page
+browser -> cdn : Request page
+cdn -> shell : Forward on cache miss
+shell -> img : Render hero and card images
+img --> shell : img with width, height, srcset and sizes
+shell -> shell : Add preload link with fetchpriority high for LCP image (L2-123)
+shell --> cdn : HTML with reserved media boxes (L2-120)
+cdn --> browser : HTML
+browser -> cdn : Initial JS and CSS (200 KB / 50 KB compressed at most, L2-123)
+cdn --> browser : Hashed bundles
+browser -> cdn : Self-hosted fonts (font-display: swap)
+cdn --> browser : Subset font files
+browser -> cdn : LCP image rendition (AVIF or WebP)
+cdn -> s3 : Read rendition on cache miss
+s3 --> cdn : Rendition
+cdn --> browser : LCP image
+opt Image below the fold
+  browser -> cdn : Request lazy image when near the viewport
+  cdn --> browser : Rendition fills its reserved box, no layout shift
+end
+opt Learner opens studio, admin, moderation or a player
+  browser -> cdn : Load lazy feature chunk
+  cdn --> browser : Feature chunk, absent from the public initial bundle
+end
+browser --> actor : Page painted and stable
+@enduml

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notification item · success — Logos Lab</title>
+<meta name="mock:kind" content="notification">
+<meta name="mock:screen" content="notification">
+<meta name="mock:state" content="success">
+<meta name="mock:requirements" content="L2-018 L2-019 L2-023 L2-024 L2-050 L2-054 L2-055 L2-057 L2-059 L2-064 L2-066 L2-077 L2-086 L2-087 L2-090 L2-097 L2-103 L2-108 L2-116">
+<meta name="description" content="A success notification: Miriam's data export is ready to download until Tue 20 Oct 2026.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 4 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">4</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Tuesday 13 October</p>
+      <h1 class="page-head__title">Good morning, Miriam</h1>
+      <p class="page-head__sub">3 courses in progress, 2 events coming up and 5 new pieces from people you follow.</p>
+    </div>
+    <nav class="tabs" aria-label="Dashboard">
+      <a class="tab" href="../../pages/dashboard/default.html" aria-current="page">Overview</a>
+      <a class="tab" href="../../pages/my-learning/default.html">My learning</a>
+      <a class="tab" href="../../pages/saved/default.html">Saved <span class="chip__count">14</span></a>
+      <a class="tab" href="../../pages/my-events/default.html">My events</a>
+      <a class="tab" href="../../pages/my-certificates/default.html">Certificates</a>
+      <a class="tab" href="../../pages/following/default.html">Following</a>
+    </nav>
+  </div>
+</main>
+
+<div class="toast-region" aria-live="polite">
+  <div class="toast toast--success" role="status">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>
+    <p class="toast__title">Your data export is ready</p>
+    <p class="toast__body">Download it by Tue 20 Oct 2026. You'll need to be signed in.</p>
+    <a class="btn btn--text btn--sm toast__action" href="../../pages/data-export-download/default.html">Download</a>
+    <button type="button" class="icon-btn toast__close" aria-label="Dismiss"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+</div>
+<p class="mock-note" style="bottom: var(--space-24); right: var(--space-6)">Toasts close after 8 seconds unless focused or hovered. The bell count rises from 3 to 4 within 30 seconds.</p>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Notification item</span>
+  <ul class="mock-bar__states">
+    <li><a href="info.html">info</a></li>
+    <li><a href="success.html" aria-current="page">success</a></li>
+    <li><a href="warning.html">warning</a></li>
+    <li><a href="danger.html">danger</a></li>
+    <li><a href="with-action.html">with-action</a></li>
+    <li><a href="unread.html">unread</a></li>
+    <li><a href="read.html">read</a></li>
+    <li><a href="stacked.html">stacked</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

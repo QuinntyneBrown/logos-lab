@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Create default preferences for a new member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "RegisterPage" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Registration route handler\n(accounts subsystem)" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RegisterMemberAction\n(accounts subsystem)" as action
+  participant "NotificationPreferenceService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Submit registration, Platform news box ticked or not
+page -> route : POST registration
+route -> action : execute(request)
+action -> db : Insert account (same transaction)
+action -> service : createDefaults(userId, marketingConsent)
+service -> service : In-app on for all 7 categories (L2-093)
+service -> service : Email on for 6 categories; Platform news email on only with marketing consent (L2-093, L2-094)
+service -> db : Insert 7 preference rows
+db --> service : Done
+service --> action : Done
+action --> route : Account created
+route --> page : 201
+page --> actor : Check your email
+@enduml

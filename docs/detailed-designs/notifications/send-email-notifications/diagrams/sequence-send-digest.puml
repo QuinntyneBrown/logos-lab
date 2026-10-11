@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Combine activity email into a digest
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Calling action" as caller
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EmailService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EmailDigestJob" as job
+  participant "EmailTemplateRenderer" as renderer
+end box
+participant "Amazon SES" as ses
+caller -> service : queueActivity(recipient, category, data)
+service -> db : Count activity email for recipient in the last hour
+db --> service : Count
+alt count is 5 or fewer
+  service -> db : Insert individual EmailMessage
+  service -> queue : Enqueue EmailSendJob
+else more than 5 within the hour (L2-092)
+  service -> db : Insert EmailDigestItem (held)
+  service -> queue : Enqueue EmailDigestJob(recipient, windowEnd) with dedup id
+end
+queue -> job : Deliver at window end
+job -> db : Claim held items for recipient not yet sent
+db --> job : Items
+alt no items
+  job --> queue : Acknowledge (already sent)
+else items held
+  job -> renderer : render(Digest, items)
+  renderer --> job : One digest email, HTML and plain text
+  job -> ses : SendEmail
+  ses --> job : Provider message id
+  job -> db : Mark items sent in digest id
+  job --> queue : Acknowledge
+end
+@enduml

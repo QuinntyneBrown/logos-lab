@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Playback error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-player" as player
+  participant "Tessera video-player" as tessera
+  participant "ReportProblemDialog" as dialog
+  participant "VideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "playback-errors route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "LogPlaybackErrorAction" as action
+  participant "ReportProblemAction" as report
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Amazon CloudWatch" as cw
+  database "Logos Lab database" as db
+end box
+tessera -> player : error(code, message)
+player --> actor : Error panel with "Try again" and "Report a problem"
+player -> client : logPlaybackError(videoId, code, browser)
+client -> route : POST /api/v1/videos/{videoId}/playback-errors
+route -> route : Validate body, apply rate limit
+route -> action : execute(videoId, report)
+action -> cw : Structured log with video id and browser (L2-040)
+route --> client : 202
+alt Learner chooses Try again
+  actor -> player : Try again
+  player -> tessera : Reload source from current playhead
+else Learner chooses Report a problem
+  actor -> dialog : Choose category, describe
+  dialog -> client : reportProblem(subject, category, text)
+  client -> route : POST /api/v1/problem-reports
+  route -> report : execute(userId, report)
+  report -> db : Store report for the Logos Lab team
+  route --> client : 201
+  dialog --> actor : "Report sent"
+end
+@enduml

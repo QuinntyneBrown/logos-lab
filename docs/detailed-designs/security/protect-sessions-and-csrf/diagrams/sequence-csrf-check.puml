@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Check the anti-CSRF token on a state-changing request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member browser" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Page" as page
+  participant "Angular HttpClient" as http
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "CsrfMiddleware" as csrf
+  participant "SessionMiddleware" as authn
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SessionService" as svc
+end box
+actor -> page : Press Save
+page -> http : PATCH request
+http -> http : Copy CSRF cookie into X-CSRF-Token header
+http -> csrf : PATCH with cookies, Origin and X-CSRF-Token
+csrf -> csrf : Check Origin or Sec-Fetch-Site against the allow-list
+csrf -> svc : resolve(session cookie)
+svc --> csrf : Session with csrfToken
+alt Token missing, mismatched, or origin disallowed (L2-106)
+  csrf --> http : 403 problem+json
+  http --> page : Forbidden
+  page --> actor : Show error state
+else Valid token and allowed origin
+  csrf -> authn : Continue pipeline
+  authn -> route : Authenticated request
+  route --> http : 200
+  http --> page : Result
+  page --> actor : Saved
+end
+@enduml

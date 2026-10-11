@@ -1,0 +1,91 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Cache responses
+
+
+enum CacheDirective {
+  IMMUTABLE_ASSET
+  PUBLIC_PAGE
+  PRIVATE_NO_STORE
+  +headerValue(): string
+}
+
+note right of CacheDirective
+  IMMUTABLE_ASSET = public, max-age=31536000, immutable
+  PUBLIC_PAGE = public, s-maxage=300
+  PRIVATE_NO_STORE = private, no-store
+end note
+
+enum AuthState {
+  anonymous
+  member
+}
+
+class CacheHeadersInterceptor {
+  +intercept(request: Request, route: RouteInfo): CacheDirective
+  -isPublicContentRoute(route: RouteInfo): boolean
+}
+
+class CachePolicyMiddleware {
+  +handle(request: Request, next: Handler): Response
+  -resolve(route: RouteDefinition, session: Session): CacheDirective
+}
+
+class RouteDefinition {
+  +path: string
+  +anonymous: boolean
+  +publicCache: boolean
+}
+
+enum ContentChange {
+  published
+  revised
+  archived
+}
+
+class CdnInvalidationRequest {
+  +contentId: string
+  +contentType: string
+  +slug: string
+  +change: ContentChange
+  +committedAt: Date
+}
+
+class ContentCacheInvalidator {
+  +recordChange(request: CdnInvalidationRequest, tx: Transaction): void
+}
+
+class CdnInvalidateJob {
+  +run(request: CdnInvalidationRequest): Promise<void>
+  -affectedPaths(request: CdnInvalidationRequest): string[]
+}
+
+class CdnClient {
+  +createInvalidation(distributionId: string, paths: string[]): Promise<string>
+}
+
+class PublishContentAction {
+  +execute(contentId: string, editorId: string): Result
+}
+
+CacheHeadersInterceptor ..> CacheDirective : returns
+CacheHeadersInterceptor ..> AuthState : reads x-ll-auth-state
+CachePolicyMiddleware ..> RouteDefinition : reads
+CachePolicyMiddleware ..> CacheDirective : returns
+PublishContentAction --> ContentCacheInvalidator : calls
+ContentCacheInvalidator ..> CdnInvalidationRequest : records
+CdnInvalidateJob ..> CdnInvalidationRequest : consumes
+CdnInvalidateJob --> CdnClient : invalidates through
+CdnInvalidationRequest --> ContentChange
+@enduml

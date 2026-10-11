@@ -1,0 +1,88 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage cookie consent
+
+enum ConsentCategory {
+  Essential
+  Analytics
+  VideoQuality
+}
+class CookieConsentChoice {
+  +analytics: boolean
+  +videoQuality: boolean
+  +decidedAt: Date
+  +expiresAt(): Date
+  +isExpired(now: Date): boolean
+}
+class CookieConsentService {
+  +choice: Signal<CookieConsentChoice | null>
+  +needsBanner(now: Date): boolean
+  +acceptAll(): void
+  +rejectNonEssential(): void
+  +save(choice: CookieConsentChoice): void
+}
+class ConsentCookieStore {
+  +read(): CookieConsentChoice | null
+  +write(choice: CookieConsentChoice): void
+}
+class AnalyticsLoader {
+  +enable(): void
+  +disable(): void
+  -deleteAnalyticsCookies(): void
+}
+class VideoQualityPreferenceStore {
+  +clear(): void
+}
+class ConsentBannerComponent <<ll-consent-banner>> {
+  +accept: OutputEmitterRef<void>
+  +reject: OutputEmitterRef<void>
+  +customize: OutputEmitterRef<void>
+}
+class CookieSettingsDialog {
+  +analytics: boolean
+  +videoQuality: boolean
+  +save(): void
+}
+class SettingsPrivacyPage
+interface ConsentApi {
+  +recordCookieConsent(choice: CookieConsentChoice): Observable<void>
+}
+class HttpConsentApi
+class RecordCookieConsentAction {
+  +execute(userId: string, input: CookieConsentInput): Result<void>
+}
+class CookieConsentRecord {
+  +id: string
+  +userId: string
+  +analytics: boolean
+  +videoQuality: boolean
+  +decidedAt: Date
+}
+class CookieConsentRepository {
+  +insert(record: CookieConsentRecord): void
+  +latestForUser(userId: string): CookieConsentRecord
+}
+CookieConsentService --> ConsentCookieStore : persists through
+CookieConsentService --> AnalyticsLoader : controls
+CookieConsentService --> VideoQualityPreferenceStore : clears on withdrawal
+CookieConsentService ..> ConsentApi : records signed-in choice
+CookieConsentService --> CookieConsentChoice : holds
+CookieConsentChoice ..> ConsentCategory : covers
+ConsentBannerComponent ..> CookieConsentService : emits to
+CookieSettingsDialog ..> CookieConsentService : saves through
+SettingsPrivacyPage ..> CookieConsentService : reads
+HttpConsentApi ..|> ConsentApi
+RecordCookieConsentAction ..> CookieConsentRepository : uses
+CookieConsentRepository --> CookieConsentRecord : stores
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Upload a SCORM package
+
+Person(expert, "Expert or Editor", "Authors courses and modules in Studio")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+System_Ext(scanner, "Malware scanner", "Scans uploaded files (product TO SUPPLY)")
+System_Ext(cw, "Amazon CloudWatch", "Logs, metrics and alarms, including security events")
+
+Rel(expert, logos, "Uploads SCORM packages in", "HTTPS")
+Rel(logos, scanner, "Scans every package file with")
+Rel(logos, cw, "Logs security events to", "AWS SDK")
+@enduml

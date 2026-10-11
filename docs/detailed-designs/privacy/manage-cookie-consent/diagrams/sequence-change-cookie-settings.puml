@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Change cookie settings from the footer
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-footer" as footer
+  participant "CookieSettingsDialog" as dialog
+  participant "CookieConsentService" as svc
+  participant "AnalyticsLoader" as loader
+  participant "ConsentApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "cookie consent route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordCookieConsentAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> footer : Choose "Cookie settings"
+footer -> dialog : Open with current choice
+actor -> dialog : Toggle Analytics or Video quality preferences and save
+dialog -> svc : save(choice)
+svc -> svc : Rewrite consent cookie with new decidedAt (12-month window restarts)
+alt Analytics withdrawn
+  svc -> loader : disable()
+  loader -> loader : Remove script and delete analytics cookies now (L2-115)
+else Analytics granted
+  svc -> loader : enable()
+end
+opt Video quality withdrawn
+  svc -> svc : Clear stored video quality preferences
+end
+opt Member is signed in
+  svc -> client : recordCookieConsent(choice)
+  client -> route : PUT /api/v1/me/cookie-consent
+  route -> action : Execute
+  action -> db : Insert cookie_consents row
+  route --> client : 204
+end
+svc --> dialog : Applied
+dialog --> actor : Toast "Cookie choices saved"
+@enduml

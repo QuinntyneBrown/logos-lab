@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Open a video page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "VideoPage (SSR, then browser)" as page
+  participant "ll-player" as player
+  participant "VideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "by-slug route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetVideoPageAction" as action
+  participant "VideoPageService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /videos/{slug}
+page -> client : getVideoPage(slug)
+client -> route : GET /api/v1/videos/by-slug/{slug}
+route -> action : execute(slug)
+action -> db : Load published video by slug
+alt Not published or unknown slug
+  route --> client : 404
+  page --> actor : Not found page
+else Published
+  action -> svc : build(video)
+  svc -> db : Topics, memberships, related, comment count
+  svc --> action : VideoPageModel (L2-044)
+  route --> client : 200, cacheable, no personal data
+  page --> actor : Server-rendered page, player box at 16:9
+  page -> player : Hydrate with model
+  alt Signed in, or public preview
+    player --> actor : Poster with Play, resume offer when present
+  else Visitor and not a public preview (L2-015)
+    player --> actor : Poster with "Sign in to watch"
+  end
+end
+@enduml

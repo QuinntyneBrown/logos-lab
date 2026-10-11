@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Send an event reminder exactly once
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Registered member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Notification centre" as centre
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "notifications route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EventReminderSweepJob" as sweep
+  participant "EventReminderService" as svc
+  participant "EventReminderJob" as job
+  participant "NotificationPreferenceService" as pref
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+  participant "Amazon SES" as ses
+end box
+sweep -> db : Registrations for events starting within the reminder windows
+db --> sweep : Candidates
+sweep -> svc : dueKinds(registration, event, now)
+svc --> sweep : Skip 24-hour kind when registered under 24 hours before (L2-057)
+sweep -> q : Enqueue EventReminderJob per due kind
+q -> job : Deliver (may repeat)
+job -> db : INSERT delivery ON CONFLICT DO NOTHING
+alt Row already existed
+  db --> job : Not claimed
+  job -> job : Stop, reminder already sent (L2-057)
+else Claimed
+  db --> job : Claimed
+  job -> pref : channels(userId, Event reminders)
+  opt In-app on
+    job -> db : Insert notification linking to the event page
+  end
+  opt Email on
+    job -> ses : Send email with idempotency key (L2-092)
+  end
+  job -> db : Mark channels sent
+end
+actor -> centre : Open notifications
+centre -> route : GET /api/v1/me/notifications
+route --> centre : Reminder item
+centre --> actor : "Starts in 1 hour", link to event page
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Report an unauthorized change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner of the old address" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ReportChangePage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "email-changes route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ReportEmailChangeAction" as action
+  participant "AccountTokenService" as tokens
+  participant "SessionService" as sessions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Open report link, press "Secure my account"
+page -> client : reportEmailChange(token)
+client -> route : POST /api/v1/auth/email-changes/reports
+route -> action : execute(token)
+action -> tokens : consume(token, EmailChangeReport)
+alt too old or used
+  route --> client : 410 "link-expired"
+  page --> actor : Expired state with support contact
+else valid
+  action -> db : Restore previous email
+  action -> sessions : revokeAll(userId)
+  sessions -> db : Revoke every session
+  action -> tokens : issue(userId, PasswordReset, 60 min)
+  action -> queue : Enqueue EmailSendJob (reset link to restored address)
+  action -> queue : Enqueue team alert (channel <TO SUPPLY>)
+  action --> route : Ok
+  route --> client : 204
+  page --> actor : Success state: email restored, devices signed out, reset link sent
+end
+@enduml

@@ -1,0 +1,87 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Follow an expert
+
+package "Logos Lab Web" {
+  class ExpertProfilePage {
+    +following: Signal<boolean>
+    +followerCount: Signal<number>
+    +toggleFollow(): void
+  }
+  class UnfollowDialog {
+    +targetName: string
+    +confirm(): void
+    +keepFollowing(): void
+  }
+  interface FollowsApi {
+    +followExpert(expertId: UUID): Observable<FollowState>
+    +unfollowExpert(expertId: UUID): Observable<FollowState>
+    +followCollection(collectionId: UUID): Observable<FollowState>
+    +unfollowCollection(collectionId: UUID): Observable<FollowState>
+  }
+  class HttpFollowsApi
+  class FOLLOWS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class FollowRateLimiter {
+    +limitPerMinute: number = 10
+    +check(userId: UUID, targetId: UUID): Promise<RateDecision>
+  }
+  class FollowExpertAction {
+    +execute(userId: UUID, expertId: UUID): Promise<FollowState>
+  }
+  class UnfollowExpertAction {
+    +execute(userId: UUID, expertId: UUID): Promise<FollowState>
+  }
+  class FollowService {
+    +follow(userId: UUID, target: FollowTarget): Promise<number>
+    +unfollow(userId: UUID, target: FollowTarget): Promise<number>
+  }
+  class FollowRepository {
+    +insertIfAbsent(follow: Follow): Promise<void>
+    +delete(userId: UUID, target: FollowTarget): Promise<void>
+    +countFollowers(target: FollowTarget): Promise<number>
+    +followersOf(target: FollowTarget): Promise<UUID[]>
+  }
+  class ExpertFollowerNotificationJob {
+    +run(expertId: UUID, contentId: UUID): Promise<void>
+  }
+  class NotificationPreferenceService {
+    +channelsFor(userId: UUID, category: string): Promise<Channel[]>
+  }
+  class Follow {
+    +followerId: UUID
+    +targetType: FollowTargetType
+    +targetId: UUID
+    +createdAt: Date
+  }
+  enum FollowTargetType {
+    Expert
+    Collection
+  }
+  class FollowState {
+    +following: boolean
+    +followerCount: number
+  }
+}
+ExpertProfilePage ..> FollowsApi
+ExpertProfilePage ..> UnfollowDialog : opens
+HttpFollowsApi ..|> FollowsApi
+FOLLOWS_API ..> FollowsApi : provides
+FollowExpertAction --> FollowService
+UnfollowExpertAction --> FollowService
+FollowService --> FollowRepository
+FollowRepository ..> Follow
+Follow --> FollowTargetType
+ExpertFollowerNotificationJob --> FollowRepository
+ExpertFollowerNotificationJob --> NotificationPreferenceService
+@enduml

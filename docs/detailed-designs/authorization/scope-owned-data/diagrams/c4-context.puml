@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Scope owned data
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+Person(expert, "Expert", "Invited author of own content")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, lab, "Reads own progress, saved items, messages", "HTTPS")
+Rel(expert, lab, "Edits own drafts", "HTTPS")
+@enduml

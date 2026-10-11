@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Create or rename a topic
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminTopicsPage" as page
+  participant "TopicEditDialog" as dialog
+  participant "TopicsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST or PATCH /api/v1/admin/topics" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateTopicAction\nUpdateTopicAction" as action
+  participant "TopicService" as service
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Add topic, or Edit on a row
+page -> dialog : Open (CDK Dialog)
+actor -> dialog : Enter name and description, save
+dialog -> client : create(input) or update(id, input)
+client -> route : HTTPS request with CSRF token
+route -> route : Authenticate and require Administrator role
+route -> action : execute(actor, input)
+action -> service : validate(input)
+service -> db : Is the name taken by another topic?
+db --> service : Result
+alt name not 2-60 characters, not unique, or description over 300 characters (L2-096)
+  service --> action : Validation errors
+  action --> route : 422 problem with field errors
+  dialog --> actor : Invalid state: errors under the fields
+else valid create
+  action -> service : slugFor(name)
+  action -> db : Insert topic
+  action -> audit : record("Topic created", before none, after name and slug)
+  action --> route : 201 topic
+  dialog --> actor : Topic available for tagging; topic page exists (L2-005)
+else valid rename
+  action -> service : rename(topic, input)
+  service -> db : Update name and new slug
+  service -> db : Insert topic_redirects(old slug -> topic) (L2-096)
+  action -> audit : record("Topic renamed", before, after)
+  action -> db : Commit
+  action --> route : 200 topic
+  dialog --> actor : Success: old address now redirects permanently
+end
+@enduml

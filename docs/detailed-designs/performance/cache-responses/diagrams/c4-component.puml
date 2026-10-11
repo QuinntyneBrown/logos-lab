@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Cache responses
+
+
+Container_Boundary(cdn, "CDN") {
+  Component(fn, "AuthStateViewerFunction", "CloudFront Function", "Sets x-ll-auth-state")
+  Component(pagepol, "Page cache policy", "CloudFront cache policy", "Keys on x-ll-auth-state")
+  Component(assetbeh, "Static asset behaviour", "CloudFront behaviour", "Immutable assets")
+}
+Container_Boundary(web, "Logos Lab Web") {
+  Component(int, "CacheHeadersInterceptor", "SSR response step", "public, s-maxage=300 or private, no-store")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "CachePolicyMiddleware", "Middleware", "private, no-store unless publicCache and anonymous")
+  Component(pub, "PublishContentAction", "Action (authoring)", "Publish, revise or archive")
+  Component(inv, "ContentCacheInvalidator", "Domain service", "Records invalidation job")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "CdnInvalidateJob", "Job", "Computes paths, calls CreateInvalidation")
+}
+System_Ext(cfapi, "CloudFront API", "CreateInvalidation")
+
+Rel(fn, pagepol, "Supplies cache key header to")
+Rel(pagepol, int, "Caches responses headed by")
+Rel(pub, inv, "Calls in the same transaction")
+Rel(inv, job, "Enqueues", "SQS")
+Rel(job, cfapi, "Invalidates paths through")
+Rel(mw, pagepol, "Marks API responses uncacheable for")
+@enduml

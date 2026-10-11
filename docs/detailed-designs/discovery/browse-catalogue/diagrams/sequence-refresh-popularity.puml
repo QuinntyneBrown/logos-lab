@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Refresh popularity counts
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ContentPopularityRefreshJob" as ContentPopularityRefreshJob
+  participant "ContentRepository" as ContentRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+end box
+queue -> ContentPopularityRefreshJob : Deliver refresh message (interval TO SUPPLY)
+ContentPopularityRefreshJob -> ContentRepository : Recompute popularity for 30-day window (L2-002)
+ContentRepository -> db : Count distinct members with engagement per item since now minus 30 days
+db --> ContentRepository : Counts per item
+ContentRepository -> db : Upsert content_popularity in one transaction
+db --> ContentRepository : Commit
+ContentRepository --> ContentPopularityRefreshJob : Rows updated
+ContentPopularityRefreshJob --> queue : Acknowledge message (idempotent; retried with backoff on failure)
+@enduml

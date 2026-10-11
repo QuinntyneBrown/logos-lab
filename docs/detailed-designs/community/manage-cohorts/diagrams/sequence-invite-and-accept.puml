@@ -1,0 +1,70 @@
+@startuml
+title UML sequence behaviour — Invite members and accept an invitation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Cohort leader" as actor
+actor "Invitee" as invitee
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortInviteDialog" as dialog
+  participant "CohortJoinPage" as joinPage
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "InviteCohortMembersAction" as invite
+  participant "JoinCohortAction" as join
+  participant "CohortService" as service
+  participant "EnrolmentService" as enrol
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+  participant "Logos Lab Worker" as worker
+  participant "Amazon SES" as ses
+end box
+actor -> dialog : Enter invitee emails and send
+dialog -> client : invite(cohortId, emails)
+client -> route : POST /api/v1/studio/cohorts/{id}/invitations
+route -> invite : execute(userId, cohortId, emails)
+invite -> db : Check caller leads an Invite only cohort
+invite -> db : Insert one invitation per email with token hash
+invite -> queue : Enqueue CohortInvitationSendJob per invitation
+invite --> route : InviteResult (sent, skipped)
+route --> client : 200 InviteResult
+dialog --> actor : Show success or partial state
+queue -> worker : Deliver job
+worker -> ses : Send email with /cohorts/join/{token} link (L2-063)
+ses --> invitee : Invitation email
+invitee -> joinPage : Open link and press Join
+joinPage -> client : join(token)
+client -> route : POST /api/v1/cohorts/join/{token}
+route -> join : execute(userId, token)
+join -> db : Resolve token hash to invitation and cohort
+alt token unknown or already used
+  join --> route : InvalidLink
+  route --> client : 404 problem
+  joinPage --> invitee : Show invalid-link state
+else valid invitation
+  join -> service : assertJoinable(cohort, activeCount, now)
+  join -> enrol : ensureEnrolled(userId, courseId)
+  enrol -> db : Insert enrolment if none (L2-063)
+  join -> db : Insert membership, set invitation acceptedAt
+  join --> route : Membership
+  route --> client : 200 CohortMembershipView
+  joinPage --> invitee : Show success and link to cohort space
+end
+@enduml

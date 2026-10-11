@@ -1,0 +1,92 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Manage a collection
+
+package "Logos Lab Web" {
+  class CollectionBuilderPage {
+    +items: Signal<BuilderItem[]>
+    +moveUp(index: number): void
+    +moveDown(index: number): void
+    +remove(index: number): void
+    +openPicker(): void
+    +save(): void
+  }
+  class ItemPickerDialog {
+    +query: string
+    +type: ContentType
+    +selected: ContentSummary[]
+    +add(): void
+  }
+  interface StudioCollectionsApi {
+    +getCollection(id: UUID): Observable<BuilderCollection>
+    +saveItems(id: UUID, items: BuilderItem[]): Observable<SaveResult>
+    +searchPickable(query: PickerQuery): Observable<ContentSummary[]>
+  }
+  class HttpStudioCollectionsApi
+  class STUDIO_COLLECTIONS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class SaveCollectionItemsAction {
+    +execute(userId: UUID, collectionId: UUID, items: CollectionItemInput[]): Promise<SaveResult>
+  }
+  class CollectionCompositionService {
+    +minItems: number = 1
+    +maxItems: number = 100
+    +maxNoteLength: number = 280
+    +validate(collection: Collection, items: CollectionItemInput[]): Promise<CompositionViolation[]>
+  }
+  class RevisionService {
+    +openDraftRevision(contentId: UUID, authorId: UUID): Promise<ContentRevision>
+  }
+  class CollectionRepository {
+    +findOwned(collectionId: UUID, userId: UUID): Promise<Collection>
+    +containsCollection(collectionId: UUID): Promise<boolean>
+    +isNestedInAnother(collectionId: UUID): Promise<boolean>
+    +replaceItems(target: UUID, items: CollectionItemInput[]): Promise<void>
+  }
+  class CollectionItemInput {
+    +contentId: UUID
+    +position: number
+    +note: string
+  }
+  class CompositionViolation {
+    +kind: ViolationKind
+    +contentId: UUID
+    +message: string
+  }
+  enum ViolationKind {
+    TooFewItems
+    TooManyItems
+    NotPublished
+    SelfReference
+    NestingTooDeep
+    NoteTooLong
+  }
+  class ContentRevision {
+    +id: UUID
+    +contentId: UUID
+    +state: WorkflowState
+  }
+}
+CollectionBuilderPage ..> ItemPickerDialog : opens
+CollectionBuilderPage ..> StudioCollectionsApi
+ItemPickerDialog ..> StudioCollectionsApi
+HttpStudioCollectionsApi ..|> StudioCollectionsApi
+STUDIO_COLLECTIONS_API ..> StudioCollectionsApi : provides
+SaveCollectionItemsAction --> CollectionRepository
+SaveCollectionItemsAction --> CollectionCompositionService
+SaveCollectionItemsAction --> RevisionService
+CollectionCompositionService --> CollectionRepository
+CollectionCompositionService ..> CompositionViolation : returns
+CompositionViolation --> ViolationKind
+RevisionService ..> ContentRevision : creates
+@enduml

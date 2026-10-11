@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Record a consent change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsPrivacyPage" as page
+  participant "ConsentApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/me/marketing-consent" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ChangeMarketingConsentAction" as action
+  participant "ConsentService" as consent
+  participant "NotificationPreferenceService" as prefs
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Tick or untick "Email me Logos Lab platform news" and save
+page -> client : setMarketingConsent(given)
+client -> route : PUT with session and CSRF token
+route -> route : Authenticate session
+route -> action : execute(currentUserId, given, PrivacySettings)
+action -> consent : record(MarketingEmail, Given or Withdrawn, current wording version, source)
+consent -> db : Insert consent_records row with timestamp (L2-094)
+action -> prefs : Set Platform news email on or off
+prefs -> db : Update preference row
+db --> action : Committed in one transaction
+action --> route : ConsentSummary
+route --> client : 200 JSON
+page --> actor : Saved; "Your consent: Given ... on ..."
+@enduml

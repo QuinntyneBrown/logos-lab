@@ -1,0 +1,93 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Change user roles
+
+package "Logos Lab Web" {
+  class AdminUserPage {
+    -api: AdminUsersApi
+    +user: AdminUserDetail
+    +openEditRoles(): void
+  }
+  class EditRolesDialog {
+    -api: AdminUsersApi
+    +selected: Role[]
+    +state: DialogState
+    +save(): void
+  }
+  interface AdminUsersApi {
+    +getUser(id: Uuid): Observable<AdminUserDetail>
+    +changeRoles(id: Uuid, roles: Role[]): Observable<RoleChangeResult>
+  }
+  class HttpAdminUsersApi
+}
+package "Logos Lab API" {
+  class ChangeUserRolesAction {
+    +execute(actor: CurrentUser, targetId: Uuid, roles: Role[], ip: string): Promise<Result<RoleChangeResult, RoleProblem>>
+  }
+  class RoleService {
+    +diff(current: Role[], requested: Role[]): RoleDiff
+    +assertNotLastAdministrator(targetId: Uuid, diff: RoleDiff): Promise<void>
+  }
+  class RoleDiff {
+    +granted: Role[]
+    +removed: Role[]
+  }
+  class AuditLogService {
+    +append(entry: AuditEntry): Promise<void>
+  }
+  class AuditEntry {
+    +id: Uuid
+    +actorId: Uuid
+    +action: string
+    +targetType: string
+    +targetId: Uuid
+    +before: Json
+    +after: Json
+    +ipAddress: string
+    +at: Instant
+  }
+  class NotificationService {
+    +notifyRoleGranted(userId: Uuid, role: Role): Promise<void>
+  }
+  class UserRole {
+    +userId: Uuid
+    +role: Role
+    +grantedAt: Instant
+    +grantedBy: Uuid
+  }
+  enum Role {
+    Learner
+    Expert
+    Editor
+    Moderator
+    Administrator
+  }
+  class LastAdministratorProblem {
+    +type: string = "last-administrator"
+    +status: number = 409
+  }
+}
+AdminUserPage ..> AdminUsersApi
+AdminUserPage ..> EditRolesDialog : opens
+EditRolesDialog ..> AdminUsersApi
+HttpAdminUsersApi ..|> AdminUsersApi
+ChangeUserRolesAction ..> RoleService
+ChangeUserRolesAction ..> AuditLogService
+ChangeUserRolesAction ..> NotificationService
+ChangeUserRolesAction ..> UserRole : writes
+RoleService ..> RoleDiff
+RoleService ..> LastAdministratorProblem : raises
+AuditLogService ..> AuditEntry
+UserRole --> Role
+@enduml

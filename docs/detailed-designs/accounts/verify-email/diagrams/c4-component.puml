@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Verify email
+
+Container(web, "Logos Lab Web", "Angular", "VerifyEmailPage, VerifyEmailPromptDialog, AuthApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "email-verifications route handlers", "app/api/v1/auth/email-verifications", "Confirm and resend")
+  Component(verify, "VerifyEmailAction", "Action", "Consumes token, activates account")
+  Component(resend, "ResendVerificationAction", "Action", "Issues a new link within limits")
+  Component(tokens, "AccountTokenService", "Domain service", "Single-use 24-hour tokens")
+  Component(throttle, "VerificationEmailThrottle", "Domain service", "60-second cooldown, 5 per 24 hours")
+  Component(policy, "VerifiedAccountPolicy", "Domain service", "Contribution gate")
+  Component(contrib, "Contribution actions", "Actions", "Enrol, comment, register, message")
+  Component(repo, "UserRepository", "Repository", "Users")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(cleanup, "UnverifiedAccountCleanupJob", "Job", "Nightly deletion after 30 days")
+}
+ContainerDb(cache, "Cache", "Redis", "Resend counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, account_tokens")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+Rel(web, route, "Calls", "JSON/HTTPS")
+Rel(route, verify, "Calls")
+Rel(route, resend, "Calls")
+Rel(verify, tokens, "Consumes token")
+Rel(resend, throttle, "Checks limits")
+Rel(resend, tokens, "Issues token")
+Rel(throttle, cache, "Reads and writes")
+Rel(contrib, policy, "Checks account is Active")
+Rel(verify, repo, "Activates user")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(tokens, db, "Reads and writes", "SQL")
+Rel(resend, queue, "Enqueues email")
+Rel(cleanup, db, "Deletes expired unverified accounts", "SQL")
+@enduml

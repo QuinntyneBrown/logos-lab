@@ -1,0 +1,147 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage site settings and announcements
+package "Logos Lab Web" {
+  class AdminAnnouncementsPage {
+    +openNew(): void
+    +openEdit(a: AnnouncementView): void
+  }
+  class AnnouncementEditDialog {
+    -form: FormGroup
+    +schedule(): void
+  }
+  class SiteAnnouncementBanner {
+    -active: AnnouncementView[]
+    +dismiss(id: string): void
+  }
+  class AdminPoliciesPage
+  class PolicyEditorPage {
+    -form: FormGroup
+    +schedule(): void
+  }
+  class PolicyPage {
+    -version: PolicyVersionView
+    -versions: PolicyVersionSummary[]
+  }
+  class AdminSettingsPage {
+    -form: FormGroup
+    +save(): void
+  }
+  interface SiteAdminApi {
+    +listAnnouncements(): Observable<AnnouncementView[]>
+    +saveAnnouncement(input: AnnouncementInput): Observable<AnnouncementView>
+    +activeAnnouncements(): Observable<AnnouncementView[]>
+    +dismiss(id: string): Observable<void>
+    +createPolicyVersion(type: PolicyType, input: PolicyVersionInput): Observable<PolicyVersionView>
+    +getPolicy(type: PolicyType, version?: number): Observable<PolicyVersionView>
+    +getSettings(): Observable<SiteSettingsView>
+    +saveSettings(input: SiteSettingsInput): Observable<SiteSettingsView>
+  }
+  class HttpSiteAdminApi
+  class "SITE_ADMIN_API" as Token <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class SaveAnnouncementAction {
+    +execute(actor: Actor, input: AnnouncementInput): Announcement
+  }
+  class ListActiveAnnouncementsAction {
+    +execute(viewerId: uuid, now: Date): Announcement[]
+  }
+  class DismissAnnouncementAction {
+    +execute(userId: uuid, id: uuid): void
+  }
+  class CreatePolicyVersionAction {
+    +execute(actor: Actor, type: PolicyType, input: PolicyVersionInput): PolicyVersion
+  }
+  class GetPolicyAction {
+    +execute(type: PolicyType, version: number, now: Date): PolicyVersion
+  }
+  class UpdateSiteSettingsAction {
+    +execute(actor: Actor, input: SiteSettingsInput): SiteSettings
+  }
+  class AnnouncementService {
+    +validate(input: AnnouncementInput): void
+    +activeAt(now: Date): Announcement[]
+  }
+  class PolicyService {
+    +nextVersion(type: PolicyType): number
+    +currentAt(type: PolicyType, now: Date): PolicyVersion
+  }
+  class SiteSettingsService {
+    +get(): SiteSettings
+    +update(input: SiteSettingsInput): SiteSettings
+  }
+  class Announcement {
+    +id: uuid
+    +message: string
+    +severity: Severity
+    +linkUrl: string
+    +startsAt: timestamptz
+    +endsAt: timestamptz
+  }
+  class AnnouncementDismissal {
+    +announcementId: uuid
+    +userId: uuid
+    +dismissedAt: timestamptz
+  }
+  class PolicyVersion {
+    +id: uuid
+    +type: PolicyType
+    +version: number
+    +effectiveAt: date
+    +materialChange: boolean
+    +summaryOfChanges: string
+    +body: string
+    +createdBy: uuid
+  }
+  class SiteSettings {
+    +supportEmail: string
+    +supportPhone: string
+    +replyTimes: string
+    +mailingAddress: string
+    +updatedAt: timestamptz
+  }
+  enum Severity {
+    Info
+    Warning
+  }
+  enum PolicyType {
+    TermsOfService
+    PrivacyPolicy
+    CommunityGuidelines
+  }
+}
+HttpSiteAdminApi ..|> SiteAdminApi
+Token ..> SiteAdminApi : provides
+AdminAnnouncementsPage ..> AnnouncementEditDialog : opens
+AdminAnnouncementsPage ..> SiteAdminApi
+AnnouncementEditDialog ..> SiteAdminApi
+SiteAnnouncementBanner ..> SiteAdminApi
+AdminPoliciesPage ..> SiteAdminApi
+PolicyEditorPage ..> SiteAdminApi
+PolicyPage ..> SiteAdminApi
+AdminSettingsPage ..> SiteAdminApi
+SaveAnnouncementAction --> AnnouncementService
+ListActiveAnnouncementsAction --> AnnouncementService
+DismissAnnouncementAction ..> AnnouncementDismissal : inserts
+CreatePolicyVersionAction --> PolicyService
+GetPolicyAction --> PolicyService
+UpdateSiteSettingsAction --> SiteSettingsService
+AnnouncementService ..> Announcement
+Announcement --> Severity
+Announcement "1" --> "*" AnnouncementDismissal
+PolicyService ..> PolicyVersion
+PolicyVersion --> PolicyType
+SiteSettingsService ..> SiteSettings
+@enduml

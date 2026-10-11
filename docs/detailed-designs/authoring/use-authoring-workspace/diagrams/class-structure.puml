@@ -1,0 +1,129 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Use the authoring workspace
+
+package "Logos Lab Web" {
+  class StudioPage {
+    +groups: Signal<StudioGroup[]>
+    +creatableTypes: ContentType[]
+    +ngOnInit(): void
+    +openNewContent(type: ContentType): void
+  }
+  class ReviewQueuePage {
+    +items: Signal<ReviewQueueItem[]>
+    +ngOnInit(): void
+  }
+  class NewContentDialog {
+    +type: ContentType
+    +workingTitle: string
+    +attribution: AttributionInput
+    +create(): Promise<void>
+  }
+  class ChangeAttributionDialog {
+    +attribution: AttributionInput
+    +save(): Promise<void>
+  }
+  interface StudioApi {
+    +listItems(): Observable<StudioGroup[]>
+    +listReviewQueue(): Observable<ReviewQueueItem[]>
+    +createItem(request: CreateItemRequest): Observable<StudioItem>
+    +changeAttribution(id: string, input: AttributionInput): Observable<void>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class StudioItemsRoute <<route handler>> {
+    +GET(request: Request): Response
+    +POST(request: Request): Response
+  }
+  class ListStudioItemsAction {
+    +execute(user: CurrentUser): StudioGroup[]
+  }
+  class ListReviewQueueAction {
+    +execute(user: CurrentUser): ReviewQueueItem[]
+  }
+  class CreateContentItemAction {
+    +execute(user: CurrentUser, request: CreateItemRequest): ContentItem
+  }
+  class ChangeAttributionAction {
+    +execute(user: CurrentUser, id: uuid, input: AttributionInput): void
+  }
+  class ContentAccessPolicy {
+    +canAuthor(user: CurrentUser): boolean
+    +isEditor(user: CurrentUser): boolean
+    +creatableTypes(user: CurrentUser): ContentType[]
+  }
+  class ContentItem {
+    +id: uuid
+    +type: ContentType
+    +title: string
+    +ownerId: uuid
+    +state: WorkflowState
+    +lastEditedAt: timestamptz
+    +submittedAt: timestamptz
+  }
+  class Attribution {
+    +itemId: uuid
+    +logosLab: boolean
+    +expertIds: uuid[]
+  }
+  class ContentItemRepository {
+    +listVisibleTo(userId: uuid): ContentItem[]
+    +listAll(): ContentItem[]
+    +listInReviewOldestFirst(): ContentItem[]
+    +insert(item: ContentItem, attribution: Attribution): void
+  }
+  enum WorkflowState {
+    Draft
+    InReview
+    ChangesRequested
+    Approved
+    Scheduled
+    Published
+    Archived
+  }
+  enum ContentType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+StudioPage ..> STUDIO_API : injects
+ReviewQueuePage ..> STUDIO_API : injects
+NewContentDialog ..> STUDIO_API : injects
+ChangeAttributionDialog ..> STUDIO_API : injects
+StudioPage ..> NewContentDialog : opens
+StudioItemsRoute ..> ListStudioItemsAction : calls
+StudioItemsRoute ..> CreateContentItemAction : calls
+ListStudioItemsAction ..> ContentAccessPolicy : uses
+ListReviewQueueAction ..> ContentAccessPolicy : uses
+CreateContentItemAction ..> ContentAccessPolicy : uses
+ChangeAttributionAction ..> ContentAccessPolicy : uses
+ListStudioItemsAction ..> ContentItemRepository : uses
+ListReviewQueueAction ..> ContentItemRepository : uses
+CreateContentItemAction ..> ContentItemRepository : uses
+ChangeAttributionAction ..> ContentItemRepository : uses
+ContentItemRepository ..> ContentItem : persists
+ContentItem "1" *-- "1" Attribution
+ContentItem --> WorkflowState
+ContentItem --> ContentType
+@enduml

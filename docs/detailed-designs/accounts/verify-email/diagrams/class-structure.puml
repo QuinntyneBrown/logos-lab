@@ -1,0 +1,111 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Verify email
+
+package "Logos Lab Web" {
+  class VerifyEmailPage {
+    -api: AuthApi
+    +token: string
+    +state: VerifyEmailState
+    +retryAfterSeconds: number
+    +confirm(): void
+    +sendNewLink(): void
+  }
+  class VerifyEmailPromptDialog {
+    -api: AuthApi
+    +state: PromptState
+    +secondsRemaining: number
+    +resend(): void
+  }
+  class VerificationGateService {
+    +handle(problem: ProblemDetails): boolean
+  }
+  interface AuthApi {
+    +confirmEmail(token: string): Observable<void>
+    +resendVerification(): Observable<ResendResult>
+    +resendVerificationForToken(token: string): Observable<ResendResult>
+  }
+  class HttpAuthApi
+  class ResendResult {
+    +sentTo: string
+    +retryAfterSeconds: number
+    +remainingToday: number
+  }
+}
+package "Logos Lab API" {
+  class VerifyEmailAction {
+    +execute(token: string): Promise<Result<void, LinkExpired>>
+  }
+  class ResendVerificationAction {
+    +execute(subject: ResendSubject): Promise<Result<ResendResult, TooManyRequests>>
+  }
+  class AccountTokenService {
+    +issue(userId: Uuid, purpose: TokenPurpose, ttl: Duration): Promise<string>
+    +consume(raw: string, purpose: TokenPurpose): Promise<AccountToken | null>
+    +invalidateUnused(userId: Uuid, purpose: TokenPurpose): Promise<void>
+  }
+  class VerificationEmailThrottle {
+    +cooldownSeconds: number = 60
+    +maxPer24Hours: number = 5
+    +check(userId: Uuid): Promise<ThrottleDecision>
+    +record(userId: Uuid): Promise<void>
+  }
+  class VerifiedAccountPolicy {
+    +assertCanContribute(user: User): void
+  }
+  class UnverifiedAccountCleanupJob {
+    +unverifiedDays: number = 30
+    +run(now: Instant): Promise<number>
+  }
+  class User {
+    +id: Uuid
+    +email: string
+    +state: AccountState
+    +createdAt: Instant
+    +activate(at: Instant): void
+  }
+  class AccountToken {
+    +tokenHash: string
+    +purpose: TokenPurpose
+    +expiresAt: Instant
+    +usedAt: Instant | null
+  }
+  enum AccountState {
+    Unverified
+    Active
+    Suspended
+    Banned
+    Deactivated
+  }
+  class UserRepository {
+    +findById(id: Uuid): Promise<User | null>
+    +update(user: User): Promise<void>
+    +deleteUnverifiedBefore(cutoff: Instant): Promise<number>
+  }
+}
+VerifyEmailPage ..> AuthApi
+VerifyEmailPromptDialog ..> AuthApi
+VerificationGateService ..> VerifyEmailPromptDialog : opens
+HttpAuthApi ..|> AuthApi
+AuthApi ..> ResendResult
+VerifyEmailAction ..> AccountTokenService
+VerifyEmailAction ..> UserRepository
+ResendVerificationAction ..> VerificationEmailThrottle
+ResendVerificationAction ..> AccountTokenService
+VerifiedAccountPolicy ..> User
+UnverifiedAccountCleanupJob ..> UserRepository
+AccountTokenService ..> AccountToken
+User --> AccountState
+User "1" --> "*" AccountToken
+@enduml

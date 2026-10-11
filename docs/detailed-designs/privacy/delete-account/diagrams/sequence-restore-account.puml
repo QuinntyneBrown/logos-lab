@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Restore an account within 30 days
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "RestoreAccountPage" as page
+  participant "PersonalDataApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "restore route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RestoreAccountAction" as action
+  participant "AccountDeletionService" as svc
+  participant "SessionService" as sess
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as queue
+end box
+actor -> page : Open /account/restore?token=...
+page -> client : getRestoreLink(token)
+client -> route : GET /api/v1/account/restore?token=... (anonymous)
+route -> svc : findByToken(token)
+svc -> db : Match token hash, status Pending
+alt Token unknown, used, or purgeAfter passed
+  route --> client : 410
+  client --> page : Expired state
+else Valid
+  route --> client : 200 with purge date
+  client --> page : Default state "set to be deleted on ..."
+  actor -> page : Enter email and password, choose "Sign in and restore"
+  page -> client : restoreAccount(token, email, password)
+  client -> route : POST /api/v1/account/restore
+  route -> route : Apply sign-in rate limits (L2-009)
+  route -> action : Execute
+  action -> svc : Check token, window and credentials
+  alt Credentials wrong
+    route --> client : 400 generic sign-in error
+  else Within 30 days (L2-117)
+    action -> db : User state Active; request status Cancelled
+    action -> sess : Create session (new identifier)
+    action -> queue : Enqueue "account restored" email
+    route --> client : 200, session cookie set
+    client --> page : Success "Welcome back"
+  end
+end
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Leave a course
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseOverviewPage" as page
+  participant "LeaveCourseDialog" as dialog
+  participant "HttpCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "courses/[slug]/enrolment route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "LeaveCourseAction" as action
+  participant "EnrolmentService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Leave course
+page -> dialog : Open (progress is kept)
+actor -> dialog : Confirm Leave course
+dialog -> dialog : Show Leaving...
+dialog -> client : leave(slug)
+client -> route : DELETE /api/v1/courses/{slug}/enrolment
+route -> route : Authenticate session and CSRF check
+route -> action : execute(slug, user)
+action -> db : Load user's active enrolment (L2-017)
+db --> action : Enrolment
+action -> svc : Apply L2-027 leave rule
+svc --> action : Status Left, leftAt now, completions kept
+action -> db : Update enrolment
+alt write succeeds
+  db --> action : Commit
+  action --> route : Done
+  route --> client : 204 No Content
+  client --> dialog : Left
+  dialog --> actor : Confirm left; progress kept for 12 months
+else write fails
+  db --> action : Error
+  action --> route : Failure
+  route --> client : 500 problem response
+  client --> dialog : Failed
+  dialog --> actor : Nothing changed; offer Try again
+end
+@enduml

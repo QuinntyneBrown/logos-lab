@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Module load timeout
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-player" as player
+  participant "Tessera scorm-player" as tess
+  participant "ReportProblemDialog" as dialog
+  participant "HttpModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "modules/[slug]/launch-failures route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "LogLaunchFailureAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  entity "Amazon CloudWatch" as cw
+end box
+player -> player : Start 20 s timer at iframe creation
+player -> tess : Wait for bridge handshake
+alt handshake within 20 s
+  tess --> player : Loaded
+  player --> actor : Module running
+else 20 s pass with no handshake (L2-035)
+  player --> actor : Error state with Try again and Report a problem
+  player -> client : reportLaunchFailure(slug, packageId, attemptId, elapsed)
+  client -> route : POST /api/v1/modules/{slug}/launch-failures
+  route -> action : execute(slug, failure, user)
+  action -> cw : Structured log with package identifier
+  action --> route : Logged
+  route --> client : 202 Accepted
+  opt learner presses Try again
+    actor -> player : Try again
+    player -> tess : Relaunch with fresh launch
+  end
+  opt learner reports a problem
+    actor -> dialog : Report a problem
+    dialog --> actor : Module and browser attached automatically
+  end
+end
+@enduml

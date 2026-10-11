@@ -1,0 +1,98 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Monitor and alert
+
+package "Logos Lab Web" {
+  class WebVitalsReporter {
+    +start(): void
+    -report(metric: WebVitalSample): void
+  }
+  interface TelemetryApi {
+    +recordWebVitals(sample: WebVitalSample): Observable<void>
+  }
+  class HttpTelemetryApi {
+    +recordWebVitals(sample: WebVitalSample): Observable<void>
+  }
+  class WebVitalSample {
+    +name: 'LCP' | 'INP' | 'CLS'
+    +value: number
+    +page: string
+    +device: 'mobile' | 'desktop'
+  }
+}
+
+package "Logos Lab API" {
+  class LiveRoute {
+    +GET(): Response
+  }
+  class ReadyRoute {
+    +GET(): Promise<Response>
+  }
+  class ReadinessCheckService {
+    +check(): Promise<HealthStatus>
+  }
+  interface HealthProbe {
+    +name: string
+    +timeoutMs: number
+    +probe(): Promise<boolean>
+  }
+  class DatabaseProbe {
+    +probe(): Promise<boolean>
+  }
+  class CacheProbe {
+    +probe(): Promise<boolean>
+  }
+  enum HealthStatus {
+    Ok
+    Unavailable
+  }
+  class RecordWebVitalsAction {
+    +execute(sample: WebVitalSample): Promise<void>
+  }
+  class MetricsEmitter {
+    +count(name: string, dimensions: Map<string, string>): void
+    +timing(name: string, ms: number, dimensions: Map<string, string>): void
+  }
+}
+
+package "Infrastructure as code" {
+  class AlarmDefinition {
+    +name: string
+    +metric: string
+    +threshold: number
+    +evaluationMinutes: number
+    +consecutiveFailures: number
+  }
+  class OnCallTopic {
+    +topicName: string = "logos-lab-on-call"
+    +subscription: string
+  }
+  class OperationsDashboard {
+    +name: string = "logos-lab-operations"
+    +widgets: string[]
+  }
+}
+
+WebVitalsReporter ..> TelemetryApi : depends on
+HttpTelemetryApi ..|> TelemetryApi
+TelemetryApi ..> WebVitalSample : sends
+ReadyRoute ..> ReadinessCheckService : calls
+ReadinessCheckService "1" o-- "2" HealthProbe : runs
+DatabaseProbe ..|> HealthProbe
+CacheProbe ..|> HealthProbe
+ReadinessCheckService ..> HealthStatus : returns
+RecordWebVitalsAction ..> MetricsEmitter : uses
+AlarmDefinition --> OnCallTopic : notifies
+OperationsDashboard ..> AlarmDefinition : shows state of
+@enduml

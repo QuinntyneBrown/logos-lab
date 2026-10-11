@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Autosave and resolve conflicts
+
+Person(author, "Expert or Editor", "Edits drafts")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "AutosaveService, DraftOutbox in IndexedDB, ConflictDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Save, conflicts, presence")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Revisions with row_version, draft_snapshots")
+  ContainerDb(redis, "Cache", "Amazon ElastiCache for Redis", "Editing presence keys with time to live")
+}
+Rel(author, web, "Edits in", "HTTPS")
+Rel(web, api, "Saves and sends heartbeats", "JSON/HTTPS")
+Rel(api, db, "Conditional update", "SQL")
+Rel(api, redis, "Writes and reads presence", "RESP")
+@enduml

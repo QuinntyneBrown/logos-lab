@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Autosave and resolve conflicts
+
+Person(author, "Expert (owner)", "Edits a draft")
+Person(editor, "Editor", "Edits the same draft at the same time")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(author, logoslab, "Autosaves drafts to", "HTTPS")
+Rel(editor, logoslab, "Autosaves the same draft to", "HTTPS")
+@enduml

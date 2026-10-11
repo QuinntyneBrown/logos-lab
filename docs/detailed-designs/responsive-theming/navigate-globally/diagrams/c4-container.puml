@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Navigate globally
+
+
+Person(member, "Visitor or member", "Browser at any width")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR", "ll-top-bar and NavDrawerDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Current member; unread count")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Members and notifications")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Reads current member and unread count", "JSON/HTTPS")
+Rel(api, db, "Reads")
+@enduml

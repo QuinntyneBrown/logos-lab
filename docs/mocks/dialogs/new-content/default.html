@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New item · default — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="new-content">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-075">
+<meta name="description" content="Dr. Abena Mensah choosing what to make, from six content types, and giving it a working title.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <div class="wrap header__inner">
+      <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+      <nav class="nav" id="primary-nav" popover aria-label="Studio">
+        <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+        </ul>
+        <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+      </nav>
+      <div class="header__actions">
+        <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+        <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+        <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+      </div>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Studio</p>
+      <p class="page-head__title">Your work</p>
+      <p class="page-head__sub">Drafts, items in review and everything you have published</p>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog dialog--lg" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">New item</h1>
+        <a class="icon-btn" href="../../pages/studio/default.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">It starts as a draft that only you and the editors can see. Drafts save on their own.</p>
+        <fieldset class="choices choices--inline">
+          <legend>What are you making?</legend>
+          <label class="choice"><input type="radio" name="type" value="course" id="type-first"><span class="choice__title">Course</span><span class="choice__text">Sections of lessons that learners enrol in, with progress and a certificate.</span></label>
+          <label class="choice"><input type="radio" name="type" value="module"><span class="choice__title">Learning module</span><span class="choice__text">An interactive SCORM package with its own score or completion.</span></label>
+          <label class="choice"><input type="radio" name="type" value="video"><span class="choice__title">Video</span><span class="choice__text">One talk or lecture, with captions and a transcript.</span></label>
+          <label class="choice"><input type="radio" name="type" value="article" checked><span class="choice__title">Article</span><span class="choice__text">Writing with Scripture references, footnotes and images.</span></label>
+          <label class="choice"><input type="radio" name="type" value="collection"><span class="choice__title">Collection</span><span class="choice__text">Up to 100 published items in an order you set, with a note on each.</span></label>
+          <label class="choice"><input type="radio" name="type" value="event"><span class="choice__title">Event</span><span class="choice__text">A live session online, in person or both, with registration.</span></label>
+        </fieldset>
+        <div class="field">
+          <label class="field__label" for="title">Working title</label>
+          <input class="input" id="title" name="title" value="Made to Represent: Notes on the Image of God" aria-describedby="title-help title-count">
+          <p class="field__help" id="title-help">5 to 120 characters. You can change it any time before it's published.</p>
+          <p class="field__counter" id="title-count">44 of 120 characters</p>
+        </div>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/studio/default.html">Cancel</a>
+        <a class="btn btn--primary" href="busy.html">Create draft</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">New item</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="editor.html">editor</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="failed.html">failed</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Verify email
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System_Boundary(lab, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate-limit and throttle counters")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Job messages from API to Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs")
+}
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "POST /api/v1/auth/email-verifications[/resend]", "JSON/HTTPS")
+Rel(api, cache, "Reads and updates resend counters")
+Rel(api, db, "Consumes token, activates user")
+Rel(api, queue, "Enqueues EmailSendJob")
+Rel(worker, queue, "Consumes")
+Rel(worker, db, "Deletes accounts unverified for 30 days")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

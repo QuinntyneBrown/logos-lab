@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your expert profile · loading — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="studio-profile">
+<meta name="mock:state" content="loading">
+<meta name="mock:requirements" content="L2-020 L2-021 L2-023">
+<meta name="description" content="The expert profile form while it loads: skeletons for the photo and each field, under the usual Studio header.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html" aria-current="page">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/studio/default.html">Studio</a></li><li><span aria-current="page">Your profile</span></li></ol></nav>
+    <div class="page-head" style="padding-top: var(--space-8)">
+      <p class="eyebrow">Studio</p>
+      <h1 class="page-head__title">Your expert profile</h1>
+      <p class="page-head__sub">This is what learners see on your public page. Changes go live when you save.</p>
+    </div>
+    
+    <div class="two-col" style="padding-block: var(--space-8) var(--space-16)">
+      <div class="form" aria-busy="true">
+        <p class="vh" role="status">Loading your profile…</p>
+        <div class="photo-edit" aria-hidden="true"><span class="skeleton skeleton--photo"></span><span class="skeleton skeleton--pill"></span></div>
+        <div class="field" aria-hidden="true"><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--block"></span></div><div class="field" aria-hidden="true"><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--block"></span></div><div class="field" aria-hidden="true"><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--block"></span></div><div class="field" aria-hidden="true"><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--block"></span></div>
+      </div>
+      <aside class="stack" aria-label="About your profile">
+        <section class="aside-card" aria-labelledby="live-title">
+          <h2 class="aside-card__title" id="live-title">How changes go live</h2>
+          <p class="field__help">Saved changes show on your public profile within a minute. Each save is recorded, and the editors are told so they can look it over.</p>
+        </section>
+        <section class="aside-card" aria-labelledby="facts-title">
+          <h2 class="aside-card__title" id="facts-title">Details</h2>
+          <dl class="facts facts--inline">
+            <div><dt>Last saved</dt><dd>Loading…</dd></div>
+            <div><dt>Followers</dt><dd>1,284</dd></div>
+            <div><dt>Address</dt><dd>/experts/abena-mensah</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Your expert profile</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="onboarding.html">onboarding</a></li>
+    <li><a href="loading.html" aria-current="page">loading</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="submitting.html">submitting</a></li>
+    <li><a href="success.html">success</a></li>
+    <li><a href="restored.html">restored</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

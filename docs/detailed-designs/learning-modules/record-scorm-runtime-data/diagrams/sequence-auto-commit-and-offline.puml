@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Auto-commit and offline queue
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Tessera scorm-player" as tess
+  participant "RuntimeCommitQueue" as queue
+  participant "ll-player" as player
+  participant "HttpModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "module-attempts/[id]/runtime route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CommitScormRuntimeAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+tess -> tess : Values changed, no commit from content
+alt 30 s pass with changed values (L2-036)
+  tess -> queue : Commit pending values as batch
+else page hidden or unloaded
+  tess -> queue : Commit pending values as batch
+  queue -> client : Send with fetch keepalive
+end
+queue -> client : commitRuntime(batch n)
+client -> route : PUT runtime
+alt network unavailable
+  client --> queue : Network error
+  queue -> queue : Hold batch n and later batches in order
+  queue -> player : Offline
+  player --> actor : Offline notice: progress is held and saved on reconnect
+  actor -> queue : Connection returns (online event)
+  loop each held batch in sequence order
+    queue -> client : commitRuntime(batch)
+    client -> route : PUT runtime
+    route -> action : execute
+    action -> db : Store values
+    db --> action : Commit
+    action --> route : Outcome
+    route --> client : 200
+    client --> queue : Acknowledged
+  end
+  queue -> player : Online, all sent
+  player --> actor : Success notice; no data lost
+else online
+  route -> action : execute
+  action -> db : Store values
+  db --> action : Commit
+  route --> client : 200
+  client --> queue : Acknowledged
+end
+@enduml

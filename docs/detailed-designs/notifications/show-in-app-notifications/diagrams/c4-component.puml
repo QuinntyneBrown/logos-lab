@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Show in-app notifications
+Container_Boundary(web, "Logos Lab Web") {
+  Component(bell, "Header bell (ll-top-bar)", "Angular component", "Shows the unread count and opens the centre")
+  Component(store, "UnreadNotificationsStore", "Angular service", "Polls the unread count")
+  Component(dialog, "NotificationCentreDialog", "Angular CDK dialog", "Lists notifications in ll-notice-panel")
+  Component(client, "NotificationsApi / HttpNotificationsApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "app/api/v1/notifications route handlers", "Next.js route handlers", "Parse, call one action, map the result")
+  Component(actions, "List / Count / MarkRead / MarkAllRead actions", "Actions", "One use case each")
+  Component(service, "NotificationService", "Domain service", "Creates, lists and marks notifications")
+  Component(repo, "NotificationRepository", "Repository", "Queries scoped by recipient id")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "NotificationCleanupJob", "Job", "Deletes notifications older than 90 days")
+}
+ComponentDb(db, "notifications", "PostgreSQL table", "One row per notification")
+Rel(bell, store, "Reads unread count from")
+Rel(bell, dialog, "Opens")
+Rel(store, client, "Calls")
+Rel(dialog, client, "Calls")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, service, "Uses")
+Rel(service, repo, "Uses")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(job, repo, "Deletes through")
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Block a member
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(dialog, "BlockMemberDialog", "Angular CDK dialog", "Confirms a block")
+  Component(page, "BlockedMembersPage", "Angular page", "/settings/blocked")
+  Component(comments, "CommentsSection", "Angular component", "Collapses blocked authors")
+  Component(client, "BlocksApi", "Contract + HttpBlocksApi", "Bound by BLOCKS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/blocks", "Next.js route handlers", "Validate and map")
+  Component(actions, "Block actions", "BlockMemberAction, UnblockMemberAction, ListBlockedMembersAction", "One use case each")
+  Component(service, "BlockService", "Domain service", "isBlocked, staff exemption")
+  Component(consumers, "Consumers", "ListCommentsAction, SendMessageAction, StartConversationAction", "Apply block effects")
+  Component(repo, "BlockRepository", "Repository", "member_blocks access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "member_blocks")
+Rel(dialog, client, "Calls")
+Rel(page, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, repo, "Loads and saves")
+Rel(consumers, service, "Asks isBlocked")
+Rel(service, repo, "Reads")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

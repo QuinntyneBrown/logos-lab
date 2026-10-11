@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View an expert profile
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+Person_Ext(crawler, "Search engine crawler", "Fetches public pages")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Views expert profiles in", "HTTPS")
+Rel(learner, logos, "Views expert profiles in", "HTTPS")
+Rel(crawler, logos, "Fetches server-rendered profiles from", "HTTPS")
+@enduml

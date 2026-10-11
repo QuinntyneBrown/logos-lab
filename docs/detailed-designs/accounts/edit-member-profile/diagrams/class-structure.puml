@@ -1,0 +1,119 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Edit member profile
+
+package "Logos Lab Web" {
+  class SettingsProfilePage {
+    -api: AccountApi
+    -dialog: Dialog
+    +form: FormGroup
+    +state: FormState
+    +save(): void
+    +openAvatarDialog(): void
+  }
+  class AvatarUploadDialog {
+    -api: AccountApi
+    +file: File | null
+    +crop: CropRect
+    +state: UploadState
+    +usePhoto(): void
+  }
+  class MemberProfilePage {
+    -api: MembersApi
+    +profile: MemberPublicProfile
+  }
+  interface AccountApi {
+    +getProfile(): Observable<OwnProfile>
+    +updateProfile(update: ProfileUpdate): Observable<OwnProfile>
+    +uploadAvatar(file: File, crop: CropRect): Observable<AvatarUploadStatus>
+    +getAvatarStatus(uploadId: Uuid): Observable<AvatarUploadStatus>
+  }
+  interface MembersApi {
+    +getMemberProfile(memberId: Uuid): Observable<MemberPublicProfile>
+  }
+  class ProfileUpdate {
+    +displayName: string
+    +bio: string
+    +pronouns: string | null
+    +profileVisible: boolean
+  }
+  class MemberPublicProfile {
+    +id: Uuid
+    +displayName: string
+    +avatarUrl: string | null
+    +bio: string
+    +publicActivity: ActivityItem[]
+  }
+}
+package "Logos Lab API" {
+  class UpdateProfileAction {
+    +execute(user: CurrentUser, update: ProfileUpdate): Promise<Result<OwnProfile, ValidationProblem>>
+  }
+  class UploadAvatarAction {
+    +maxBytes: number = 5 MB
+    +minSide: number = 128
+    +allowedTypes: string[] = [jpeg, png, webp]
+    +execute(user: CurrentUser, file: Upload, crop: CropRect): Promise<Result<AvatarUpload, UploadProblem>>
+  }
+  class AvatarProcessJob {
+    +uploadId: Uuid
+    +run(): Promise<void>
+  }
+  class ImageProcessor {
+    +sniffType(bytes: Buffer): ImageType | null
+    +cropSquare(image: Buffer, crop: CropRect): Promise<Buffer>
+    +reencodeWithoutMetadata(image: Buffer): Promise<Buffer>
+  }
+  class GetMemberProfileAction {
+    +execute(viewer: CurrentUser, memberId: Uuid): Promise<MemberPublicProfile | null>
+  }
+  class User {
+    +id: Uuid
+    +displayName: string
+    +bio: string
+    +pronouns: string | null
+    +avatarKey: string | null
+    +profileVisible: boolean
+  }
+  class AvatarUpload {
+    +id: Uuid
+    +userId: Uuid
+    +sourceKey: string
+    +crop: CropRect
+    +status: UploadStatus
+  }
+  enum UploadStatus {
+    Received
+    Processing
+    Ready
+    Rejected
+    Quarantined
+  }
+}
+SettingsProfilePage ..> AccountApi
+SettingsProfilePage ..> AvatarUploadDialog : opens
+AvatarUploadDialog ..> AccountApi
+MemberProfilePage ..> MembersApi
+AccountApi ..> ProfileUpdate
+MembersApi ..> MemberPublicProfile
+UpdateProfileAction ..> User
+UploadAvatarAction ..> ImageProcessor : sniffs type
+UploadAvatarAction ..> AvatarUpload : creates
+AvatarProcessJob ..> AvatarUpload
+AvatarProcessJob ..> ImageProcessor
+AvatarProcessJob ..> User : sets avatarKey
+GetMemberProfileAction ..> User
+User "1" --> "*" AvatarUpload
+AvatarUpload --> UploadStatus
+@enduml

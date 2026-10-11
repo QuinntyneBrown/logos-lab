@@ -1,0 +1,106 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Work the moderation queue
+
+package "Logos Lab Web" {
+  class ModerationQueuePage {
+    +view: QueueView
+    +filters: QueueFilters
+    +rows: Signal<QueueRow[]>
+    +applyFilters(): void
+  }
+  class ReportDetailPage {
+    +report: Signal<ReportDetail>
+    +claim(): Promise<void>
+    +openTakeAction(): void
+  }
+  interface ModerationApi {
+    +listQueue(view: QueueView, filters: QueueFilters): Observable<QueueRow[]>
+    +getReport(id: string): Observable<ReportDetail>
+    +claim(id: string): Observable<ClaimResult>
+  }
+  class HttpModerationApi
+  class MODERATION_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class ModerationReportsRoute <<route handler>> {
+    +GET(request: Request): Response
+  }
+  class ClaimReportRoute <<route handler>> {
+    +POST(request: Request): Response
+  }
+  class ListModerationQueueAction {
+    +execute(user: CurrentUser, view: QueueView, filters: QueueFilters): QueueRow[]
+  }
+  class GetReportAction {
+    +execute(user: CurrentUser, id: uuid): ReportDetail
+  }
+  class ClaimReportAction {
+    +execute(user: CurrentUser, id: uuid): ClaimResult
+  }
+  class ModerationQueueService {
+    +order(cases: ModerationCase[]): ModerationCase[]
+    +isOverdue(c: ModerationCase, now: timestamptz): boolean
+  }
+  class ModerationPriorityPolicy {
+    +rank(c: ModerationCase): int
+  }
+  class ModerationCase {
+    +id: uuid
+    +status: CaseStatus
+    +priority: int
+    +openedAt: timestamptz
+    +claimedById: uuid
+    +claimedAt: timestamptz
+    +autoHidden: boolean
+    +overdueNotifiedAt: timestamptz
+    +claim(moderatorId: uuid): void
+  }
+  class ModerationCaseRepository {
+    +listOpen(view: QueueView, filters: QueueFilters): ModerationCase[]
+    +claimIfFree(id: uuid, moderatorId: uuid): boolean
+    +listOverdueUnnotified(cutoff: timestamptz): ModerationCase[]
+    +markOverdueNotified(id: uuid, at: timestamptz): void
+  }
+  class OverdueReportNotifyJob {
+    +run(): void
+  }
+  class NotificationService {
+    +notifyModerators(kind: string, caseId: uuid): void
+  }
+  enum CaseStatus {
+    Open
+    InReview
+    Resolved
+  }
+}
+
+HttpModerationApi ..|> ModerationApi
+MODERATION_API ..> ModerationApi : provides
+ModerationQueuePage ..> MODERATION_API : injects
+ReportDetailPage ..> MODERATION_API : injects
+ModerationReportsRoute ..> ListModerationQueueAction : calls
+ModerationReportsRoute ..> GetReportAction : calls
+ClaimReportRoute ..> ClaimReportAction : calls
+ListModerationQueueAction ..> ModerationQueueService : uses
+ModerationQueueService ..> ModerationPriorityPolicy : uses
+ListModerationQueueAction ..> ModerationCaseRepository : uses
+GetReportAction ..> ModerationCaseRepository : uses
+ClaimReportAction ..> ModerationCaseRepository : uses
+OverdueReportNotifyJob ..> ModerationCaseRepository : uses
+OverdueReportNotifyJob ..> NotificationService : uses
+ModerationCaseRepository ..> ModerationCase : persists
+ModerationCase --> CaseStatus
+@enduml

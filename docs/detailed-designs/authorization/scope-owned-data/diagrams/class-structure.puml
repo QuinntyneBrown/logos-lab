@@ -1,0 +1,80 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Scope owned data
+
+package "Logos Lab API" {
+  class CurrentUser {
+    +id: Uuid
+    +roles: Role[]
+  }
+  interface OwnedEntity {
+    +id: Uuid
+    +ownerId: Uuid
+  }
+  class SavedItem {
+    +id: Uuid
+    +ownerId: Uuid
+    +contentId: Uuid
+    +savedAt: Instant
+  }
+  class Enrolment {
+    +id: Uuid
+    +ownerId: Uuid
+    +courseId: Uuid
+  }
+  class Notification {
+    +id: Uuid
+    +ownerId: Uuid
+    +readAt: Instant | null
+  }
+  class ContentDraft {
+    +id: Uuid
+    +authorId: Uuid
+    +state: WorkflowState
+  }
+  interface OwnerScopedRepository<T> {
+    +findOwned(id: Uuid, ownerId: Uuid): Promise<T | null>
+    +listForOwner(ownerId: Uuid, page: PageRequest): Promise<Page<T>>
+  }
+  class SavedItemRepository
+  class ContentDraftRepository {
+    +findForAuthor(id: Uuid, authorId: Uuid): Promise<ContentDraft | null>
+  }
+  class ListSavedItemsAction {
+    +execute(user: CurrentUser, page: PageRequest): Promise<Page<SavedItem>>
+  }
+  class SavedItemsRouteHandler {
+    +GET(request: Request): Promise<Response>
+  }
+  class StrictQuerySchema {
+    +unknownKeys: "reject"
+    +parse(query: URLSearchParams): ParsedQuery
+  }
+  class NotFoundProblem {
+    +type: string = "not-found"
+    +status: number = 404
+  }
+}
+SavedItem ..|> OwnedEntity
+Enrolment ..|> OwnedEntity
+Notification ..|> OwnedEntity
+SavedItemRepository ..|> OwnerScopedRepository
+OwnerScopedRepository ..> OwnedEntity
+ListSavedItemsAction ..> CurrentUser
+ListSavedItemsAction ..> SavedItemRepository
+ContentDraftRepository ..> ContentDraft
+SavedItemsRouteHandler ..> StrictQuerySchema : validates
+SavedItemsRouteHandler ..> ListSavedItemsAction : calls
+OwnerScopedRepository ..> NotFoundProblem : null maps to
+@enduml

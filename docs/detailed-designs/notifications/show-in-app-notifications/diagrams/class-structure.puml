@@ -1,0 +1,128 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Show in-app notifications
+package "Logos Lab Web" {
+  class NotificationCentreDialog {
+    -notifications: NotificationView[]
+    -nextCursor: string | null
+    -state: NotificationCentreState
+    +ngOnInit(): void
+    +loadMore(): void
+    +open(item: NotificationView): void
+    +markAllAsRead(): void
+  }
+  class UnreadNotificationsStore {
+    +unreadCount: Signal<number>
+    +badgeText: Signal<string>
+    +accessibleLabel: Signal<string>
+    +start(): void
+    +refresh(): void
+  }
+  interface NotificationsApi {
+    +list(cursor?: string): Observable<NotificationPage>
+    +unreadCount(): Observable<number>
+    +markRead(id: string): Observable<void>
+    +markAllRead(): Observable<void>
+  }
+  class HttpNotificationsApi
+  class "NOTIFICATIONS_API" as Token <<InjectionToken>>
+  class NotificationView {
+    +id: string
+    +title: string
+    +text: string
+    +subjectUrl: string
+    +createdAt: string
+    +read: boolean
+  }
+  class NotificationPage {
+    +items: NotificationView[]
+    +nextCursor: string | null
+  }
+}
+package "Logos Lab API" {
+  class NotificationsRouteHandlers {
+    +GET list(req): Response
+    +GET unreadCount(req): Response
+    +POST markRead(req): Response
+    +POST markAllRead(req): Response
+  }
+  class ListNotificationsAction {
+    +execute(userId: string, cursor?: string): NotificationPage
+  }
+  class GetUnreadNotificationCountAction {
+    +execute(userId: string): number
+  }
+  class MarkNotificationReadAction {
+    +execute(userId: string, notificationId: string): void
+  }
+  class MarkAllNotificationsReadAction {
+    +execute(userId: string): number
+  }
+  class NotificationService {
+    +notify(recipientId: string, category: NotificationCategory, content: NotificationContent): Notification
+    +listForRecipient(userId: string, cursor?: string, limit: number): NotificationPage
+    +markRead(userId: string, id: string): void
+    +markAllRead(userId: string): number
+  }
+  class NotificationRepository {
+    +insert(n: Notification): void
+    +findPage(recipientId: string, before: string, limit: number): Notification[]
+    +countUnread(recipientId: string): number
+    +markRead(recipientId: string, id: string): boolean
+    +markAllRead(recipientId: string): number
+    +deleteOlderThan(cutoff: Date): number
+  }
+  class Notification {
+    +id: uuid
+    +recipientId: uuid
+    +category: NotificationCategory
+    +title: string
+    +text: string
+    +subjectUrl: string
+    +createdAt: timestamptz
+    +readAt: timestamptz
+  }
+  enum NotificationCategory {
+    NewContentFromFollowed
+    CommentReplies
+    DirectMessages
+    CohortAnnouncements
+    EventReminders
+    EventChanges
+    PlatformNews
+    AccountAndSecurity
+  }
+  class NotificationCleanupJob {
+    +run(now: Date): number
+  }
+}
+HttpNotificationsApi ..|> NotificationsApi
+Token ..> NotificationsApi : provides
+NotificationCentreDialog ..> NotificationsApi : depends on
+UnreadNotificationsStore ..> NotificationsApi : depends on
+NotificationsApi ..> NotificationPage : returns
+NotificationPage *-- "0..20" NotificationView
+NotificationsRouteHandlers ..> ListNotificationsAction
+NotificationsRouteHandlers ..> GetUnreadNotificationCountAction
+NotificationsRouteHandlers ..> MarkNotificationReadAction
+NotificationsRouteHandlers ..> MarkAllNotificationsReadAction
+ListNotificationsAction --> NotificationService
+GetUnreadNotificationCountAction --> NotificationRepository
+MarkNotificationReadAction --> NotificationService
+MarkAllNotificationsReadAction --> NotificationService
+NotificationService --> NotificationRepository
+NotificationRepository ..> Notification : persists
+Notification --> NotificationCategory
+NotificationCleanupJob --> NotificationRepository
+@enduml

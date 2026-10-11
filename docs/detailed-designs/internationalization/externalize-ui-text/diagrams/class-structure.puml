@@ -1,0 +1,100 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Externalize UI text
+
+
+class LanguageTag {
+  +value: string
+  {static} +parse(raw: string): LanguageTag
+}
+
+class ProblemResponse {
+  +type: string
+  +title: string
+  +status: number
+  +detail: string
+  +code: ErrorCode
+  +errors: FieldProblem[]
+}
+
+class ErrorCode {
+  +value: string
+}
+
+class FieldProblem {
+  +field: string
+  +code: ErrorCode
+}
+
+class ErrorMessageMapper {
+  +toMessage(problem: ProblemResponse): string
+  +toFieldMessage(problem: FieldProblem): string
+}
+
+class LanguageTagPolicy {
+  +validate(tag: LanguageTag): Result
+}
+
+abstract class Content {
+  +id: string
+  +language: LanguageTag = "en"
+}
+
+class Article
+class CaptionTrack {
+  +id: string
+  +videoId: string
+  +language: LanguageTag
+  +format: string
+}
+
+class Transcript {
+  +id: string
+  +videoId: string
+  +language: LanguageTag
+}
+
+class LanguageMark {
+  +from: number
+  +to: number
+  +lang: LanguageTag
+}
+
+class SaveArticleDraftAction {
+  +execute(articleId: string, document: RichDocument, currentUserId: string): void
+}
+
+class EmailCatalog {
+  +load(locale: string): Map<string,string>
+  +format(id: string, values: object): string
+}
+
+class EmailSendJob {
+  +run(message: EmailMessage): Promise<void>
+}
+
+ProblemResponse --> ErrorCode
+ProblemResponse "1" *-- "*" FieldProblem
+FieldProblem --> ErrorCode
+ErrorMessageMapper ..> ProblemResponse : translates
+Content <|-- Article
+Content --> LanguageTag
+CaptionTrack --> LanguageTag
+Transcript --> LanguageTag
+Article "1" *-- "*" LanguageMark : in document
+LanguageMark --> LanguageTag
+SaveArticleDraftAction ..> LanguageTagPolicy : applies
+LanguageTagPolicy ..> LanguageTag
+EmailSendJob --> EmailCatalog : reads copy from
+@enduml

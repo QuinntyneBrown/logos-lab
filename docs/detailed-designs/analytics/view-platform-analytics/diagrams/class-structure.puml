@@ -1,0 +1,99 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View platform analytics
+package "Logos Lab Web" {
+  class AdminAnalyticsPage {
+    -range: DateRange
+    -compare: boolean
+    -view: 'charts' | 'table'
+    -data: PlatformAnalytics
+    +chooseRange(r: DateRange): void
+    +toggleCompare(on: boolean): void
+    +showView(v: string): void
+    +exportCsv(): void
+  }
+  class DateRangeDialog {
+    +apply(): void
+  }
+  interface PlatformAnalyticsApi {
+    +get(range: DateRange, compare: boolean): Observable<PlatformAnalytics>
+  }
+  class HttpPlatformAnalyticsApi
+  class "PLATFORM_ANALYTICS_API" as Token <<InjectionToken>>
+  class PlatformAnalytics {
+    +metrics: PlatformMetric[]
+    +weeklyActiveMembers: SeriesPoint[]
+    +weeklyRegistrations: SeriesPoint[]
+    +topContent: TopContentRow[]
+    +updatedAt: string
+  }
+  class PlatformMetric {
+    +key: PlatformMetricKey
+    +value: number
+    +previousValue: number
+    +change: PeriodComparison
+  }
+  class TopContentRow {
+    +rank: number
+    +title: string
+    +type: ContentType
+    +byline: string
+    +views: number
+    +engagedLearners: number
+    +saves: number
+  }
+}
+package "Logos Lab API" {
+  class GetPlatformAnalyticsAction {
+    +execute(actor: Actor, range: DateRange, compare: boolean): PlatformAnalytics
+  }
+  class PlatformAnalyticsService {
+    +metrics(range: DateRange): Map<PlatformMetricKey, number>
+    +weeklySeries(range: DateRange): SeriesPoint[]
+    +topContent(range: DateRange, limit: number): TopContentRow[]
+    +previousEqualPeriod(range: DateRange): DateRange
+  }
+  class PeriodComparison {
+    +absolute: number
+    +percent: number
+    +of(current: number, previous: number): PeriodComparison
+  }
+  class DateRange {
+    +from: date
+    +to: date
+    +days(): number
+  }
+  enum PlatformMetricKey {
+    DailyActiveMembers
+    WeeklyActiveMembers
+    MonthlyActiveMembers
+    NewRegistrations
+    Enrolments
+    Completions
+    EventRegistrations
+    EventAttendance
+  }
+}
+HttpPlatformAnalyticsApi ..|> PlatformAnalyticsApi
+Token ..> PlatformAnalyticsApi : provides
+AdminAnalyticsPage ..> PlatformAnalyticsApi : depends on
+AdminAnalyticsPage ..> DateRangeDialog : opens
+PlatformAnalytics *-- "8" PlatformMetric
+PlatformAnalytics *-- TopContentRow
+PlatformMetric --> PeriodComparison
+PlatformMetric --> PlatformMetricKey
+GetPlatformAnalyticsAction --> PlatformAnalyticsService
+GetPlatformAnalyticsAction ..> PeriodComparison : creates
+PlatformAnalyticsService ..> DateRange
+@enduml

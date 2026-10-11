@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage account states
+
+Person(admin, "Administrator", "Logos Lab staff who manage users, roles and settings")
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System_Boundary(lab, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Job messages from API to Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs")
+}
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(admin, web, "Uses Admin > Users", "HTTPS")
+Rel(member, web, "Signs in, reads comments", "HTTPS")
+Rel(web, api, "/api/v1/admin/users/{id}/..., comment reads", "JSON/HTTPS")
+Rel(api, db, "State, sessions, audit entries", "SQL")
+Rel(api, queue, "Enqueues notices")
+Rel(worker, queue, "Consumes; runs SuspensionExpiryJob")
+Rel(worker, db, "Ends expired suspensions", "SQL")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

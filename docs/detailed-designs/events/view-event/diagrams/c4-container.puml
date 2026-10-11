@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View an event
+
+Person(viewer, "Member or visitor", "Opens /events/{slug}")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public HTML and models")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "EventPage")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Public model and caller state")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Events, hosts, agenda, registrations")
+}
+System_Ext(map, "Map tile provider", "Third-party map")
+Rel(viewer, cdn, "Requests", "HTTPS")
+Rel(cdn, web, "Forwards cache misses", "HTTPS")
+Rel(web, api, "GET public model and /me state", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+Rel(web, map, "Fetches tiles after activation", "HTTPS")
+@enduml

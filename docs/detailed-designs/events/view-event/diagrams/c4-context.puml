@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View an event
+
+Person(member, "Member", "Signed-in user")
+Person(visitor, "Visitor", "Not signed in")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(map, "Map tile provider", "OpenStreetMap, per the mock")
+Rel(member, ll, "Reads event pages on", "HTTPS")
+Rel(visitor, ll, "Reads event pages on", "HTTPS")
+Rel(member, map, "Loads venue map only on request", "HTTPS")
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Refuse another expert's profile
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "API client" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/experts/expertId/profile" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateExpertProfileAction" as UpdateExpertProfileAction
+  participant "ExpertProfileRepository" as ExpertProfileRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> client : Send PUT naming another expert's id
+client -> route : HTTPS PUT with own session
+route -> route : Authenticate; require Expert
+route -> UpdateExpertProfileAction : execute(userId, otherExpertId, changes)
+UpdateExpertProfileAction -> ExpertProfileRepository : findOwned(otherExpertId, userId)
+ExpertProfileRepository -> db : Select where id = otherExpertId and user_id = userId (L2-017)
+db --> ExpertProfileRepository : No row
+ExpertProfileRepository --> UpdateExpertProfileAction : Not found
+UpdateExpertProfileAction --> route : Not found; nothing written
+route --> client : 404 problem, no detail about existence (L2-023)
+client --> actor : Refused
+@enduml

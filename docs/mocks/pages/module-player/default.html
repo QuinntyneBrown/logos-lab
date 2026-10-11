@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module player · default — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="module-player">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-034 L2-035 L2-036 L2-037 L2-129">
+<meta name="description" content="Case Study: The Chatbot Chaplain running in the Tessera scorm-player, embedded with Exit and Full screen, and Progress saved.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-block: var(--space-8) var(--space-6)"><ol class="breadcrumb"><li><a href="../../pages/module-page/in-progress.html">Case Study: The Chatbot Chaplain</a></li><li><span aria-current="page">Module player</span></li></ol></nav>
+    <h1 class="vh">Case Study: The Chatbot Chaplain</h1>
+    <div style="padding-bottom: var(--space-16)">
+      <div class="player player--module">
+        <div class="player__bar">
+          <p class="player__bar-title">Case Study: The Chatbot Chaplain</p>
+          <span class="inline-status inline-status--success" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Progress saved</span>
+          <a class="btn btn--quiet btn--sm" href="../../pages/module-page/in-progress.html">Exit</a>
+          <a class="btn btn--quiet btn--sm" href="fullscreen.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Full screen</a>
+        </div>
+        <div class="player__stage">
+          <p class="eyebrow">Scene 4 of 7 · 2:14 am</p>
+          <h2>A message arrives: “My dad died tonight. Is he with God? Please answer, I can’t call anyone.”</h2>
+          <fieldset class="choices"><legend>What should the parish chatbot do?</legend>
+            <label class="choice"><input type="radio" name="scene4" value="a"><span class="choice__title">Answer the theological question as fully as it can</span></label>
+            <label class="choice"><input type="radio" name="scene4" value="b" checked><span class="choice__title">Say it is a program, offer comfort in plain words, and give the on-call priest’s number</span><span class="choice__text">The on-call line is staffed overnight.</span></label>
+            <label class="choice"><input type="radio" name="scene4" value="c"><span class="choice__title">Suggest the person write back in the morning</span></label>
+          </fieldset>
+          <div><button class="btn btn--primary" type="button">Continue</button></div>
+        </div>
+      </div>
+      <p class="mock-note">The package runs in the Tessera scorm-player, in a sandboxed iframe on a separate content origin. On phones it opens full-viewport with Exit visible.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Module player</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="fullscreen.html">fullscreen</a></li>
+    <li><a href="saving.html">saving</a></li>
+    <li><a href="offline.html">offline</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

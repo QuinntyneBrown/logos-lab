@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Restore archived content
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "RestoreArchivedDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/restore route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RestoreArchivedContentAction" as action
+  participant "WorkflowService" as workflow
+  participant "SearchIndexService" as search
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Confirm Restore
+dialog -> client : restore(id, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/restore
+route -> route : Authenticate and require Editor role
+route -> action : execute(editor, id, rowVersion)
+action -> db : Load item FOR UPDATE
+db --> action : Item Archived
+action -> workflow : transition(item, Published, editor) (L2-076)
+alt Not Archived, or stale
+  workflow --> action : Refused with current state
+  action --> route : Conflict
+  route --> client : 409 problem response
+  client --> dialog : Failed state; still archived
+else Allowed
+  workflow --> action : Allowed
+  action -> db : Set state Published, clear archived_at, keep slug (L2-081)
+  action -> search : refresh(item, liveVersion)
+  search -> db : Restore search document
+  action -> db : Append WorkflowTransition
+  db --> action : Commit
+  action -> sqs : Enqueue CdnInvalidateJob
+  action --> route : Item Published
+  route --> client : 200 JSON
+  client --> dialog : Success
+  dialog --> actor : Published again at the same address
+end
+@enduml

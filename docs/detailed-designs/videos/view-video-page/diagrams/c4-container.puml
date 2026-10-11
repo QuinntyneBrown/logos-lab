@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View a video page
+
+Person(viewer, "Member or visitor", "Opens /videos/{slug}")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public HTML and page models")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "Renders VideoPage")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Page model")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Videos, topics, memberships, comments")
+}
+Rel(viewer, cdn, "Requests page", "HTTPS")
+Rel(cdn, web, "Forwards cache misses", "HTTPS")
+Rel(web, api, "GET page model", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Publish on schedule
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Amazon EventBridge Scheduler" as timer
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ScheduledContentPublishJob (Worker)" as job
+  participant "PublishingService" as publishing
+  participant "SearchIndexService" as search
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as sqs
+  database "Logos Lab database" as db
+end box
+loop Every minute
+  timer -> sqs : Send ScheduledContentPublishJob message
+  sqs -> job : Deliver message
+  job -> db : SELECT state Scheduled AND scheduled_for <= now() FOR UPDATE SKIP LOCKED
+  note right of db : Items whose time passed during an outage are also selected (L2-079)
+  db --> job : Due items
+  loop Each due item, in its own transaction
+    job -> publishing : publish(item, system actor)
+    publishing -> db : Re-check state is still Scheduled
+    alt Already Published or unscheduled
+      db --> publishing : State changed
+      publishing --> job : Skip; nothing published twice (L2-079)
+    else Still Scheduled
+      publishing -> db : Insert ContentVersion, set Published, slug and publishedAt
+      publishing -> search : refresh(item, version)
+      search -> db : Update search document
+      publishing -> db : Append WorkflowTransition by System
+      db --> publishing : Commit
+      publishing -> sqs : Enqueue CdnInvalidateJob and FollowerNotifyJob
+      publishing --> job : Published within 1 minute of scheduled_for
+    end
+  end
+  job -> sqs : Delete message
+end
+alt Job fails
+  sqs -> job : Redeliver with backoff, then dead-letter queue (L2-140)
+end
+@enduml

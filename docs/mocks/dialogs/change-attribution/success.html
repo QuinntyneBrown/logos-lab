@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Change attribution · success — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="change-attribution">
+<meta name="mock:state" content="success">
+<meta name="mock:requirements" content="L2-075 L2-117">
+<meta name="description" content="The article is now attributed to two experts, and both are notified.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <div class="wrap header__inner">
+      <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+      <nav class="nav" id="primary-nav" popover aria-label="Studio">
+        <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/review-queue/default.html">Review queue</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+        </ul>
+        <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+      </nav>
+      <div class="header__actions">
+        <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+        <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Naomi Ellis"><img class="avatar" src="../../assets/photos/sofia-marquez.jpg" width="40" height="40" alt=""></a>
+        <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+      </div>
+    </div>
+  </header>
+  <div class="workflow">
+    <div class="wrap workflow__inner">
+      <div class="workflow__title">
+        <p class="workflow__name">Can Software Bear the Image of God?</p>
+        <div class="workflow__meta">
+          <span class="badge">Draft</span>
+          <span class="inline-status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Saved 10:24 am</span>
+          <ol class="workflow__steps" aria-label="Workflow"><li aria-current="step">Draft</li><li>In review</li><li>Approved</li><li>Published</li></ol>
+        </div>
+      </div>
+      <div class="workflow__actions">
+        <span class="btn btn--quiet btn--sm">Preview</span>
+        <span class="btn btn--quiet btn--sm">History</span>
+        <span class="btn btn--primary btn--sm">Submit for review</span>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Article · Dr. Abena Mensah</p>
+      <p class="page-head__title">Can Software Bear the Image of God?</p>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Change attribution</h1>
+        <a class="icon-btn" href="../../pages/studio-editor/default.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">Can Software Bear the Image of God? is attributed to Dr. Abena Mensah. Whoever you choose is named on the page and can see and edit it in their Studio.</p>
+        <div class="alert alert--success" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg><p class="alert__title">Attribution changed</p><p class="alert__body">It's now by Dr. Abena Mensah and Rev. Dr. Thomas Hale. Both are told, and it shows in each of their Studios.</p></div>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--primary" href="../../pages/studio-editor/default.html">Done</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Change attribution</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="success.html" aria-current="page">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

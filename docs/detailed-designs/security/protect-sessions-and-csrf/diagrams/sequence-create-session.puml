@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Create and rotate a session at sign-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SignInPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/auth/sign-in" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SignInAction" as action
+  participant "SessionService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "SessionRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> page : Sign in
+page -> client : signIn(email, password)
+client -> route : POST with X-CSRF-Token from the pre-session cookie
+route -> action : execute(email, password, context)
+action -> action : Verify credentials
+action -> svc : rotate(pre-session) (L2-106 session fixation)
+svc -> repo : markRevoked(pre-session)
+svc -> svc : newOpaqueId(): at least 128 random bits (L2-106)
+svc -> repo : insert(Session with idHash and csrfToken)
+repo -> db : INSERT INTO sessions
+svc --> action : IssuedSession
+action --> route : SignInResult
+route -> route : SessionCookieWriter.write: HttpOnly; Secure; SameSite=Lax; Path=/ (L2-106)
+route --> client : 200 with Set-Cookie __Host- session and CSRF cookies
+client --> page : Signed in; no token in localStorage or sessionStorage
+page --> actor : Dashboard
+@enduml

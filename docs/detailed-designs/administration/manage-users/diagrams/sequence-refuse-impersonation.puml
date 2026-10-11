@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Refuse acting as another member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+participant "HTTP client" as http
+box "Backend — Logos Lab API" #D1FADF
+  participant "Authorization policy middleware" as mw
+  participant "Member-scoped route handler\n(e.g. /api/v1/me/...)" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Member-scoped action" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> http : Request a member-scoped endpoint supplying another member's id
+http -> mw : HTTPS request with own session
+mw -> mw : Resolve session to the Administrator's own user id
+alt request names a member id other than the session's
+  mw --> http : 404 problem response; impersonation not supported (L2-095, L2-017)
+else no other id supplied
+  mw -> route : Request with currentUserId from session only
+  route -> action : execute(currentUserId)
+  action -> db : Query scoped to the Administrator's own records
+  db --> action : Own data only
+  action --> route : Result
+  route --> http : 200 JSON for the Administrator only
+end
+@enduml

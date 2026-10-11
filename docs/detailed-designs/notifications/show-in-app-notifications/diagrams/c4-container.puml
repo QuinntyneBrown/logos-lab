@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Show in-app notifications
+Person(member, "Member", "Signed-in user")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Header bell and notification centre")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Notification endpoints and actions")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Carries the cleanup job message")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs NotificationCleanupJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "notifications table")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Lists, counts and marks notifications", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, db, "Deletes notifications older than 90 days", "SQL")
+@enduml

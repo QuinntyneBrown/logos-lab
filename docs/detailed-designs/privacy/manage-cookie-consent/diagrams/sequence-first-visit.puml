@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Show the consent banner on a first visit
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Angular SSR server" as ssr
+  participant "CookieConsentService" as svc
+  participant "ll-consent-banner" as banner
+  participant "AnalyticsLoader" as loader
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "cookie consent route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordCookieConsentAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ssr : GET any page
+ssr -> svc : Read consent cookie from the request
+alt No consent cookie, or choice older than 12 months (L2-115)
+  svc --> ssr : Banner needed, no consent
+  ssr --> actor : Page with banner; no analytics script tag, no non-essential cookies (L2-115)
+  actor -> banner : Choose an option
+  alt Accept all
+    banner -> svc : acceptAll()
+    svc -> svc : Write consent cookie (analytics on, video quality on, decidedAt now)
+    svc -> loader : enable()
+    loader --> actor : Analytics script loaded
+  else Reject non-essential
+    banner -> svc : rejectNonEssential()
+    svc -> svc : Write consent cookie (essential only)
+  else Customize
+    banner -> svc : Open CookieSettingsDialog
+  end
+  opt Visitor is signed in
+    svc -> route : PUT /api/v1/me/cookie-consent
+    route -> action : Execute
+    action -> db : Insert cookie_consents row
+    route --> svc : 204
+  end
+  svc --> banner : Close banner
+else Valid choice within 12 months
+  svc --> ssr : Choice
+  ssr --> actor : Page without banner; analytics tag only if analytics allowed
+end
+@enduml

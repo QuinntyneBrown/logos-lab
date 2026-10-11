@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Join an online event
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "EventPage", "Angular page", "Schedules refresh at window start")
+  Component(panel, "ll-rsvp-panel", "Shared component", "Disabled or enabled Join event")
+  Component(client, "HttpEventsApi", "EventsApi via EVENTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "me events route handler", "app/api/v1/me/events/[eventId]/route.ts", "Authenticated, no-store")
+  Component(action, "GetMyEventStateAction", "Action", "Caller's state")
+  Component(svc, "JoinLinkService", "Domain service", "L2-058 window and registration rule")
+  Component(repo, "EventRepository, EventRegistrationRepository", "Repositories", "Scoped to caller")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "events.join_url")
+Rel(page, panel, "Renders")
+Rel(page, client, "getMyEventState")
+Rel(client, route, "GET", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, repo, "Loads registration and event")
+Rel(action, svc, "Decides join info")
+Rel(repo, db, "SQL")
+@enduml

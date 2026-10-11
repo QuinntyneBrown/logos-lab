@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appeals · default — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="appeals">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-090">
+<meta name="description" content="Owen Bradley's appeals list: Jonah Fraser's appeal assigned to Owen, Samuel Okafor's appeal of Owen's own action assigned to Isaac Moreau, and one decided appeal.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Owen Bradley" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/noah-fischer.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Moderation">
+      <p class="sidebar-nav__group">Moderation</p>
+      <a href="../../pages/moderation-queue/default.html">Queue <span class="badge badge--count">7</span></a>
+      <a href="../../pages/moderation-queue/held.html">Held for review <span class="badge badge--count">1</span></a>
+      <a href="../../pages/appeals/default.html" aria-current="page">Appeals <span class="badge badge--count">1</span></a>
+      <a href="../../pages/moderation-audit/default.html">Audit trail</a>
+    </nav>
+
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Moderation</p>
+        <h1 class="page-head__title">Appeals</h1>
+        <p class="page-head__sub">Each appeal goes to a moderator who didn't take the original action. Members can appeal once, within 14 days.</p>
+      </div>
+      <div class="toolbar">
+        <p class="toolbar__count">Showing <strong>3</strong> appeals: 1 assigned to you</p>
+        <div class="toolbar__tools"><label class="select"><span>Show</span><span class="select__wrap"><select class="select__control"><option>Open appeals</option><option>Decided appeals</option><option>All appeals</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <caption class="vh">Appeals, newest first</caption>
+          <thead><tr><th scope="col">Member</th><th scope="col">Action appealed</th><th scope="col">Taken by</th><th scope="col">Filed</th><th scope="col">Assigned to</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../../pages/appeal-review/forbidden.html">Samuel Okafor</a></td><td>Suspended for 7 days, Tue 13 Oct</td><td>Owen Bradley (you)</td><td class="data-table__nowrap">Today, 11:05 am</td><td>Isaac Moreau</td><td><span class="badge badge--warning">Awaiting decision</span></td></tr>
+            <tr><td><a href="../../pages/appeal-review/default.html">Jonah Fraser</a></td><td>Cohort post hidden, Fri 9 Oct</td><td>Isaac Moreau</td><td class="data-table__nowrap">Mon 12 Oct, 7:15 pm</td><td>You</td><td><span class="badge badge--warning">Awaiting decision</span></td></tr>
+            <tr><td>Priya Raman</td><td>Cohort post hidden, Fri 25 Sep</td><td>Owen Bradley (you)</td><td class="data-table__nowrap">Sat 26 Sep, 9:40 am</td><td>Isaac Moreau</td><td><span class="badge badge--success">Upheld, 28 Sep</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab moderation · every action is recorded in the audit trail</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Appeals</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

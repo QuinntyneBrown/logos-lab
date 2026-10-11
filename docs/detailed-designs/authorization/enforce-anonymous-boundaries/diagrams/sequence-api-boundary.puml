@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — API boundary
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Area API client" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthenticationMiddleware" as authn
+  participant "EndpointAccessRegistry" as registry
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PlaybackAccessPolicy" as play
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> client : Use the site without a session
+client -> authn : HTTPS request, no session cookie
+authn -> registry : accessFor(route, method)
+registry --> authn : EndpointAccess
+alt endpoint not marked anonymous (L2-015)
+  authn --> client : 401 problem "authentication-required", no data
+else anonymous endpoint
+  authn -> route : Request with no CurrentUser
+  alt video playback endpoint
+    route -> play : canPlay(null, video)
+    play -> db : Read video.publicPreview
+    alt public preview set
+      play --> route : true
+      route --> client : 200 playback details
+    else not set
+      play --> route : false
+      route --> client : 401 "authentication-required"
+    end
+  else public read
+    route -> db : Read published content
+    route --> client : 200 public data
+  end
+end
+@enduml

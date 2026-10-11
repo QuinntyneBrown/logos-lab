@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Protect video delivery
+
+Person(viewer, "Viewer", "Plays a video")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, embeds Tessera video-player", "Requests a grant, then streams")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Authorizes and signs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Video state and owners")
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Trusted key group on /media/videos/*")
+  ContainerDb(s3, "Media storage", "Amazon S3, private", "HLS renditions")
+}
+System_Ext(sm, "AWS Secrets Manager", "Signing key")
+Rel(viewer, web, "Uses", "HTTPS")
+Rel(web, api, "POST playback-sessions", "JSON/HTTPS")
+Rel(api, db, "Reads video state", "SQL")
+Rel(api, sm, "Reads private key", "AWS SDK")
+Rel(web, cdn, "Fetches HLS with signed cookies", "HTTPS")
+Rel(cdn, s3, "Reads objects", "Origin access control")
+@enduml

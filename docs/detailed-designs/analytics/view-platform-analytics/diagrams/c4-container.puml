@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View platform analytics
+Person(staff, "Editor or Administrator", "Logos Lab staff")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Platform analytics page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Platform analytics endpoint")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs the hourly rollup job")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Platform rollup tables")
+}
+Rel(staff, web, "Uses", "HTTPS")
+Rel(web, api, "Reads metrics", "JSON/HTTPS")
+Rel(api, db, "Reads rollups", "SQL")
+Rel(worker, db, "Writes rollups hourly", "SQL")
+@enduml

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filters · selected — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="explore-filters">
+<meta name="mock:state" content="selected">
+<meta name="mock:requirements" content="L2-002 L2-051 L2-022">
+<meta name="description" content="The filter sheet with Type: Course checked; the Done button states the outcome, Show 24 courses.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div>
+    <div class="wrap">
+      <div class="page-head">
+        <p class="eyebrow">The catalogue</p>
+        <p class="page-head__title">Explore</p>
+      </div>
+      <div class="toolbar">
+        <p class="toolbar__count">Showing <strong>1–24</strong> of <strong>24</strong> courses</p>
+        <div class="toolbar__tools"><span class="btn btn--quiet btn--sm"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Filters · 1</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Filters</h1>
+        <a class="icon-btn" href="../../pages/explore/selected.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <div class="cluster cluster--between">
+          <p id="dialog-desc" class="field__help">1 filter on. The count updates as you go.</p>
+          <a class="btn btn--text btn--sm" href="default.html">Clear all</a>
+        </div>
+        <fieldset class="filter">
+          <legend class="filter__legend">Type</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="type" checked><span>Course</span><span class="check__count">24</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Module</span><span class="check__count">11</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Video</span><span class="check__count">86</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Article</span><span class="check__count">64</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Collection</span><span class="check__count">18</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Event</span><span class="check__count">9</span></label></li></ul>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Topic</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Theology of technology</span><span class="check__count">41</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>AI ethics</span><span class="check__count">37</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Church and ministry</span><span class="check__count">33</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>The image of God and personhood</span><span class="check__count">28</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Formation and education</span><span class="check__count">22</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Work and vocation</span><span class="check__count">19</span></label></li></ul>
+          <button type="button" class="btn btn--text btn--sm filter__more" aria-expanded="false">Show all 12 topics</button>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Level</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="level"><span>Introductory</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="level"><span>Intermediate</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="level"><span>Advanced</span></label></li></ul>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Contributor</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Logos Lab</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Dr. Abena Mensah</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Rev. Dr. Thomas Hale</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Dr. Joel Santos</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Dr. Lucía Ortega</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Prof. Simon Keller</span></label></li></ul>
+          <button type="button" class="btn btn--text btn--sm filter__more" aria-expanded="false">Show all 38 experts</button>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Length</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="length"><span>Under 15 min</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="length"><span>15 to 60 min</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="length"><span>Over 60 min</span></label></li></ul>
+        </fieldset>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/explore/default.html">Cancel</a>
+        <a class="btn btn--primary" href="../../pages/explore/selected.html">Show 24 courses</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Filters</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="selected.html" aria-current="page">selected</a></li>
+    <li><a href="busy.html">busy</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

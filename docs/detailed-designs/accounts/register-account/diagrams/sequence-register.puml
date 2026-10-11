@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — Register an account
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "RegisterPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "RateLimitMiddleware" as rl
+  participant "registrations route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RegisterAccountAction" as action
+  participant "PasswordPolicyService" as pwd
+  participant "AccountTokenService" as tokens
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Submit name, email, password, Terms box
+page -> page : Client-side checks (lengths, Terms box)
+page -> client : register(RegisterRequest)
+client -> rl : POST /api/v1/auth/registrations
+rl -> cache : Increment attempts for IP (10-minute window)
+cache --> rl : Count
+alt more than 5 attempts in 10 minutes
+  rl --> client : 429 with Retry-After
+  client --> page : Rate limited
+  page --> actor : Show rate-limited state, keep form
+else within limit
+  rl -> route : Forward request
+  route -> action : execute(input, ip)
+  action -> action : Apply L2-006 display name 2-50 and Terms acceptance rules
+  action -> pwd : validate(password)
+  pwd -> pwd : Apply L2-006 length 12-128 rule
+  pwd -> pwd : Look up breached password list
+  pwd --> action : PasswordCheck
+  alt invalid field, length or breached password
+    action --> route : ValidationProblem
+    route --> client : 422 problem with field errors
+    client --> page : Field errors
+    page --> actor : Show invalid or breached state
+  else valid input
+    action -> db : Find user by normalized email
+    db --> action : User or none
+    alt address is new
+      action -> db : Insert User (Unverified), UserRole (Learner), consent records
+      action -> tokens : issue(userId, EmailVerification, 24 h)
+      tokens -> db : Store token hash
+      tokens --> action : Raw token
+      action -> queue : Enqueue EmailSendJob (verification link)
+    else address already has an account
+      action -> queue : Enqueue EmailSendJob (registration attempt notice to owner)
+    end
+    action --> route : Accepted
+    route --> client : 202, same response in both cases
+    client --> page : Accepted
+    page --> actor : Show "check your email" success state
+  end
+end
+@enduml

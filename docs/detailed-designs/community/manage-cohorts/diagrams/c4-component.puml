@@ -1,0 +1,39 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage cohorts
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(studio, "StudioCohortsPage / CohortSettingsPage", "Angular pages", "List, create and run cohorts")
+  Component(dialogs, "CohortInviteDialog / RegenerateJoinLinkDialog / RemoveCohortMemberDialog", "Angular CDK dialogs", "Leader actions")
+  Component(join, "CohortJoinPage", "Angular page", "Join by link or invitation")
+  Component(client, "CohortsApi", "Contract + HttpCohortsApi", "Bound by COHORTS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/studio/cohorts and app/api/v1/cohorts/join", "Next.js route handlers", "Validate and map")
+  Component(actions, "Cohort actions", "CreateCohortAction, InviteCohortMembersAction, JoinCohortAction, RegenerateCohortJoinLinkAction, RemoveCohortMemberAction", "One use case each")
+  Component(service, "CohortService", "Domain service", "Leader, capacity, date and join rules")
+  Component(enrol, "EnrolmentService", "Domain service (courses)", "Enrols a joiner in the course")
+  Component(repos, "Cohort repositories", "CohortRepository, CohortMembershipRepository, CohortInvitationRepository", "Table access")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(sendJob, "CohortInvitationSendJob", "Job", "Emails one invitation")
+  Component(archiveJob, "CohortArchiveJob", "Scheduled job", "Read-only then archived")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Cohort tables")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "Job messages")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(studio, client, "Calls")
+Rel(dialogs, client, "Calls")
+Rel(join, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, service, "Applies rules")
+Rel(actions, enrol, "Enrols if needed")
+Rel(actions, repos, "Loads and saves")
+Rel(actions, queue, "Enqueues invitation jobs")
+Rel(repos, db, "Reads and writes", "SQL")
+Rel(sendJob, queue, "Consumes")
+Rel(sendJob, ses, "Sends", "HTTPS API")
+Rel(archiveJob, db, "Updates status", "SQL")
+@enduml

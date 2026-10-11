@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View my certificates
+
+Person(member, "Member", "Learner with certificates")
+Person_Ext(verifier, "Verifier", "Anyone holding a verification link")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(linkedin, "LinkedIn", "Add to profile form")
+
+Rel(member, ll, "Lists, downloads and shares certificates using")
+Rel(member, linkedin, "Adds certification via", "HTTPS")
+Rel(verifier, ll, "Verifies a certificate using")
+@enduml

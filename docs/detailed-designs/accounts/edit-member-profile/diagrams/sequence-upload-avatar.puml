@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Upload an avatar
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AvatarUploadDialog" as dialog
+  participant "AccountApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me/avatar route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UploadAvatarAction" as action
+  participant "AvatarProcessJob" as job
+  participant "ImageProcessor" as img
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Media storage" as s3
+  queue "Job queue" as queue
+  participant "Malware scanner" as scanner
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Choose file, adjust square crop, press "Use photo"
+dialog -> client : uploadAvatar(file, crop)
+client -> route : POST /api/v1/me/avatar (multipart)
+route -> route : Refuse body over 5 MB before reading it all (L2-108)
+route -> action : execute(currentUser, file, crop)
+action -> img : sniffType(first bytes)
+action -> action : Apply L2-013: JPEG, PNG or WebP, at most 5 MB, at least 128 x 128
+alt refused
+  action --> route : UploadProblem
+  route --> client : 422 problem stating the rules
+  dialog --> actor : Invalid state, rules restated
+else accepted
+  action -> s3 : Put original under generated name in quarantine prefix
+  action -> db : Insert AvatarUpload (Received)
+  action -> queue : Enqueue AvatarProcessJob
+  route --> client : 202 with upload id
+  dialog --> actor : Busy state while checking
+  queue -> job : Deliver
+  job -> s3 : Read original
+  job -> scanner : Scan file
+  alt infected
+    job -> db : Mark Quarantined, notify member
+  else clean
+    job -> img : cropSquare, reencodeWithoutMetadata (strip EXIF)
+    job -> s3 : Put avatar rendition
+    job -> db : Set user.avatarKey, mark Ready
+  end
+  dialog -> client : getAvatarStatus(uploadId) until Ready or Rejected
+  client --> dialog : Status
+  dialog --> actor : Success state, or failed state with current photo unchanged
+end
+@enduml

@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — One-click unsubscribe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Email recipient" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "UnsubscribePage" as page
+  participant "ConsentApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/unsubscribe" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UnsubscribeAction" as action
+  participant "UnsubscribeTokenService" as tokens
+  participant "NotificationPreferenceService" as prefs
+  participant "ConsentService" as consent
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+alt mail client sends RFC 8058 one-click POST
+  actor -> route : POST with List-Unsubscribe-Post body and token
+else recipient opens the link, not signed in
+  actor -> page : Open /unsubscribe/{token}
+  page --> actor : Loading state
+  page -> client : unsubscribe(token)
+  client -> route : POST with token (anonymous, no session needed)
+end
+route -> action : execute(token)
+action -> tokens : verify(token)
+alt token damaged or unknown
+  tokens --> action : Invalid
+  action --> route : 404 problem response
+  route --> client : Problem
+  page --> actor : Invalid-link state with other ways to stop the emails
+else valid
+  tokens --> action : userId and category
+  action -> prefs : Read email setting for category
+  alt already off
+    action --> route : AlreadyOff with date
+    page --> actor : "Already" state naming the date it stopped
+  else on
+    action -> prefs : Set email off for category, effective now (L2-094)
+    opt category is Platform news
+      action -> consent : record(MarketingEmail, Withdrawn, wording version, UnsubscribeLink)
+    end
+    action -> db : Commit in one transaction
+    db --> action : Committed
+    action --> route : Unsubscribed
+    route --> client : 200 JSON
+    page --> actor : "You're unsubscribed from Platform news" with Subscribe again
+  end
+end
+note over action, db : EmailSendJob re-checks preferences and consent at send time, so queued email of the category is not sent (L2-094)
+@enduml

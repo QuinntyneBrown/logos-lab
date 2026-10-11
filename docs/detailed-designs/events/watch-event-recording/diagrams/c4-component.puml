@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Watch an event recording
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(editor, "EventEditorPage", "Angular page", "Recording section on past events")
+  Component(picker, "ItemPickerDialog", "Angular CDK dialog", "Published videos")
+  Component(page, "EventPage", "Angular page", "Past state with ll-player")
+  Component(client, "HttpStudioEventsApi", "StudioEventsApi via STUDIO_EVENTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "recording route handler", "app/api/v1/studio/events/[eventId]/recording/route.ts", "Host or editor")
+  Component(action, "AttachEventRecordingAction", "Action", "Ended event, published video")
+  Component(repo, "EventRepository, VideoRepository", "Repositories", "PostgreSQL")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "EventRecordingNotifyJob", "Job", "One notice per registrant")
+}
+Rel(editor, picker, "Opens with type Videos")
+Rel(editor, client, "attachRecording")
+Rel(client, route, "PUT", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, repo, "Reads and writes")
+Rel(action, job, "Enqueues")
+Rel(job, repo, "Reads registrants")
+@enduml

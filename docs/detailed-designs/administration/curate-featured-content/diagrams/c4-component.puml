@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Curate featured content
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "AdminFeaturedPage", "Angular page", "Ordered list in ll-sortable, Add item, Save order")
+  Component(picker, "ItemPickerDialog", "Angular CDK dialog", "Search published items to add")
+  Component(sched, "FeaturedScheduleDialog", "Angular CDK dialog", "Start and end time for one item")
+  Component(home, "HomePage", "Angular page", "Featured section of the home page")
+  Component(client, "FeaturedApi / HttpFeaturedApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "app/api/v1/admin/featured and app/api/v1/featured", "Route handlers", "Admin and public endpoints")
+  Component(actions, "GetFeaturedSlotsAction, SaveFeaturedSlotsAction, ListHomeFeaturedAction", "Actions", "One use case each")
+  Component(service, "FeaturedContentService", "Domain service", "Limit of 6, published only, time windows")
+  Component(audit, "AuditLogService", "Domain service", "Appends audit entries (L2-099)")
+  Component(repo, "FeaturedItemRepository", "Repository", "featured_items access")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "FeaturedSlotCheckJob", "Job", "Notifies editors when a featured item leaves")
+  Component(notify, "NotificationService", "Domain service", "Stores in-app notifications (L2-091)")
+}
+ComponentDb(db, "featured_items", "PostgreSQL table", "Position, content, start and end")
+Rel(page, picker, "Opens")
+Rel(page, sched, "Opens")
+Rel(page, client, "Calls")
+Rel(home, client, "Calls")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, service, "Uses")
+Rel(actions, audit, "Records with")
+Rel(service, repo, "Uses")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(job, repo, "Reads through")
+Rel(job, notify, "Notifies editors with")
+@enduml

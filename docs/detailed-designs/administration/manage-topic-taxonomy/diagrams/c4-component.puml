@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage the topic taxonomy
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "AdminTopicsPage", "Angular page", "Topic table with Edit, Merge and Delete")
+  Component(edit, "TopicEditDialog", "Angular CDK dialog", "Create or rename a topic")
+  Component(merge, "MergeTopicDialog", "Angular CDK dialog", "Merge into a chosen topic")
+  Component(del, "DeleteTopicDialog", "Angular CDK dialog", "Delete, or offer merge when in use")
+  Component(topicPage, "TopicPage (SSR)", "Angular page", "Emits 301 for an old slug")
+  Component(client, "TopicsApi / HttpTopicsApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "app/api/v1/admin/topics and app/api/v1/topics", "Route handlers", "Admin and public topic endpoints")
+  Component(actions, "Create / Update / Merge / Delete TopicAction", "Actions", "One use case each")
+  Component(service, "TopicService", "Domain service", "Name rules, slugs, merge and delete rules")
+  Component(audit, "AuditLogService", "Domain service", "Appends audit entries (L2-099)")
+  Component(repos, "TopicRepository, ContentTopicRepository, TopicRedirectRepository", "Repositories", "Topic data access")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "topics, content_topics, topic_redirects")
+Rel(page, edit, "Opens")
+Rel(page, merge, "Opens")
+Rel(page, del, "Opens")
+Rel(del, merge, "Offers")
+Rel(page, client, "Calls")
+Rel(edit, client, "Calls")
+Rel(merge, client, "Calls")
+Rel(del, client, "Calls")
+Rel(topicPage, client, "Resolves slug with")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, service, "Uses")
+Rel(actions, audit, "Records with")
+Rel(service, repos, "Uses")
+Rel(repos, db, "Reads and writes", "SQL")
+@enduml

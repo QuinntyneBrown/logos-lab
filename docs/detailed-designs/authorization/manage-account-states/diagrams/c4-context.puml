@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage account states
+
+Person(admin, "Administrator", "Logos Lab staff who manage users, roles and settings")
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(admin, lab, "Suspends, reactivates and deactivates accounts", "HTTPS")
+Rel(member, lab, "Is refused or restored according to state", "HTTPS")
+Rel(lab, ses, "Sends state notices via")
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Check content type and scan for malware
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Upload dialog or Studio page" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/uploads/{id}" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UploadScanJob" as job
+  participant "ContentTypeSniffer" as sniff
+  participant "Upload" as upload
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Media storage (S3)" as s3
+  participant "Malware scanner" as scanner
+  database "Logos Lab database" as db
+  participant "SecurityEventLogger" as sec
+end box
+job -> db : Load upload (Scanning)
+job -> s3 : Read first bytes
+s3 --> job : Bytes
+job -> sniff : detect(firstBytes) (L2-108 magic bytes)
+sniff --> job : Detected type
+alt Detected type not allowed or differs from declared type
+  job -> upload : refuse("type mismatch")
+  job -> s3 : Delete incoming object
+  job -> db : Save Refused
+else Type allowed
+  job -> scanner : Scan object (L2-108)
+  scanner --> job : Result
+  alt Infected
+    job -> upload : quarantine(finding)
+    job -> s3 : Move to quarantine prefix; deny all reads
+    job -> db : Save Quarantined
+    job -> sec : record(UploadQuarantined) (L2-111)
+    job -> notify : Tell uploader in-app and by email
+  else Clean
+    job -> upload : release(detectedType)
+    job -> s3 : Copy to released/<uuid> with Content-Type and Content-Disposition metadata
+    job -> db : Save Available
+  end
+end
+page -> route : Poll status of own upload
+route -> db : SELECT status WHERE id = $1 AND owner_id = $2
+route --> page : Available, Refused or Quarantined
+page --> actor : Success, invalid or quarantined state
+@enduml

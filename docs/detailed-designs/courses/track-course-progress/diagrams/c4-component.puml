@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Track course progress
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(pages, "CourseOverviewPage / LessonPlayerPage / DashboardPage", "Angular pages", "Show the same percentage")
+  Component(bar, "ll-progress-bar", "Shared component", "Accessible progress indicator")
+}
+Container_Boundary(apib, "Logos Lab API and Worker") {
+  Component(comp, "LessonCompletionService", "Domain service", "Records completions")
+  Component(prog, "ProgressService", "Domain service", "Single writer of progress_percent")
+  Component(calc, "ProgressCalculator", "Domain function", "Required lessons only")
+  Component(job, "CourseProgressRecalculateJob", "Worker job", "Recalculates a course's enrolments")
+  Component(repo, "EnrolmentRepository", "Repository", "enrolments.progress_percent")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(pages, bar, "Render with")
+Rel(pages, repo, "Read progress through API endpoints", "JSON/HTTPS")
+Rel(comp, prog, "Calls recalculate")
+Rel(job, prog, "Calls recalculate for each enrolment")
+Rel(prog, calc, "Computes with")
+Rel(prog, repo, "Stores through")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

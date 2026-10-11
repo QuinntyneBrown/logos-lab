@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Export personal data
+
+Person(member, "Member", "Signed-in member requesting a copy of their data")
+System(ll, "Logos Lab", "Learning platform")
+System_Ext(ses, "Amazon SES", "Sends the export-ready email")
+Rel(member, ll, "Requests and downloads an export from")
+Rel(ll, ses, "Sends export-ready email through")
+Rel(ses, member, "Delivers email to")
+@enduml

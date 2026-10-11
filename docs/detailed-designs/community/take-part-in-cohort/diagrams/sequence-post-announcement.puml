@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Post an announcement
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Cohort leader" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortAnnouncementDialog" as dialog
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PostCohortAnnouncementAction" as action
+  participant "CohortAccessService" as access
+  participant "CohortAnnouncementNotifyJob" as job
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+  participant "Amazon SES" as ses
+end box
+actor -> dialog : Write announcement, choose pin, publish
+dialog -> client : postAnnouncement(id, request)
+client -> route : POST /api/v1/cohorts/{id}/announcements
+route -> action : execute(userId, id, request)
+action -> access : resolve(userId, id)
+alt caller is not the leader
+  access --> action : Member or NotFound
+  route --> client : 404 problem
+  dialog --> actor : Show failed state
+else leader
+  action -> db : Insert cohort_announcements row
+  action -> queue : Enqueue CohortAnnouncementNotifyJob
+  action --> route : Announcement
+  route --> client : 201 AnnouncementView
+  dialog --> actor : Close, announcement shown (pinned first)
+  queue -> job : Deliver job (Worker)
+  job -> db : Read active members
+  loop each member
+    job -> notify : notify(member, CohortAnnouncement) (L2-064)
+    notify -> db : Read member notification preferences
+    opt in-app on
+      notify -> db : Insert notification
+    end
+    opt email on
+      notify -> ses : Send email
+    end
+  end
+end
+@enduml

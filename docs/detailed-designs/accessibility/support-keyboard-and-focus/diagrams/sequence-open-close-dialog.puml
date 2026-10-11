@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Open and close a dialog
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Keyboard user" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Opening page" as page
+  participant "DialogLauncher" as dl
+  participant "CDK Dialog" as cdk
+  participant "<Name>Dialog" as dlg
+end box
+actor -> page : Activate control that opens a dialog
+page -> dl : open(component, options)
+dl -> cdk : open with autoFocus and restoreFocus
+cdk -> dlg : Render in overlay with focus trap
+cdk -> dlg : Move focus to first meaningful control (L2-126 AC3)
+loop Tab and Shift+Tab
+  actor -> dlg : Tab
+  dlg --> actor : Focus wraps within dialog
+end
+alt Escape on a dialog that is not a blocking confirmation
+  actor -> dlg : Escape
+  dlg -> cdk : Close
+else Escape on a blocking confirmation (disableClose)
+  actor -> dlg : Escape
+  dlg --> actor : Dialog stays open
+  actor -> dlg : Choose an action
+  dlg -> cdk : Close with result
+else Close control
+  actor -> dlg : Activate close
+  dlg -> cdk : Close
+end
+cdk -> page : Restore focus to the opening control (L2-126 AC3)
+page --> actor : Focus visible on opener
+@enduml

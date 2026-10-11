@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Run a job once
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Feature action" as action
+  participant "JobPublisher" as pub
+  participant "JobRunner" as runner
+  participant "JobHandler" as handler
+  participant "JobExecutionRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+end box
+actor -> web : Request work
+web -> route : API request
+route -> action : execute
+action -> db : Commit feature transaction
+action -> pub : publish(JobMessage with idempotencyKey)
+pub -> queue : SendMessage
+action --> route : Accepted
+route --> web : 202 or result
+queue -> runner : Deliver message
+runner -> repo : claim(idempotencyKey)
+repo -> db : Insert or read job_executions row
+alt key already Succeeded (duplicate delivery)
+  repo --> runner : AlreadySucceeded
+  runner -> queue : DeleteMessage without rerunning (Apply L2-140 idempotent)
+else claimed
+  repo --> runner : Claimed
+  runner -> handler : run(payload, ctx)
+  handler -> db : Write results and mark Succeeded in one transaction
+  db --> handler : Committed
+  handler --> runner : Done
+  runner -> queue : DeleteMessage
+end
+@enduml

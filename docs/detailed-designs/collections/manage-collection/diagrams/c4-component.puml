@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage a collection
+
+Container(web, "Logos Lab Web", "Angular", "CollectionBuilderPage, ItemPickerDialog, StudioCollectionsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(authz, "Authorization policy", "Middleware", "Expert or Editor")
+  Component(r1, "studio/collections routes", "Route handlers", "Get and save items")
+  Component(r2, "GET /api/v1/studio/pickable-items", "Route handler", "Published items search")
+  Component(a1, "SaveCollectionItemsAction", "Action", "Validate and save")
+  Component(comp, "CollectionCompositionService", "Domain service", "1-100 items, nesting, notes")
+  Component(rev, "RevisionService", "Domain service", "Draft revision for published content")
+  Component(repo, "CollectionRepository", "Repository", "Owner-scoped queries")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "collections, collection_items, content_revisions")
+Rel(web, authz, "Calls", "JSON/HTTPS")
+Rel(authz, r1, "Passes")
+Rel(authz, r2, "Passes")
+Rel(r1, a1, "Invokes")
+Rel(a1, repo, "Loads owned collection")
+Rel(a1, comp, "Validates")
+Rel(a1, rev, "Opens revision when published")
+Rel(comp, repo, "Reads nesting of candidate collections")
+Rel(r2, repo, "Searches published items")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(rev, db, "Writes", "SQL")
+@enduml

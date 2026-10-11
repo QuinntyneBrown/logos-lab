@@ -1,0 +1,105 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Record the administrative audit log
+package "Logos Lab Web" {
+  class AdminAuditPage {
+    -filters: AuditFilterForm
+    -page: number
+    +applyFilters(): void
+    +clearFilters(): void
+  }
+  interface AuditLogApi {
+    +list(filter: AuditFilter, page: number): Observable<Page<AuditEntryView>>
+  }
+  class HttpAuditLogApi
+  class "AUDIT_LOG_API" as Token <<InjectionToken>>
+  class AuditFilter {
+    +actorId: string
+    +actionType: AuditActionType
+    +target: string
+    +from: string
+    +to: string
+  }
+  class AuditEntryView {
+    +occurredAt: string
+    +actorName: string
+    +action: string
+    +targetLabel: string
+    +before: string
+    +after: string
+    +ipAddress: string
+  }
+}
+package "Logos Lab API" {
+  class AuditLogService {
+    +record(input: AuditEntryInput): void
+  }
+  class AuditEntryInput {
+    +actorId: uuid
+    +action: string
+    +actionType: AuditActionType
+    +targetType: string
+    +targetId: uuid
+    +targetLabel: string
+    +before: json
+    +after: json
+    +ipAddress: inet
+  }
+  class ListAuditEntriesAction {
+    +execute(actor: Actor, filter: AuditFilter, page: number): Page<AuditEntryView>
+  }
+  class AuditEntryRepository {
+    +insert(e: AuditEntry): void
+    +search(filter: AuditFilter, offset: number, limit: number): AuditEntry[]
+  }
+  class AuditArchiveJob {
+    +run(now: Date): number
+  }
+  class AuditEntry {
+    +id: uuid
+    +actorId: uuid
+    +action: string
+    +actionType: AuditActionType
+    +targetType: string
+    +targetId: uuid
+    +targetLabel: string
+    +before: jsonb
+    +after: jsonb
+    +ipAddress: inet
+    +occurredAt: timestamptz
+  }
+  enum AuditActionType {
+    RoleChanges
+    AccountStates
+    Invitations
+    Topics
+    FeaturedContent
+    Announcements
+    Policies
+    Settings
+    ContentWorkflow
+  }
+}
+HttpAuditLogApi ..|> AuditLogApi
+Token ..> AuditLogApi : provides
+AdminAuditPage ..> AuditLogApi : depends on
+AuditLogApi ..> AuditEntryView : returns
+AdminAuditPage --> AuditFilter
+AuditLogService ..> AuditEntryInput : accepts
+AuditLogService --> AuditEntryRepository
+ListAuditEntriesAction --> AuditEntryRepository
+AuditEntryRepository ..> AuditEntry : persists
+AuditEntry --> AuditActionType
+AuditArchiveJob ..> AuditEntry : archives
+@enduml

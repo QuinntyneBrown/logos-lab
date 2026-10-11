@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Edit a comment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CommentsSection" as page
+  participant "EditCommentDialog" as dialog
+  participant "CommentsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Comments route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EditCommentAction" as action
+  participant "CommentService" as service
+  participant "CommentFormattingService" as format
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Choose Edit on own comment
+page -> dialog : Open with current text
+actor -> dialog : Change text and save
+dialog -> client : edit(id, body)
+client -> route : PATCH /api/v1/comments/{id}
+route -> action : execute(userId, id, body)
+action -> db : Find comment by id and author id
+db --> action : Comment or none
+alt not found or another member's comment
+  action --> route : NotFound
+  route --> client : 404 problem (L2-061)
+  dialog --> actor : Show failure
+else found
+  action -> service : canEdit(comment, now)
+  alt more than 15 minutes since posting
+    service --> action : false
+    action --> route : EditWindowClosed
+    route --> client : 409 problem (L2-061)
+    dialog --> actor : Explain the edit window has closed
+  else within 15 minutes
+    service --> action : true
+    action -> format : sanitize(body)
+    format --> action : Allow-listed HTML (L2-062)
+    action -> db : Update body and editedAt
+    db --> action : Saved
+    action --> route : Comment
+    route --> client : 200 CommentView
+    client --> dialog : CommentView
+    dialog --> page : Close with result
+    page --> actor : Show comment with "Edited" label
+  end
+end
+@enduml

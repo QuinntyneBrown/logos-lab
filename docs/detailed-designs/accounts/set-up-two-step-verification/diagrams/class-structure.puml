@@ -1,0 +1,117 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Set up two-step verification
+
+package "Logos Lab Web" {
+  class SettingsSecurityPage {
+    -api: AccountApi
+    +security: SecuritySummary
+    +openDisableDialog(): void
+  }
+  class MfaSetupPage {
+    -api: AccountApi
+    +mandatory: boolean
+    +enrolment: MfaEnrolmentStart
+    +recoveryCodes: string[]
+    +confirm(code: string): void
+  }
+  class SignInVerifyPage {
+    -api: AuthApi
+    +mode: 'totp' | 'recovery'
+    +triesLeft: number | null
+    +verify(): void
+  }
+  class MfaDisableDialog {
+    -api: AccountApi
+    +disable(password: string, code: string): void
+  }
+  class mfaEnrolmentGuard <<CanActivateFn>>
+  interface AccountApi {
+    +getSecurity(): Observable<SecuritySummary>
+    +startMfaEnrolment(): Observable<MfaEnrolmentStart>
+    +confirmMfaEnrolment(code: string): Observable<MfaEnabled>
+    +disableMfa(password: string, code: string): Observable<void>
+  }
+  interface AuthApi {
+    +verifySecondFactor(request: SecondFactorRequest): Observable<void>
+  }
+}
+package "Logos Lab API" {
+  class TotpService {
+    +digits: number = 6
+    +stepSeconds: number = 30
+    +generateSecret(): Secret
+    +verify(secret: Secret, code: string, lastUsedStep: number): number | null
+  }
+  class SecondFactorThrottle {
+    +maxWrong: number = 5
+    +window: Duration = 15 min
+    +lockout: Duration = 15 min
+  }
+  class VerifySecondFactorAction {
+    +execute(challengeToken: string, request: SecondFactorRequest, ctx: RequestContext): Promise<Result<IssuedSession, SecondFactorProblem>>
+  }
+  class ConfirmMfaEnrolmentAction {
+    +execute(user: CurrentUser, code: string): Promise<Result<string[], CodeProblem>>
+  }
+  class DisableMfaAction {
+    +execute(user: CurrentUser, password: string, code: string): Promise<Result<void, DisableProblem>>
+  }
+  class MfaEnrolmentGate {
+    +handle(req: Request, next: Handler): Promise<Response>
+  }
+  class MfaEnrolment {
+    +userId: Uuid
+    +secretCiphertext: Bytes
+    +status: MfaStatus
+    +enabledAt: Instant | null
+    +lastUsedStep: number
+  }
+  class RecoveryCode {
+    +userId: Uuid
+    +codeHash: string
+    +usedAt: Instant | null
+  }
+  class MfaChallenge {
+    +id: Uuid
+    +userId: Uuid
+    +tokenHash: string
+    +expiresAt: Instant
+  }
+  enum MfaStatus {
+    Pending
+    Enabled
+  }
+  class MfaPolicy {
+    +mandatoryRoles: Role[] = [Expert, Editor, Moderator, Administrator]
+    +isMandatory(roles: Role[]): boolean
+  }
+}
+SettingsSecurityPage ..> AccountApi
+SettingsSecurityPage ..> MfaDisableDialog : opens
+MfaSetupPage ..> AccountApi
+MfaDisableDialog ..> AccountApi
+SignInVerifyPage ..> AuthApi
+mfaEnrolmentGuard ..> MfaSetupPage : redirects to
+VerifySecondFactorAction ..> TotpService
+VerifySecondFactorAction ..> SecondFactorThrottle
+VerifySecondFactorAction ..> MfaChallenge
+VerifySecondFactorAction ..> RecoveryCode
+ConfirmMfaEnrolmentAction ..> TotpService
+DisableMfaAction ..> TotpService
+DisableMfaAction ..> MfaPolicy
+MfaEnrolmentGate ..> MfaPolicy
+MfaEnrolment --> MfaStatus
+MfaEnrolment "1" *-- "0..10" RecoveryCode
+@enduml

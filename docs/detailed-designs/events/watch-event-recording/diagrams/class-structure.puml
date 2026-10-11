@@ -1,0 +1,55 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Watch an event recording
+
+package "Logos Lab Web" {
+  class ItemPickerDialog {
+    +types: ContentType[]
+    +multiple: boolean
+    +selected: Signal<ItemRef[]>
+  }
+  interface StudioEventsApi {
+    +attachRecording(eventId: string, videoId: string): Observable<void>
+  }
+}
+package "Logos Lab API" {
+  class AttachEventRecordingAction {
+    +execute(userId: Uuid, eventId: Uuid, videoId: Uuid): Result<void>
+  }
+  class EventRecordingNotifyJob {
+    +run(eventId: Uuid, videoId: Uuid): void
+  }
+  class Event {
+    +id: Uuid
+    +endsAt: Instant
+    +recordingVideoId: Uuid | null
+    +hasEnded(now: Instant): boolean
+  }
+  class Video {
+    +id: Uuid
+    +workflowState: WorkflowState
+    +durationSeconds: number
+  }
+  class EventRegistration {
+    +userId: Uuid
+    +status: RegistrationStatus
+  }
+}
+AttachEventRecordingAction ..> Event : sets recording
+AttachEventRecordingAction ..> Video : checks Published
+AttachEventRecordingAction ..> EventRecordingNotifyJob : enqueues
+EventRecordingNotifyJob ..> EventRegistration : notifies
+Event "0..*" --> "0..1" Video : recording
+Event "1" *-- "0..*" EventRegistration
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — View saved items
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SavedPage" as page
+  participant "SavedItemsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Saved items route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListSavedItemsAction" as list
+  participant "UnsaveItemAction" as unsave
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /dashboard/saved
+page -> client : list()
+client -> route : GET /api/v1/me/saved-items
+route -> list : execute(userId)
+list -> db : Saved rows joined to content status, newest saved first (L2-071)
+db --> list : Rows and per-type counts
+list --> route : SavedItemPage
+route --> client : 200
+page --> actor : Items, archived ones as "No longer available" with Remove
+opt member filters by type
+  actor -> page : Choose a type chip
+  page -> client : list(type)
+  client --> page : Filtered items, or no-results state
+end
+opt member removes an unavailable item
+  actor -> page : Press Remove from Saved
+  page -> client : unsave(type, id)
+  client -> route : DELETE /api/v1/me/saved-items/{type}/{id}
+  route -> unsave : execute(userId, type, id)
+  unsave -> db : Delete row
+  route --> client : 204
+  page --> actor : Item removed, counts updated
+end
+@enduml

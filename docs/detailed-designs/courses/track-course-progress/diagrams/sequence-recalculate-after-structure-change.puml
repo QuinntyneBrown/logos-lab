@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Recalculate progress after a structure change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Studio editor page" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Publish route (authoring)" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishContentAction (authoring)" as pub
+  participant "CourseProgressRecalculateJob" as job
+  participant "ProgressService" as prog
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as q
+  database "Logos Lab database" as db
+end box
+actor -> page : Publish course revision with a new required lesson
+page -> route : Publish request
+route -> pub : execute(courseId)
+pub -> db : Publish revision
+db --> pub : Commit
+opt required lesson set changed
+  pub -> q : Enqueue CourseProgressRecalculateJob(courseId, revisionId)
+end
+pub --> route : Published
+route --> page : 200
+q -> job : Deliver message
+loop each batch of enrolments
+  job -> prog : recalculate(enrolmentId)
+  prog -> db : Update progress_percent (L2-030)
+  db --> prog : Commit
+end
+job -> job : Leave issued certificates valid (L2-030)
+job --> q : Delete message
+@enduml

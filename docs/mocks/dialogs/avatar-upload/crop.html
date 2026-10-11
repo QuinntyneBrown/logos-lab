@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Change photo · crop — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="avatar-upload">
+<meta name="mock:state" content="crop">
+<meta name="mock:requirements" content="L2-013 L2-108">
+<meta name="description" content="The crop step: the chosen file, a square preview and a zoom slider, with Use photo ready.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Settings">
+      <p class="sidebar-nav__group">Settings</p>
+      <a href="../../pages/settings-profile/default.html" aria-current="page">Profile</a>
+      <a href="../../pages/settings-account/default.html">Email and password</a>
+      <a href="../../pages/settings-security/default.html">Security</a>
+      <a href="../../pages/settings-sessions/default.html">Sessions</a>
+      <a href="../../pages/settings-notifications/default.html">Notifications</a>
+      <a href="../../pages/settings-privacy/default.html">Privacy and messaging</a>
+      <a href="../../pages/settings-data/default.html">Your data</a>
+      <a href="../../pages/settings-blocked/default.html">Blocked members</a>
+    </nav>
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Settings</p>
+        <p class="page-head__title">Profile</p>
+        <p class="page-head__sub">How other members see you. Your email address, enrolments and progress are never shown on your profile.</p>
+      </div>
+      <div class="form-card"><div class="photo-edit"><img class="photo-edit__img" src="../../assets/photos/hannah-kowalski.jpg" width="96" height="96" alt=""><div class="photo-edit__text"><span class="btn btn--quiet btn--sm">Change photo</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Change your photo</h1>
+        <a class="icon-btn" href="../../pages/settings-profile/default.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">Your photo shows beside your name on your profile, comments and cohort posts. We remove location and camera details from the file.</p>
+        <div class="dropzone__list"><div class="dropzone__file"><img src="../../assets/photos/hannah-kowalski.jpg" alt=""><div><p class="dropzone__name">miriam-st-andrews-2026.jpg</p><p class="dropzone__meta">2.4 MB · 1600 × 1200 pixels</p></div></div></div>
+        <div class="photo-edit">
+          <img class="photo-edit__img" src="../../assets/photos/hannah-kowalski.jpg" width="96" height="96" alt="Preview of your new photo, cropped to a square">
+          <div class="photo-edit__text">
+            <p class="field__help">This is how your photo appears beside your name. Drag the photo to move it inside the square.</p>
+          </div>
+        </div>
+        <div class="field"><div class="range">
+          <div class="range__label"><label for="zoom">Zoom</label><output class="range__value" for="zoom">120%</output></div>
+          <input class="range__input" id="zoom" name="zoom" type="range" min="100" max="300" step="10" value="120" aria-valuetext="120 percent">
+          <div class="range__ends" aria-hidden="true"><span>100%</span><span>300%</span></div>
+        </div></div>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/settings-profile/default.html">Cancel</a><a class="btn btn--primary" href="busy.html">Use photo</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Change photo</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="crop.html" aria-current="page">crop</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

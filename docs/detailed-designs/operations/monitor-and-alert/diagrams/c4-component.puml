@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Monitor and alert
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(vitals, "WebVitalsReporter", "Angular service", "Measures LCP, INP and CLS")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(live, "live route", "app/health/live/route.ts", "Returns 200 while the process runs")
+  Component(ready, "ready route", "app/health/ready/route.ts", "Returns 200 or 503")
+  Component(svc, "ReadinessCheckService", "Domain service", "Runs probes in parallel")
+  Component(dbp, "DatabaseProbe", "HealthProbe", "SELECT 1 with timeout")
+  Component(cp, "CacheProbe", "HealthProbe", "PING with timeout")
+  Component(telemetry, "web-vitals route", "app/api/v1/telemetry/web-vitals/route.ts", "Anonymous")
+  Component(record, "RecordWebVitalsAction", "Action", "Emits vitals metrics")
+  Component(emitter, "MetricsEmitter", "Module", "Writes EMF records")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+ContainerDb(cache, "Cache", "Redis", "")
+System_Ext(cloudwatch, "Amazon CloudWatch", "Dashboard and alarms")
+Rel(ready, svc, "Calls")
+Rel(svc, dbp, "Runs")
+Rel(svc, cp, "Runs")
+Rel(dbp, db, "Queries")
+Rel(cp, cache, "Pings")
+Rel(vitals, telemetry, "POST /api/v1/telemetry/web-vitals", "JSON/HTTPS")
+Rel(telemetry, record, "Calls")
+Rel(record, emitter, "Uses")
+Rel(emitter, cloudwatch, "Publishes metrics to", "EMF via logs")
+@enduml

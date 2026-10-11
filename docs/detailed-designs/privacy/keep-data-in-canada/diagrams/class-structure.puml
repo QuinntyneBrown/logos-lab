@@ -1,0 +1,77 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Keep data in Canada
+
+enum ResidencyRegion {
+  CaCentral1
+  CaWest1
+}
+enum CacheBehaviourKind {
+  PublicCached
+  SignedMedia
+  CachingDisabled
+}
+class RegionGuardPolicy {
+  +allowedRegions: ResidencyRegion[]
+  +isAllowed(region: string): boolean
+}
+class CdnCacheBehaviour {
+  +pathPattern: string
+  +kind: CacheBehaviourKind
+  +forwardsCookies: boolean
+}
+class SsrCachePolicy {
+  +apply(request: SsrRequest, response: SsrResponse): void
+}
+class CacheControlPolicy {
+  +apply(context: RequestContext, response: Response): Response
+}
+class RequestContext {
+  +correlationId: string
+  +userId: string | null
+  +isAuthenticated(): boolean
+}
+class SignedMediaUrlService {
+  +sign(objectKey: string, ttlSeconds: number): SignedUrl
+}
+class SignedUrl {
+  +url: string
+  +expiresAt: Date
+}
+class DataProcessor {
+  +name: string
+  +purpose: string
+  +processingLocation: string
+  +dpaOnFile: boolean
+  +listedInPolicyVersion: number
+}
+class PolicyPage {
+  +policy: Signal<PolicyVersionView>
+}
+interface PoliciesApi {
+  +getPolicy(type: PolicyType, version?: number): Observable<PolicyVersionView>
+}
+class HttpPoliciesApi
+class "POLICIES_API" as POLICIES_API <<InjectionToken>>
+RegionGuardPolicy --> "1..2" ResidencyRegion : allows
+CdnCacheBehaviour --> CacheBehaviourKind : has
+CacheControlPolicy ..> RequestContext : reads
+SignedMediaUrlService ..> SignedUrl : creates
+CdnCacheBehaviour ..> SsrCachePolicy : honours headers set by
+CdnCacheBehaviour ..> CacheControlPolicy : honours headers set by
+HttpPoliciesApi ..|> PoliciesApi
+POLICIES_API ..> PoliciesApi : provides
+PolicyPage ..> POLICIES_API : injects
+PolicyPage ..> DataProcessor : lists with location
+@enduml

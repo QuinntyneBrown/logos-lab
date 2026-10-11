@@ -1,0 +1,80 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Hide content automatically
+
+package "Logos Lab API" {
+  class SubmitReportAction {
+    +execute(user: CurrentUser, request: SubmitReportRequest): ReportReceipt
+  }
+  class TakeModerationActionAction {
+    +execute(user: CurrentUser, request: TakeActionRequest): ActionResult
+  }
+  class AutoHideService {
+    -threshold: number = 3
+    -minAccountAgeHours: number = 24
+    +evaluate(caseId: uuid): AutoHideResult
+  }
+  class ContentVisibilityService {
+    +hide(target: ReportedTarget, cause: HideCause): void
+    +restore(target: ReportedTarget): void
+  }
+  class ModerationPriorityPolicy {
+    +rank(c: ModerationCase): int
+  }
+  class ModerationAuditService {
+    +append(entry: ModerationAuditEntry): void
+  }
+  class ReportRepository {
+    +countDistinctEligibleReporters(caseId: uuid, minAgeHours: number): int
+  }
+  class ModerationCase {
+    +id: uuid
+    +targetType: ReportTargetType
+    +targetId: uuid
+    +priority: int
+    +autoHidden: boolean
+    +autoHiddenAt: timestamptz
+    +markAutoHidden(at: timestamptz): void
+  }
+  class Report {
+    +id: uuid
+    +caseId: uuid
+    +reporterId: uuid
+    +reporterAccountAgeHours: int
+    +createdAt: timestamptz
+  }
+  enum HideCause {
+    AutoHidden
+    Moderator
+  }
+  enum ReportTargetType {
+    Comment
+    CohortPost
+    DirectMessage
+    MemberProfile
+    PublishedContent
+  }
+}
+
+SubmitReportAction ..> AutoHideService : calls
+TakeModerationActionAction ..> ContentVisibilityService : restores with
+AutoHideService ..> ReportRepository : counts with
+AutoHideService ..> ContentVisibilityService : hides with
+AutoHideService ..> ModerationPriorityPolicy : ranks with
+AutoHideService ..> ModerationAuditService : records with
+AutoHideService ..> ModerationCase : updates
+ContentVisibilityService ..> HideCause : uses
+ModerationCase "1" o-- "1..*" Report
+ModerationCase --> ReportTargetType
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Add an event to a calendar
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(dialog, "AddToCalendarDialog", "Angular CDK dialog", "Download and links")
+  Component(client, "HttpEventsApi", "EventsApi via EVENTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "calendar.ics and calendar-links route handlers", "app/api/v1/events/[eventId]/...", "Anonymous")
+  Component(actions, "GetEventCalendarFileAction, GetEventCalendarLinksAction", "Actions", "Use cases")
+  Component(view, "EventViewService", "Domain service", "Public event model without join link")
+  Component(ics, "IcsCalendarService", "Domain service", "RFC 5545 VEVENT with VTIMEZONE")
+  Component(links, "CalendarLinkService", "Domain service", "Google and Outlook.com URLs")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "events")
+Rel(dialog, client, "getCalendarLinks, download")
+Rel(client, routes, "GET", "HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, view, "Loads public model")
+Rel(actions, ics, "Builds .ics")
+Rel(actions, links, "Builds links")
+Rel(view, db, "SQL")
+@enduml

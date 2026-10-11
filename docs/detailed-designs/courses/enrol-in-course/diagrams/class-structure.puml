@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Enrol in a course
+
+enum EnrolmentStatus {
+  Active
+  Left
+  Completed
+}
+enum EnrolOutcome {
+  Created
+  Existing
+  Restored
+}
+class Enrolment {
+  +id: string
+  +userId: string
+  +courseId: string
+  +status: EnrolmentStatus
+  +enrolledAt: Date
+  +leftAt: Date
+  +progressPercent: number
+  +leave(now: Date): void
+  +restore(now: Date): void
+}
+class EnrolResult {
+  +enrolment: Enrolment
+  +outcome: EnrolOutcome
+  +firstLessonId: string
+}
+interface CoursesApi {
+  +enrol(slug: string): Observable<EnrolResult>
+  +leave(slug: string): Observable<void>
+}
+class HttpCoursesApi
+class CourseOverviewPage {
+  +enrol(): void
+  +openLeaveDialog(): void
+}
+class LeaveCourseDialog {
+  +state: 'default' | 'busy' | 'success' | 'failed'
+  +confirm(): void
+}
+class EnrolInCourseAction {
+  +execute(slug: string, user: SessionUser): Promise<EnrolResult>
+}
+class LeaveCourseAction {
+  +execute(slug: string, user: SessionUser): Promise<void>
+}
+class EnrolmentService {
+  +RESTORE_WINDOW_MONTHS: number = 12
+  +enrol(user: SessionUser, course: Course, existing: Enrolment): EnrolResult
+  +leave(enrolment: Enrolment): void
+}
+class EnrolmentRepository {
+  +findForUser(userId: string, courseId: string): Promise<Enrolment>
+  +insertOrGet(enrolment: Enrolment): Promise<Enrolment>
+  +save(enrolment: Enrolment): Promise<void>
+}
+class EnrolmentRetentionJob {
+  +run(now: Date): Promise<void>
+}
+Enrolment --> EnrolmentStatus
+EnrolResult --> Enrolment
+EnrolResult --> EnrolOutcome
+HttpCoursesApi ..|> CoursesApi
+CourseOverviewPage ..> CoursesApi : injects COURSES_API
+CourseOverviewPage ..> LeaveCourseDialog : opens
+LeaveCourseDialog ..> CoursesApi
+EnrolInCourseAction ..> EnrolmentService
+LeaveCourseAction ..> EnrolmentService
+EnrolInCourseAction ..> EnrolmentRepository
+LeaveCourseAction ..> EnrolmentRepository
+EnrolmentRetentionJob ..> EnrolmentRepository
+EnrolmentService ..> Enrolment : creates / mutates
+@enduml

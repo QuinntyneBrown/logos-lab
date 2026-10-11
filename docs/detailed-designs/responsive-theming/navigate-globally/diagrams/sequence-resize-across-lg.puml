@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — Resize across the LG boundary
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+  participant "BreakpointObserver" as bo
+  participant "GlobalNavigationService" as gns
+  participant "NavDrawerDialog" as drawer
+  participant "ll-top-bar" as top
+end box
+actor -> browser : Widen the window or rotate the tablet while the drawer is open
+browser -> bo : LG media query now matches (value <TO SUPPLY>)
+bo -> gns : onLgMatched()
+alt Drawer open
+  gns -> drawer : Close without reload (L2-131 AC4)
+  drawer --> gns : Closed
+  gns -> top : aria-expanded="false"
+  gns -> top : Focus the inline link for the current page (baseline choice)
+else Drawer closed
+  gns -> gns : No change
+end
+browser -> top : CSS shows inline Primary nav, search, notifications and account menu (L2-131 AC1)
+top --> actor : Inline header
+@enduml

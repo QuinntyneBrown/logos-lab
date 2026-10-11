@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experts · default — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="experts">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-022 L2-130">
+<meta name="description" content="The experts directory: name search, a topic filter, and experts by surname with photo, title and number of published items.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html" aria-current="page">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Who teaches here</p>
+      <h1 class="page-head__title">Experts</h1>
+      <p class="page-head__sub">38 theologians, ethicists, historians, philosophers and engineers, sorted by surname.</p>
+    </div>
+    
+    <div class="toolbar">
+        <form class="field" role="search" action="../../pages/experts/no-results.html" style="flex: 1 1 var(--layout-card-min)" novalidate>
+          <div class="search">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+            <label class="vh" for="name-search">Search experts by name</label>
+            <input class="search__input" id="name-search" name="q" type="search" placeholder="Name, at least 2 characters" autocomplete="off">
+            <button class="btn btn--quiet btn--sm" type="submit">Search</button>
+          </div>
+          
+        </form>
+        <div class="toolbar__tools">
+          <label class="select"><span>Topic</span><span class="select__wrap"><select class="select__control" name="topic"><option selected>Any topic</option><option>Theology of technology</option><option>The image of God and personhood</option><option>AI ethics</option><option>Work and vocation</option><option>Church and ministry</option><option>Scripture and interpretation</option><option>Philosophy of mind</option><option>Formation and education</option><option>Justice and society</option><option>Creativity and the arts</option><option>Data and privacy</option><option>Pastoral care</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+        </div>
+      </div>
+    <p class="toolbar__count" aria-live="polite" style="margin-block: var(--space-6)">Showing <strong>1–24</strong> of <strong>38</strong> experts</p>
+    <ul class="people"><li class="person"><img class="person__photo" src="../../assets/photos/peter-walsh.jpg" alt="" width="64" height="64"><div><p class="person__name"><a href="../../pages/expert-profile/default.html">Rev. Dr. Thomas Hale</a></p><p class="person__meta">Christian ethicist · technology and moral formation</p><p class="person__meta">11 published items</p></div></li><li class="person"><img class="person__photo" src="../../assets/photos/marcus-bennett.jpg" alt="" width="64" height="64"><div><p class="person__name"><a href="../../pages/expert-profile/default.html">Prof. Simon Keller</a></p><p class="person__meta">Philosopher of mind · can machines understand?</p><p class="person__meta">6 published items</p></div></li><li class="person"><img class="person__photo" src="../../assets/photos/amara-osei.jpg" alt="" width="64" height="64"><div><p class="person__name"><a href="../../pages/expert-profile/default.html">Dr. Abena Mensah</a></p><p class="person__meta">Theologian · theological anthropology and the image of God</p><p class="person__meta">7 published items</p></div></li><li class="person"><img class="person__photo" src="../../assets/photos/ruth-alvarez.jpg" alt="" width="64" height="64"><div><p class="person__name"><a href="../../pages/expert-profile/default.html">Dr. Lucía Ortega</a></p><p class="person__meta">Church historian · Augustine, attention and memory</p><p class="person__meta">8 published items</p></div></li><li class="person"><img class="person__photo" src="../../assets/photos/daniel-reyes.jpg" alt="" width="64" height="64"><div><p class="person__name"><a href="../../pages/expert-profile/default.html">Dr. Joel Santos</a></p><p class="person__meta">Machine-learning researcher · how models work</p><p class="person__meta">9 published items</p></div></li></ul>
+    <p class="mock-note">A full page lists 24 experts; the mock shows the first 5.</p>
+    <nav class="pager" aria-label="Pages of experts">
+        <div class="pager__meter" aria-hidden="true"><span style="--ll-pager-progress: 50%"></span></div>
+        <p class="pager__text">Page 1 of 2</p>
+        <div class="pager__pages"><a class="btn btn--sm" href="../../pages/experts/default.html" aria-current="page">1</a><a class="btn btn--quiet btn--sm" href="../../pages/experts/long.html">2</a><a class="btn btn--quiet btn--sm" href="../../pages/experts/long.html">Next page</a></div>
+      </nav>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Experts</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="no-results.html">no-results</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="selected.html">selected</a></li>
+    <li><a href="long.html">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

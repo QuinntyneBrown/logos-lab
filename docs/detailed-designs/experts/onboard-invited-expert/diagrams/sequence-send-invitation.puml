@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Send an expert invitation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminInvitationsPage" as AdminInvitationsPage
+  participant "InviteExpertDialog" as InviteExpertDialog
+  participant "ExpertInvitationsApi" as ExpertInvitationsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/admin/expert-invitations" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SendExpertInvitationAction" as SendExpertInvitationAction
+  participant "ExpertInvitationService" as ExpertInvitationService
+  participant "InvitationEmailSendJob" as InvitationEmailSendJob
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+  participant "Amazon SES" as ses
+end box
+actor -> AdminInvitationsPage : Press Invite expert
+AdminInvitationsPage -> InviteExpertDialog : Open with CDK Dialog
+actor -> InviteExpertDialog : Enter name, email and optional note; press Send invitation
+alt name missing or email incomplete
+  InviteExpertDialog --> actor : Error summary and field errors; nothing sent
+else form valid
+  InviteExpertDialog -> ExpertInvitationsApi : send(request)
+  ExpertInvitationsApi -> route : HTTPS POST
+  route -> route : Authenticate; require Administrator
+  route -> SendExpertInvitationAction : execute(adminId, request)
+  SendExpertInvitationAction -> ExpertInvitationService : create(email, name, note, adminId)
+  ExpertInvitationService -> ExpertInvitationService : Random token; store SHA-256 hash; expiresAt = now + 14 days (L2-020)
+  ExpertInvitationService --> SendExpertInvitationAction : Pending invitation and raw token
+  SendExpertInvitationAction -> db : Insert expert_invitations row
+  db --> SendExpertInvitationAction : Commit
+  SendExpertInvitationAction -> queue : Enqueue InvitationEmailSendJob
+  SendExpertInvitationAction --> route : Invitation
+  route --> ExpertInvitationsApi : 201 JSON
+  ExpertInvitationsApi --> InviteExpertDialog : Sent
+  InviteExpertDialog --> actor : Success with expiry date
+  queue -> InvitationEmailSendJob : Deliver
+  InvitationEmailSendJob -> ses : Send email with single-use link (L2-020)
+  ses --> InvitationEmailSendJob : Message id
+end
+@enduml

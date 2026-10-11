@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report · busy — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="report-content">
+<meta name="mock:state" content="busy">
+<meta name="mock:requirements" content="L2-085">
+<meta name="description" content="The report is being sent: Send report shows Sending… and the form is held.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div>
+    <div class="wrap">
+      <div class="page-head">
+        <p class="eyebrow">Article · 12 min read</p>
+        <p class="page-head__title">What Augustine Might Say About Large Language Models</p>
+        <p class="page-head__sub">Dr. Lucía Ortega · 29 Sep 2026 · updated 6 Oct 2026</p>
+      </div>
+      <div class="narrow">
+        <p class="section__title">23 comments</p>
+        <ul class="comments" style="margin-top: var(--space-6)">
+          <li class="comment"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""><div><p class="comment__head"><span class="comment__name">Miriam Clarke <span class="muted">(you)</span></span><span class="comment__meta">12 minutes ago</span></p><div class="comment__body"><p>Reading this alongside lesson 3.2 of <em>Imago Dei</em>. The line about attention being “the first form of love” is going into our staff devotional next week.</p></div></div></li>
+          <li class="comment"><img class="avatar" src="../../assets/photos/caleb-morgan.jpg" width="40" height="40" alt=""><div><p class="comment__head"><span class="comment__name">Jonah Fraser</span><span class="comment__meta">Yesterday</span></p><div class="comment__body"><p>Augustine warned about <em>curiositas</em>, the restless appetite to know things for their own sake. Does a model that answers anything, instantly, feed that appetite? Or could it help discipline it?</p></div></div></li>
+          <li class="comment"><span class="avatar-initials tile--clay" aria-hidden="true">SO</span><div><p class="comment__head"><span class="comment__name">Samuel Okafor</span><span class="comment__meta">4 days ago</span></p><div class="comment__body"><p>Honest question: is it fair to read a fourth-century bishop into a twenty-first-century technology at all? I'd like to hear the strongest case against doing it.</p></div></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <span class="dialog__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 21V4.5M5.5 4.5h11l-2 4 2 4h-11"/></svg></span><h1 class="dialog__title" id="dialog-title">Report Samuel Okafor's comment</h1>
+        <a class="icon-btn" href="../../pages/comments/default.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">Tell us what's wrong. A moderator reviews every report, usually within 24 hours, and Samuel Okafor won't be told who reported the comment.</p>
+        <div class="card" style="gap: var(--space-2)">
+          <p class="comment__head"><span class="comment__name">Samuel Okafor</span><span class="comment__meta">4 days ago</span></p>
+          <div class="comment__body" style="margin-top: 0"><p>Honest question: is it fair to read a fourth-century bishop into a twenty-first-century technology at all? I'd like to hear the strongest case against doing it.</p></div>
+        </div>
+        
+        <fieldset class="choices">
+          <legend>Why are you reporting this comment?</legend>
+          <label class="choice"><input type="radio" name="reason" value="spam" id="reason-spam" disabled><span class="choice__title">Spam</span><span class="choice__text">Advertising, scams or the same thing posted again and again.</span></label><label class="choice"><input type="radio" name="reason" value="harassment" checked disabled><span class="choice__title">Harassment or hate</span><span class="choice__text">Attacks a person or a group, or threatens anyone.</span></label><label class="choice"><input type="radio" name="reason" value="misinformation" disabled><span class="choice__title">Misinformation</span><span class="choice__text">Presents false claims as fact in a way that could mislead or harm.</span></label><label class="choice"><input type="radio" name="reason" value="inappropriate" disabled><span class="choice__title">Inappropriate content</span><span class="choice__text">Sexual, violent or otherwise unsuitable for this community.</span></label><label class="choice"><input type="radio" name="reason" value="copyright" disabled><span class="choice__title">Copyright</span><span class="choice__text">Copies someone else's work without permission.</span></label><label class="choice"><input type="radio" name="reason" value="other" disabled><span class="choice__title">Other</span><span class="choice__text">Something else that breaks the community guidelines.</span></label>
+          
+        </fieldset>
+        <div class="field">
+          <label class="field__label" for="report-note">Anything else we should know? <span class="field__optional">(optional)</span></label>
+          <textarea class="textarea" id="report-note" name="note" rows="3" aria-describedby="report-note-count" disabled>The comment seems to be fine on its own, but it's the fourth from this member today aimed at the same person.</textarea>
+          <p class="field__counter" id="report-note-count">109 of 1,000 characters</p>
+        </div>
+      </div>
+      <footer class="dialog__footer">
+        <button type="button" class="btn btn--quiet" disabled>Cancel</button>
+        <button type="button" class="btn btn--primary" aria-busy="true" disabled><span class="spinner" aria-hidden="true"></span>Sending…</button>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Report</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html" aria-current="page">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="success.html">success</a></li>
+    <li><a href="already-reported.html">already-reported</a></li>
+    <li><a href="rate-limited.html">rate-limited</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

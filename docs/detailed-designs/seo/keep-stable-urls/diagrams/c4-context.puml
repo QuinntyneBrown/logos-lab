@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Keep stable URLs
+
+Person(visitor, "Visitor", "Follows saved or shared links")
+System_Ext(crawler, "Search-engine crawler", "Revisits indexed URLs")
+Person(editor, "Editor or expert", "Changes and publishes titles")
+System(ll, "Logos Lab", "Stable public URLs with permanent redirects")
+
+Rel(visitor, ll, "Follows links", "HTTPS")
+Rel(crawler, ll, "Recrawls URLs", "HTTPS")
+Rel(editor, ll, "Publishes title changes in")
+@enduml

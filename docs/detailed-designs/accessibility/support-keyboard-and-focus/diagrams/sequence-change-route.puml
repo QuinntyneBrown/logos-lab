@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Move focus on a route change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Keyboard user" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Router" as router
+  participant "LogosLabTitleStrategy" as title
+  participant "RouteFocusService" as rfs
+  participant "<Name>Page" as page
+end box
+actor -> router : Activate an in-app link
+router -> page : Activate and render new page
+router -> title : updateTitle(snapshot)
+title -> title : document.title = "{Page} - Logos Lab" (L2-127 AC4)
+router -> rfs : NavigationEnd
+alt First server-rendered load or fragment-only change
+  rfs -> rfs : Leave focus where it is
+else Route changed
+  rfs -> page : Wait for render, then focus h1 with tabindex=-1 (L2-126 AC5)
+  page --> actor : Screen reader announces the new heading
+end
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Show error pages
+
+Person(member, "Member or visitor", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront, AWS WAF", "Edge")
+  Container(alb, "Application Load Balancer", "AWS ELB", "Serves static maintenance page with 503")
+  Container(web, "Logos Lab Web", "Angular SSR and service worker", "Error pages with correct status, offline notice")
+  Container(api, "Logos Lab API", "Next.js", "Problem responses, dependency guards")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Catalogue and full-text index")
+  ContainerDb(cache, "Cache", "Redis", "Circuit-breaker state, rate limits")
+  Container(worker, "Logos Lab Worker", "Node.js", "Email and video jobs")
+}
+Rel(member, cdn, "Requests pages", "HTTPS")
+Rel(cdn, alb, "Forwards")
+Rel(alb, web, "Routes pages")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+Rel(api, cache, "Reads circuit state and rate limits")
+Rel(worker, db, "Writes job results")
+@enduml

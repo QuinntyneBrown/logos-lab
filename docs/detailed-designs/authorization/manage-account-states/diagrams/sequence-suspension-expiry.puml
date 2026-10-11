@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Suspension ends
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SuspensionExpiryJob" as job
+  participant "AccountStateService" as state
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Schedule (<TO SUPPLY>)" as sched
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+end box
+sched -> queue : Enqueue SuspensionExpiryJob
+queue -> job : Deliver to Worker
+job -> db : Select Suspended users with suspendedUntil <= now
+db --> job : Users
+loop each user
+  job -> state : transition(system, user, Active)
+  state -> db : Set state = Active, clear suspendedUntil, append audit entry
+  state -> queue : Enqueue in-app and email notice to owner (L2-019)
+end
+job --> queue : Acknowledge (idempotent: already-Active users are skipped)
+@enduml

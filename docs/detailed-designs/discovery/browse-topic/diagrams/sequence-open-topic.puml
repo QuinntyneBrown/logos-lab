@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Open a topic page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "TopicPage" as TopicPage
+  participant "TopicsApi" as TopicsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/topics/slug" as route
+  participant "GET /api/v1/topics/slug/content" as croute
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetTopicPageAction" as GetTopicPageAction
+  participant "ListTopicContentAction" as ListTopicContentAction
+  participant "TopicService" as TopicService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> TopicPage : Open /topics/theology-of-technology or activate a topic tag on a card (L2-005)
+TopicPage -> TopicsApi : getTopic(slug) during server render
+TopicsApi -> route : HTTPS GET
+route -> GetTopicPageAction : execute(slug)
+GetTopicPageAction -> TopicService : getBySlug(slug)
+TopicService -> db : Select topic by slug
+alt slug does not exist
+  db --> TopicService : No row
+  TopicService --> GetTopicPageAction : TopicNotFoundError
+  GetTopicPageAction --> route : Not found
+  route --> TopicsApi : 404 problem
+  TopicsApi --> TopicPage : Not found
+  TopicPage --> actor : HTTP 404 status and not-found page (L2-005)
+else topic found
+  db --> TopicService : Topic
+  TopicService -> db : Select experts with published content in topic
+  db --> TopicService : Experts
+  TopicService --> GetTopicPageAction : TopicView
+  GetTopicPageAction --> route : TopicView
+  route --> TopicsApi : 200 JSON
+  TopicsApi --> TopicPage : TopicView
+  TopicPage -> TopicsApi : getTopicContent(slug, 1)
+  TopicsApi -> croute : HTTPS GET ?page=1
+  croute -> ListTopicContentAction : execute(slug, 1)
+  ListTopicContentAction -> TopicService : publishedContent(topicId, 1, 24)
+  TopicService -> db : Select published items tagged with topic order by published_at desc limit 24
+  db --> TopicService : Items and total
+  TopicService --> ListTopicContentAction : ContentPage
+  ListTopicContentAction --> croute : ContentPage
+  croute --> TopicsApi : 200 JSON
+  TopicsApi --> TopicPage : ContentPage
+  alt no published content
+    TopicPage --> actor : Name, description and empty state linking to the catalogue
+  else content found
+    TopicPage --> actor : Name, description, experts and items newest first, 24 per page
+  end
+end
+@enduml

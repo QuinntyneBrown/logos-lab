@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Cancel a registration and change an event
+
+Person(member, "Member", "Registrant or waitlisted member")
+Person(host, "Host or editor", "Changes or cancels events")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, ll, "Cancels registrations using", "HTTPS")
+Rel(host, ll, "Changes and cancels events using", "HTTPS")
+Rel(ll, ses, "Sends change notices with .ics through", "AWS SDK")
+Rel(ses, member, "Delivers email")
+@enduml

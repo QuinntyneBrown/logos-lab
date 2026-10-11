@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Play a lesson
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+System_Ext(tessv, "Tessera video-player", "Video player library embedded in Logos Lab Web")
+
+Rel(learner, logos, "Studies lessons in", "HTTPS")
+Rel(logos, tessv, "Embeds for video lessons")
+@enduml

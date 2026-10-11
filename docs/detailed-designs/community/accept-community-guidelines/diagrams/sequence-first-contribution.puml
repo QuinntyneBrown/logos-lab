@@ -1,0 +1,69 @@
+@startuml
+title UML sequence behaviour — Accept the guidelines on first contribution
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CommentsSection" as page
+  participant "GuidelinesGate" as gate
+  participant "CommunityGuidelinesDialog" as dialog
+  participant "PoliciesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Policies route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetGuidelinesStatusAction" as status
+  participant "AcceptPolicyVersionAction" as accept
+  participant "GuidelinesAcceptanceService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Write first comment and press Post comment
+page -> gate : ensureAccepted()
+gate -> client : status("community-guidelines")
+client -> route : GET /api/v1/me/policy-acceptances/community-guidelines
+route -> status : execute(userId)
+status -> service : requiredVersion(now), isCompliant(userId)
+service -> db : Read versions and member acceptances
+status --> route : Not compliant, required version 3
+route --> client : 200 GuidelinesStatus
+gate -> client : current("community-guidelines")
+client --> gate : Version 3 text
+gate -> dialog : Open in FirstTime mode
+dialog --> actor : Guidelines with Not now and accept (L2-068)
+alt member chooses Not now
+  dialog --> gate : Dismissed
+  gate --> page : false
+  page --> actor : Draft kept, comment not sent
+else member accepts
+  dialog -> client : accept("community-guidelines", 3)
+  client -> route : POST /api/v1/me/policy-acceptances
+  route -> accept : execute(userId, key, 3)
+  accept -> service : Check 3 is the current version
+  accept -> db : Insert policy_acceptances (version, acceptedAt) (L2-068)
+  alt insert fails
+    route --> client : 5xx problem
+    dialog --> actor : "We couldn't record your acceptance", draft kept
+  else recorded
+    route --> client : 201
+    dialog --> gate : Accepted
+    gate --> page : true
+    page -> page : Send held draft via CommentsApi (L2-060)
+    page --> actor : Comment posted
+  end
+end
+@enduml

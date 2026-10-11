@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Move through the editorial workflow
+
+Person(author, "Expert or Editor", "Moves content through review")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "StudioEditorPage, ReviewItemPage, ContentHistoryPage, workflow dialogs")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Workflow endpoints under /api/v1/studio/items")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs EmailSendJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Items, revisions, transitions, review comments, notifications")
+}
+System_Ext(ses, "Amazon SES", "Email delivery")
+Rel(author, web, "Uses", "HTTPS")
+Rel(web, api, "Calls StudioApi", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues email jobs", "SQS")
+Rel(worker, queue, "Consumes", "SQS")
+Rel(worker, ses, "Sends email through", "HTTPS API")
+@enduml

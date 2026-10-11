@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Browse experts
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Browses and searches experts in", "HTTPS")
+Rel(learner, logos, "Browses and searches experts in", "HTTPS")
+@enduml

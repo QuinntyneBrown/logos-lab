@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Show in-app notifications
+Person(member, "Member", "Signed-in user of any role")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(member, ll, "Reads notifications and opens their subjects in", "HTTPS")
+@enduml

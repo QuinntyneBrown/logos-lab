@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Choose a theme
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Theme control (ll-menu)" as menu
+  participant "ThemeService" as svc
+  participant "HttpPreferencesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PATCH /api/v1/me/preferences" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateMemberPreferencesAction" as act
+  participant "MemberPreferencesRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> menu : Choose Dark
+menu -> svc : setPreference(dark)
+svc -> svc : Set html data-theme="dark", no reload (L2-133 AC2)
+menu -> menu : aria-checked="true" on Dark
+alt Visitor
+  svc -> svc : Write ll-theme=dark to local storage (wrapped in try/catch)
+else Member
+  svc -> client : updateTheme(dark)
+  client -> route : PATCH { theme: "dark" }
+  route -> route : Authenticate; validate ThemePreference
+  route -> act : execute(currentUserId, dark)
+  act -> repo : updateTheme(currentUserId, dark) (L2-017)
+  repo -> db : UPDATE member_preferences
+  db --> repo : Updated
+  repo --> act : Done
+  act --> route : Done
+  alt Saved
+    route --> client : 204
+  else Failure
+    route --> client : Problem response with error code
+    client --> svc : Error
+    svc -> svc : Keep theme applied for this session; show translated error
+  end
+end
+menu --> actor : Page shown in the dark theme
+@enduml

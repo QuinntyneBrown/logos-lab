@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send event reminders
+
+Person(member, "Registered member", "Receives reminders")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Notification centre, settings")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Notifications and preferences")
+  Container(worker, "Logos Lab Worker", "Node.js with scheduler", "EventReminderSweepJob, EventReminderJob")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Reminder jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Registrations, deliveries, notifications, preferences")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Reads notifications", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+Rel(worker, queue, "Enqueues and consumes reminder jobs")
+Rel(worker, db, "Claims deliveries, writes notifications", "SQL")
+Rel(worker, ses, "Sends email", "AWS SDK")
+@enduml

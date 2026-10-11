@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video media · loading — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="studio-video-media">
+<meta name="mock:state" content="loading">
+<meta name="mock:requirements" content="L2-039 L2-108">
+<meta name="description" content="Video media while it loads: the Studio chrome, workflow bar and tabs stay, and skeletons hold the file and streams.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="workflow">
+  <div class="wrap workflow__inner">
+    <div class="workflow__title">
+      <p class="workflow__name">Made, Not Manufactured</p>
+      <div class="workflow__meta">
+        <span class="badge">Draft</span>
+        <span class="inline-status" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Saved 10:24 am</span>
+        <ol class="workflow__steps" aria-label="Workflow">
+          <li aria-current="step">Draft</li><li>In review</li><li>Approved</li><li>Published</li>
+        </ol>
+      </div>
+    </div>
+    <div class="workflow__actions">
+      <a class="btn btn--quiet btn--sm" href="../../pages/preview/default.html">Preview</a>
+      <a class="btn btn--quiet btn--sm" href="../../pages/content-history/default.html">History</a>
+      <a class="btn btn--primary btn--sm" href="../../dialogs/submit-for-review/default.html">Submit for review</a>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/studio/default.html">Studio</a></li><li><a href="../../pages/studio/default.html">Videos</a></li><li><span aria-current="page">Made, Not Manufactured</span></li></ol></nav>
+    <h1 class="vh">Video media: Made, Not Manufactured</h1>
+    <nav class="tabs" aria-label="Video" style="margin-top: var(--space-6)">
+      <a class="tab" href="../../pages/studio-video-media/default.html" aria-current="page">Media</a>
+      <a class="tab" href="../../pages/studio-video-captions/default.html">Captions and transcript</a>
+    </nav>
+
+    <div class="two-col" style="padding-block: var(--space-8) var(--space-16)">
+      <div aria-busy="true"><p class="vh" role="status">Loading the video's media…</p><div class="stack" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text is-short"></span></div></div>
+      <aside class="stack" aria-label="About this video">
+        <div class="aside-card" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text is-short"></span></div>
+        <div class="aside-card" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text is-short"></span></div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Video media</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="uploading.html">uploading</a></li>
+    <li><a href="interrupted.html">interrupted</a></li>
+    <li><a href="processing.html">processing</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="loading.html" aria-current="page">loading</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

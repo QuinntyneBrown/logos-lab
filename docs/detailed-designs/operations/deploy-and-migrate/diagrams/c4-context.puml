@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Deploy and migrate
+
+Person(dev, "Developer", "Merges pull requests to main")
+Person(approver, "Release approver", "Approves production deployment")
+System_Ext(ci, "CI/CD pipeline", "TO SUPPLY")
+System(ll, "Logos Lab", "Staging and production on AWS")
+System_Ext(aws, "AWS account services", "ECR, load balancer, compute, RDS")
+
+Rel(dev, ci, "Merges to main, triggering")
+Rel(approver, ci, "Approves production stage in")
+Rel(ci, aws, "Applies infrastructure as code to")
+Rel(ci, ll, "Migrates and deploys")
+@enduml

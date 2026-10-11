@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View the dashboard overview
+
+Person(member, "Member", "Signed-in learner")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Passes /dashboard through, never caches it")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "DashboardPage, server-rendered with Angular SSR")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Dashboard section actions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Enrolments, activity, registrations, follows, content, certificates, saved items")
+}
+
+Rel(member, cdn, "Requests /dashboard", "HTTPS")
+Rel(cdn, web, "Forwards", "HTTPS")
+Rel(web, api, "Fetches four sections in parallel", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+@enduml

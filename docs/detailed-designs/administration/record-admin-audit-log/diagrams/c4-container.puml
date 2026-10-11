@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Record the administrative audit log
+Person(admin, "Administrator", "Logos Lab staff")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Admin audit log page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Writes entries inside each change; audit query endpoint")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Archive job messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs AuditArchiveJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "audit_entries, append-only")
+  ContainerDb(s3, "Media storage (audit archive)", "Amazon S3, archival storage class, Object Lock", "Entries older than 2 years")
+}
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "Queries entries", "JSON/HTTPS")
+Rel(api, db, "Inserts and selects", "SQL")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, db, "Reads and removes archived entries", "SQL")
+Rel(worker, s3, "Writes archive files", "AWS SDK")
+@enduml

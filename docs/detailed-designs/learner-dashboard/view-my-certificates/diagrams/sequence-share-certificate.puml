@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Download and share a certificate
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MyCertificatesPage" as page
+  participant "CertificatesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Certificates route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCertificatePdfAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Media storage" as s3
+  participant "LinkedIn" as linkedin
+end box
+actor -> page : Press Download PDF
+page -> route : GET /api/v1/me/certificates/{id}/pdf
+route -> action : execute(userId, id)
+action -> db : Find certificate by id and userId
+alt not found or revoked
+  route --> page : 404 problem
+  page --> actor : Error message
+else valid
+  action -> action : Sign short-lived URL for pdfObjectKey
+  route --> page : 302 to signed URL
+  page -> s3 : GET PDF
+  s3 --> actor : PDF file (L2-073)
+end
+actor -> page : Press Copy verification link
+page -> page : navigator.clipboard.writeText(verificationUrl)
+alt clipboard refused
+  page --> actor : Failed state with selectable link
+else copied
+  page --> actor : "Link copied" status (L2-073)
+end
+actor -> page : Press Add to LinkedIn
+page -> linkedin : Open linkedInUrl in new tab with course, issuer, date, code and link
+linkedin --> actor : Add to profile form (L2-073)
+@enduml

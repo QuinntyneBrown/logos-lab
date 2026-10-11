@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record privacy consent
+
+Person(visitor, "Visitor", "Registers for an account")
+Person(member, "Member", "Accepts or declines updated policies")
+Person(admin, "Administrator", "Publishes policy versions")
+System(ll, "Logos Lab", "Learning platform")
+System_Ext(ses, "Amazon SES", "Sends policy change notices")
+Rel(visitor, ll, "Registers and accepts Terms and Privacy Policy through")
+Rel(member, ll, "Reviews and accepts new versions through")
+Rel(admin, ll, "Publishes new Terms or Privacy Policy versions through")
+Rel(ll, ses, "Emails members 30 days before a material change through")
+@enduml

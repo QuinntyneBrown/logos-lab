@@ -1,0 +1,39 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Comply with CASL
+Container_Boundary(web, "Logos Lab Web") {
+  Component(unsubPage, "UnsubscribePage", "Angular page, anonymous", "Confirms the unsubscribe")
+  Component(privacyPage, "SettingsPrivacyPage", "Angular page", "Marketing email consent and its record")
+  Component(client, "ConsentApi / HttpConsentApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(unsubRoute, "POST /api/v1/unsubscribe", "Anonymous route handler", "One-click unsubscribe by token")
+  Component(consentRoute, "PUT /api/v1/me/marketing-consent", "Route handler", "Give or withdraw consent")
+  Component(unsubAction, "UnsubscribeAction", "Action", "Turns the category's email off")
+  Component(consentAction, "ChangeMarketingConsentAction", "Action", "Records the consent change")
+  Component(tokens, "UnsubscribeTokenService", "Domain service", "Signs and verifies HMAC tokens")
+  Component(consent, "ConsentService", "Domain service", "Appends consent records")
+  Component(prefs, "NotificationPreferenceService", "Domain service", "Sets the email channel per category")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(sendJob, "EmailSendJob", "Job", "Gates Platform news on consent at send time")
+  Component(llfooter, "CaslFooterBuilder", "Component", "Identification, mailing address, contact and unsubscribe link")
+}
+ComponentDb(db, "consent_records", "PostgreSQL table", "Append-only consent history")
+Rel(unsubPage, client, "Calls")
+Rel(privacyPage, client, "Calls")
+Rel(client, unsubRoute, "Calls", "JSON/HTTPS")
+Rel(client, consentRoute, "Calls", "JSON/HTTPS")
+Rel(unsubRoute, unsubAction, "Invokes")
+Rel(consentRoute, consentAction, "Invokes")
+Rel(unsubAction, tokens, "Verifies token with")
+Rel(unsubAction, prefs, "Turns email off with")
+Rel(unsubAction, consent, "Records withdrawal with")
+Rel(consentAction, consent, "Records change with")
+Rel(consentAction, prefs, "Updates Platform news email with")
+Rel(consent, db, "Inserts", "SQL")
+Rel(sendJob, consent, "Checks marketing consent")
+Rel(sendJob, llfooter, "Adds footer with")
+Rel(llfooter, tokens, "Signs unsubscribe link with")
+@enduml

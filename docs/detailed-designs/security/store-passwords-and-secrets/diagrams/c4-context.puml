@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Store passwords and secrets
+
+Person(member, "Member", "Sets a password and MFA")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(sm, "AWS Secrets Manager", "Application secrets and signing keys")
+System_Ext(kms, "AWS KMS", "Managed keys for MFA secrets")
+Rel(member, ll, "Sets password and MFA through", "HTTPS")
+Rel(ll, sm, "Reads secrets at runtime from")
+Rel(ll, kms, "Encrypts and decrypts MFA secrets with")
+@enduml

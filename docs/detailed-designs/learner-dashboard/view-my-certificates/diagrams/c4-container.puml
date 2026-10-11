@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View my certificates
+
+Person(member, "Member", "Signed-in learner")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "MyCertificatesPage and CertificateShareDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Certificate actions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "certificates")
+  ContainerDb(s3, "Media storage", "Amazon S3", "Certificate PDFs")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, s3, "Signs PDF URLs for", "AWS SDK")
+Rel(member, s3, "Downloads PDF via signed URL", "HTTPS")
+@enduml

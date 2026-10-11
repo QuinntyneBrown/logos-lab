@@ -1,0 +1,79 @@
+@startuml
+title UML sequence behaviour — Open the queue and claim a report
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationQueuePage" as page
+  participant "ReportDetailPage" as detail
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "moderation/reports routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListModerationQueueAction" as list
+  participant "ModerationQueueService" as service
+  participant "ClaimReportAction" as claim
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "ModerationCaseRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /moderation
+page -> client : listQueue(open, filters)
+client -> route : GET /api/v1/moderation/reports?view=open
+route -> route : Authenticate and require Moderator role
+alt Not a moderator
+  route --> client : 403 problem response
+  client --> page : Forbidden
+  page --> actor : Forbidden state with a way back to the dashboard
+else Moderator
+  route -> list : execute(currentUser, open, filters)
+  list -> repo : listOpen(open, filters)
+  repo -> db : SELECT open cases with report counts and prior actions
+  db --> repo : Cases
+  repo --> list : ModerationCase[]
+  list -> service : order(cases)
+  service --> list : Harassment or hate first, then oldest (L2-086)
+  list -> service : isOverdue(case, now) for each
+  service --> list : Overdue when open more than 24 hours
+  list --> route : QueueRow[]
+  route --> client : 200 JSON
+  client --> page : Rows
+  page --> actor : Excerpt, reason, report count, prior actions, time open, status
+  actor -> detail : Open a report and choose Claim
+  detail -> client : claim(id)
+  client -> route : POST /api/v1/moderation/reports/{id}/claim
+  route -> claim : execute(currentUser, id)
+  claim -> repo : claimIfFree(id, moderatorId)
+  repo -> db : UPDATE moderation_cases SET claimed_by WHERE claimed_by IS NULL
+  alt Already claimed by another moderator
+    db --> repo : 0 rows
+    repo --> claim : false
+    claim --> route : Conflict with current claimant
+    route --> client : 409 problem response
+    client --> detail : Claimed by another
+    detail --> actor : Read-only view: In review by {name}
+  else Free
+    db --> repo : 1 row
+    repo --> claim : true
+    claim --> route : Claimed
+    route --> client : 200 JSON
+    client --> detail : Claimed
+    detail --> actor : Assigned to you; others see In review by {name} (L2-086)
+  end
+end
+@enduml

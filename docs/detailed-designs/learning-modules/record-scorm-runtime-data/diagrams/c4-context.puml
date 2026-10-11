@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record SCORM runtime data
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+System_Ext(tesss, "Tessera scorm-player", "SCORM player library embedded in Logos Lab Web; runtime data model and message bridge")
+
+Rel(learner, logos, "Runs modules and resumes them in", "HTTPS")
+Rel(logos, tesss, "Embeds to hold the runtime data model")
+@enduml

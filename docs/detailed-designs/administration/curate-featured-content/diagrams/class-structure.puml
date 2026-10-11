@@ -1,0 +1,127 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Curate featured content
+package "Logos Lab Web" {
+  class AdminFeaturedPage {
+    -slots: FeaturedSlotView[]
+    -dirty: boolean
+    +addItem(): void
+    +moveUp(i: number): void
+    +moveDown(i: number): void
+    +schedule(i: number): void
+    +remove(i: number): void
+    +saveOrder(): void
+  }
+  class ItemPickerDialog {
+    -query: string
+    -selected: ContentRef[]
+    -remainingSlots: number
+    +add(): void
+  }
+  class FeaturedScheduleDialog {
+    -startsAt: FormControl<string>
+    -endsAt: FormControl<string>
+    +apply(): void
+  }
+  class HomePage {
+    -featured: FeaturedCard[]
+  }
+  interface FeaturedApi {
+    +getSlots(): Observable<FeaturedSlotView[]>
+    +saveSlots(slots: FeaturedSlotInput[]): Observable<FeaturedSlotView[]>
+    +listForHome(): Observable<FeaturedCard[]>
+  }
+  class HttpFeaturedApi
+  class "FEATURED_API" as Token <<InjectionToken>>
+  class FeaturedSlotView {
+    +position: number
+    +content: ContentRef
+    +startsAt: string
+    +endsAt: string
+    +status: FeaturedStatus
+  }
+}
+package "Logos Lab API" {
+  class GetFeaturedSlotsAction {
+    +execute(actor: Actor): FeaturedSlotView[]
+  }
+  class SaveFeaturedSlotsAction {
+    +execute(actor: Actor, slots: FeaturedSlotInput[]): FeaturedSlotView[]
+  }
+  class ListHomeFeaturedAction {
+    +execute(now: Date): FeaturedCard[]
+  }
+  class FeaturedContentService {
+    +maxItems: number = 6
+    +validate(slots: FeaturedSlotInput[]): void
+    +visibleAt(items: FeaturedItem[], now: Date): FeaturedItem[]
+    +statusOf(item: FeaturedItem, now: Date): FeaturedStatus
+  }
+  class FeaturedItemRepository {
+    +findAllOrdered(): FeaturedItem[]
+    +replaceAll(items: FeaturedItem[]): void
+    +findByContent(contentId: uuid): FeaturedItem
+  }
+  class FeaturedSlotCheckJob {
+    +run(contentId: uuid): void
+  }
+  class AuditLogService {
+    +record(entry: AuditEntryInput): void
+  }
+  class NotificationService {
+    +notify(recipientId: uuid, category: NotificationCategory, content: NotificationContent): Notification
+  }
+  class FeaturedItem {
+    +id: uuid
+    +position: number
+    +contentId: uuid
+    +contentType: ContentType
+    +startsAt: timestamptz
+    +endsAt: timestamptz
+    +updatedBy: uuid
+    +updatedAt: timestamptz
+  }
+  enum FeaturedStatus {
+    ShownNow
+    Scheduled
+    Ended
+    NotShownArchivedOrHidden
+  }
+  enum ContentType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+  }
+}
+HttpFeaturedApi ..|> FeaturedApi
+Token ..> FeaturedApi : provides
+AdminFeaturedPage ..> FeaturedApi : depends on
+HomePage ..> FeaturedApi : depends on
+AdminFeaturedPage ..> ItemPickerDialog : opens
+AdminFeaturedPage ..> FeaturedScheduleDialog : opens
+AdminFeaturedPage *-- "0..6" FeaturedSlotView
+FeaturedSlotView --> FeaturedStatus
+GetFeaturedSlotsAction --> FeaturedContentService
+SaveFeaturedSlotsAction --> FeaturedContentService
+SaveFeaturedSlotsAction --> AuditLogService
+ListHomeFeaturedAction --> FeaturedContentService
+FeaturedContentService --> FeaturedItemRepository
+FeaturedItemRepository ..> FeaturedItem : persists
+FeaturedItem --> ContentType
+FeaturedSlotCheckJob --> FeaturedItemRepository
+FeaturedSlotCheckJob --> NotificationService
+@enduml

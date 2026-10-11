@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Change the date range and compare periods
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor or Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminAnalyticsPage" as page
+  participant "DateRangeDialog" as dialog
+  participant "PlatformAnalyticsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/admin/analytics" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetPlatformAnalyticsAction" as action
+  participant "PlatformAnalyticsService" as service
+  participant "PeriodComparison" as cmp
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+alt preset range
+  actor -> page : Choose 7, 30 or 90 days or this year
+else custom range
+  actor -> page : Choose Custom range
+  page -> dialog : Open (CDK Dialog)
+  actor -> dialog : From and To
+  alt start after end
+    dialog --> actor : Invalid state, error under From
+  else valid
+    dialog --> page : DateRange
+  end
+end
+actor -> page : Turn on "Compare with the previous period"
+page -> client : get(range, compare on)
+client -> route : HTTPS GET ?from=&to=&compare=true
+route -> action : execute(actor, range, true)
+action -> service : metrics(range)
+action -> service : previousEqualPeriod(range)
+service --> action : Range of equal length ending the day before
+action -> service : metrics(previous range)
+service -> db : Read rollups for both ranges
+db --> service : Values
+loop each metric
+  action -> cmp : of(current, previous)
+  cmp --> action : Absolute and percentage change (L2-101)
+end
+action --> route : PlatformAnalytics with changes
+route --> client : 200 JSON
+page --> actor : Each metric with its absolute and percentage change
+opt Table view chosen
+  page --> actor : Every metric with this period, previous period and change as tables
+end
+@enduml

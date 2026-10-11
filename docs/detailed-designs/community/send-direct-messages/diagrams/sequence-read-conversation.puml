@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Read a conversation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Recipient" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MessagesPage" as inbox
+  participant "ConversationPage" as page
+  participant "MessagesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Messages route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListMessagesAction" as list
+  participant "MarkConversationReadAction" as mark
+  participant "MessageEncryptionService" as crypto
+  participant "MessageDeliveryService" as delivery
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> inbox : Open /messages
+inbox -> client : listConversations()
+client -> route : GET /api/v1/messages/conversations
+route --> client : Conversations by most recent message, unread flags
+inbox --> actor : Unread marked visually and with an accessible label (L2-066)
+actor -> page : Open conversation (full-width view with Back at XS and SM)
+page -> client : listMessages(id)
+client -> route : GET /api/v1/messages/conversations/{id}/messages
+route -> list : execute(userId, id)
+list -> db : Load messages for participant
+list -> crypto : decrypt bodies
+list --> route : Messages
+route --> client : 200 MessageView list
+page -> client : markRead(id)
+client -> route : POST /api/v1/messages/conversations/{id}/read
+route -> mark : execute(userId, id)
+mark -> db : Set lastReadMessageId and lastReadAt
+mark -> db : Read reader's sendReadReceipts setting
+opt read receipts on (default)
+  mark -> delivery : publish Seen to sender
+  delivery -> cache : PUBLISH sender channel
+end
+route --> client : 204
+page --> actor : Conversation read, header count decreases
+note over cache : Sender's open stream shows "Seen" on the last message (L2-066)
+@enduml

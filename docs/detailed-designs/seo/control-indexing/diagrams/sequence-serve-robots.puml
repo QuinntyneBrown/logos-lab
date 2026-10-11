@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Serve robots.txt
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Crawler" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SSR server" as ssr
+  participant "RobotsTxtHandler" as handler
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RobotsPolicy" as policy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN" as cdn
+end box
+actor -> cdn : GET /robots.txt
+cdn -> ssr : Forward
+ssr -> handler : handle(request)
+handler -> policy : forEnvironment(current)
+alt production
+  policy --> handler : Disallow /dashboard, /studio, /admin, /moderation, /messages, /api; Sitemap URL (Apply L2-145)
+else non-production
+  policy --> handler : Disallow / with no sitemap
+end
+handler --> ssr : text/plain body
+ssr --> cdn : 200
+cdn --> actor : robots.txt
+@enduml

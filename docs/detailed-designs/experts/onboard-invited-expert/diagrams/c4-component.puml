@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Onboard an invited expert
+
+Container(web, "Logos Lab Web", "Angular", "AdminInvitationsPage, dialogs, ExpertInvitationPage, StudioProfilePage")
+Container_Boundary(api, "Logos Lab API") {
+  Component(authz, "Authorization policy", "Middleware", "Administrator, Expert or anonymous per endpoint")
+  Component(rAdmin, "admin/expert-invitations routes", "Route handlers", "List, send, revoke")
+  Component(rPublic, "expert-invitations/token routes", "Route handlers", "Check, accept")
+  Component(rOnb, "GET /api/v1/studio/onboarding", "Route handler", "Checklist for current expert")
+  Component(aSend, "SendExpertInvitationAction", "Action", "Creates invitation and enqueues email")
+  Component(aRevoke, "RevokeExpertInvitationAction", "Action", "Pending to Revoked")
+  Component(aAccept, "AcceptExpertInvitationAction", "Action", "Pending to Accepted and grants role")
+  Component(aCheck, "CheckExpertInvitationAction", "Action", "Returns status for a token")
+  Component(svc, "ExpertInvitationService", "Domain service", "Token hash, 14-day expiry, single use")
+  Component(roles, "RoleService", "Domain service", "Grants Expert and requires MFA")
+  Component(complete, "ExpertProfileCompletenessService", "Domain service", "Required profile fields")
+  Component(repo, "ExpertInvitationRepository", "Repository", "expert_invitations")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "expert_invitations, user_roles, expert_profiles")
+ContainerQueue(queue, "Job queue", "SQS", "InvitationEmailSendJob")
+Rel(web, authz, "Calls", "JSON/HTTPS")
+Rel(authz, rAdmin, "Administrator only")
+Rel(authz, rPublic, "Anonymous check; authenticated accept")
+Rel(authz, rOnb, "Expert only")
+Rel(rAdmin, aSend, "Invokes")
+Rel(rAdmin, aRevoke, "Invokes")
+Rel(rPublic, aCheck, "Invokes")
+Rel(rPublic, aAccept, "Invokes")
+Rel(rOnb, complete, "Evaluates")
+Rel(aSend, svc, "Creates")
+Rel(aRevoke, svc, "Revokes")
+Rel(aCheck, svc, "Resolves status")
+Rel(aAccept, svc, "Accepts")
+Rel(aAccept, roles, "Grants Expert role")
+Rel(svc, repo, "Persists")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(roles, db, "Writes user_roles", "SQL")
+Rel(complete, db, "Reads expert_profiles", "SQL")
+Rel(aSend, queue, "Enqueues email job", "SQS")
+@enduml

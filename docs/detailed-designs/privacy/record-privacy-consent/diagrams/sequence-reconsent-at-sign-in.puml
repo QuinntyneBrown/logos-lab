@@ -1,0 +1,70 @@
+@startuml
+title UML sequence behaviour — Accept or decline a new version at sign-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ReconsentGuard" as guard
+  participant "PolicyReconsentPage" as page
+  participant "ConsentApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "ReconsentGate" as gate
+  participant "policy acceptance route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AcceptPolicyVersionsAction" as accept
+  participant "DeclinePolicyVersionsAction" as decline
+  participant "ConsentService" as consent
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> guard : First navigation after sign-in
+guard -> client : getPending()
+client -> route : GET /api/v1/me/policy-acceptances/pending
+route -> consent : Pending material versions effective now
+consent -> db : Versions effective and not accepted by member
+db --> consent : Privacy Policy version pending
+consent --> route : Pending list
+route --> client : 200 with pending versions
+client --> guard : Pending
+guard --> actor : Redirect to /consent (L2-119)
+opt Member calls another endpoint first
+  gate -> consent : Pending?
+  gate --> actor : 403 problem "reconsent-required" unless on the allow-list
+end
+alt Member accepts
+  actor -> page : Tick "I accept the updated Privacy Policy", choose "Accept and continue"
+  page -> client : accept(versionIds)
+  client -> route : POST /api/v1/me/policy-acceptances
+  route -> accept : Execute
+  accept -> consent : Record acceptance, source Reconsent
+  consent -> db : Insert policy_acceptances (version, timestamp)
+  route --> client : 204
+  client --> page : Done
+  page --> actor : Continue to the requested page
+else Member declines
+  actor -> page : Choose "Don't agree? See your options"
+  page -> client : decline(versionIds)
+  client -> route : POST /api/v1/me/policy-acceptances/decline
+  route -> decline : Execute
+  decline -> consent : Record decline
+  consent -> db : Insert policy_acceptances with decision Declined
+  route --> client : 200 with export and deletion options
+  client --> page : Declined
+  page --> actor : Offer "Download your data" and "Delete your account" (L2-119)
+end
+@enduml

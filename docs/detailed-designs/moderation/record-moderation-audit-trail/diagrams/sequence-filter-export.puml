@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Filter and export the audit trail
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationAuditPage" as page
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "moderation/audit routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListModerationAuditAction" as list
+  participant "ExportModerationAuditAction" as export
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "ModerationAuditRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /moderation/audit, set moderator, member, action and dates
+page -> client : listAudit(filters, 1)
+client -> route : GET /api/v1/moderation/audit?moderatorId&memberId&action&from&to
+route -> route : Authenticate and require Administrator or Moderator role
+route -> list : execute(currentUser, filters, 1)
+list -> repo : query(filters, 1)
+repo -> db : SELECT matching entries ORDER BY created_at DESC
+db --> repo : Rows
+repo --> list : AuditPage
+list --> route : AuditPage
+route --> client : 200 JSON
+client --> page : Entries
+alt No matches
+  page --> actor : No-results state with Clear filters
+else Matches
+  page --> actor : Matching entries newest first (L2-089)
+  actor -> page : Export CSV
+  page -> client : exportAuditCsv(filters)
+  client -> route : GET /api/v1/moderation/audit/export?filters
+  route -> export : execute(currentUser, filters)
+  export -> repo : stream(filters)
+  repo -> db : Cursor over matching entries
+  db --> repo : Row batches
+  repo --> export : Entries
+  export --> route : CSV stream
+  route --> client : 200 text/csv, Content-Disposition attachment
+  client --> page : File
+  page --> actor : CSV download of the matching entries
+end
+@enduml

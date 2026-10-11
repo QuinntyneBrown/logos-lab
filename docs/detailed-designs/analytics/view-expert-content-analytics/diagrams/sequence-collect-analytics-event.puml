@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Collect a product analytics event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Lesson or content page" as page
+  participant "AnalyticsEventCollector" as collector
+  participant "AnalyticsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/analytics/events" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordAnalyticsEventAction" as action
+  participant "AnalyticsPrivacyService" as privacy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : View or interact with content
+page -> collector : track(event)
+collector -> collector : Read cookie consent choice (L2-115)
+alt no analytics cookie consent
+  collector -> collector : Drop event; send nothing (L2-102)
+else analytics consent given
+  collector -> client : recordEvent(name, content id, pseudonymous session id)
+  client -> route : HTTPS POST with consent cookie
+  route -> action : execute(event, consent)
+  action -> action : Reject when the consent cookie is absent
+  action -> privacy : sanitize(event)
+  privacy --> action : Allow-listed fields only: no email, display name or free text (L2-102)
+  action -> db : Insert analytics_events row
+  route --> client : 202
+end
+note over page, db : Enrolments, progress, completions, saves and comments come from the learning records themselves, not from product events
+@enduml

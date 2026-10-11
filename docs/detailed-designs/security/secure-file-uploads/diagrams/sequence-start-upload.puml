@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Start an upload and refuse oversize files early
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AvatarUploadDialog" as dlg
+  participant "UploadsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/uploads" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateUploadAction" as action
+  participant "UploadPolicy" as policy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Media storage (S3)" as s3
+end box
+actor -> dlg : Choose a file
+dlg -> dlg : Pre-check extension and size for a fast message
+dlg -> client : createUpload(kind, fileName, size, declaredType)
+client -> route : POST JSON (no file bytes)
+route -> action : execute(userId, request)
+action -> policy : checkDeclared(kind, size, declaredType)
+alt Size over the limit for the kind (L2-108)
+  policy --> action : Refused: too large
+  action --> route : Refusal
+  route --> client : 413 problem+json naming the rule
+  client --> dlg : Refused
+  dlg --> actor : Invalid state with the rule; no bytes sent
+else Within limits
+  policy --> action : Allowed
+  action -> action : Generate storage key incoming/<uuid> (L2-108)
+  action -> db : INSERT upload (Pending)
+  action -> s3 : Presign PUT with content-length-range up to the limit
+  action --> route : UploadTarget
+  route --> client : 201 UploadTarget
+  client -> s3 : PUT bytes to presigned URL
+  alt Body exceeds content-length-range
+    s3 --> client : 400; object not stored
+  else Stored in private bucket
+    s3 --> client : 200
+    client -> route : POST /api/v1/uploads/{id}/complete
+    route --> client : 202 Scanning
+    client --> dlg : Busy: checking file
+  end
+end
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Secure file uploads
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(dlg, "AvatarUploadDialog, ImageUploadDialog", "Angular dialogs", "Use ll-file-upload; pre-check type and size")
+  Component(studio, "StudioVideoMediaPage, StudioModulePackagePage", "Angular pages", "Resumable and package uploads with ll-stepper status")
+  Component(uapi, "UploadsApi / UPLOADS_API / HttpUploadsApi", "API library", "Upload contract")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "/api/v1/uploads route handlers", "Next.js", "POST create, POST complete")
+  Component(create, "CreateUploadAction", "Action", "Refuses oversize declarations; issues a presigned target with a generated key")
+  Component(complete, "CompleteUploadAction", "Action", "Marks the upload Scanning and enqueues the scan")
+  Component(policy, "UploadPolicy", "Domain service", "Allowed types and size limit per UploadKind")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "UploadScanJob", "Job", "Runs sniffing and scanning, then releases or quarantines")
+  Component(sniff, "ContentTypeSniffer", "Service", "Detects type from magic bytes")
+  Component(scan, "MalwareScanService", "Service", "Adapter for the malware scanner")
+  Component(notify, "NotificationService", "Service", "Tells the uploader in-app and by email")
+}
+ComponentDb(s3, "Media storage", "Amazon S3", "Private buckets outside the web root")
+Rel(dlg, uapi, "Calls")
+Rel(studio, uapi, "Calls")
+Rel(uapi, route, "JSON/HTTPS")
+Rel(route, create, "Calls")
+Rel(route, complete, "Calls")
+Rel(create, policy, "Checks declared size and type with")
+Rel(complete, job, "Enqueues through SQS")
+Rel(job, sniff, "Uses")
+Rel(job, policy, "Checks detected type with")
+Rel(job, scan, "Uses")
+Rel(job, notify, "Notifies on quarantine with")
+Rel(job, s3, "Moves objects within")
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Attribute content after role removal
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArticlePage" as ArticlePage
+  participant "ll-content-card" as card
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Content route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ContributorAttributionService" as ContributorAttributionService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ArticlePage : Open content by a former expert
+ArticlePage -> route : HTTPS GET content
+route -> ContributorAttributionService : attribute(contributorId)
+ContributorAttributionService -> db : Select name, slug and Expert role
+db --> ContributorAttributionService : Contributor
+alt Expert role held
+  ContributorAttributionService --> route : name and profileUrl /experts/slug
+else Expert role removed
+  ContributorAttributionService --> route : name and null profileUrl (L2-021)
+end
+route --> ArticlePage : Content with attribution
+ArticlePage -> card : Render contributor
+card --> actor : Name as link, or plain name when profileUrl is null
+@enduml

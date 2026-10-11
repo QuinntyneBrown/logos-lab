@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications · long — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="notification-centre">
+<meta name="mock:state" content="long">
+<meta name="mock:requirements" content="L2-091">
+<meta name="description" content="The 20 most recent notifications with long titles, and Load more for older ones.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread" aria-expanded="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Tuesday 13 October</p>
+      <p class="page-head__title">Good morning, Miriam</p>
+      <p class="page-head__sub">3 courses in progress, 2 events coming up and 5 new pieces from people you follow.</p>
+    </div>
+    <div class="panel panel--compact grain"><div class="panel__grid"><div><p class="eyebrow">Continue learning</p><p class="panel__title">Representing, not resembling</p><p class="panel__text">Lesson 3.2 of Imago Dei in an Age of Machines, with Dr. Abena Mensah.</p><div class="panel__actions"><span class="btn btn--primary">Continue the lesson</span></div></div></div></div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="notice-panel" id="notice-panel" role="dialog" aria-labelledby="panel-title">
+    <div class="notice-panel__head">
+      <h1 class="notice-panel__title" id="panel-title">Notifications</h1>
+      <div class="cluster"><a class="btn btn--text btn--sm" href="success.html">Mark all as read</a><a class="icon-btn" href="../../pages/dashboard/default.html" aria-label="Close notifications"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
+    </div>
+    <div class="notice-panel__body">
+
+        <ul class="notice-list" aria-label="Notifications, newest first">
+          <li class="is-unread"><span class="unread-dot" aria-hidden="true"></span><div><p class="notice__title"><span class="vh">Unread: </span><a href="../../pages/comments/default.html">Jonah Fraser replied to your comment</a></p><p class="notice__text">On What Augustine Might Say About Large Language Models</p></div><time class="notice__time" datetime="2026-10-13T10:02">10:02 am</time></li>
+          <li class="is-unread"><span class="unread-dot" aria-hidden="true"></span><div><p class="notice__title"><span class="vh">Unread: </span><a href="../../pages/cohort-space/default.html">Dr. Abena Mensah posted in Imago Dei, Autumn 2026</a></p><p class="notice__text">“This week, read 3.2 before Thursday's discussion.”</p></div><time class="notice__time" datetime="2026-10-13T09:15">9:15 am</time></li>
+          <li class="is-unread"><span class="unread-dot" aria-hidden="true"></span><div><p class="notice__title"><span class="vh">Unread: </span><a href="../../pages/video-page/default.html">Dr. Lucía Ortega published Augustine and the Algorithm</a></p><p class="notice__text">Video · 31 min</p></div><time class="notice__time" datetime="2026-10-12T16:40">Yesterday, 4:40 pm</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/article-page/updated.html">Dr. Lucía Ortega updated What Augustine Might Say About Large Language Models</a></p><p class="notice__text">A correction to the section on memory</p></div><time class="notice__time" datetime="2026-10-06T08:00">Tue 6 Oct</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/event-page/waitlisted.html">You're number 3 on the waitlist</a></p><p class="notice__text">Workshop: Writing an AI Policy for Your Church · Sat 7 Nov 2026</p></div><time class="notice__time" datetime="2026-10-03T11:20">Sat 3 Oct</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/article-page/default.html">Dr. Abena Mensah published Sabbath for the Always-On Mind</a></p><p class="notice__text">Article · 8 min read</p></div><time class="notice__time" datetime="2026-10-03T08:00">Sat 3 Oct</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/collection-page/default.html">2 new items in A Personhood Reading List</a></p><p class="notice__text">Added by Dr. Abena Mensah</p></div><time class="notice__time" datetime="2026-10-01T15:00">Thu 1 Oct</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/article-page/default.html">Dr. Lucía Ortega published What Augustine Might Say About Large Language Models</a></p><p class="notice__text">Article · 12 min read</p></div><time class="notice__time" datetime="2026-09-29T08:00">Tue 29 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/module-page/completed.html">You completed Prompting with Wisdom</a></p><p class="notice__text">Learning module · 15 min</p></div><time class="notice__time" datetime="2026-09-28T21:00">Mon 28 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/cohort-space/default.html">Clara Novak, Jonah Fraser and 4 others replied in the cohort discussion “What would a machine image be?”</a></p><p class="notice__text">Imago Dei, Autumn 2026 · lesson 3.5 · 6 new replies since you last looked</p></div><time class="notice__time" datetime="2026-09-27T19:30">Sun 27 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/module-page/default.html">Rev. Dr. Thomas Hale published Case Study: The Chatbot Chaplain, a 25-minute learning module</a></p><p class="notice__text">Learning module · lesson 4.3 of Imago Dei in an Age of Machines</p></div><time class="notice__time" datetime="2026-09-25T09:00">Fri 25 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/event-page/past.html">Recording available: Panel: Work, Rest and Automation</a></p><p class="notice__text">58 min · Thu 24 Sep 2026</p></div><time class="notice__time" datetime="2026-09-25T08:00">Fri 25 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/event-page/registered.html">Your registration is confirmed: Live Q&amp;A: Imago Dei and Machine Personhood</a></p><p class="notice__text">Tue 27 Oct 2026, 12:00 to 1:00 pm ET · Online · join link opens 15 minutes before</p></div><time class="notice__time" datetime="2026-09-22T13:10">Tue 22 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/cohort-space/default.html">Welcome to Imago Dei, Autumn 2026, led by Dr. Abena Mensah</a></p><p class="notice__text">28 of 30 members · 15 Sep to 15 Dec 2026</p></div><time class="notice__time" datetime="2026-09-15T09:00">Tue 15 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/course-overview/enrolled.html">You enrolled in Imago Dei in an Age of Machines</a></p><p class="notice__text">6 sections, 24 lessons, about 5 h 40 min</p></div><time class="notice__time" datetime="2026-09-14T20:05">Mon 14 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/video-page/default.html">Prof. Simon Keller published Can a Machine Pray?</a></p><p class="notice__text">Video · 24 min</p></div><time class="notice__time" datetime="2026-09-10T08:00">Thu 10 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/collection-page/default.html">Logos Lab added 3 items to Start Here: Faith and AI</a></p><p class="notice__text">Now 12 items · you've completed 4</p></div><time class="notice__time" datetime="2026-09-08T08:00">Tue 8 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/video-page/default.html">Dr. Joel Santos published Inside a Neural Network in Ten Minutes</a></p><p class="notice__text">Video · 10 min · free preview</p></div><time class="notice__time" datetime="2026-09-04T08:00">Fri 4 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/certificate/default.html">Your certificate for Christian Ethics for AI Builders is ready</a></p><p class="notice__text">Certificate LL-7K4Q-29XM</p></div><time class="notice__time" datetime="2026-09-02T14:00">Wed 2 Sep</time></li>
+          <li><span class="read-dot" aria-hidden="true"></span><div><p class="notice__title"><a href="../../pages/comments/default.html">Rev. Dr. Thomas Hale replied to your question in Christian Ethics for AI Builders</a></p><p class="notice__text">“Start with who bears the cost when the model is wrong.”</p></div><time class="notice__time" datetime="2026-09-01T16:22">Tue 1 Sep</time></li>
+        </ul>
+        <div class="cluster" style="justify-content: center; padding: var(--space-4)"><button class="btn btn--quiet btn--sm" type="button">Load more</button></div>
+    </div>
+    <div class="notice-panel__foot">
+      <a href="../../pages/settings-notifications/default.html">Notification settings</a>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Notifications</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="long.html" aria-current="page">long</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

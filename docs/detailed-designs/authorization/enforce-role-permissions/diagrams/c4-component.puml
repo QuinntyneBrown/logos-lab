@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Enforce role permissions
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(caps, "CapabilityService", "Angular service", "Current capabilities")
+  Component(guard, "capabilityGuard", "Route guard", "Renders ForbiddenPage")
+  Component(nav, "NavigationService", "Angular service", "Builds permitted links")
+  Component(forbidden, "ForbiddenPage", "Page", "No-access state")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(authn, "AuthenticationMiddleware", "Middleware", "Resolves session and roles")
+  Component(authz, "AuthorizationMiddleware", "Middleware", "Enforces endpoint capability")
+  Component(registry, "EndpointAccessRegistry", "Configuration", "Capability per endpoint")
+  Component(perm, "PermissionService", "Domain service", "Role to capability")
+  Component(matrix, "RolePermissionMatrix", "Domain data", "L2-016 table")
+  Component(log, "SecurityEventLogger", "Infrastructure", "403 events")
+  Component(routes, "Route handlers", "app/api/v1/...", "Guarded endpoints")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "user_roles")
+System_Ext(cw, "Amazon CloudWatch", "Logs and alarms")
+Rel(guard, caps, "Reads")
+Rel(nav, caps, "Reads")
+Rel(guard, forbidden, "Shows when refused")
+Rel(caps, authn, "GET /api/v1/me", "JSON/HTTPS")
+Rel(authn, db, "Loads roles", "SQL")
+Rel(authn, authz, "Passes request with roles")
+Rel(authz, registry, "Reads required capability")
+Rel(authz, perm, "can(roles, capability)")
+Rel(perm, matrix, "Reads")
+Rel(authz, log, "Logs refusal")
+Rel(log, cw, "Ships")
+Rel(authz, routes, "Passes permitted request")
+@enduml

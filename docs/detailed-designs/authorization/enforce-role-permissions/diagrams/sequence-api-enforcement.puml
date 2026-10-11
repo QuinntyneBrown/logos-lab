@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — API enforcement
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Area API client" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthenticationMiddleware" as authn
+  participant "AuthorizationMiddleware" as authz
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PermissionService" as perm
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> client : Call an endpoint (from UI or directly)
+client -> authn : HTTPS request with session cookie
+authn -> db : Resolve session, load current roles
+db --> authn : Roles
+authn -> authz : Request with CurrentUser and roles
+authz -> authz : Read required capability for endpoint
+authz -> perm : can(roles, capability)
+perm --> authz : Decision from RolePermissionMatrix
+alt not granted (L2-016)
+  authz -> cw : Log security event: account, IP, user agent, correlation ID
+  authz --> client : 403 problem "forbidden"
+  note right of cw : Over 100 failures from one account or IP in 5 minutes raise an alarm (L2-111)
+else granted (Administrator holds every capability)
+  authz -> route : Permitted request
+  route --> authz : Response
+  authz --> client : Response
+end
+@enduml

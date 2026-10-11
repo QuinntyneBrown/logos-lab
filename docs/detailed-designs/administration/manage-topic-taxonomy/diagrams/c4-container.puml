@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage the topic taxonomy
+Person(admin, "Administrator", "Logos Lab staff")
+Person(visitor, "Visitor or member", "Reader")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public topic pages and 301 responses")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Admin topics page and dialogs; server-renders topic pages")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Topic endpoints and taxonomy rules")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "topics, content_topics, topic_redirects, audit_entries")
+}
+Rel(admin, web, "Uses", "HTTPS")
+Rel(visitor, cdn, "Requests topic pages from", "HTTPS")
+Rel(cdn, web, "Forwards cache misses to", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

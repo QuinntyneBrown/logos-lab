@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Enforce transport security and headers
+
+Person(visitor, "Visitor or member", "Uses Logos Lab in a browser")
+Person(operator, "Security reviewer", "Scans the production site")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(observatory, "Mozilla Observatory", "Grades HTTP security headers")
+System_Ext(otherorigin, "Third-party origin", "Any web origin not on the CORS allow-list")
+Rel(visitor, ll, "Uses", "HTTPS, TLS 1.2 or later")
+Rel(operator, observatory, "Requests a scan of www.logoslab.ca")
+Rel(observatory, ll, "Fetches pages and grades headers", "HTTPS")
+Rel(otherorigin, ll, "Sends cross-origin API requests, blocked by the browser", "HTTPS")
+@enduml

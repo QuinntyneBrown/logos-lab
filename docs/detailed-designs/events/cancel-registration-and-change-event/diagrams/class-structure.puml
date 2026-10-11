@@ -1,0 +1,93 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Cancel a registration and change an event
+
+package "Logos Lab Web" {
+  class CancelRegistrationDialog {
+    +eventId: string
+    +confirm(): void
+  }
+  class EventChangeNotifyDialog {
+    +diff: EventChange
+    +recipients: number
+    +message: string
+    +publish(): void
+  }
+  class CancelEventDialog {
+    +reason: string
+    +cancelEvent(): void
+  }
+  interface StudioEventsApi {
+    +previewChange(eventId: string): Observable<ChangePreview>
+    +publishChange(eventId: string, message: string): Observable<void>
+    +cancelEvent(eventId: string, reason: string): Observable<void>
+  }
+  class HttpStudioEventsApi
+  class "STUDIO_EVENTS_API" as Token <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CancelRegistrationAction {
+    +execute(userId: Uuid, eventId: Uuid): Result<void>
+  }
+  class PublishEventChangeAction {
+    +execute(userId: Uuid, eventId: Uuid, message: string): Result<void>
+  }
+  class CancelEventAction {
+    +maxReasonLength: number = 500
+    +execute(userId: Uuid, eventId: Uuid, reason: string): Result<void>
+  }
+  class EventChangeService {
+    +diff(published: Event, pending: EventDraft): EventChange
+  }
+  class EventChange <<value object>> {
+    +fields: ChangedField[]
+    +isMaterial(): boolean
+  }
+  enum ChangedField {
+    Time
+    Format
+    Venue
+  }
+  class IcsCalendarService {
+    +request(e: Event): IcsFile
+    +cancel(e: Event): IcsFile
+  }
+  class Event {
+    +id: Uuid
+    +icsSequence: number
+    +status: EventStatus
+    +cancellationReason: string
+    +cancelledAt: Instant
+  }
+  class EventChangeNotifyJob {
+    +run(eventId: Uuid, sequence: number, kind: NoticeKind): void
+  }
+  enum NoticeKind {
+    Changed
+    Cancelled
+  }
+}
+HttpStudioEventsApi ..|> StudioEventsApi
+Token ..> StudioEventsApi : provides
+EventChangeNotifyDialog ..> StudioEventsApi : uses
+CancelEventDialog ..> StudioEventsApi : uses
+PublishEventChangeAction ..> EventChangeService : uses
+PublishEventChangeAction ..> EventChangeNotifyJob : enqueues
+CancelEventAction ..> EventChangeNotifyJob : enqueues
+EventChangeNotifyJob ..> IcsCalendarService : uses
+EventChangeService ..> EventChange : produces
+EventChange --> ChangedField
+EventChangeNotifyJob --> NoticeKind
+CancelRegistrationAction ..> IcsCalendarService : sends cancel
+@enduml

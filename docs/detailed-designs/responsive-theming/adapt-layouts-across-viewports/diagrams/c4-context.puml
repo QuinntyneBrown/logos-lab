@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Adapt layouts across viewports
+
+
+Person(learner, "Learner", "Phone, tablet, laptop or desktop; touch, mouse or keyboard")
+Person(dev, "Developer", "Changes screens")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ci, "CI pipeline", "ResponsiveVisualSuite in Chromium")
+
+Rel(learner, ll, "Uses at any viewport class", "HTTPS")
+Rel(dev, ci, "Pushes changes to")
+Rel(ci, ll, "Captures pages at 375, 768, 1024 and 1440px")
+@enduml

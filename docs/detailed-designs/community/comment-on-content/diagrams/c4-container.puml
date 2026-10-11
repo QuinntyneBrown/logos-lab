@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Comment on content
+
+Person(member, "Member", "Verified member")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "CommentsSection on content pages")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Comment route handlers, actions and domain services")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "comments and user_preferences tables")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Per-member comment rate counters")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, cache, "Increments rate counters", "RESP")
+@enduml

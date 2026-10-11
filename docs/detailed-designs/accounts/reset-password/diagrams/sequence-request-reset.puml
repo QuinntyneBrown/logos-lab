@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Request a reset link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ForgotPasswordPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "password-resets route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RequestPasswordResetAction" as action
+  participant "PasswordResetThrottle" as throttle
+  participant "AccountTokenService" as tokens
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Enter email, press "Send reset link"
+page -> client : requestPasswordReset(email)
+client -> route : POST /api/v1/auth/password-resets
+route -> action : execute(email)
+action -> throttle : allow(email)
+throttle -> cache : Increment count for email (1-hour window)
+cache --> throttle : Count
+alt more than 3 requests in the hour (L2-011)
+  throttle --> action : false
+  action -> action : Send nothing
+else within limit
+  throttle --> action : true
+  action -> db : Find user by normalized email
+  db --> action : User or none
+  opt Active account exists
+    action -> tokens : invalidateUnused(userId, PasswordReset)
+    tokens -> db : Mark earlier unused reset tokens used
+    action -> tokens : issue(userId, PasswordReset, 60 min)
+    tokens -> db : Store token hash
+    tokens --> action : Raw token
+    action -> queue : Enqueue EmailSendJob (reset link)
+  end
+end
+action --> route : Done
+route --> client : 202 in every case
+client --> page : Accepted
+page --> actor : "If an account exists for that address, we've sent a reset link"
+@enduml

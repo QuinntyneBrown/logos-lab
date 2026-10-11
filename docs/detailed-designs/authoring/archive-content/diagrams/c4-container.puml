@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Archive content
+
+Person(editor, "Editor", "Archives content")
+Person_Ext(visitor, "Visitor or learner", "Opens the item's address")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public pages")
+  Container(web, "Logos Lab Web", "Angular with Angular SSR", "Archive dialogs, GonePage with status 410")
+  Container(api, "Logos Lab API", "Next.js route handlers", "archive, restore, public content read")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Items, search documents, enrolments")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "CdnInvalidateJob")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs CdnInvalidateJob")
+}
+Rel(editor, web, "Uses", "HTTPS")
+Rel(visitor, cdn, "Requests the address", "HTTPS")
+Rel(cdn, web, "Forwards", "HTTPS")
+Rel(web, api, "Calls StudioApi and public content API", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, sqs, "Enqueues invalidation", "SQS")
+Rel(worker, sqs, "Consumes", "SQS")
+Rel(worker, cdn, "Invalidates paths", "CloudFront API")
+@enduml

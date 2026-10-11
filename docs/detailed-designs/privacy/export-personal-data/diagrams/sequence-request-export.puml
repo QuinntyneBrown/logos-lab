@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Request a personal data export
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsDataPage" as page
+  participant "DataExportDialog" as dialog
+  participant "PersonalDataApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "data export route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RequestDataExportAction" as action
+  participant "PasswordVerifier" as pwd
+  participant "DataExportService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as queue
+end box
+actor -> page : Choose "Download my data"
+page -> dialog : Open DataExportDialog
+actor -> dialog : Re-enter password, choose "Download my data"
+dialog -> client : requestExport(password)
+client -> route : POST /api/v1/me/data-exports
+route -> route : Authenticate, CSRF check, validate body
+route -> action : Execute for current user
+action -> pwd : Verify password (L2-116)
+alt Password wrong or empty
+  pwd --> action : Invalid
+  action --> route : Field error on password
+  route --> client : 400 with field-level errors
+  client --> dialog : Show invalid state
+else Password correct
+  action -> svc : nextAllowedAt(user)
+  svc -> db : Latest export requested within 24 hours
+  alt An export was requested in the last 24 hours
+    svc --> action : Next allowed time
+    action --> route : Refused
+    route --> client : 429 problem with nextAllowedAt (L2-116)
+    client --> page : Show rate-limited state with the next allowed time
+  else Allowed
+    action -> db : Insert data_exports row, status Requested
+    action -> queue : Enqueue DataExportBuildJob(exportId)
+    action --> route : Export requested
+    route --> client : 202 with export
+    client --> dialog : Success
+    dialog --> actor : "We'll email you when it's ready, within 24 hours"
+  end
+end
+@enduml

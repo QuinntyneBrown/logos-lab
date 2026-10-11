@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View my events
+
+Person(member, "Member", "Registered or waitlisted member")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(cal, "Calendar application", "Member's own calendar")
+
+Rel(member, ll, "Reviews event registrations using")
+Rel(member, cal, "Imports event files into")
+@enduml

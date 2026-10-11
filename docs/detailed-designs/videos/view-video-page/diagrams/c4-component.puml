@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a video page
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "VideoPage", "Angular page", "Route /videos/:slug")
+  Component(player, "ll-player", "Shared component", "16:9 frame, sign-in prompt")
+  Component(transcript, "ll-transcript", "Shared component", "Transcript section")
+  Component(cards, "ll-content-card, ll-list, ll-page-header", "Shared components", "Related, Part of, header")
+  Component(client, "HttpVideosApi", "VideosApi via VIDEOS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "video by-slug route handler", "app/api/v1/videos/by-slug/[slug]/route.ts", "Anonymous")
+  Component(action, "GetVideoPageAction", "Action", "Loads a published video")
+  Component(svc, "VideoPageService", "Domain service", "Assembles the page model")
+  Component(related, "RelatedContentService", "Domain service (L2-047)", "Up to 4 related items")
+  Component(repos, "VideoRepository, MembershipQuery, TopicRepository", "Repositories", "Reads")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Content tables")
+Rel(page, client, "getVideoPage(slug)")
+Rel(page, player, "Hosts")
+Rel(page, transcript, "Hosts")
+Rel(page, cards, "Hosts")
+Rel(client, route, "GET", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, svc, "Builds model")
+Rel(svc, related, "Gets related items")
+Rel(svc, repos, "Reads")
+Rel(repos, db, "SQL")
+@enduml

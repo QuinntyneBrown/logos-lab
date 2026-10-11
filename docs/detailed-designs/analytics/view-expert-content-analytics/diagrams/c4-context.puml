@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View expert content analytics
+Person(expert, "Expert", "Author of published content")
+Person(learner, "Learner", "Generates engagement while learning")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(learner, ll, "Views, enrols, completes and saves content in", "HTTPS")
+Rel(expert, ll, "Reads aggregate analytics for own content in", "HTTPS")
+@enduml

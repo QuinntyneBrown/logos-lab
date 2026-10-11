@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Handle a bounce or complaint
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+participant "Amazon SES via SNS" as ses
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AccountEmailBanner" as banner
+  participant "EmailStatusApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/webhooks/ses-feedback" as hook
+  participant "GET /api/v1/me/email-status" as status
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordEmailFeedbackAction" as action
+  participant "EmailSuppressionService" as supp
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+ses -> hook : Bounce or complaint notification
+hook -> hook : Verify SNS message signature and topic
+alt signature invalid
+  hook --> ses : 403
+else valid
+  hook -> action : execute(notice)
+  alt permanent bounce or complaint
+    action -> supp : suppress(address, reason)
+    supp -> db : Upsert email_suppressions row (L2-092)
+  else transient bounce
+    action -> action : Ignore; no suppression
+  end
+  action --> hook : Done
+  hook --> ses : 200
+end
+actor -> banner : Load a signed-in page
+banner -> client : get()
+client -> status : HTTPS GET
+status -> supp : isSuppressed(member's address)
+supp -> db : Read suppression
+db --> supp : Row found
+supp --> status : Bouncing since date
+status --> client : EmailStatus
+client --> banner : Bouncing
+banner --> actor : Danger banner "Emails ... are bouncing" with Update email (L2-092)
+@enduml

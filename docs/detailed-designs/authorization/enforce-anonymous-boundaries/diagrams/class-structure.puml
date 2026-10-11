@@ -1,0 +1,88 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Enforce anonymous boundaries
+
+package "Logos Lab Web" {
+  class MemberActionGate {
+    -session: SessionState
+    -dialog: Dialog
+    +run(action: PendingAction, perform: () => void): void
+  }
+  class SignInRequiredDialog {
+    +action: PendingAction
+    +signIn(): void
+    +createAccount(): void
+  }
+  class PendingAction {
+    +kind: MemberActionKind
+    +targetId: string
+    +returnUrl: string
+  }
+  enum MemberActionKind {
+    PlayVideo
+    LaunchModule
+    Enrol
+    OpenLesson
+    RegisterForEvent
+    Comment
+    Save
+    Follow
+  }
+  class PendingActionResumer {
+    +resume(intent: PendingAction): void
+  }
+  class UnauthorizedInterceptor {
+    +intercept(req: HttpRequest, next: HttpHandler): Observable<HttpEvent>
+  }
+}
+package "Logos Lab API" {
+  class AuthenticationMiddleware {
+    +handle(req: Request, next: Handler): Promise<Response>
+  }
+  class EndpointAccessRegistry {
+    +accessFor(route: string, method: string): EndpointAccess
+  }
+  class EndpointAccess {
+    +mode: AccessMode
+    +capability: Capability | null
+  }
+  enum AccessMode {
+    Anonymous
+    Authenticated
+    Capability
+  }
+  class PlaybackAccessPolicy {
+    +canPlay(user: CurrentUser | null, video: Video): boolean
+  }
+  class Video {
+    +id: Uuid
+    +publicPreview: boolean
+  }
+  class AuthenticationRequiredProblem {
+    +type: string = "authentication-required"
+    +status: number = 401
+  }
+}
+MemberActionGate ..> SignInRequiredDialog : opens
+MemberActionGate ..> PendingAction
+SignInRequiredDialog ..> PendingAction
+PendingActionResumer ..> PendingAction
+PendingAction --> MemberActionKind
+UnauthorizedInterceptor ..> MemberActionGate
+AuthenticationMiddleware ..> EndpointAccessRegistry
+AuthenticationMiddleware ..> AuthenticationRequiredProblem : returns
+EndpointAccessRegistry ..> EndpointAccess
+EndpointAccess --> AccessMode
+PlaybackAccessPolicy ..> Video
+@enduml

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My learning · empty — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="my-learning">
+<meta name="mock:state" content="empty">
+<meta name="mock:requirements" content="L2-070">
+<meta name="description" content="My learning for someone who hasn't started anything: an empty state with one next step, Explore courses.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Dashboard</p>
+      <h1 class="page-head__title">My learning</h1>
+      <p class="page-head__sub">Everything you've started or finished, with your progress.</p>
+    </div>
+
+    <nav class="tabs" aria-label="Dashboard">
+      <a class="tab" href="../../pages/dashboard/default.html">Overview</a>
+      <a class="tab" href="../../pages/my-learning/default.html" aria-current="page">My learning</a>
+      <a class="tab" href="../../pages/saved/default.html">Saved <span class="chip__count">14</span></a>
+      <a class="tab" href="../../pages/my-events/default.html">My events</a>
+      <a class="tab" href="../../pages/my-certificates/default.html">Certificates</a>
+      <a class="tab" href="../../pages/following/default.html">Following</a>
+    </nav>
+
+    <div class="toolbar" style="margin-top: var(--space-8)">
+      <div class="tabs tabs--pill" role="tablist" aria-label="Show"><a class="tab" role="tab" href="default.html" aria-selected="true">In progress <span class="badge badge--plain">0</span></a><a class="tab" role="tab" href="completed.html" aria-selected="false">Completed <span class="badge badge--plain">0</span></a></div>
+      <div class="toolbar__tools"></div>
+    </div>
+    <p class="toolbar__count" style="margin-bottom: var(--space-4)"><strong>Nothing</strong> in progress</p>
+    <div class="empty"><span class="empty__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></span><h2 class="empty__title">You haven't started anything yet</h2><p>Start a course, module or video and it waits here with your progress, ready to pick up again.</p><div class="empty__actions"><a class="btn btn--primary" href="../../pages/explore/selected.html">Explore courses</a></div></div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">My learning</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="completed.html">completed</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html" aria-current="page">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="long.html">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

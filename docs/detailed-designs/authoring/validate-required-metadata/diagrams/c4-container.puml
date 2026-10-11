@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Validate required metadata
+
+Person(author, "Expert or Editor", "Authors content")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Checklist, error summary, field errors")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Schema validation and submission rules")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Revisions, images, captions, lessons")
+}
+Rel(author, web, "Uses", "HTTPS")
+Rel(web, api, "Saves, checks readiness and submits", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

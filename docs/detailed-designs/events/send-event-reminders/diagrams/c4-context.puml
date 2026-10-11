@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send event reminders
+
+Person(member, "Registered member", "Registered for an upcoming event")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(ll, member, "Shows in-app reminders to")
+Rel(ll, ses, "Sends reminder email through", "AWS SDK")
+Rel(ses, member, "Delivers reminder email")
+@enduml

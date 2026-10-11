@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Submit a form with errors
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "RegisterPage" as page
+  participant "ll-form-field" as field
+  participant "form-summary" as summary
+  participant "Announcer" as ann
+  participant "HttpAccountsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Register route handler" as route
+end box
+actor -> page : Submit form
+page -> page : Client-side validation
+alt Client-side errors
+  page -> field : Set error text, aria-invalid=true, aria-describedby (L2-128)
+  page -> summary : Render each error as a link to its field
+  summary -> summary : Move focus to summary (L2-128 AC2)
+  page -> ann : polite("2 errors")
+else Client-side valid
+  page -> client : register(request)
+  client -> route : POST
+  alt Server validation fails
+    route --> client : 400 problem response with field error codes
+    client --> page : Field errors
+    page -> field : Map codes to translated text, mark invalid
+    page -> summary : Render linked errors and focus summary
+    page -> ann : polite(error count)
+  else Accepted
+    route --> client : 201
+    client --> page : Success
+    page --> actor : Continue
+  end
+end
+actor -> summary : Activate an error link
+summary -> field : Focus the field, keeping entered values
+@enduml

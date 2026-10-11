@@ -1,0 +1,74 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Format for locale
+
+
+enum DateStyle {
+  long
+  short
+}
+
+class LocaleFormatService {
+  -locale: string
+  -timeZone: string
+  +formatDate(value: string, style: DateStyle): string
+  +formatTime(value: string): string
+  +formatNumber(value: number): string
+  +formatPercent(value: number): string
+  +formatDuration(seconds: number): string
+  +formatRelative(value: string): string
+}
+
+class LlDatePipe {
+  +transform(value: string, style: DateStyle): string
+}
+class LlTimePipe {
+  +transform(value: string): string
+}
+class LlNumberPipe {
+  +transform(value: number): string
+}
+class LlPercentPipe {
+  +transform(value: number): string
+}
+class LlDurationPipe {
+  +transform(seconds: number): string
+}
+
+class EventSummaryDto {
+  +startsAt: string
+  +endsAt: string
+  +attendeeCount: number
+}
+
+class CourseSummaryDto {
+  +durationSeconds: number
+  +progressPercent: number
+}
+
+class EmailCatalog {
+  +formatDate(value: string, locale: string, style: DateStyle): string
+  +formatNumber(value: number, locale: string): string
+}
+
+LlDatePipe --> LocaleFormatService
+LlTimePipe --> LocaleFormatService
+LlNumberPipe --> LocaleFormatService
+LlPercentPipe --> LocaleFormatService
+LlDurationPipe --> LocaleFormatService
+LocaleFormatService ..> DateStyle
+EmailCatalog ..> DateStyle
+LlDatePipe ..> EventSummaryDto : formats fields of
+LlDurationPipe ..> CourseSummaryDto : formats fields of
+@enduml

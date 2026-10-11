@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Search users
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUsersPage" as page
+  participant "AdminUsersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/admin/users" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SearchUsersAction" as action
+  participant "UserRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Type name or email and search
+alt fewer than 2 characters
+  page --> actor : Form summary and field error "at least 2 characters"; list unchanged (L2-095)
+else 2 or more characters
+  page --> actor : Loading state with skeleton rows
+  page -> client : search(q, state, page)
+  client -> route : HTTPS GET ?q=&state=&page=
+  route -> route : Authenticate and require Administrator role
+  alt caller is not an Administrator
+    route --> client : 403 problem response
+    page --> actor : Forbidden state with a way back to the dashboard
+  else Administrator
+    route -> action : execute(actor, q, state, page)
+    action -> action : Validate q length >= 2
+    action -> repo : search(q, state, offset, 50)
+    repo -> db : Partial match on name or email, 50 per page
+    db --> repo : Rows
+    repo --> action : Name, email, roles, state, created, last sign-in (L2-095)
+    action --> route : Page of AdminUserRow and total
+    route --> client : 200 JSON
+    alt no matches
+      page --> actor : No-results state naming the query and filter, with Clear filters
+    else matches
+      page --> actor : Table of users with pager
+    end
+  end
+end
+@enduml

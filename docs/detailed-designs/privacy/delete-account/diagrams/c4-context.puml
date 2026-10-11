@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Delete an account
+
+Person(member, "Member", "Deletes, or later restores, their own account")
+Person(editor, "Editor", "Reattributes or archives an expert's published content")
+Person_Ext(public, "Certificate checker", "Verifies a certificate code")
+System(ll, "Logos Lab", "Learning platform")
+System_Ext(ses, "Amazon SES", "Deletion and restore emails")
+Rel(member, ll, "Deletes or restores account in")
+Rel(editor, ll, "Clears published-content blockers in")
+Rel(public, ll, "Sees No longer available for purged holders in")
+Rel(ll, ses, "Sends confirmation with cancel link through")
+@enduml

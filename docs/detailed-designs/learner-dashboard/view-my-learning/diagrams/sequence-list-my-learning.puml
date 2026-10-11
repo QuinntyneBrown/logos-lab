@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — List my learning
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MyLearningPage" as page
+  participant "LearningApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Learning route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListMyLearningAction" as action
+  participant "LearningActivityService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /dashboard/learning
+page -> client : list(InProgress, Recent)
+client -> route : GET /api/v1/me/learning?status=in-progress&sort=recent
+route -> action : execute(userId, query)
+action -> service : list(userId, InProgress, Recent)
+service -> db : Enrolments and item activity for userId (L2-017)
+db --> service : Rows
+service -> service : Drop enrolments with status Left (L2-070)
+service -> service : Order by lastAccessedAt descending (L2-070)
+service --> action : LearningPage with counts
+route --> client : 200 LearningPage
+page --> actor : Type, title, progress percentage, last-accessed date
+opt member chooses Title A-Z
+  actor -> page : Change sort
+  page -> client : list(InProgress, TitleAsc)
+  client --> page : Rows ordered by title
+end
+opt member opens Completed tab
+  actor -> page : Select Completed
+  page -> client : list(Completed, Recent)
+  client --> page : Completed rows
+  page --> actor : Completed list or empty state
+end
+@enduml

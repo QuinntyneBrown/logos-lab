@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Enforce role permissions
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+Person(staff, "Staff member", "Expert, Editor, Moderator or Administrator")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(cw, "Amazon CloudWatch", "Security event logs, metrics and alarms")
+System_Ext(oncall, "On-call channel", "<TO SUPPLY>")
+
+Rel(member, lab, "Uses Learner capabilities", "HTTPS")
+Rel(staff, lab, "Uses role capabilities", "HTTPS")
+Rel(lab, cw, "Logs 403 security events to")
+Rel(cw, oncall, "Alerts on more than 100 failures in 5 minutes")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — List a page of results
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExplorePage" as page
+  participant "HttpCatalogueApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Request logging middleware" as log
+  participant "List route handler" as route
+  participant "PaginationPolicy" as pol
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "List action" as act
+  participant "<Noun>Repository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> page : Open list or request next page
+page -> client : list(limit, cursor)
+client -> log : GET /api/v1/... ?limit&cursor
+log -> route : Pass through remaining middleware
+route -> pol : validate(PageRequest)
+alt limit > 100 (L2-121)
+  pol --> route : Problem pagination.limit_exceeded
+  route --> log : 400 problem response
+else limit within bound
+  pol --> route : Valid PageRequest
+  route -> act : execute(pageRequest)
+  act -> repo : findPage(pageRequest)
+  repo -> db : Keyset query LIMIT limit+1
+  db --> repo : Rows
+  repo --> act : Page<T> with nextCursor
+  act --> route : Page<T>
+  route --> log : 200 JSON
+end
+log -> cw : ApiLatency(route, read, duration) for p95 300 ms / p99 800 ms budget (L2-121)
+log --> client : Response
+client --> page : Items and nextCursor
+page --> actor : Show results and ll-pagination
+@enduml

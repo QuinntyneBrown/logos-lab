@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Transcript and captions preference
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "VideoPage" as page
+  participant "ll-transcript" as transcript
+  participant "ll-player" as player
+  participant "VideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "transcript and preference route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetTranscriptAction" as action
+  participant "SavePlayerPreferencesAction" as pref
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Media storage (S3)" as s3
+end box
+page -> client : getTranscript(videoId)
+client -> route : GET /api/v1/videos/{videoId}/transcript
+route -> action : execute(videoId)
+action -> db : Load English track of a published video
+action -> s3 : Read WebVTT
+action --> route : Cues
+route --> client : 200 TranscriptCue[]
+client --> transcript : Cues
+loop During playback
+  player -> transcript : currentTime
+  transcript --> actor : Highlight current cue (L2-041)
+end
+actor -> transcript : Activate cue at 12:34
+transcript -> player : seek(754)
+actor -> player : Turn captions on
+player -> client : savePlayerPreferences(captionsOn)
+client -> route : PUT /api/v1/me/player-preferences
+route -> pref : execute(userId, preference)
+pref -> db : Save PlayerPreference
+note over page, db : Next video loads the preference and starts with captions on (L2-041)
+@enduml

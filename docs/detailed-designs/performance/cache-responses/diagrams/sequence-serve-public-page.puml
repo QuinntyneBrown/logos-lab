@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Serve a public page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+  participant "CacheHeadersInterceptor (SSR)" as ssr
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "AuthStateViewerFunction" as fn
+  participant "CDN page cache" as cdn
+end box
+actor -> browser : Open /articles/{slug}
+browser -> fn : GET /articles/{slug}
+fn -> fn : Session cookie present?
+alt No session cookie
+  fn -> cdn : x-ll-auth-state: anonymous
+  alt Cached copy younger than 5 minutes
+    cdn --> browser : Cached page
+  else No cached copy
+    cdn -> ssr : Forward request without cookies
+    ssr -> ssr : Render visitor view
+    ssr --> cdn : 200 with Cache-Control: public, s-maxage=300 (L2-124 AC2)
+    cdn -> cdn : Store for up to 5 minutes
+    cdn --> browser : Page
+  end
+else Session cookie present
+  fn -> cdn : x-ll-auth-state: member
+  cdn -> ssr : Forward request with session cookie
+  ssr -> ssr : Render personalized view
+  ssr --> cdn : 200 with Cache-Control: private, no-store (L2-124 AC3)
+  cdn --> browser : Page, not stored at the edge
+end
+browser --> actor : Show page
+@enduml

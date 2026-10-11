@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a collection
+
+Container(web, "Logos Lab Web", "Angular SSR", "CollectionPage, CollectionsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(r1, "GET /api/v1/collections/slug", "Route handler", "Anonymous")
+  Component(r2, "GET /api/v1/me/collections/collectionId/progress", "Route handler", "Authenticated, current user")
+  Component(a1, "GetCollectionAction", "Action", "Loads collection")
+  Component(a2, "GetCollectionProgressAction", "Action", "Completion per item")
+  Component(svc, "CollectionService", "Domain service", "Visible items, count, duration")
+  Component(policy, "PublishedContentPolicy", "Domain rule", "Published and not hidden")
+  Component(prog, "LearningProgressService", "Domain service", "Completion states")
+  Component(repo, "CollectionRepository", "Repository", "collections, collection_items")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Collections and learning progress")
+Rel(web, r1, "Calls", "JSON/HTTPS")
+Rel(web, r2, "Calls when signed in", "JSON/HTTPS")
+Rel(r1, a1, "Invokes")
+Rel(r2, a2, "Invokes with current user id")
+Rel(a1, svc, "Loads")
+Rel(svc, policy, "Applies to items")
+Rel(svc, repo, "Queries")
+Rel(a2, svc, "Reads visible item ids")
+Rel(a2, prog, "Reads states")
+Rel(repo, db, "Reads", "SQL")
+Rel(prog, db, "Reads", "SQL")
+@enduml

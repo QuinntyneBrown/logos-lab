@@ -1,0 +1,69 @@
+@startuml
+title UML sequence behaviour — Set a new password
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ResetPasswordPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "password-resets route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CompletePasswordResetAction" as action
+  participant "AccountTokenService" as tokens
+  participant "PasswordPolicyService" as pwd
+  participant "SessionService" as sessions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Open /reset-password?token=...
+page -> client : checkPasswordResetLink(token)
+client -> route : POST /api/v1/auth/password-resets/validations
+route -> tokens : check(token, PasswordReset)
+tokens -> db : Find unused, unexpired token by hash
+db --> tokens : Token or none
+alt expired, used or tampered
+  route --> client : 410 "link-invalid"
+  page --> actor : Expired state with "Request a new link"
+else valid
+  route --> client : 204
+  page --> actor : New password form with rules
+  actor -> page : Enter new password, submit
+  page -> client : completePasswordReset(token, newPassword)
+  client -> route : POST /api/v1/auth/password-resets/completions
+  route -> action : execute(token, newPassword)
+  action -> pwd : validate(newPassword)
+  alt fails L2-006 rules
+    pwd --> action : Invalid
+    action --> route : PasswordProblem
+    route --> client : 422 problem
+    page --> actor : Invalid state, error under the field
+  else valid
+    action -> tokens : consume(token, PasswordReset)
+    tokens -> db : Set usedAt (single use)
+    action -> db : Save new password hash
+    action -> sessions : revokeAll(userId)
+    sessions -> db : Revoke every session (L2-011)
+    action -> queue : Enqueue EmailSendJob (confirmation)
+    action --> route : Ok, transaction committed
+    route --> client : 204
+    page --> actor : Success state, sign-in is the next step
+  end
+end
+@enduml

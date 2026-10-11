@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Unblock a member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "BlockedMembersPage" as page
+  participant "BlocksApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Blocks route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListBlockedMembersAction" as list
+  participant "UnblockMemberAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open Settings > Blocked members
+page -> client : list()
+client -> route : GET /api/v1/me/blocks
+route -> list : execute(userId)
+list -> db : Blocks where blockerId = caller (L2-017)
+route --> client : 200 rows
+page --> actor : Rows with Unblock, or empty state
+actor -> page : Press Unblock on a row
+page -> client : unblock(memberId)
+client -> route : DELETE /api/v1/me/blocks/{memberId}
+route -> action : execute(userId, memberId)
+action -> db : Delete caller's block row
+alt delete fails
+  route --> client : 5xx problem
+  page --> actor : Show error state
+else deleted
+  route --> client : 204
+  page --> actor : "You unblocked {name}", restrictions lifted (L2-067)
+end
+@enduml

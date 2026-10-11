@@ -1,0 +1,130 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Register an account
+
+package "Logos Lab Web" {
+  class RegisterPage {
+    -api: AuthApi
+    +form: FormGroup
+    +state: RegisterState
+    +retryAfterSeconds: number | null
+    +submit(): void
+  }
+  interface AuthApi {
+    +register(request: RegisterRequest): Observable<void>
+  }
+  class HttpAuthApi
+  class RegisterRequest {
+    +displayName: string
+    +email: string
+    +password: string
+    +acceptedTerms: boolean
+    +marketingConsent: boolean
+  }
+}
+package "Logos Lab API" {
+  class RegistrationsRouteHandler {
+    +POST(request: Request): Promise<Response>
+  }
+  class RegisterAccountAction {
+    +execute(input: RegisterAccountInput, ip: string): Promise<Result<void, ValidationProblem>>
+  }
+  class PasswordPolicyService {
+    +minLength: number = 12
+    +maxLength: number = 128
+    +validate(password: string): Promise<PasswordCheck>
+  }
+  interface BreachedPasswordList {
+    +contains(password: string): Promise<boolean>
+  }
+  class PasswordHasher {
+    +hash(password: string): Promise<string>
+    +verify(hash: string, password: string): Promise<boolean>
+  }
+  class AccountTokenService {
+    +issue(userId: Uuid, purpose: TokenPurpose, ttl: Duration): Promise<string>
+  }
+  class ConsentService {
+    +recordRegistration(userId: Uuid, termsVersion: string, privacyVersion: string, marketing: boolean): Promise<void>
+  }
+  class User {
+    +id: Uuid
+    +email: string
+    +emailNormalized: string
+    +displayName: string
+    +passwordHash: string
+    +state: AccountState
+    +createdAt: Instant
+  }
+  class UserRole {
+    +userId: Uuid
+    +role: Role
+    +grantedAt: Instant
+  }
+  class AccountToken {
+    +id: Uuid
+    +userId: Uuid
+    +tokenHash: string
+    +purpose: TokenPurpose
+    +expiresAt: Instant
+    +usedAt: Instant | null
+  }
+  enum AccountState {
+    Unverified
+    Active
+    Suspended
+    Banned
+    Deactivated
+  }
+  enum Role {
+    Learner
+    Expert
+    Editor
+    Moderator
+    Administrator
+  }
+  enum TokenPurpose {
+    EmailVerification
+    PasswordReset
+    EmailChange
+    EmailChangeReport
+  }
+  class UserRepository {
+    +findByEmail(emailNormalized: string): Promise<User | null>
+    +insert(user: User, roles: Role[]): Promise<void>
+  }
+  class EmailSendJob {
+    +template: string
+    +to: string
+    +data: Record<string, string>
+  }
+}
+RegisterPage ..> AuthApi : depends on
+HttpAuthApi ..|> AuthApi
+AuthApi ..> RegisterRequest : sends
+RegistrationsRouteHandler ..> RegisterAccountAction : calls
+RegisterAccountAction ..> PasswordPolicyService
+RegisterAccountAction ..> PasswordHasher
+RegisterAccountAction ..> AccountTokenService
+RegisterAccountAction ..> ConsentService
+RegisterAccountAction ..> UserRepository
+RegisterAccountAction ..> EmailSendJob : enqueues
+PasswordPolicyService ..> BreachedPasswordList
+UserRepository ..> User : persists
+User --> AccountState : has
+User "1" *-- "1..*" UserRole
+UserRole --> Role
+User "1" --> "*" AccountToken
+AccountToken --> TokenPurpose
+@enduml

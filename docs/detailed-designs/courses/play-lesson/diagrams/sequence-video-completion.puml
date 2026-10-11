@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Complete a video lesson
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "LessonPlayerPage" as page
+  participant "Tessera video-player" as tv
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "videos watch-segments route (videos)" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordWatchSegmentsAction (videos)" as rec
+  participant "LessonCompletionService" as comp
+  participant "ProgressService" as prog
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> tv : Watch video lesson
+tv -> page : Watched segment events
+page -> route : POST watch segments (L2-042)
+route -> rec : execute(userId, videoId, segments)
+rec -> db : Store server-recorded segments
+db --> rec : Commit
+rec -> comp : evaluateVideoLesson(userId, videoId)
+comp -> db : Count distinct seconds from recorded segments
+db --> comp : Distinct seconds
+alt distinct seconds >= 90% of video duration (L2-029)
+  comp -> db : Insert lesson_completion (source VideoWatched) for each enrolled course lesson
+  comp -> prog : recalculate(enrolmentId)
+  prog --> comp : Progress
+  comp --> rec : Completed
+else below 90%, or forged client claim
+  comp --> rec : Not complete (claims are ignored)
+end
+rec --> route : Result with lesson completion
+route --> page : 200 result
+page --> actor : Lesson shows Completed when granted
+@enduml

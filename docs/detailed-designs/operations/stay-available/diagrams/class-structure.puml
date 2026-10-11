@@ -1,0 +1,102 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Stay available
+
+package "Logos Lab Web" {
+  class AdminAnnouncementsPage {
+    +announcements: Signal<Announcement[]>
+    +openMaintenanceDialog(): void
+  }
+  class MaintenanceWindowDialog {
+    +startsAt: FormControl<string>
+    +endsAt: FormControl<string>
+    +announcementId: FormControl<string>
+    +submit(): void
+  }
+  interface AnnouncementsApi {
+    +scheduleMaintenance(request: ScheduleMaintenanceRequest): Observable<MaintenanceWindowDto>
+  }
+  class HttpAnnouncementsApi {
+    +scheduleMaintenance(request: ScheduleMaintenanceRequest): Observable<MaintenanceWindowDto>
+  }
+  class ScheduleMaintenanceRequest {
+    +announcementId: string
+    +startsAt: string
+    +endsAt: string
+  }
+}
+
+package "Logos Lab API" {
+  class MaintenanceWindowsRoute {
+    +POST(request: Request): Promise<Response>
+  }
+  class ScheduleMaintenanceWindowAction {
+    +MIN_NOTICE_HOURS: number = 72
+    +execute(actor: UserId, input: ScheduleMaintenanceInput): Promise<Result<MaintenanceWindow>>
+  }
+  class MaintenanceWindow {
+    +id: string
+    +announcementId: string
+    +startsAt: Date
+    +endsAt: Date
+    +createdBy: string
+    +durationMinutes(): number
+  }
+  class Announcement {
+    +id: string
+    +message: string
+    +severity: AnnouncementSeverity
+    +startsAt: Date
+    +endsAt: Date
+  }
+  enum AnnouncementSeverity {
+    Info
+    Warning
+  }
+  class MaintenanceWindowRepository {
+    +save(window: MaintenanceWindow): Promise<void>
+    +listForMonth(month: YearMonth): Promise<MaintenanceWindow[]>
+  }
+  class AvailabilityReport {
+    +TARGET: number = 0.999
+    +MAX_EXCLUDED_MINUTES: number = 240
+    +compute(month: YearMonth, checks: CheckResult[], windows: MaintenanceWindow[]): AvailabilityResult
+  }
+  class CheckResult {
+    +canary: string
+    +at: Date
+    +succeeded: boolean
+  }
+  class AvailabilityResult {
+    +month: YearMonth
+    +availability: number
+    +excludedMinutes: number
+    +meetsTarget: boolean
+  }
+}
+
+AdminAnnouncementsPage ..> MaintenanceWindowDialog : opens
+MaintenanceWindowDialog ..> AnnouncementsApi : depends on
+HttpAnnouncementsApi ..|> AnnouncementsApi
+AnnouncementsApi ..> ScheduleMaintenanceRequest : sends
+MaintenanceWindowsRoute ..> ScheduleMaintenanceWindowAction : calls
+ScheduleMaintenanceWindowAction ..> MaintenanceWindowRepository : uses
+ScheduleMaintenanceWindowAction ..> Announcement : reads start
+MaintenanceWindowRepository --> MaintenanceWindow : persists
+MaintenanceWindow "*" --> "1" Announcement : announced by
+Announcement --> AnnouncementSeverity : has
+AvailabilityReport ..> CheckResult : reads
+AvailabilityReport ..> MaintenanceWindow : excludes
+AvailabilityReport ..> AvailabilityResult : produces
+@enduml

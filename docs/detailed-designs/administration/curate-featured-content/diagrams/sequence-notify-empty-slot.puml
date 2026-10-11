@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Notify editors about an empty featured slot
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Archive or hide action\n(editorial or moderation)" as caller
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "FeaturedSlotCheckJob" as job
+  participant "FeaturedItemRepository" as repo
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+caller -> queue : Enqueue FeaturedSlotCheckJob(contentId) after commit
+queue -> job : Deliver message to the Worker
+job -> repo : findByContent(contentId)
+repo -> db : Select featured item
+db --> repo : Row or none
+alt content is not featured
+  job --> queue : Acknowledge
+else featured item archived or hidden
+  job -> db : List Editors and Administrators
+  db --> job : Recipients
+  loop each editor
+    job -> notify : notify(editor, "A featured slot is empty", item title) (L2-097)
+    notify -> db : Insert notification once per item and archive event (dedup key)
+  end
+  job --> queue : Acknowledge
+end
+@enduml

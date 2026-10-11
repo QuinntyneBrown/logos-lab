@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Attribution of past comments
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Comments section" as page
+  participant "CommentsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "comments route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListCommentsAction" as action
+  participant "MemberAttributionService" as attr
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open an article's comments
+page -> client : listComments(contentId)
+client -> route : GET /api/v1/.../comments
+route -> action : execute(contentId, page)
+action -> db : Select comments with author state, excluding authors in state Banned (L2-019)
+db --> action : Comments
+loop each comment
+  action -> attr : attributionFor(author)
+  alt author Deactivated
+    attr --> action : "Former member", no avatar or profile link
+  else author Active, Unverified or Suspended
+    attr --> action : Display name
+  end
+end
+action --> route : Comments with attribution
+route --> client : 200
+page --> actor : Comments; Banned author shown as "Removed member" wherever the name appears elsewhere
+@enduml

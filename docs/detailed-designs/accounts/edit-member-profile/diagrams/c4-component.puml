@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit member profile
+
+Container(web, "Logos Lab Web", "Angular", "SettingsProfilePage, AvatarUploadDialog, MemberProfilePage")
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "Route handlers", "app/api/v1/me/profile, me/avatar, members/[id]", "Thin handlers")
+  Component(update, "UpdateProfileAction", "Action", "Name 2-50, bio up to 500")
+  Component(upload, "UploadAvatarAction", "Action", "Type, size and dimension checks")
+  Component(view, "GetMemberProfileAction", "Action", "Public fields only")
+  Component(repo, "UserRepository", "Repository", "Profile columns")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "AvatarProcessJob", "Job", "Scan, crop, re-encode, strip EXIF")
+  Component(img, "ImageProcessor", "Library wrapper", "<TO SUPPLY>")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, avatar_uploads")
+ContainerDb(s3, "Media storage", "Amazon S3", "Quarantine and avatar renditions")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "AvatarProcessJob")
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+Rel(web, routes, "Calls", "JSON/HTTPS")
+Rel(routes, update, "Calls")
+Rel(routes, upload, "Calls")
+Rel(routes, view, "Calls")
+Rel(update, repo, "Updates")
+Rel(view, repo, "Reads public fields")
+Rel(upload, s3, "Puts original")
+Rel(upload, queue, "Enqueues")
+Rel(job, queue, "Consumes")
+Rel(job, scanner, "Scans")
+Rel(job, img, "Crops and re-encodes")
+Rel(job, s3, "Writes rendition")
+Rel(job, db, "Sets avatarKey", "SQL")
+Rel(repo, db, "SQL")
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Render a public page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or crawler" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SSR server" as ssr
+  participant "CourseOverviewPage" as page
+  participant "CoursesApi" as client
+  participant "Browser application" as spa
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "courses route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCourseAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ssr : GET /courses/imago-dei-in-an-age-of-machines
+ssr -> ssr : serverRoutes gives RenderMode.Server
+ssr -> page : Render
+page -> client : getCourse(slug)
+client -> route : GET /api/v1/courses/{slug} (no cookies)
+route -> action : execute(slug)
+action -> db : Load published course
+db --> action : Course
+action --> route : CourseDetail
+route --> client : 200 JSON
+client -> client : Store in transfer cache
+client --> page : CourseDetail
+page --> ssr : HTML with title, heading, summary, outline (Apply L2-142)
+ssr --> actor : 200 complete HTML with reserved image dimensions
+opt browser runs JavaScript
+  actor -> spa : Load bundles
+  spa -> spa : Hydrate using transfer cache, no refetch (Apply L2-142 no layout shift)
+  spa -> client : getMemberState(slug) with session cookie
+  client --> spa : Member state
+  spa --> actor : Fill reserved slot (for example Continue button)
+end
+@enduml

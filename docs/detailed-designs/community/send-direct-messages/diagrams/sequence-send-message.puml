@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Send and receive a message
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Sender" as actor
+actor "Recipient" as recipient
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ConversationPage" as page
+  participant "MessagesApi" as client
+  participant "Recipient browser (MessagesPage, ll-top-bar)" as rpage
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Messages route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SendMessageAction" as action
+  participant "BlockService" as block
+  participant "MessageRateLimitService" as rate
+  participant "MessageEncryptionService" as crypto
+  participant "MessageDeliveryService" as delivery
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+rpage -> route : GET /api/v1/messages/stream (recipient online)
+route -> cache : Subscribe to recipient channel
+actor -> page : Write 1-2,000 characters and send
+page -> client : send(conversationId, body)
+client -> route : POST /api/v1/messages/conversations/{id}/messages
+route -> action : execute(senderId, conversationId, body)
+action -> db : Load conversation where sender is a participant
+alt not a participant
+  route --> client : 404 problem
+else participant
+  action -> block : isBlocked(recipient, sender)
+  alt recipient blocked sender and sender is not sending a staff notice
+    route --> client : 403 problem
+    page --> actor : "You can't message this member" (L2-067)
+  else allowed
+    action -> rate : checkSend(senderId)
+    rate -> cache : Increment minute counter
+    alt more than 20 messages in the minute
+      route --> client : 429 problem (L2-066)
+      page --> actor : Show rate-limited state
+    else within limit
+      action -> crypto : encrypt(body) (L2-066 encrypted at rest)
+      action -> db : Insert message, update lastMessageAt
+      action -> delivery : publish(recipientId, message, unreadCount)
+      delivery -> cache : PUBLISH recipient channel
+      action --> route : Message
+      route --> client : 201 MessageView
+      page --> actor : Show sent message
+      cache --> route : Delivery event
+      route --> rpage : SSE message and unread count (within 5 s, L2-066)
+      rpage --> recipient : Conversation moves to top, header count updates
+    end
+  end
+end
+@enduml

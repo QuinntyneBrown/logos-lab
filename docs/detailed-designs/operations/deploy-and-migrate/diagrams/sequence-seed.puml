@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Run the seed command
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator or pipeline" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "seed command" as cmd
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SeedRunner" as runner
+  participant "SeedSet" as set
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> cmd : Run seed
+cmd -> runner : run(sets)
+loop each SeedSet
+  runner -> set : apply(transaction)
+  set -> db : INSERT ... ON CONFLICT (natural key) DO UPDATE
+  db --> set : Rows inserted or unchanged
+end
+runner -> db : Commit
+runner --> cmd : Done
+cmd --> actor : Same result on every run (Apply L2-139)
+@enduml

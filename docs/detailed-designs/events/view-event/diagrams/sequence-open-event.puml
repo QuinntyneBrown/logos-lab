@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Open an event page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventPage" as page
+  participant "EventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "event route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetEventAction" as action
+  participant "EventViewService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Map tile provider" as map
+end box
+actor -> page : Open /events/{slug}
+page -> client : getEvent(slug)
+client -> route : GET /api/v1/events/by-slug/{slug}
+route -> action : execute(slug)
+action -> db : Load published event, hosts, agenda, count
+action -> svc : toPublic(event, registered, now)
+svc --> action : PublicEventModel without join link (L2-052)
+route --> client : 200, cacheable
+page --> actor : Details in the viewer's zone with zone toggle
+alt Event cancelled
+  page --> actor : "Cancelled" notice with reason, registration unavailable (L2-052)
+else Signed in
+  page -> client : getMyEventState(eventId)
+  client -> route : GET /api/v1/me/events/{eventId}
+  route --> client : Registration status, waitlist position, join info
+  page --> actor : Panel for that state
+else Visitor
+  page --> actor : "Sign in to register"
+end
+opt In-person or hybrid, viewer chooses Show the map
+  actor -> page : Show the map
+  page -> map : Load tiles (first contact with the provider)
+  map --> page : Map
+end
+actor -> page : Toggle to event time
+page --> actor : Times in the event time zone
+@enduml

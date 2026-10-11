@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Show error pages
+
+Person(member, "Member or visitor", "Uses the site from a browser")
+System(ll, "Logos Lab", "Shows branded error pages and contained failures")
+System_Ext(ses, "Amazon SES", "Email, used from jobs")
+System_Ext(mc, "AWS Elemental MediaConvert", "Video processing, used from jobs")
+
+Rel(member, ll, "Uses", "HTTPS")
+Rel(ll, ses, "Sends email via")
+Rel(ll, mc, "Transcodes video via")
+@enduml

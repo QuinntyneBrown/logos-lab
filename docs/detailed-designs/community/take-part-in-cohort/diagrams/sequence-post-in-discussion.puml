@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Post in the cohort discussion
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Cohort member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CommentsSection" as page
+  participant "CommentsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Comments route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PostCommentAction" as action
+  participant "CohortAccessService" as access
+  participant "CommentSpamService" as spam
+  participant "CommentFormattingService" as format
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> page : Write a post and press Post
+page -> client : post(target Cohort/{id}, body)
+client -> route : POST /api/v1/comments
+route -> action : execute(userId, request)
+action -> access : assertMember(userId, cohortId)
+alt not a member
+  access --> action : NotFound
+  route --> client : 404 problem (L2-064)
+else cohort read-only after end date
+  access --> action : readOnly
+  route --> client : 409 problem
+  page --> actor : Show read-only state
+else active member
+  action -> action : Apply L2-068 guidelines gate
+  action -> spam : Apply L2-062 rate, duplicate and new-account rules
+  spam -> cache : Increment counters
+  spam --> action : Accept, Hold, RateLimited or Duplicate
+  action -> format : sanitize(body) (L2-062)
+  action -> db : Insert comment with target Cohort (L2-060)
+  route --> client : 201 CommentView, or 429 / 409 problem
+  page --> actor : Post at top of feed, or matching message
+end
+@enduml

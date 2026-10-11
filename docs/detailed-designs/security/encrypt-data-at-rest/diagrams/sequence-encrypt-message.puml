@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Encrypt a direct message before storage
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Message thread" as page
+  participant "MessagesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/conversations/{id}/messages" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SendMessageAction" as action
+  participant "FieldEncryptionService" as fes
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "AWS KMS" as kms
+  database "Logos Lab database" as db
+  participant "AWS CloudTrail" as trail
+end box
+actor -> page : Send a message
+page -> client : send(conversationId, text)
+client -> route : POST
+route -> action : execute(senderId, conversationId, text)
+action -> fes : encrypt(text, {direct_messages, messageId})
+fes -> kms : GenerateDataKey with encryption context
+kms -> trail : Log key use (L2-112)
+kms --> fes : Plaintext and encrypted data key
+fes -> fes : AES-256-GCM encrypt; discard plaintext key
+fes --> action : EncryptedField
+action -> db : INSERT direct_messages (ciphertext only) (L2-112)
+db -> db : Storage and snapshots encrypted by RDS with KMS
+action --> route : Message
+route --> client : 201
+client --> page : Sent
+page --> actor : Message shown
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Purge an account after 30 days
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AccountPurgeJob" as job
+  participant "PersonalDataEraser" as eraser
+  participant "PurgeLedger" as ledger
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (SQS)" as queue
+  database "Logos Lab database" as db
+  database "Media storage (S3)" as s3
+end box
+queue -> job : Deliver AccountPurgeJob(requestId) from the nightly retention run
+job -> db : Load request; stop if Cancelled or already Purged (idempotent, L2-140)
+job -> eraser : erase(userId)
+eraser -> db : Delete profile, enrolments, progress, saved items, follows, registrations, notifications, preferences
+eraser -> db : Keep comments and cohort posts, attribute to "Former member" (L2-117, L2-019)
+eraser -> db : Delete direct messages the member sent
+eraser -> db : Mark certificates so verification shows "No longer available"
+eraser -> s3 : Delete avatar and export objects
+eraser --> job : Counts per kind
+job -> ledger : append(userId, purgedAt)
+ledger -> s3 : Write purge-ledger entry
+job -> db : Request status Purged
+note over db, s3 : Database snapshots age out within 35 days (L2-138)
+opt A backup is ever restored
+  queue -> job : PurgeLedgerReplayJob(restoredAt)
+  job -> ledger : entriesSince(backup time)
+  job -> eraser : Re-apply each purge (L2-117)
+end
+@enduml

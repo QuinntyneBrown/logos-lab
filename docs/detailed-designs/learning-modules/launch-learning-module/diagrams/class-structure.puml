@@ -1,0 +1,110 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Launch a learning module
+
+enum ScormVersion {
+  Scorm12
+  Scorm2004Edition3
+  Scorm2004Edition4
+}
+enum PlayerMode {
+  Embedded
+  FullViewport
+}
+class ModuleLaunch {
+  +attemptId: string
+  +scormVersion: ScormVersion
+  +launchUrl: string
+  +contentOrigin: string
+  +expiresAt: Date
+  +runtimeSnapshot: Map<string, string>
+}
+class LaunchOptions {
+  +courseLessonId: string
+  +newAttempt: boolean
+}
+class LaunchFailure {
+  +packageId: string
+  +attemptId: string
+  +elapsedMs: number
+  +userAgent: string
+}
+class SignedLaunchToken {
+  +packageId: string
+  +userId: string
+  +expiresAt: Date
+  +signature: string
+  +TTL_HOURS: number = 4
+}
+class ModuleAttempt {
+  +id: string
+  +userId: string
+  +moduleId: string
+  +number: number
+  +startedAt: Date
+  +lastAccessedAt: Date
+}
+interface ModulesApi {
+  +launch(slug: string, options: LaunchOptions): Observable<ModuleLaunch>
+  +reportLaunchFailure(slug: string, failure: LaunchFailure): Observable<void>
+}
+class HttpModulesApi
+class ModulePlayerPage {
+  -api: ModulesApi
+  +launch: Signal<ModuleLaunch>
+  +retry(): void
+  +openReportProblem(): void
+}
+class PlayerComponent <<ll-player>> {
+  +mode: PlayerMode
+  +LOAD_TIMEOUT_MS: number = 20000
+  +enterFullScreen(): void
+  +exit(): void
+}
+class TesseraScormPlayer <<external library>> {
+  +launchUrl: string
+  +allowedOrigin: string
+  +version: ScormVersion
+  +sandbox: string
+  +loaded: EventEmitter
+}
+class LaunchModuleAction {
+  +execute(slug: string, options: LaunchOptions, user: SessionUser): Promise<ModuleLaunch>
+}
+class LaunchEligibilityService {
+  +assertEligible(user: SessionUser, module: Module, lesson: Lesson): void
+}
+class ModuleAttemptService {
+  +openOrCreate(userId: string, moduleId: string, newAttempt: boolean): Promise<ModuleAttempt>
+}
+class ScormLaunchUrlSigner {
+  +sign(packageId: string, userId: string, launchHref: string): string
+}
+class LogLaunchFailureAction {
+  +execute(slug: string, failure: LaunchFailure, user: SessionUser): Promise<void>
+}
+HttpModulesApi ..|> ModulesApi
+ModulePlayerPage ..> ModulesApi : injects MODULES_API
+ModulePlayerPage *-- PlayerComponent
+PlayerComponent *-- TesseraScormPlayer : hosts
+PlayerComponent --> PlayerMode
+ModuleLaunch --> ScormVersion
+LaunchModuleAction ..> LaunchEligibilityService
+LaunchModuleAction ..> ModuleAttemptService
+LaunchModuleAction ..> ScormLaunchUrlSigner
+LaunchModuleAction ..> ModuleLaunch : returns
+ScormLaunchUrlSigner ..> SignedLaunchToken : creates
+ModuleAttemptService --> ModuleAttempt : opens / creates
+LogLaunchFailureAction ..> LaunchFailure
+@enduml

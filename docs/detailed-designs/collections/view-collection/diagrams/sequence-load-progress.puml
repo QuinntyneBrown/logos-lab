@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Show the learner's collection progress
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CollectionPage" as CollectionPage
+  participant "CollectionsApi" as CollectionsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/me/collections/collectionId/progress" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCollectionProgressAction" as GetCollectionProgressAction
+  participant "LearningProgressService" as LearningProgressService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+CollectionPage -> CollectionsApi : getMyProgress(collectionId) after hydration
+CollectionsApi -> route : HTTPS GET with session (not cached by CDN)
+route -> route : Authenticate
+route -> GetCollectionProgressAction : execute(userId, collectionId)
+GetCollectionProgressAction -> db : Visible item ids for collection
+GetCollectionProgressAction -> LearningProgressService : statesFor(userId, ids)
+LearningProgressService -> db : Select progress where user_id = userId (L2-017)
+alt read succeeds
+  db --> LearningProgressService : Rows
+  LearningProgressService --> GetCollectionProgressAction : ItemProgress[]
+  GetCollectionProgressAction --> route : CollectionProgress with completed count
+  route --> CollectionsApi : 200 JSON
+  CollectionsApi --> CollectionPage : Progress
+  CollectionPage --> actor : Completion state on each item and "4 of 12 completed" (L2-048)
+else read fails
+  route --> CollectionsApi : 5xx problem
+  CollectionsApi --> CollectionPage : Error
+  CollectionPage --> actor : Items in order without marks; notice with Try again
+end
+@enduml

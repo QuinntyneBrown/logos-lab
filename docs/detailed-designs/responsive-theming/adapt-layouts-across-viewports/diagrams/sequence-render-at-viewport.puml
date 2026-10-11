@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Render at a viewport class
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+  participant "ExplorePage" as page
+  participant "content-grid" as grid
+  participant "ll-prose" as prose
+end box
+actor -> browser : Open /explore at any width
+browser -> page : Render server HTML
+browser -> browser : Apply mobile-first base rules (XS)
+browser -> browser : Apply each matching min-width query (SM, MD, LG, XL)
+page -> grid : Render cards
+alt XS
+  grid --> browser : 1 column (L2-130 AC1)
+else SM or MD
+  grid --> browser : 2 columns
+else LG
+  grid --> browser : 3 columns
+else XL
+  grid --> browser : 4 columns inside the centred container (max width <TO SUPPLY>, L2-130 AC3)
+end
+opt Reading page (article or lesson)
+  browser -> prose : Render body text
+  prose --> browser : Line length at most 75 characters
+end
+browser -> browser : Wrap long words; scale media; no page-level horizontal scroll at 320px (L2-130 AC2)
+browser --> actor : Layout for the active viewport class
+@enduml

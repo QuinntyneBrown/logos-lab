@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Register for an event
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "EventPage", "Angular page", "ll-rsvp-panel states")
+  Component(dialogs, "EventFullDialog, LeaveWaitlistDialog, WaitlistOfferDialog", "Angular CDK dialogs", "Confirmations")
+  Component(client, "HttpEventsApi", "EventsApi via EVENTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "registration and waitlist route handlers", "app/api/v1/events/[eventId]/...", "Thin handlers")
+  Component(actions, "RegisterForEventAction, JoinWaitlistAction, LeaveWaitlistAction, AcceptWaitlistOfferAction", "Actions", "Own the transaction")
+  Component(reg, "RegistrationService", "Domain service", "Cut-off, capacity, duplicates")
+  Component(wl, "WaitlistService", "Domain service", "Positions, 2-hour and 30-minute rules")
+  Component(repo, "EventRepository, EventRegistrationRepository, WaitlistEntryRepository", "Repositories", "PostgreSQL")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(jobs, "WaitlistPromotionJob, WaitlistOfferExpiryJob, RegistrationConfirmationJob", "Jobs", "Idempotent")
+}
+Rel(page, dialogs, "Opens")
+Rel(page, client, "register, joinWaitlist")
+Rel(dialogs, client, "joinWaitlist, leaveWaitlist, acceptOffer")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, reg, "Applies L2-053")
+Rel(actions, wl, "Applies L2-054")
+Rel(actions, repo, "Reads and writes")
+Rel(jobs, wl, "Promotes and expires")
+Rel(jobs, repo, "Reads and writes")
+@enduml

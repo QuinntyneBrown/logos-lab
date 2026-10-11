@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Preview content
+
+Person(author, "Author or Editor", "Previews content")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Passes /studio/preview through uncached")
+  Container(web, "Logos Lab Web", "Angular with Angular SSR on Node.js", "PreviewPage with public layout and banner")
+  Container(api, "Logos Lab API", "Next.js route handlers", "GET /api/v1/studio/items/{id}/preview")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Content items and working revisions")
+  Container(media, "Media storage", "Amazon S3 through CloudFront", "Cover and body images")
+}
+Rel(author, cdn, "Opens preview", "HTTPS")
+Rel(cdn, web, "Forwards with no caching", "HTTPS")
+Rel(web, api, "Calls StudioApi during SSR and in the browser", "JSON/HTTPS")
+Rel(api, db, "Reads working revision", "SQL")
+Rel(web, media, "Loads images", "HTTPS")
+@enduml

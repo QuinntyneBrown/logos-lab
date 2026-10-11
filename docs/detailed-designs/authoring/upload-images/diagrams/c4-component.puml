@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Upload images
+
+Container_Boundary(api, "Logos Lab API and Worker (shared domain code)") {
+  Component(routes, "media/images routes", "Next.js route handlers", "create, complete, get, update")
+  Component(create, "CreateImageUploadAction", "Action", "Declared type and size check; presigned POST")
+  Component(complete, "CompleteImageUploadAction", "Action", "Starts processing")
+  Component(update, "UpdateImageDetailsAction", "Action", "Alt text, decorative, focal point")
+  Component(job, "ImageProcessJob", "Worker job", "Magic bytes, scan, EXIF removal, renditions")
+  Component(service, "ImageService", "Domain service", "Accepted types, 15 MB, widths and formats")
+  Component(repo, "ImageAssetRepository", "Repository", "PostgreSQL access")
+  Component(notify, "NotificationService", "Domain service", "Tells the uploader about a refusal")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "image_assets")
+ContainerDb(s3, "Media storage", "Amazon S3", "Originals and renditions")
+ContainerQueue(sqs, "Job queue", "Amazon SQS", "ImageProcessJob")
+
+Rel(routes, create, "Calls")
+Rel(routes, complete, "Calls")
+Rel(routes, update, "Calls")
+Rel(create, service, "Checks limits with")
+Rel(job, service, "Reads rules from")
+Rel(create, s3, "Signs presigned POST for", "AWS SDK")
+Rel(complete, sqs, "Enqueues", "SQS")
+Rel(job, s3, "Reads and writes", "S3 API")
+Rel(job, notify, "Reports refusals through")
+Rel(create, repo, "Inserts through")
+Rel(complete, repo, "Updates through")
+Rel(update, repo, "Updates through")
+Rel(job, repo, "Updates through")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

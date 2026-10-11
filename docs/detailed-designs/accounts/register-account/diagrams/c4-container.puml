@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Register an account
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System_Boundary(lab, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate-limit and throttle counters")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Job messages from API to Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs")
+}
+System_Ext(breach, "Breached password list", "Known-breached passwords; source <TO SUPPLY>")
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(visitor, web, "Fills in the registration form", "HTTPS")
+Rel(web, api, "POST /api/v1/auth/registrations", "JSON/HTTPS")
+Rel(api, cache, "Counts attempts per IP address")
+Rel(api, breach, "Checks password")
+Rel(api, db, "Writes user, role, token and consent")
+Rel(api, queue, "Enqueues EmailSendJob")
+Rel(worker, queue, "Consumes")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

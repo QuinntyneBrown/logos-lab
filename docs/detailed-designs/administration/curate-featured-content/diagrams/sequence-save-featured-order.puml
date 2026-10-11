@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Save featured items and order
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminFeaturedPage" as page
+  participant "ItemPickerDialog" as picker
+  participant "FeaturedApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/admin/featured" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveFeaturedSlotsAction" as action
+  participant "FeaturedContentService" as service
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Add item
+alt 6 slots already in use
+  page --> actor : Add item disabled with the reason (L2-097)
+else free slot
+  page -> picker : Open (CDK Dialog), published items only
+  actor -> picker : Choose items
+  picker --> page : Selected items appended
+end
+actor -> page : Move up or down, set schedule, Save order
+page -> client : saveSlots(slots)
+client -> route : HTTPS PUT with CSRF token
+route -> route : Authenticate; require Editor or Administrator role
+route -> action : execute(actor, slots)
+action -> service : validate(slots)
+service -> db : Read content state of each item
+db --> service : States
+alt more than 6 items, an item not published, or end before start
+  service --> action : Validation errors
+  action --> route : 422 problem
+  page --> actor : Errors shown; saved order unchanged
+else valid
+  action -> db : Replace featured_items with positions 1..n in one transaction
+  action -> audit : record("Featured content reordered", before order, after order)
+  action -> db : Commit
+  action --> route : Saved slots
+  route --> client : 200 JSON
+  page --> actor : Saved; home page updates within 60 seconds (L2-097)
+end
+@enduml

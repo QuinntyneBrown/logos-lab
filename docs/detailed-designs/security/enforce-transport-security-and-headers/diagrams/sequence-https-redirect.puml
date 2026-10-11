@@ -1,0 +1,37 @@
+@startuml
+title UML sequence behaviour — Redirect plain HTTP and enforce TLS
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SSR server" as ssr
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN (CloudFront)" as cdn
+end box
+actor -> cdn : GET http://www.logoslab.ca/courses
+cdn -> cdn : Apply viewer protocol policy (L2-104)
+cdn --> actor : 301 Location https://www.logoslab.ca/courses
+actor -> cdn : TLS handshake
+alt TLS 1.0 or 1.1 offered
+  cdn --> actor : Handshake failure (minimum TLS 1.2, L2-104)
+else TLS 1.2 or later
+  cdn --> actor : Handshake complete
+  actor -> cdn : GET https://www.logoslab.ca/courses
+  cdn -> ssr : Forward request over HTTPS
+  ssr --> cdn : 200 HTML with security headers
+  cdn --> actor : 200 HTML
+end
+@enduml

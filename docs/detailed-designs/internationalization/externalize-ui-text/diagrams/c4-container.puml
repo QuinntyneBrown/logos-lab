@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Externalize UI text
+
+
+Person(learner, "Learner or author", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR with @angular/localize", "Marked messages; html lang")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Problem responses with error codes")
+  Container(worker, "Logos Lab Worker", "Node.js", "Renders email from catalogues")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Content, caption and transcript languages")
+}
+System_Ext(ses, "Amazon SES", "Email delivery")
+
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes")
+Rel(worker, db, "Reads")
+Rel(worker, ses, "Sends through")
+@enduml

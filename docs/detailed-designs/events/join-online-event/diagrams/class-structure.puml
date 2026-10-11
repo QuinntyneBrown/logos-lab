@@ -1,0 +1,60 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Join an online event
+
+class EventPage {
+  +viewer: Signal<EventViewerState>
+  +scheduleRefresh(at: Instant): void
+}
+class GetMyEventStateAction {
+  +execute(userId: Uuid, eventId: Uuid): Result<EventViewerState>
+}
+class JoinLinkService {
+  +leadTime: Duration = 15 min
+  +joinInfo(e: Event, r: EventRegistration | null, now: Instant): JoinInfo | null
+}
+class EventViewerState {
+  +registration: RegistrationStatus | null
+  +waitlistPosition: number | null
+  +join: JoinInfo | null
+}
+class JoinInfo <<value object>> {
+  +availableFrom: Instant
+  +availableUntil: Instant
+  +url: string | null
+}
+class Event {
+  +id: Uuid
+  +format: EventFormat
+  +startsAt: Instant
+  +endsAt: Instant
+  +joinUrl: string
+  +status: EventStatus
+}
+class EventRegistration {
+  +userId: Uuid
+  +status: RegistrationStatus
+}
+enum EventFormat {
+  Online
+  InPerson
+  Hybrid
+}
+EventPage ..> EventViewerState : shows
+GetMyEventStateAction ..> JoinLinkService : uses
+JoinLinkService ..> Event : reads
+JoinLinkService ..> EventRegistration : reads
+EventViewerState *-- "0..1" JoinInfo
+Event --> EventFormat
+@enduml

@@ -1,0 +1,88 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Reset password
+
+package "Logos Lab Web" {
+  class ForgotPasswordPage {
+    -api: AuthApi
+    +state: ForgotState
+    +submit(): void
+  }
+  class ResetPasswordPage {
+    -api: AuthApi
+    +token: string
+    +state: ResetState
+    +submit(): void
+  }
+  interface AuthApi {
+    +requestPasswordReset(email: string): Observable<void>
+    +checkPasswordResetLink(token: string): Observable<void>
+    +completePasswordReset(token: string, newPassword: string): Observable<void>
+  }
+  class HttpAuthApi
+}
+package "Logos Lab API" {
+  class RequestPasswordResetAction {
+    +execute(email: string): Promise<void>
+  }
+  class CompletePasswordResetAction {
+    +execute(token: string, newPassword: string): Promise<Result<void, ResetProblem>>
+  }
+  class PasswordResetThrottle {
+    +maxPerHour: number = 3
+    +allow(emailNormalized: string): Promise<boolean>
+  }
+  class AccountTokenService {
+    +issue(userId: Uuid, purpose: TokenPurpose, ttl: Duration): Promise<string>
+    +check(raw: string, purpose: TokenPurpose): Promise<AccountToken | null>
+    +consume(raw: string, purpose: TokenPurpose): Promise<AccountToken | null>
+    +invalidateUnused(userId: Uuid, purpose: TokenPurpose): Promise<void>
+  }
+  class PasswordPolicyService {
+    +validate(password: string): Promise<PasswordCheck>
+  }
+  class PasswordHasher {
+    +hash(password: string): Promise<string>
+  }
+  class SessionService {
+    +revokeAll(userId: Uuid): Promise<number>
+  }
+  class User {
+    +id: Uuid
+    +state: AccountState
+    +passwordHash: string
+    +passwordChangedAt: Instant
+    +changePassword(hash: string, at: Instant): void
+  }
+  class AccountToken {
+    +userId: Uuid
+    +tokenHash: string
+    +purpose: TokenPurpose
+    +expiresAt: Instant
+    +usedAt: Instant | null
+  }
+}
+ForgotPasswordPage ..> AuthApi
+ResetPasswordPage ..> AuthApi
+HttpAuthApi ..|> AuthApi
+RequestPasswordResetAction ..> PasswordResetThrottle
+RequestPasswordResetAction ..> AccountTokenService
+CompletePasswordResetAction ..> AccountTokenService
+CompletePasswordResetAction ..> PasswordPolicyService
+CompletePasswordResetAction ..> PasswordHasher
+CompletePasswordResetAction ..> SessionService
+CompletePasswordResetAction ..> User : changes password
+AccountTokenService ..> AccountToken
+User "1" --> "*" AccountToken
+@enduml

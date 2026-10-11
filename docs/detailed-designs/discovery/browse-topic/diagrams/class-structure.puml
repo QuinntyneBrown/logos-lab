@@ -1,0 +1,80 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse a topic
+
+package "Logos Lab Web" {
+  class TopicPage {
+    -topicsApi: TopicsApi
+    +topic: Signal<TopicView>
+    +content: Signal<ContentPage>
+    +goToPage(page: number): void
+  }
+  class NotFoundPage
+  interface TopicsApi {
+    +getTopic(slug: string): Observable<TopicView>
+    +getTopicContent(slug: string, page: number): Observable<ContentPage>
+    +listTopics(withPublishedContent: boolean): Observable<TopicRef[]>
+  }
+  class HttpTopicsApi
+  class TOPICS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class TopicRouteHandler <<route: GET /api/v1/topics/slug>>
+  class TopicContentRouteHandler <<route: GET /api/v1/topics/slug/content>>
+  class TopicsRouteHandler <<route: GET /api/v1/topics>>
+  class GetTopicPageAction {
+    +execute(slug: string): Promise<TopicView>
+  }
+  class ListTopicContentAction {
+    +execute(slug: string, page: number): Promise<ContentPage>
+  }
+  class TopicService {
+    +getBySlug(slug: string): Promise<Topic>
+    +associatedExperts(topicId: UUID): Promise<ExpertSummary[]>
+    +publishedContent(topicId: UUID, page: number, pageSize: number = 24): Promise<ContentPage>
+    +topicsWithPublishedContent(): Promise<TopicRef[]>
+  }
+  class TopicRepository {
+    +findBySlug(slug: string): Promise<Topic>
+    +findWithPublishedContent(now: Date): Promise<Topic[]>
+  }
+  class Topic {
+    +id: UUID
+    +slug: string
+    +name: string
+    +description: string
+  }
+  class ContentTopic {
+    +contentId: UUID
+    +topicId: UUID
+  }
+  class TopicView {
+    +topic: Topic
+    +experts: ExpertSummary[]
+  }
+  class TopicNotFoundError
+}
+TopicPage ..> TopicsApi
+TopicPage ..> NotFoundPage : shows on 404
+HttpTopicsApi ..|> TopicsApi
+TOPICS_API ..> TopicsApi : provides
+TopicRouteHandler ..> GetTopicPageAction
+TopicContentRouteHandler ..> ListTopicContentAction
+TopicsRouteHandler ..> TopicService
+GetTopicPageAction --> TopicService
+ListTopicContentAction --> TopicService
+TopicService --> TopicRepository
+TopicService ..> TopicNotFoundError : throws
+TopicRepository ..> Topic : loads
+Topic "1" --> "*" ContentTopic
+TopicView --> Topic
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Report content
+
+Person(member, "Member", "Signed-in learner, expert or staff member")
+Person(moderator, "Moderator", "Logos Lab staff who review reports")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(member, logoslab, "Reports comments, posts, messages, profiles and content in", "HTTPS")
+Rel(moderator, logoslab, "Reviews reports in", "HTTPS")
+@enduml

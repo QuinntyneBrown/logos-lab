@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Process a SCORM package
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Job queue" as actor
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ScormPackageProcessJob" as job
+  participant "ScormPackageValidator" as val
+  participant "ScormManifestParser" as parser
+  participant "MalwareScanner" as scan
+  participant "SecurityEventLogger" as sec
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Media storage (S3)" as s3
+  database "Logos Lab database" as db
+  entity "Malware scanner" as scanner
+  entity "Amazon CloudWatch" as cw
+end box
+actor -> job : Deliver ScormPackageProcessJob(packageId)
+job -> s3 : Open uploaded zip
+s3 --> job : Stream
+job -> val : Validate (L2-033)
+alt not a zip archive
+  val --> job : NotZip
+else entry path absolute or contains ..
+  val --> job : PathTraversal
+  job -> sec : Log zip-slip security event
+  sec -> cw : Structured security event
+else more than 10,000 entries, or over 2 GB uncompressed while counting bytes
+  val --> job : SuspectedZipBomb
+else no imsmanifest.xml at root
+  val --> job : MissingManifest
+else valid structure
+  val --> job : No violations
+  job -> parser : Parse imsmanifest.xml
+  parser --> job : SCORM version and launch resource, or UnsupportedVersion
+  job -> db : Status Scanning
+  loop every file
+    job -> scan : scan(file)
+    scan -> scanner : Submit file
+    scanner --> scan : Clean or detection
+  end
+  alt any detection
+    scan --> job : MalwareDetected
+    job -> sec : Log malware security event
+    sec -> cw : Structured security event
+  else all clean
+    job -> s3 : Unpack to packages/{packageId}/ in content bucket
+    job -> db : Status Ready with version, launch file, counts
+  end
+end
+opt any failure reason
+  job -> db : Status Failed with every failed rule
+end
+job --> actor : Delete message; Ready within 2 minutes of upload
+@enduml

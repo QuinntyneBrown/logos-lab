@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Register for an event
+
+Person(member, "Verified member", "Registers or joins a waitlist")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, ll, "Registers for events using", "HTTPS")
+Rel(ll, ses, "Sends confirmations and offers through", "AWS SDK")
+Rel(ses, member, "Delivers email with .ics")
+@enduml

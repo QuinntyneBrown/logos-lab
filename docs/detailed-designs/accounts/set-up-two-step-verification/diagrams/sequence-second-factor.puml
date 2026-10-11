@@ -1,0 +1,78 @@
+@startuml
+title UML sequence behaviour — Second factor at sign-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SignInVerifyPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "mfa-challenges route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "VerifySecondFactorAction" as action
+  participant "SecondFactorThrottle" as throttle
+  participant "TotpService" as totp
+  participant "SessionService" as sessions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Enter 6-digit code (or a recovery code)
+page -> client : verifySecondFactor(request)
+client -> route : POST /api/v1/auth/mfa-challenges/current/verifications (challenge cookie)
+route -> action : execute(challengeToken, request, ctx)
+action -> db : Load unexpired MfaChallenge by token hash
+alt no valid challenge
+  route --> client : 401 "challenge-expired"
+  page --> actor : Back to /sign-in
+else challenge valid
+  action -> throttle : check(userId)
+  throttle -> cache : Read wrong-code count and lock
+  alt locked (L2-014: 5 wrong in 15 minutes)
+    route --> client : 423 problem with Retry-After
+    page --> actor : Locked state with reopen time and support contact
+  else TOTP code
+    action -> totp : verify(secret, code, lastUsedStep)
+    alt wrong
+      action -> throttle : recordWrong(userId)
+      throttle -> cache : Increment; at 5 set 15-minute lock
+      route --> client : 422 with tries left
+      page --> actor : Invalid state
+    else right
+      action -> db : Save lastUsedStep, delete challenge
+      action -> sessions : create(user, ctx)
+      route --> client : 200, Set-Cookie session (L2-008)
+      page --> actor : Navigate to return URL
+    end
+  else recovery code
+    action -> db : Find unused recovery code by hash for user
+    alt matches
+      action -> db : Set usedAt (never valid again)
+      action -> queue : Enqueue EmailSendJob (recovery code used, L2-014)
+      action -> sessions : create(user, ctx)
+      route --> client : 200, Set-Cookie session
+      page --> actor : Navigate to return URL
+    else no match
+      action -> throttle : recordWrong(userId)
+      route --> client : 422
+      page --> actor : Invalid state
+    end
+  end
+end
+@enduml

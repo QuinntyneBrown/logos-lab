@@ -1,0 +1,44 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Upload a SCORM package
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "StudioModulePackagePage", "Angular page", "Upload, progress and processing state")
+  Component(upload, "ll-file-upload / ll-stepper", "Shared components", "Drop zone and four steps")
+  Component(contract, "StudioModulesApi / STUDIO_MODULES_API", "API contract and token", "Package calls")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "studio/modules/[id]/packages route handlers", "Next.js route handlers", "Start, complete, get, cancel")
+  Component(start, "StartPackageUploadAction", "Action", "Size and type check, presign")
+  Component(complete, "CompletePackageUploadAction", "Action", "Confirms size, enqueues job")
+}
+Container_Boundary(workerb, "Logos Lab Worker") {
+  Component(job, "ScormPackageProcessJob", "Worker job", "Runs processing steps")
+  Component(val, "ScormPackageValidator", "Domain service", "Zip, zip-slip, zip-bomb and manifest rules")
+  Component(parser, "ScormManifestParser", "Domain service", "Version and launch resource")
+  Component(scan, "MalwareScanner", "Infrastructure adapter", "Calls the malware scanner")
+  Component(sec, "SecurityEventLogger", "Infrastructure adapter", "Structured security events")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+ContainerDb(s3, "Media storage", "Amazon S3", "Private buckets for SCORM packages and generated files")
+System_Ext(scanner, "Malware scanner", "Product TO SUPPLY")
+System_Ext(cw, "Amazon CloudWatch", "Logs")
+
+Rel(page, upload, "Renders")
+Rel(page, contract, "Depends on")
+Rel(contract, route, "Calls through HttpStudioModulesApi", "JSON/HTTPS")
+Rel(page, s3, "Uploads parts", "HTTPS")
+Rel(route, start, "Invokes")
+Rel(route, complete, "Invokes")
+Rel(start, db, "Inserts package", "SQL")
+Rel(complete, job, "Enqueues via SQS")
+Rel(job, val, "Validates with")
+Rel(job, parser, "Parses with")
+Rel(job, scan, "Scans with")
+Rel(job, sec, "Reports with")
+Rel(scan, scanner, "Sends files to")
+Rel(sec, cw, "Writes to")
+Rel(job, s3, "Reads and unpacks", "AWS SDK")
+Rel(job, db, "Updates status", "SQL")
+@enduml

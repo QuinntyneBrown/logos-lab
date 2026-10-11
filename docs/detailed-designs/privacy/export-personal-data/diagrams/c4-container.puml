@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Export personal data
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Your data page, export dialog, export download page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Export endpoints")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "DataExportBuildJob messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "Builds the archive")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "data_exports and every personal-data table")
+  ContainerDb(media, "Media storage", "Amazon S3, private, KMS-encrypted", "exports/ prefix")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues", "SQS")
+Rel(queue, worker, "Delivers")
+Rel(worker, db, "Reads member data", "SQL")
+Rel(worker, media, "Writes ZIP", "S3 API")
+Rel(worker, ses, "Sends ready email", "SES API")
+Rel(api, media, "Issues short-lived download URL for", "S3 presigned URL")
+@enduml

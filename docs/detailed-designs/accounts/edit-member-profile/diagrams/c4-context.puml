@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Edit member profile
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+
+Rel(member, lab, "Edits own profile, views other profiles", "HTTPS")
+Rel(lab, scanner, "Scans uploaded photos with")
+@enduml

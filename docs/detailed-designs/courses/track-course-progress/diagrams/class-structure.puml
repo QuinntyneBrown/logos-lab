@@ -1,0 +1,61 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Track course progress
+
+class Enrolment {
+  +id: string
+  +userId: string
+  +courseId: string
+  +progressPercent: number
+  +progressUpdatedAt: Date
+}
+class ProgressCalculator {
+  +calculate(requiredLessonIds: string[], completedLessonIds: Set<string>): number
+}
+class ProgressService {
+  +recalculate(enrolmentId: string): Promise<number>
+  +recalculateCourse(courseId: string): Promise<void>
+}
+class CourseProgressRecalculateJob {
+  +courseId: string
+  +revisionId: string
+  +run(): Promise<void>
+}
+class EnrolmentRepository {
+  +updateProgress(enrolmentId: string, percent: number, at: Date): Promise<void>
+  +listActiveForCourse(courseId: string, after: string, limit: number): Promise<Enrolment[]>
+}
+class LessonCompletionRepository {
+  +completedLessonIds(enrolmentId: string): Promise<Set<string>>
+}
+class CourseRepository {
+  +requiredLessonIds(courseId: string): Promise<string[]>
+}
+class ProgressBarComponent <<ll-progress-bar>> {
+  +value: number
+  +label: string
+  +valueText(): string
+}
+class Certificate {
+  +code: string
+  +revokedAt: Date
+}
+ProgressService ..> ProgressCalculator
+ProgressService ..> EnrolmentRepository
+ProgressService ..> LessonCompletionRepository
+ProgressService ..> CourseRepository
+CourseProgressRecalculateJob ..> ProgressService
+EnrolmentRepository ..> Enrolment : persists
+Enrolment "1" o-- "0..1" Certificate : unaffected by recalculation
+@enduml

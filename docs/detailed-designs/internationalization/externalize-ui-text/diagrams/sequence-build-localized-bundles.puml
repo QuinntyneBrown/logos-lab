@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Build and check localized bundles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer" as actor
+box "Delivery — CI pipeline" #F2F4F7
+  participant "CI pipeline" as ci
+  participant "PseudoLocaleBuild" as pseudo
+  participant "Playwright suite (Chromium)" as suite
+end box
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web (en-XA build)" as web
+end box
+actor -> ci : Push change
+ci -> ci : ng extract-i18n to messages.en-CA.xlf
+alt Extracted file differs from the committed file
+  ci --> actor : Fail: commit the extracted messages
+else Up to date
+  ci -> ci : Build en-CA bundle
+  ci -> pseudo : Generate en-XA: accented, 30% longer (L2-147 AC2)
+  pseudo --> ci : messages.en-XA.xlf
+  ci -> web : Build and serve en-XA
+  ci -> suite : Run page objects against en-XA
+  loop Each page and state
+    suite -> web : Open screen
+    web --> suite : Rendered page
+    suite -> suite : assertPseudoLocalized(visible text nodes, excluding seed content)
+  end
+  alt Any hard-coded string
+    suite --> ci : Fail naming the text and page
+  else All pseudo-localized
+    suite --> ci : Pass
+  end
+  ci --> actor : Result
+end
+@enduml

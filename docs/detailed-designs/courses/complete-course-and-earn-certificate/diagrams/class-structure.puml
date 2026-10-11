@@ -1,0 +1,106 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Complete a course and earn a certificate
+
+enum PaperSize {
+  A4
+  UsLetter
+}
+class Certificate {
+  +id: string
+  +code: string
+  +userId: string
+  +courseId: string
+  +issuedName: string
+  +courseTitle: string
+  +contributorNames: string[]
+  +completedOn: Date
+  +issuedAt: Date
+  +version: number
+  +revokedAt: Date
+  +reissue(currentName: string): void
+  +isRevoked(): boolean
+}
+class Enrolment {
+  +status: EnrolmentStatus
+  +completedAt: Date
+  +markCompleted(at: Date): void
+}
+class CertificateView {
+  +code: string
+  +issuedName: string
+  +currentName: string
+  +nameChanged: boolean
+  +verificationUrl: string
+  +revoked: boolean
+}
+interface CertificatesApi {
+  +getMyCertificate(code: string): Observable<CertificateView>
+  +getPdfUrl(code: string, paper: PaperSize): Observable<string>
+  +reissue(code: string): Observable<CertificateView>
+}
+class HttpCertificatesApi
+class CourseCompletePage
+class CertificatePage {
+  -api: CertificatesApi
+  +openDownload(): void
+  +openShare(): void
+  +openReissue(): void
+}
+class CertificateDownloadDialog {
+  +paper: PaperSize
+  +download(): void
+}
+class CertificateShareDialog {
+  +copyLink(): Promise<void>
+  +linkedInAddToProfileUrl(): string
+}
+class ReissueCertificateDialog {
+  +confirm(): void
+}
+class CourseCompletionService {
+  +onLessonCompleted(enrolment: Enrolment): Promise<boolean>
+}
+class CertificateService {
+  +issue(enrolment: Enrolment, course: Course, user: User): Promise<Certificate>
+  +reissue(certificate: Certificate, user: User): Certificate
+}
+class CertificateCodeGenerator {
+  +next(): string
+}
+class CertificatePdfService {
+  +getUrl(certificate: Certificate, paper: PaperSize): Promise<string>
+}
+interface PdfRenderer {
+  +render(certificate: Certificate, paper: PaperSize): Promise<Buffer>
+}
+class CertificateRepository {
+  +insertOnce(c: Certificate): Promise<Certificate>
+  +findOwned(code: string, userId: string): Promise<Certificate>
+  +save(c: Certificate): Promise<void>
+}
+HttpCertificatesApi ..|> CertificatesApi
+CertificatePage ..> CertificatesApi : injects CERTIFICATES_API
+CertificatePage ..> CertificateDownloadDialog : opens
+CertificatePage ..> CertificateShareDialog : opens
+CertificatePage ..> ReissueCertificateDialog : opens
+CourseCompletePage ..> CertificatesApi
+CourseCompletionService ..> CertificateService
+CourseCompletionService --> Enrolment : completes
+CertificateService ..> CertificateCodeGenerator
+CertificateService ..> CertificateRepository
+CertificatePdfService ..> PdfRenderer
+CertificatePdfService --> PaperSize
+Enrolment "1" -- "0..1" Certificate : earns
+@enduml

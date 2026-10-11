@@ -1,0 +1,73 @@
+@startuml
+title UML sequence behaviour — Brute-force protection
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Attacker or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SignInPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "sessions route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SignInAction" as action
+  participant "SignInThrottleService" as throttle
+  participant "CredentialVerifier" as cred
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  queue "Job queue" as queue
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> page : Submit email and password
+page -> client : signIn(request)
+client -> route : POST /api/v1/auth/sessions
+route -> action : execute(input, ctx)
+action -> throttle : check(accountKey, ip)
+throttle -> cache : Read IP failures and account lock
+cache --> throttle : Counters
+alt IP has 20 failures in 15 minutes (L2-009)
+  throttle --> action : IpThrottled
+  action -> cw : Log throttle event (account, IP, time; no password)
+  action --> route : Throttled
+  route --> client : 429 with Retry-After (15 minutes)
+  page --> actor : Show rate-limited state
+else account locked (L2-009)
+  throttle --> action : AccountLocked
+  action --> route : InvalidCredentials
+  route --> client : 401 generic error, password not checked
+  page --> actor : "Email or password is incorrect"
+else not limited
+  action -> cred : verify(email, password)
+  alt wrong credentials
+    cred --> action : null
+    action -> throttle : recordFailure(accountKey, ip)
+    throttle -> cache : Increment account and IP counters (15-minute window)
+    opt account reaches 5 failures in 15 minutes
+      throttle -> cache : Set 15-minute lock for the account
+      throttle -> queue : Enqueue EmailSendJob (failed attempts notice to owner)
+      throttle -> cw : Log lockout event (no password)
+    end
+    action --> route : InvalidCredentials
+    route --> client : 401 generic error
+  else correct credentials
+    cred --> action : User
+    action -> throttle : reset(accountKey)
+    throttle -> cache : Clear account failure counter
+    action --> route : Continue with state check and session
+  end
+end
+@enduml

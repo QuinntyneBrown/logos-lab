@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Edit an expert profile
+
+Person(expert, "Expert", "Invited subject-matter expert")
+Person(editor, "Editor", "Logos Lab staff who review and curate")
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(expert, logos, "Edits own public profile in", "HTTPS")
+Rel(editor, logos, "Reviews profile history and restores versions in", "HTTPS")
+Rel(visitor, logos, "Sees the updated public profile in", "HTTPS")
+@enduml

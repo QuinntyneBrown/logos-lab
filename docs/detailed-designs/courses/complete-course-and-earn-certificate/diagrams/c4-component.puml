@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Complete a course and earn a certificate
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(done, "CourseCompletePage", "Angular page", "Completion screen")
+  Component(cert, "CertificatePage", "Angular page", "Certificate, download and share")
+  Component(dialogs, "CertificateDownloadDialog / CertificateShareDialog / ReissueCertificateDialog", "Angular CDK dialogs", "Download, share, reissue")
+  Component(contract, "CertificatesApi / CERTIFICATES_API", "API contract and token", "Certificate calls")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(ccs, "CourseCompletionService", "Domain service", "Detects course completion")
+  Component(cs, "CertificateService", "Domain service", "Issues once, reissues")
+  Component(gen, "CertificateCodeGenerator", "Domain service", "CSPRNG verification codes")
+  Component(actions, "GetMyCertificateAction / GetCertificatePdfAction / ReissueCertificateAction", "Actions", "Certificate use cases")
+  Component(pdf, "CertificatePdfService", "Domain service", "Cached PDF/A, A4 or US Letter")
+  Component(renderer, "PdfRenderer", "Infrastructure adapter", "Renders PDF/A (library TO SUPPLY)")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+ContainerDb(s3, "Media storage", "Amazon S3", "Private buckets for SCORM packages and generated files")
+
+Rel(cert, dialogs, "Opens")
+Rel(done, contract, "Depends on")
+Rel(cert, contract, "Depends on")
+Rel(contract, actions, "Calls through HttpCertificatesApi", "JSON/HTTPS")
+Rel(ccs, cs, "Requests issue")
+Rel(cs, gen, "Gets code from")
+Rel(actions, cs, "Reads and reissues with")
+Rel(actions, pdf, "Gets PDF from")
+Rel(pdf, renderer, "Renders with")
+Rel(pdf, s3, "Stores and signs", "AWS SDK")
+Rel(cs, db, "Writes certificates", "SQL")
+@enduml

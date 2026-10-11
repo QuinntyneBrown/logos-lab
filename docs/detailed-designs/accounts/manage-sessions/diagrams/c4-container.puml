@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage sessions
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System_Boundary(lab, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application; never caches personal data")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+System_Ext(geoip, "IP location lookup", "Approximate city for an IP address; provider <TO SUPPLY>")
+
+Rel(member, cdn, "Requests pages", "HTTPS")
+Rel(cdn, web, "Forwards, no caching of personal pages")
+Rel(web, api, "Calls session endpoints with session cookie", "JSON/HTTPS")
+Rel(api, db, "Resolves, touches and revokes sessions", "SQL")
+Rel(api, geoip, "Looks up city at sign-in")
+@enduml

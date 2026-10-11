@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Enforce data retention
+
+System_Boundary(ll, "Logos Lab") {
+  Container(sched, "Nightly schedule", "Amazon EventBridge Scheduler (design choice)", "Starts the retention run once a night")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "DataRetentionJob and AccountPurgeJob")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs retention rules")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Accounts, notifications, audit log, retention_runs")
+  ContainerDb(media, "Media storage", "Amazon S3", "Audit archive in cold storage")
+}
+System_Ext(cw, "Amazon CloudWatch", "Request and security log groups, metrics, alarms")
+System_Ext(oncall, "On-call channel", "<TO SUPPLY>")
+Rel(sched, queue, "Enqueues DataRetentionJob", "SQS")
+Rel(queue, worker, "Delivers")
+Rel(worker, db, "Deletes, anonymizes and records counts", "SQL")
+Rel(worker, media, "Archives and expires audit entries", "S3 API")
+Rel(worker, cw, "Checks log group retention; publishes metrics", "CloudWatch API")
+Rel(cw, oncall, "Alarm on failure")
+@enduml

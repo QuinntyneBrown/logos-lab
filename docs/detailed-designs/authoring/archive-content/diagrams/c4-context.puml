@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Archive content
+
+Person(editor, "Editor", "Archives and restores content")
+Person(learner, "Enrolled learner", "Keeps access to an archived course")
+Person_Ext(visitor, "Visitor", "Follows an old link")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(crawler, "Search engine crawler", "Indexes public pages")
+
+Rel(editor, logoslab, "Archives and restores content in", "HTTPS")
+Rel(learner, logoslab, "Continues an archived course in", "HTTPS")
+Rel(visitor, logoslab, "Receives the 410 gone page from", "HTTPS")
+Rel(crawler, logoslab, "Receives 410 for archived addresses from", "HTTPS")
+@enduml

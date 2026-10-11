@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Cache responses
+
+
+Person(visitor, "Visitor", "Not signed in")
+Person(member, "Member", "Signed-in learner or staff")
+Person(editor, "Editor", "Publishes, revises and archives content")
+System(ll, "Logos Lab", "Expert-curated learning platform behind a CDN")
+System_Ext(cfapi, "CloudFront API", "CreateInvalidation")
+System_Ext(cw, "Amazon CloudWatch", "Invalidation latency metric and alarm")
+
+Rel(visitor, ll, "Reads cached public pages from", "HTTPS")
+Rel(member, ll, "Reads personalized pages from", "HTTPS")
+Rel(editor, ll, "Publishes content in")
+Rel(ll, cfapi, "Invalidates stale paths through")
+Rel(ll, cw, "Reports invalidation latency to")
+@enduml

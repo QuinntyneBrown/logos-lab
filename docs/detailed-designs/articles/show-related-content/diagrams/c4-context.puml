@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Show related content
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+Person(editor, "Editor", "Logos Lab staff who review and curate")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Sees related items on content pages in", "HTTPS")
+Rel(learner, logos, "Follows related items in", "HTTPS")
+Rel(editor, logos, "Pins related items in", "HTTPS")
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View an expert profile
+
+Container(web, "Logos Lab Web", "Angular SSR", "ExpertProfilePage, ExpertsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(r1, "GET /api/v1/experts/slug", "Route handler", "Anonymous profile")
+  Component(r2, "GET /api/v1/experts/slug/content", "Route handler", "Anonymous content by type")
+  Component(a1, "GetExpertProfileAction", "Action", "Loads one profile")
+  Component(a2, "ListExpertContentAction", "Action", "Pages one content type")
+  Component(svc, "ExpertProfileService", "Domain service", "Role check and counts per type")
+  Component(san, "BioSanitizer", "Domain service", "Paragraphs, bold, italic, links only")
+  Component(attr, "ContributorAttributionService", "Domain service", "Name with or without profile link")
+  Component(policy, "PublishedContentPolicy", "Domain rule", "Published and visible")
+  Component(repo, "ExpertProfileRepository", "Repository", "expert_profiles and related tables")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "expert_profiles, user_roles, content_items")
+Rel(web, r1, "Calls", "JSON/HTTPS")
+Rel(web, r2, "Calls", "JSON/HTTPS")
+Rel(r1, a1, "Invokes")
+Rel(r2, a2, "Invokes")
+Rel(a1, svc, "Loads")
+Rel(a2, svc, "Pages")
+Rel(svc, san, "Sanitizes bio")
+Rel(svc, policy, "Applies")
+Rel(svc, repo, "Queries")
+Rel(attr, repo, "Checks Expert role")
+Rel(repo, db, "Reads", "SQL")
+@enduml

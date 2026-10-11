@@ -1,0 +1,98 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View my learning
+
+package "Logos Lab Web" {
+  class MyLearningPage {
+    +tab: LearningStatus
+    +sort: LearningSort
+    +items: LearningItemView[]
+    +counts: LearningCounts
+    +selectTab(tab: LearningStatus): void
+    +changeSort(sort: LearningSort): void
+  }
+  interface LearningApi {
+    +list(status: LearningStatus, sort: LearningSort, cursor?: string): Observable<LearningPage>
+  }
+  class HttpLearningApi
+  class LEARNING_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class LearningRouteHandler {
+    +GET(req: Request): Response
+  }
+  class ListMyLearningAction {
+    +execute(userId: string, query: LearningQuery): Promise<LearningPage>
+  }
+  class LearningActivityService {
+    +list(userId: string, status: LearningStatus, sort: LearningSort, cursor?: string): LearningPage
+  }
+  class Enrolment {
+    +userId: string
+    +courseId: string
+    +status: EnrolmentStatus
+    +progressPercent: number
+    +lastAccessedAt: Date
+    +completedAt: Date | null
+  }
+  class ItemActivity {
+    +userId: string
+    +itemType: LearningItemType
+    +itemId: string
+    +progressPercent: number
+    +lastAccessedAt: Date
+    +completedAt: Date | null
+  }
+  class LearningItemView {
+    +itemType: LearningItemType
+    +itemId: string
+    +title: string
+    +expertName: string
+    +progressPercent: number
+    +lastAccessedAt: Date
+  }
+  enum EnrolmentStatus {
+    Active
+    Completed
+    Left
+  }
+  enum LearningItemType {
+    Course
+    Module
+    Video
+  }
+  enum LearningStatus {
+    InProgress
+    Completed
+  }
+  enum LearningSort {
+    Recent
+    TitleAsc
+  }
+  class EnrolmentRepository
+  class LearningActivityRepository
+}
+MyLearningPage ..> LearningApi
+HttpLearningApi ..|> LearningApi
+LEARNING_API ..> LearningApi : provides
+LearningRouteHandler ..> ListMyLearningAction
+ListMyLearningAction ..> LearningActivityService
+LearningActivityService ..> EnrolmentRepository
+LearningActivityService ..> LearningActivityRepository
+LearningActivityService --> LearningItemView : builds
+EnrolmentRepository --> Enrolment
+LearningActivityRepository --> ItemActivity
+Enrolment --> EnrolmentStatus
+ItemActivity --> LearningItemType
+@enduml

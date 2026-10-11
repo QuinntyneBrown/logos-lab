@@ -1,0 +1,109 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Ensure accessible pages
+
+
+class AppShell {
+  +skipLink: SkipLink
+  +header: TopBar
+  +footer: Footer
+}
+
+class LogosLabTitleStrategy {
+  +updateTitle(snapshot: RouterStateSnapshot): void
+  -format(pageTitle: string): string
+}
+
+class Announcer {
+  +polite(message: string): void
+}
+
+class FormFieldComponent <<ll-form-field>> {
+  +label: string
+  +required: boolean
+  +hint: string
+  +error: string
+  +autocomplete: string
+}
+
+class FormSummary <<form-summary in ll-form-layout>> {
+  +errors: FieldError[]
+  +focus(): void
+}
+
+class FieldError {
+  +fieldId: string
+  +message: string
+}
+
+class SessionExpiryWatcher {
+  +warningLeadSeconds: number = 120
+  +start(expiresAt: Date): void
+}
+
+class SessionTimeoutDialog {
+  +remainingSeconds: number
+  +staySignedIn(): void
+  +signOutNow(): void
+}
+
+interface SessionApi {
+  +extend(): Observable<SessionExpiry>
+}
+
+class HttpSessionApi {
+  +extend(): Observable<SessionExpiry>
+}
+
+class SessionExpiry {
+  +expiresAt: Date
+}
+
+class ExtendSessionRoute <<route handler>> {
+  +path = "/api/v1/session/extend"
+  +POST(request: Request): Response
+}
+
+class ExtendSessionAction {
+  +execute(sessionId: string, userId: string): SessionExpiry
+}
+
+class PlayerComponent <<ll-player>> {
+  +shortcutsActiveOnFocusOnly: boolean = true
+  +autoplay: boolean = false
+}
+
+class AccessibilityStatementPage {
+  +lastReviewed: Date
+  +knownLimitations: string[]
+  +contactEmail: string
+}
+
+class AccessibilityScan <<Playwright fixture>> {
+  +tags: string[]
+  +scan(page: Page): Violation[]
+  +assertNoSeriousOrCritical(): void
+}
+
+FormSummary "1" *-- "*" FieldError
+FormSummary ..> Announcer : announces count
+FormSummary ..> FormFieldComponent : links to
+SessionExpiryWatcher ..> SessionTimeoutDialog : opens
+SessionTimeoutDialog --> SessionApi : extends through
+HttpSessionApi ..|> SessionApi
+SessionApi ..> SessionExpiry
+ExtendSessionRoute ..> ExtendSessionAction : calls
+AppShell ..> LogosLabTitleStrategy : routes titled by
+AppShell --> PlayerComponent : hosts
+@enduml

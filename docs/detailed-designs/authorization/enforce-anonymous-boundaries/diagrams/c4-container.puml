@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Enforce anonymous boundaries
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System_Boundary(lab, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application; never caches personal data")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+
+Rel(visitor, cdn, "Requests pages", "HTTPS")
+Rel(cdn, web, "Forwards; caches public pages only")
+Rel(web, api, "Anonymous reads; member actions with session cookie", "JSON/HTTPS")
+Rel(api, db, "Reads public content, resolves sessions", "SQL")
+@enduml

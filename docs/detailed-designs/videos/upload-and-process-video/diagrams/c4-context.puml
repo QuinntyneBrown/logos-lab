@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Upload and process a video
+
+Person(author, "Author", "Expert or editor who owns the video")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(mc, "AWS Elemental MediaConvert", "Transcodes source files to HLS")
+System_Ext(scan, "Malware scanner", "<TO SUPPLY>")
+System_Ext(ses, "Amazon SES", "Sends email")
+Rel(author, ll, "Uploads video files using", "HTTPS")
+Rel(ll, scan, "Scans uploaded files with")
+Rel(ll, mc, "Submits transcoding jobs to", "AWS SDK")
+Rel(ll, ses, "Sends the ready email through", "AWS SDK")
+@enduml

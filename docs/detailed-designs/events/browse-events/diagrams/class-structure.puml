@@ -1,0 +1,88 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Browse events
+
+package "Logos Lab Web" {
+  class EventsPage {
+    -api: EventsApi
+    +query: Signal<EventListQuery>
+    +items: Signal<EventListItem[]>
+    +setTab(tab: EventTab): void
+    +applyFilters(f: EventFilters): void
+    +clearFilters(): void
+  }
+  interface EventsApi {
+    +listEvents(q: EventListQuery): Observable<EventListPage>
+  }
+  class HttpEventsApi
+  class "EVENTS_API" as Token <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class ListEventsAction {
+    +execute(viewer: Viewer, q: EventListQuery): Result<EventListPage>
+  }
+  class EventListingService {
+    +list(q: EventListQuery, now: Instant): EventListPage
+    +isHappeningNow(e: Event, now: Instant): boolean
+    +remainingCapacity(e: Event): number | null
+  }
+  class EventListQuery <<value object>> {
+    +tab: EventTab
+    +format: EventFormat | null
+    +topic: string | null
+    +host: string | null
+    +recordingOnly: boolean
+    +cursor: string | null
+  }
+  class EventListItem <<value object>> {
+    +id: Uuid
+    +slug: string
+    +title: string
+    +format: EventFormat
+    +startsAt: Instant
+    +endsAt: Instant
+    +timeZone: string
+    +venueName: string
+    +hosts: HostRef[]
+    +remainingCapacity: number | null
+    +isHappeningNow: boolean
+    +hasRecording: boolean
+  }
+  class EventListPage {
+    +items: EventListItem[]
+    +total: number
+    +nextCursor: string | null
+  }
+  enum EventTab {
+    Upcoming
+    Past
+  }
+  enum EventFormat {
+    Online
+    InPerson
+    Hybrid
+  }
+  class EventRepository {
+    +findPublished(q: EventListQuery, now: Instant): Event[]
+  }
+}
+EventsPage ..> EventsApi : uses
+HttpEventsApi ..|> EventsApi
+Token ..> EventsApi : provides
+ListEventsAction ..> EventListingService : uses
+EventListingService ..> EventRepository : queries
+EventListPage *-- "0..*" EventListItem
+EventListQuery --> EventTab
+EventListItem --> EventFormat
+@enduml

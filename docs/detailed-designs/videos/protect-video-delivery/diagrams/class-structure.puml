@@ -1,0 +1,72 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Protect video delivery
+
+class IssuePlaybackGrantAction {
+  +execute(viewer: Viewer, videoId: Uuid): Result<PlaybackGrant>
+}
+class PlaybackAuthorizationService {
+  +decide(video: Video, viewer: Viewer): PlaybackDecision
+}
+class SignedMediaService {
+  +grantLifetime: Duration = 4 h
+  +sign(videoId: Uuid, now: Instant): PlaybackGrant
+}
+class PlaybackGrant <<value object>> {
+  +manifestPath: string
+  +cookies: SignedCookie[]
+  +expiresAt: Instant
+}
+class SignedCookie <<value object>> {
+  +name: string
+  +value: string
+  +path: string
+}
+class Viewer <<value object>> {
+  +userId: Uuid | null
+  +roles: Role[]
+}
+class Video {
+  +id: Uuid
+  +ownerId: Uuid
+  +workflowState: WorkflowState
+  +isPublicPreview: boolean
+}
+enum PlaybackDecision {
+  Allow
+  RequireSignIn
+  NotFound
+}
+enum WorkflowState {
+  Draft
+  InReview
+  ChangesRequested
+  Approved
+  Scheduled
+  Published
+  Archived
+}
+class VideoRepository {
+  +findById(id: Uuid): Video
+}
+IssuePlaybackGrantAction ..> VideoRepository : loads
+IssuePlaybackGrantAction ..> PlaybackAuthorizationService : decides with
+IssuePlaybackGrantAction ..> SignedMediaService : signs with
+PlaybackAuthorizationService ..> Viewer : reads
+PlaybackAuthorizationService ..> Video : reads
+PlaybackAuthorizationService --> PlaybackDecision : returns
+SignedMediaService ..> PlaybackGrant : creates
+PlaybackGrant *-- "3" SignedCookie
+Video --> WorkflowState
+@enduml

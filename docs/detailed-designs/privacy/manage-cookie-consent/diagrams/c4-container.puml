@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage cookie consent
+
+Person(visitor, "Visitor or member", "Browser user")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR and SPA", "Consent banner, cookie settings dialog, consent cookie")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Records a signed-in member's choice")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "cookie_consents")
+}
+System_Ext(analytics, "Analytics provider", "<TO SUPPLY>")
+Rel(visitor, web, "Uses", "HTTPS")
+Rel(web, api, "Records choice for signed-in members", "JSON/HTTPS")
+Rel(api, db, "Writes", "SQL")
+Rel(web, analytics, "Loads script after consent", "HTTPS")
+@enduml

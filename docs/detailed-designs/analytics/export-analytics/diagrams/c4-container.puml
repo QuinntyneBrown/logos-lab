@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Export analytics
+Person(user, "Expert, Editor or Administrator", "Analytics user")
+System_Ext(ses, "Amazon SES", "Email delivery")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Export CSV on analytics pages")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Export and download endpoints")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Large export jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Builds large CSV files")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Rollups and analytics_exports")
+  ContainerDb(s3, "Media storage (exports)", "Amazon S3, private", "Generated CSV files")
+}
+Rel(user, web, "Uses", "HTTPS")
+Rel(web, api, "Requests exports and downloads", "JSON/HTTPS")
+Rel(api, db, "Reads rollups; writes export records", "SQL")
+Rel(api, queue, "Enqueues AnalyticsExportJob", "SQS")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, db, "Reads rollups", "SQL")
+Rel(worker, s3, "Writes CSV", "AWS SDK")
+Rel(api, s3, "Issues short-lived signed URLs for", "AWS SDK")
+Rel(worker, ses, "Sends export-ready email via", "AWS SDK")
+@enduml

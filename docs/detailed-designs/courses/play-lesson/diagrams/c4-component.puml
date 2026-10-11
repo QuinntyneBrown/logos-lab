@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Play a lesson
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "LessonPlayerPage", "Angular page", "Lesson content, outline and controls")
+  Component(layout, "ll-lesson-layout / ll-course-outline", "Shared components", "Outline column or drawer")
+  Component(drawer, "CourseOutlineDialog", "Angular CDK dialog", "Outline drawer at XS and SM")
+  Component(queue, "PendingCompletionQueue", "Angular service", "Holds completions while offline")
+  Component(contract, "CoursesApi / COURSES_API", "API contract and token", "Lesson and completion calls")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "courses/[slug]/lessons route handlers", "Next.js route handlers", "Lesson and completion endpoints")
+  Component(open, "OpenLessonAction", "Action", "Returns LessonView")
+  Component(mark, "MarkLessonCompleteAction / MarkLessonIncompleteAction", "Actions", "Manual completion")
+  Component(access, "LessonAccessService", "Domain service", "Enrolment and Sequential lock")
+  Component(comp, "LessonCompletionService", "Domain service", "Completion rule per lesson type")
+  Component(prog, "ProgressService", "Domain service", "Recalculates progress")
+  Component(seg, "WatchSegmentRepository", "Repository (videos)", "Server-recorded watch segments")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(page, layout, "Renders with")
+Rel(page, drawer, "Opens at XS and SM")
+Rel(page, queue, "Queues offline completions in")
+Rel(page, contract, "Depends on")
+Rel(contract, route, "Calls through HttpCoursesApi", "JSON/HTTPS")
+Rel(route, open, "Invokes")
+Rel(route, mark, "Invokes")
+Rel(open, access, "Checks access with")
+Rel(mark, comp, "Records with")
+Rel(comp, seg, "Counts distinct seconds from")
+Rel(comp, prog, "Triggers")
+Rel(comp, db, "Writes lesson_completions", "SQL")
+Rel(open, db, "Reads lessons", "SQL")
+@enduml

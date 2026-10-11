@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Enforce transport security and headers
+
+Person(visitor, "Visitor or member", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Redirects HTTP to HTTPS, terminates TLS 1.2 or later")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "Server-renders HTML and sets HTML security headers")
+  Container(api, "Logos Lab API", "Next.js route handlers", "JSON API; sets security headers and the CORS allow-list")
+  Container(scorm, "SCORM content origin", "Amazon CloudFront, separate domain", "Serves SCORM content framable only by the application origin")
+}
+Rel(visitor, cdn, "Requests pages and API calls", "HTTPS")
+Rel(cdn, web, "Forwards page requests", "HTTPS")
+Rel(cdn, api, "Forwards /api/v1 requests", "HTTPS")
+Rel(visitor, scorm, "Loads SCORM content in a frame", "HTTPS")
+@enduml

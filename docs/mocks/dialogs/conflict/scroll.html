@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resolve changes · scroll — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="conflict">
+<meta name="mock:state" content="scroll">
+<meta name="mock:requirements" content="L2-084">
+<meta name="description" content="Nine fields differ, so the side-by-side list is long and scrolls inside the dialog while its title and footer stay put.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <div class="wrap header__inner">
+      <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+      <nav class="nav" id="primary-nav" popover aria-label="Studio">
+        <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+        </ul>
+        <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+      </nav>
+      <div class="header__actions">
+        <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+        <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+        <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+      </div>
+    </div>
+  </header>
+  <div class="workflow">
+    <div class="wrap workflow__inner">
+      <div class="workflow__title">
+        <p class="workflow__name">Can Software Bear the Image of God?</p>
+        <div class="workflow__meta">
+          <span class="badge">Draft</span>
+          <span class="inline-status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Naomi Ellis saved at 10:21 am</span>
+          <ol class="workflow__steps" aria-label="Workflow"><li aria-current="step">Draft</li><li>In review</li><li>Approved</li><li>Published</li></ol>
+        </div>
+      </div>
+      <div class="workflow__actions">
+        <span class="btn btn--quiet btn--sm">Preview</span>
+        <span class="btn btn--quiet btn--sm">History</span>
+        <span class="btn btn--primary btn--sm">Submit for review</span>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Article</p>
+      <p class="page-head__title">Can Software Bear the Image of God?</p>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog dialog--lg" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Resolve changes</h1>
+        <a class="icon-btn" href="../../pages/studio-editor/co-editing.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">Naomi Ellis saved this article at 10:21 am, after you started editing, so your save was stopped before it replaced theirs. 9 fields differ. Choose the version to keep. The other one stays in the history.</p>
+        <p class="mock-note">The differences scroll inside the dialog. The title and footer stay in place.</p>
+        <div class="diff-split">
+          <section class="diff-split__pane" aria-labelledby="pane-mine"><div class="diff-split__head"><span id="pane-mine">Your version, not saved</span><a class="btn btn--quiet btn--sm" href="busy.html">Keep yours</a></div><div class="diff" role="group" aria-label="Your Title"><p class="diff__field">Title</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Can Software Bear the Image of God?</span></div></div><div class="diff" role="group" aria-label="Your Summary"><p class="diff__field">Summary</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Genesis says humans are made in God's image. As software begins to speak, reason and create, some ask whether it shares that likeness. This article argues it does not, and explains why that matters for how we build and use it.</span></div></div><div class="diff" role="group" aria-label="Your Body, paragraph 2"><p class="diff__field">Body, paragraph 2</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>That matters now, because the features are exactly what new software imitates best.</span></div></div><div class="diff" role="group" aria-label="Your Topics"><p class="diff__field">Topics</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>The image of God and personhood, Theology of technology</span></div></div><div class="diff" role="group" aria-label="Your Level"><p class="diff__field">Level</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Intermediate</span></div></div><div class="diff" role="group" aria-label="Your Body, heading 2"><p class="diff__field">Body, heading 2</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>What the image is not</span></div></div><div class="diff" role="group" aria-label="Your Body, paragraph 4"><p class="diff__field">Body, paragraph 4</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>To bear the image is to be sent: to tend, to name and to keep, as Adam was told in the garden. No model is sent.</span></div></div><div class="diff" role="group" aria-label="Your Body, paragraph 6"><p class="diff__field">Body, paragraph 6</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Software can serve that calling. It cannot hold it.</span></div></div><div class="diff" role="group" aria-label="Your Body, Scripture reference"><p class="diff__field">Body, Scripture reference</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Genesis 1:26-28 (ESV)</span></div></div></section>
+          <section class="diff-split__pane" aria-labelledby="pane-theirs"><div class="diff-split__head"><span id="pane-theirs">Version saved by Naomi Ellis at 10:21 am</span><a class="btn btn--quiet btn--sm" href="busy.html">Keep Naomi’s</a></div><div class="diff" role="group" aria-label="Naomi Ellis’s Title"><p class="diff__field">Title</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Can Software Bear the Image of God? A Reply to the Optimists</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Summary"><p class="diff__field">Summary</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Genesis says humans are made in God's image. As software begins to speak, reason and create, some ask whether it shares that likeness. This article argues it does not, and why that matters for the church.</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Body, paragraph 2"><p class="diff__field">Body, paragraph 2</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>That matters now, because speech, reason and creativity are exactly what new software imitates best.</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Topics"><p class="diff__field">Topics</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>The image of God and personhood, Theology of technology, AI ethics</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Level"><p class="diff__field">Level</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Introductory</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Body, heading 2"><p class="diff__field">Body, heading 2</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>What the image is not: a list of features</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Body, paragraph 4"><p class="diff__field">Body, paragraph 4</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>To bear the image is to be sent, to tend and to keep. A model is built, trained and deployed, but it is never sent.</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Body, paragraph 6"><p class="diff__field">Body, paragraph 6</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Software can serve that calling, and serve it well. It cannot hold it.</span></div></div><div class="diff" role="group" aria-label="Naomi Ellis’s Body, Scripture reference"><p class="diff__field">Body, Scripture reference</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Text: </span>Genesis 1:26-28 and Psalm 8:4-6 (ESV)</span></div></div></section>
+        </div>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/studio-editor/co-editing.html">Decide later</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Resolve changes</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="scroll.html" aria-current="page">scroll</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Browse events
+
+Person(member, "Member", "Signed-in user")
+Person(visitor, "Visitor", "Not signed in")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+Rel(member, ll, "Browses events on", "HTTPS")
+Rel(visitor, ll, "Browses events on", "HTTPS")
+@enduml

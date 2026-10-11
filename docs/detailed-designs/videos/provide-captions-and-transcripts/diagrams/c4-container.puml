@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Provide captions and transcripts
+
+Person(author, "Author", "Expert or editor")
+Person(learner, "Learner", "Member or visitor")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Captions tab, confirm dialog, transcript, captions preference")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Caption validation, conversion, review, transcript")
+  Container(worker, "Logos Lab Worker", "Node.js", "CaptionGenerateJob")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Generation jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Caption tracks, preferences")
+  ContainerDb(s3, "Media storage", "Amazon S3, private", "WebVTT files")
+}
+System_Ext(stt, "Speech-to-text service", "<TO SUPPLY>")
+Rel(author, web, "Uses", "HTTPS")
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, s3, "Stores WebVTT", "AWS SDK")
+Rel(api, queue, "Enqueues CaptionGenerateJob")
+Rel(worker, queue, "Consumes")
+Rel(worker, stt, "Transcribes audio")
+Rel(worker, s3, "Stores draft WebVTT")
+Rel(worker, db, "Saves machine-generated track", "SQL")
+@enduml

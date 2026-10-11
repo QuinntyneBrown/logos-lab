@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Comply with CASL
+Person(member, "Member", "Email recipient")
+System_Ext(ses, "Amazon SES", "Delivers email")
+System_Ext(secrets, "AWS Secrets Manager", "Unsubscribe token signing key")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Unsubscribe page, privacy settings, registration, admin user page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Consent and unsubscribe endpoints")
+  Container(worker, "Logos Lab Worker", "Node.js", "Sends email with the CASL footer")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "consent_records, notification_preferences, site_settings")
+}
+Rel(member, web, "Opens unsubscribe link in", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, secrets, "Reads signing key from")
+Rel(worker, db, "Reads consent, preferences and mailing address", "SQL")
+Rel(worker, secrets, "Reads signing key from")
+Rel(worker, ses, "Sends via", "AWS SDK")
+Rel(ses, member, "Delivers to", "SMTP")
+@enduml

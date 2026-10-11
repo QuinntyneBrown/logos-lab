@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Clean up old notifications
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Scheduler (TO SUPPLY)" as sched
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "NotificationCleanupJob" as job
+  participant "NotificationRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+sched -> queue : Enqueue NotificationCleanupJob (nightly)
+queue -> job : Deliver message to the Worker
+job -> job : cutoff = now - 90 days (L2-091, L2-118)
+loop batches until none remain
+  job -> repo : deleteOlderThan(cutoff)
+  repo -> db : Delete batch where created_at < cutoff
+  db --> repo : Rows deleted
+  repo --> job : Count
+end
+job -> job : Record the count deleted (a rerun deletes nothing new)
+job --> queue : Acknowledge message
+alt job fails transiently
+  queue -> job : Redeliver with exponential backoff, up to 5 times (L2-140)
+end
+@enduml

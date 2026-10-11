@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Log a request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Page" as page
+  participant "CorrelationIdInterceptor" as interceptor
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "RequestLoggingMiddleware" as reqlog
+  participant "ExceptionHandlingMiddleware" as exc
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Action" as action
+  participant "Logger" as logger
+  participant "LogRedactor" as redactor
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Amazon CloudWatch Logs" as logs
+end box
+actor -> page : Perform action
+page -> interceptor : HTTP request
+interceptor -> reqlog : Request with X-Correlation-Id
+reqlog -> reqlog : Accept UUID header or generate one
+reqlog -> reqlog : Start RequestContext and timer
+reqlog -> exc : next()
+exc -> route : next() through remaining middleware
+route -> action : execute
+action --> route : Result
+route --> exc : Response with status
+exc --> reqlog : Response, including handled error statuses
+reqlog -> reqlog : Set X-Correlation-Id response header (Apply L2-137)
+reqlog -> logger : Request log entry: timestamp, correlationId, method, route template, status, durationMs, userId
+logger -> redactor : redact(entry) (Apply L2-137 no secrets, masked emails)
+redactor --> logger : Safe entry
+logger -> logs : One JSON line
+reqlog --> interceptor : Response
+interceptor --> page : Result
+page --> actor : Show result
+@enduml

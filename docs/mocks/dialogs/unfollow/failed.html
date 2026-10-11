@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unfollow · failed — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="unfollow">
+<meta name="mock:state" content="failed">
+<meta name="mock:requirements" content="L2-024 L2-074 L2-050">
+<meta name="description" content="The Unfollow confirmation after the request failed: an error says nothing changed, and the primary button offers Try again.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div>
+    <div class="wrap">
+      <div class="profile-head">
+        <div class="profile-head__who"><img class="profile-head__photo" src="../../assets/photos/amara-osei.jpg" width="96" height="96" alt=""><div class="profile-head__text"><p class="profile-head__name">Dr. Abena Mensah</p><p class="profile-head__sub">Associate Professor of Systematic Theology, Kingsgate Theological College</p></div></div>
+        <div class="profile-head__actions"><span class="btn btn--quiet"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Following</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog dialog--sm" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Unfollow Dr. Abena Mensah?</h1>
+        <a class="icon-btn" href="../../pages/expert-profile/following.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><p class="alert__title">We couldn't unfollow just now</p><p class="alert__body">You're still following Dr. Mensah. Check your connection and try again.</p></div>
+        <p id="dialog-desc">You'll stop getting notifications when Dr. Mensah publishes or announces an event. You can follow again at any time.</p>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/expert-profile/following.html">Keep following</a>
+        <a class="btn btn--primary" href="busy.html">Try again</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Unfollow</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html" aria-current="page">failed</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

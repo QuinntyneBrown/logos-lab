@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View the dashboard overview
+
+Person(member, "Member", "Signed-in learner")
+Person(visitor, "Visitor", "Not signed in")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, ll, "Views dashboard using")
+Rel(visitor, ll, "Is redirected to sign in by")
+@enduml

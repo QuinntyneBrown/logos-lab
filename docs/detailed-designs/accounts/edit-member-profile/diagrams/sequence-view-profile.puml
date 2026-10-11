@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — View another member's profile
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Other member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MemberProfilePage" as page
+  participant "MembersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "members/[id] route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetMemberProfileAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open a member's profile
+page -> client : getMemberProfile(memberId)
+client -> route : GET /api/v1/members/{id}
+route -> action : execute(viewer, memberId)
+action -> db : Select displayName, avatarKey, bio, profileVisible, public activity
+db --> action : Row or none
+alt missing or profile hidden
+  action --> route : null
+  route --> client : 404
+  page --> actor : Not-found state
+else visible
+  action --> route : MemberPublicProfile (no email, enrolments or progress, L2-013)
+  route --> client : 200
+  page --> actor : Name as literal text, avatar, bio, public activity
+end
+@enduml

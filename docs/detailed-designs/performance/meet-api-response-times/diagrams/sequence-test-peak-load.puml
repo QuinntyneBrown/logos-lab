@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Test peak load and scale out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Load-test runner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CDN (CloudFront)" as cdn
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as api
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Application-tier auto scaling" as asg
+  participant "Amazon CloudWatch" as cw
+  database "Media storage" as s3
+end box
+actor -> cdn : 2,000 users for 30 min: 60% browse, 25% video, 10% lessons and modules, 5% writes (L2-122)
+cdn -> web : Page requests
+web -> api : API calls
+cdn -> s3 : Segment requests on cache miss
+api -> cw : ApiLatency and error metrics
+actor -> cw : Read results
+cw --> actor : Error rate < 0.1%, L2-121 budgets hold, CDN hit ratio >= 95% at 1,000 streams
+actor -> cdn : Surge to 3x expected peak for 10 min
+cdn -> web : Increased requests
+web -> api : Increased calls
+api -> cw : Utilization metrics
+cw -> asg : Scaling alarm (metric <TO SUPPLY>)
+asg -> api : Add API instances
+asg -> web : Add Web instances
+actor -> cw : Read surge results
+alt Error rate >= 1% or no automatic scale-out
+  cw --> actor : Fail L2-122 AC2
+else
+  cw --> actor : Pass, error rate < 1%
+end
+@enduml

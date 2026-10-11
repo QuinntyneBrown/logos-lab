@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Read another user's record by id
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner A" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Learner page" as page
+  participant "Area API client" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthenticationMiddleware" as authn
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Owned-data action" as action
+  participant "Owner-scoped repository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open a URL with learner B's record id
+page -> client : get(recordId)
+client -> authn : GET /api/v1/me/progress/{id} with A's session
+authn -> route : Request with CurrentUser = A
+route -> action : execute(CurrentUser A, id)
+action -> repo : findOwned(id, ownerId = A)
+repo -> db : SELECT ... WHERE id = $1 AND owner_id = $2
+db --> repo : No row (record is B's, or does not exist)
+repo --> action : null
+action --> route : NotFound
+route --> client : 404 "not-found", same body for missing and foreign (L2-017)
+client --> page : Not found
+page --> actor : Not-found state
+@enduml

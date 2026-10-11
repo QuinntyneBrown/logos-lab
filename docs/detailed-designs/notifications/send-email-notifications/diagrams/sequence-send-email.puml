@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Send an email
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Calling action\n(any feature)" as caller
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EmailService" as service
+  participant "EmailSuppressionService" as supp
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EmailSendJob" as job
+  participant "EmailTemplateRenderer" as renderer
+end box
+participant "Amazon SES" as ses
+caller -> service : queueActivity(recipient, category, data)
+service -> supp : isSuppressed(address)
+supp --> service : Result
+alt address suppressed and email is not transactional
+  service --> caller : Skipped (L2-092)
+else deliverable
+  service -> db : Insert EmailMessage with unique idempotency key, in caller's transaction
+  service -> queue : Enqueue EmailSendJob(messageId) after commit
+  service --> caller : Queued
+  queue -> job : Deliver message to the Worker
+  job -> db : Claim row: update status Queued to Sending
+  alt row already Sent
+    db --> job : No row claimed
+    job --> queue : Acknowledge; never deliver twice (L2-092)
+  else claimed
+    db --> job : EmailMessage
+    job -> supp : Re-check suppression and preference at send time
+    job -> renderer : render(template, data)
+    renderer --> job : HTML, plain-text alternative, footer, sender headers (L2-092)
+    job -> ses : SendEmail from the aligned Logos Lab sender domain
+    alt SES accepts
+      ses --> job : Provider message id
+      job -> db : Mark Sent with provider message id
+      job --> queue : Acknowledge
+    else transient failure
+      ses --> job : Throttling or 5xx
+      job -> db : Return status to Queued, increment attempts
+      job --> queue : Fail; SQS redelivers with exponential backoff, up to 5 times (L2-092, L2-140)
+    end
+  end
+end
+@enduml

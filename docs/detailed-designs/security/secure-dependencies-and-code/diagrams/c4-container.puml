@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Secure dependencies and code
+
+Person(dev, "Developer", "Opens pull requests")
+System_Boundary(ci, "Logos Lab delivery pipeline") {
+  Container(pr, "Pull request workflow", "CI workflow, platform <TO SUPPLY>", "Runs dependency scanning, SAST and secret scanning")
+  Container(rel, "Release workflow", "CI workflow", "Builds images and the SBOM, then deploys")
+  ContainerDb(store, "Release artifact store", "Amazon S3, Canada (Central)", "SBOM stored beside each release")
+}
+System_Ext(dep, "Dependency scanner", "<TO SUPPLY>")
+System_Ext(sast, "SAST scanner", "<TO SUPPLY>")
+System_Ext(secret, "Secret scanner", "<TO SUPPLY>")
+Container(api, "Logos Lab API, Web and Worker", "Production containers", "Receive the release")
+Rel(dev, pr, "Opens pull request")
+Rel(pr, dep, "Scans lockfiles with")
+Rel(pr, sast, "Scans code with")
+Rel(pr, secret, "Scans diff and history with")
+Rel(rel, store, "Stores SBOM in")
+Rel(rel, api, "Deploys")
+@enduml

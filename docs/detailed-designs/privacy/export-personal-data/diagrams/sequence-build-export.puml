@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Build and deliver the export archive
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DataExportBuildJob" as job
+  participant "PersonalDataCollector" as col
+  participant "ExportArchiveWriter" as arc
+  participant "NotificationService" as note
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (SQS)" as queue
+  database "Logos Lab database" as db
+  database "Media storage (S3 exports/)" as s3
+  participant "Amazon SES" as ses
+end box
+queue -> job : Deliver DataExportBuildJob(exportId)
+job -> db : Load export; skip if already Ready (idempotent, L2-140)
+job -> db : Set status Building
+job -> col : collect(userId)
+loop Each section: profile, account history, consent records, enrolments, progress, certificates, saved items, follows, event registrations, comments, cohort posts, messages sent or received, notification preferences
+  col -> db : Query rows scoped to the member (L2-017)
+  db --> col : Rows
+end
+col --> job : PersonalDataSet
+job -> arc : Write data/*.json and summary.html into one ZIP (L2-116)
+arc -> s3 : Put object under a generated key, KMS-encrypted
+s3 --> arc : Stored
+arc --> job : Size in bytes
+job -> db : Status Ready, readyAt now, expiresAt now plus 7 days
+job -> note : Export ready
+note -> db : Insert in-app notification
+note -> ses : Send "Your data is ready" email with sign-in link
+ses --> actor : Email
+alt Transient failure
+  job --> queue : Fail; retry with backoff up to 5 times, then dead-letter alert (L2-140)
+end
+@enduml

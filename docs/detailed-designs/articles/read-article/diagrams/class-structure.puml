@@ -1,0 +1,123 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Read an article
+
+package "Logos Lab Web" {
+  class ArticlePage {
+    -articlesApi: ArticlesApi
+    -savedItemsApi: SavedItemsApi
+    +article: Signal<ArticleView>
+    +saved: Signal<boolean>
+    +toggleSave(): void
+  }
+  class ArticleEditorPage {
+    -studioArticlesApi: StudioArticlesApi
+    +saveBody(): void
+    +submit(): void
+    +openImageUpload(): void
+  }
+  class ImageUploadDialog {
+    +altText: string
+    +decorative: boolean
+    +insert(): void
+  }
+  interface ArticlesApi {
+    +getArticle(slug: string): Observable<ArticleView>
+  }
+  interface StudioArticlesApi {
+    +saveBody(articleId: UUID, body: string): Observable<void>
+    +submit(articleId: UUID): Observable<SubmitResult>
+  }
+  class HttpArticlesApi
+  class HttpStudioArticlesApi
+  class ARTICLES_API <<InjectionToken>>
+  class STUDIO_ARTICLES_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class GetArticleAction {
+    +execute(slug: string): Promise<ArticleView>
+  }
+  class SaveArticleBodyAction {
+    +execute(userId: UUID, articleId: UUID, html: string): Promise<void>
+  }
+  class SubmitArticleAction {
+    +execute(userId: UUID, articleId: UUID): Promise<SubmitResult>
+  }
+  class ArticleBodySanitizer {
+    +allowedElements: string[]
+    +allowedIframeOrigins: string[]
+    +sanitize(html: string): string
+  }
+  class ScriptureReferenceParser {
+    +tag(html: string): string
+    +parse(text: string): ScriptureReference
+  }
+  class ReadingTimeCalculator {
+    +wordsPerMinute: number = 230
+    +minutes(text: string): number
+  }
+  class ArticleSubmissionValidator {
+    +validate(body: string): SubmissionProblem[]
+  }
+  class ArticleRepository {
+    +findPublishedBySlug(slug: string, now: Date): Promise<Article>
+    +findOwned(articleId: UUID, userId: UUID): Promise<Article>
+    +save(article: Article): Promise<void>
+  }
+  class Article {
+    +id: UUID
+    +slug: string
+    +title: string
+    +subtitle: string
+    +coverImageId: UUID
+    +coverAlt: string
+    +bodyHtml: string
+    +readingMinutes: number
+    +publishedAt: Date
+    +lastUpdatedAt: Date
+    +workflowState: WorkflowState
+  }
+  class ScriptureReference {
+    +book: string
+    +chapter: number
+    +verses: string
+    +translation: string
+  }
+  class SubmissionProblem {
+    +kind: ProblemKind
+    +location: string
+    +message: string
+  }
+  enum ProblemKind {
+    ImageMissingAltText
+    SkippedHeadingLevel
+  }
+}
+ArticlePage ..> ArticlesApi
+ArticleEditorPage ..> StudioArticlesApi
+ArticleEditorPage ..> ImageUploadDialog : opens
+HttpArticlesApi ..|> ArticlesApi
+HttpStudioArticlesApi ..|> StudioArticlesApi
+ARTICLES_API ..> ArticlesApi : provides
+STUDIO_ARTICLES_API ..> StudioArticlesApi : provides
+GetArticleAction --> ArticleRepository
+SaveArticleBodyAction --> ArticleBodySanitizer
+SaveArticleBodyAction --> ScriptureReferenceParser
+SaveArticleBodyAction --> ReadingTimeCalculator
+SaveArticleBodyAction --> ArticleRepository
+SubmitArticleAction --> ArticleSubmissionValidator
+SubmitArticleAction --> ArticleRepository
+ScriptureReferenceParser ..> ScriptureReference : creates
+ArticleSubmissionValidator ..> SubmissionProblem : returns
+SubmissionProblem --> ProblemKind
+ArticleRepository ..> Article
+@enduml

@@ -1,0 +1,78 @@
+@startuml
+title UML sequence behaviour — Submit a report
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ReportContentDialog" as dialog
+  participant "HttpReportsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "reports route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitReportAction" as action
+  participant "RateLimitService" as rate
+  participant "ModerationQueueService" as queue
+  participant "AutoHideService" as autohide
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Choose Report on an item
+dialog --> actor : Ask for a reason and an optional note (L2-085)
+actor -> dialog : Choose reason, write note, Send report
+dialog -> dialog : Check a reason is chosen and the note is 1,000 characters or fewer
+alt Field errors
+  dialog --> actor : Error summary linked to the reason group
+else Valid input
+  dialog -> client : submitReport(target, reason, note)
+  client -> route : POST /api/v1/reports
+  route -> route : Authenticate member and validate schema
+  route -> action : execute(currentUser, request)
+  action -> rate : hit(reports:memberId, 10, 1 hour)
+  rate -> cache : INCR sliding window counter
+  cache --> rate : Count
+  alt More than 10 reports in the last hour
+    rate --> action : Limited until reset time
+    action --> route : RateLimited
+    route --> client : 429 with Retry-After
+    client --> dialog : Rate limited
+    dialog --> actor : Sending paused until the stated time; choices kept (L2-085)
+  else Within the limit
+    action -> db : SELECT open report by this reporter on this target
+    alt Already reported
+      db --> action : Existing report
+      action --> route : AlreadyReported
+      route --> client : 409 already-reported problem
+      client --> dialog : Already reported
+      dialog --> actor : Your report is already being reviewed (L2-085)
+    else New report
+      db --> action : None
+      action -> queue : fileReport(report)
+      queue -> db : INSERT report; open or update moderation case and priority
+      db --> queue : Case
+      queue --> action : ModerationCase
+      action -> autohide : evaluate(caseId) (L2-088)
+      autohide --> action : Done
+      action --> route : ReportReceipt without reporter identity to others
+      route --> client : 201 Created
+      client --> dialog : Receipt
+      dialog --> actor : Confirmation; the reported member is not told who reported
+    end
+  end
+end
+@enduml

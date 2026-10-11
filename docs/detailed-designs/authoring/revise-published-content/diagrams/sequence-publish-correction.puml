@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Publish a correction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "PublishCorrectionDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/corrections route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishCorrectionAction" as action
+  participant "RevisionService" as revisions
+  participant "PublishingService" as publishing
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Review the diff and write what was corrected
+alt Note empty
+  dialog --> actor : Error links to the note field
+else Note present
+  dialog -> client : publishCorrection(id, note, rowVersion)
+  client -> route : POST /api/v1/studio/items/{id}/corrections
+  route -> route : Authenticate and require Editor role
+  route -> action : execute(editor, id, note, rowVersion)
+  action -> db : Load item, editor's revision and live version FOR UPDATE
+  db --> action : Current state
+  action -> revisions : diff(revision, liveVersion)
+  revisions --> action : FieldDiff[]
+  action -> publishing : publishCorrection(item, editor, note)
+  publishing -> db : Insert ContentVersion with is_correction and note (L2-080)
+  publishing -> db : Move live_version_id, set last_updated_at
+  publishing -> db : Append WorkflowTransition kind Correction, no second editor
+  db --> publishing : Commit
+  publishing -> sqs : Enqueue CdnInvalidateJob
+  publishing --> action : Version
+  action --> route : Item
+  route --> client : 200 JSON
+  client --> dialog : Success
+  dialog --> actor : Correction live and recorded in history
+end
+@enduml

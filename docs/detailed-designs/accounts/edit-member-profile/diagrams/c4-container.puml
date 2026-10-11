@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Edit member profile
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System_Boundary(lab, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application; never caches personal data")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+  ContainerDb(s3, "Media storage", "Amazon S3, private buckets", "Uploaded images")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Job messages from API to Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs")
+}
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+
+Rel(member, cdn, "Loads pages and avatars", "HTTPS")
+Rel(cdn, web, "Forwards page requests")
+Rel(web, api, "/api/v1/me/profile, /api/v1/me/avatar, /api/v1/members/{id}", "JSON/HTTPS")
+Rel(api, db, "Profile fields, upload records", "SQL")
+Rel(api, s3, "Stores original in quarantine")
+Rel(api, queue, "Enqueues AvatarProcessJob")
+Rel(worker, queue, "Consumes")
+Rel(worker, scanner, "Scans file")
+Rel(worker, s3, "Writes processed avatar")
+Rel(worker, db, "Sets avatarKey")
+Rel(cdn, s3, "Serves avatar renditions")
+@enduml

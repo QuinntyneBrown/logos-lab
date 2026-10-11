@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Onboard an invited expert
+
+Person(admin, "Administrator", "Logos Lab staff who manage users and invitations")
+Person(invitee, "Invited expert", "Person who received an expert invitation")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends transactional email")
+Rel(admin, logos, "Sends, lists and revokes invitations in", "HTTPS")
+Rel(invitee, logos, "Accepts the invitation and completes onboarding in", "HTTPS")
+Rel(logos, ses, "Sends invitation email via", "SES API")
+Rel(ses, invitee, "Delivers invitation link to", "Email")
+@enduml

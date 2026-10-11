@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Store passwords and secrets
+
+Person(member, "Member", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Password and MFA forms")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Hashes passwords; encrypts MFA secrets; signs sessions and URLs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs SigningKeyRotationJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Password hashes, encrypted MFA secrets, recovery code hashes")
+}
+System_Ext(sm, "AWS Secrets Manager", "Database credentials, API keys, signing keys")
+System_Ext(kms, "AWS KMS", "Managed key")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Stores hashes and ciphertext", "SQL")
+Rel(api, sm, "Reads secrets at start-up and on refresh", "IAM task role")
+Rel(worker, sm, "Writes the next signing key", "IAM task role")
+Rel(api, kms, "Encrypts MFA secrets", "IAM task role")
+@enduml

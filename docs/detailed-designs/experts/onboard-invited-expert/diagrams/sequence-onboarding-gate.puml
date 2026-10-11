@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Complete the profile before submitting
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "New expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioPage" as StudioPage
+  participant "StudioProfilePage" as StudioProfilePage
+  participant "StudioApi" as StudioApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/studio/onboarding" as route
+  participant "Submit for review route" as submit
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ExpertProfileCompletenessService" as ExpertProfileCompletenessService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> StudioPage : First visit to Studio
+StudioPage -> StudioApi : getOnboarding()
+StudioApi -> route : HTTPS GET
+route -> ExpertProfileCompletenessService : evaluate(currentUserId)
+ExpertProfileCompletenessService -> db : Read photo, title, bio length, expertise areas
+db --> ExpertProfileCompletenessService : Profile
+ExpertProfileCompletenessService --> route : Checklist (photo, title, bio 100-2,000, at least 1 area)
+route --> StudioApi : 200 JSON
+StudioApi --> StudioPage : Checklist
+StudioPage --> actor : Guide to StudioProfilePage with missing items (L2-020)
+actor -> StudioProfilePage : Complete fields and save
+actor -> StudioPage : Submit first content for review
+StudioPage -> StudioApi : submit(contentId)
+StudioApi -> submit : HTTPS POST
+submit -> ExpertProfileCompletenessService : canSubmit(currentUserId)
+alt profile incomplete
+  ExpertProfileCompletenessService --> submit : false
+  submit --> StudioApi : 422 problem naming missing fields (L2-020)
+  StudioApi --> StudioPage : Refused
+  StudioPage --> actor : Submission refused until the profile is complete
+else profile complete
+  ExpertProfileCompletenessService --> submit : true
+  submit --> StudioApi : Submission continues in the editorial workflow (L2-077)
+  StudioApi --> StudioPage : Submitted
+  StudioPage --> actor : In review
+end
+@enduml

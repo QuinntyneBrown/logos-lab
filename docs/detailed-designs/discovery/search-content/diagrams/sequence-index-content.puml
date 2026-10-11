@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — Keep the search index current
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SearchIndexUpdateJob" as SearchIndexUpdateJob
+  participant "SearchDocumentRepository" as SearchDocumentRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+end box
+queue -> SearchIndexUpdateJob : Deliver message for contentId after publish, revise, archive or hide
+SearchIndexUpdateJob -> db : Load item, workflow state, publish time and hidden flag
+db --> SearchIndexUpdateJob : Item state
+alt item is published and not hidden
+  SearchIndexUpdateJob -> SearchDocumentRepository : upsert(title, summary, body, transcript, topics, expert names)
+  SearchDocumentRepository -> db : Upsert search_documents row with unaccented vector
+else draft, scheduled, archived or hidden
+  SearchIndexUpdateJob -> SearchDocumentRepository : remove(contentId) (L2-003)
+  SearchDocumentRepository -> db : Delete search_documents row
+end
+db --> SearchDocumentRepository : Commit
+SearchDocumentRepository --> SearchIndexUpdateJob : Done
+SearchIndexUpdateJob --> queue : Acknowledge (idempotent; retried with backoff)
+@enduml

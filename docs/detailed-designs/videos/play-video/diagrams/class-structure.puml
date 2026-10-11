@@ -1,0 +1,103 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Play a video
+
+package "Logos Lab Web" {
+  class LlPlayer <<ll-player>> {
+    +video: Input<PlayableVideo>
+    +resumeOffer: Signal<ResumeOffer | null>
+    +state: Signal<VideoPlayerState>
+    +play(): void
+    +seek(seconds: number): void
+    +retry(): void
+  }
+  class TesseraVideoPlayer <<external t-video-player>> {
+    +stateChange: Output<VideoPlayerState>
+    +error: Output<VideoPlayerError>
+  }
+  class PlayerSettingsDialog {
+    +speed: number
+    +quality: QualityChoice
+    +captionsTrack: string | null
+    +volume: number
+  }
+  class ReportProblemDialog {
+    +category: ProblemCategory
+    +description: string
+    +send(): void
+  }
+  class WatchProgressTracker {
+    +intervalSeconds: number = 10
+    +attach(videoId: string, player: LlPlayer): void
+    +flush(reason: FlushReason): void
+  }
+  interface VideosApi {
+    +getProgress(videoId: string): Observable<WatchProgressView>
+    +saveProgress(videoId: string, body: ProgressUpdate): Observable<void>
+    +logPlaybackError(videoId: string, body: PlaybackErrorReport): Observable<void>
+    +reportProblem(body: ProblemReport): Observable<void>
+  }
+  class HttpVideosApi
+  class "VIDEOS_API" as Token <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class RecordWatchProgressAction {
+    +execute(userId: Uuid, videoId: Uuid, update: ProgressUpdate): Result<void>
+  }
+  class GetWatchProgressAction {
+    +execute(userId: Uuid, videoId: Uuid): Result<WatchProgressView>
+  }
+  class LogPlaybackErrorAction {
+    +execute(videoId: Uuid, report: PlaybackErrorReport): Result<void>
+  }
+  class WatchProgressService {
+    +resumeThreshold: number = 0.95
+    +merge(existing: WatchedSegment[], incoming: WatchedSegment[], duration: number): WatchedSegment[]
+    +resumeOffer(progress: WatchProgress, duration: number): ResumeOffer | null
+  }
+  class WatchProgress {
+    +userId: Uuid
+    +videoId: Uuid
+    +playheadSeconds: number
+    +updatedAt: Instant
+  }
+  class WatchedSegment <<value object>> {
+    +startSeconds: number
+    +endSeconds: number
+  }
+  class WatchProgressRepository {
+    +find(userId: Uuid, videoId: Uuid): WatchProgress
+    +save(progress: WatchProgress): void
+  }
+  enum FlushReason {
+    Interval
+    Pause
+    Seek
+    Leave
+  }
+}
+LlPlayer *-- TesseraVideoPlayer : embeds
+LlPlayer ..> PlayerSettingsDialog : opens
+LlPlayer ..> ReportProblemDialog : opens
+WatchProgressTracker ..> LlPlayer : observes
+WatchProgressTracker ..> VideosApi : uses
+WatchProgressTracker --> FlushReason
+HttpVideosApi ..|> VideosApi
+Token ..> VideosApi : provides
+RecordWatchProgressAction ..> WatchProgressService : merges with
+RecordWatchProgressAction ..> WatchProgressRepository : saves
+GetWatchProgressAction ..> WatchProgressService : resume offer
+WatchProgress "1" *-- "0..*" WatchedSegment
+WatchProgressRepository ..> WatchProgress : persists
+@enduml

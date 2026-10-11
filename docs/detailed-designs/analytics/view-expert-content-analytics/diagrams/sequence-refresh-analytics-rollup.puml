@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Refresh analytics rollups
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Scheduler (TO SUPPLY)" as sched
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AnalyticsRollupJob" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+sched -> queue : Enqueue AnalyticsRollupJob every hour
+queue -> job : Deliver message to the Worker
+job -> db : Read events and learning records changed since the last refresh
+db --> job : Rows
+job -> db : Upsert analytics_item_daily and analytics_lesson_completion for affected days
+job -> db : Set analytics_refreshes.completed_at = now()
+db --> job : Committed
+job --> queue : Acknowledge
+note over job, db : Upserts keyed by item and day make reruns idempotent (L2-140); hourly runs keep data at most 1 hour old (L2-100)
+@enduml

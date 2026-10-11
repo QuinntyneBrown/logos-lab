@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Browse events
+
+Person(viewer, "Member or visitor", "Opens /events")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches anonymous HTML and lists")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "EventsPage")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Event list")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Events, hosts, registrations")
+}
+Rel(viewer, cdn, "Requests", "HTTPS")
+Rel(cdn, web, "Forwards cache misses", "HTTPS")
+Rel(web, api, "GET /api/v1/events", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Rate limit requests
+
+Container(cdn, "CDN", "CloudFront with AWS WAF web ACL", "Managed bot-control and IP-reputation rule groups, rate-based rule")
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "RateLimitMiddleware", "Next.js middleware", "Runs after the CSRF check, before authentication")
+  Component(reg, "RateLimitPolicyRegistry", "Configuration", "Global policies and endpoint-specific policies by route")
+  Component(lim, "RateLimiter", "Service", "Fixed-window counters with atomic increment and expiry")
+  Component(key, "ClientKeyResolver", "Function", "Keys by user id when signed in, else by client IP address")
+  Component(sec, "SecurityEventLogger", "Service", "Logs each rate-limit block (L2-111)")
+}
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "TooManyRequestsPage", "Angular page, /429", "Branded 429 page using ll-error-page")
+  Component(interceptor, "RateLimitInterceptor", "Angular HttpInterceptor", "Reads Retry-After and hands it to the calling page")
+}
+ContainerDb(cache, "Cache", "ElastiCache for Redis", "Counters")
+Rel(cdn, mw, "Forwards allowed traffic to")
+Rel(mw, key, "Resolves client key with")
+Rel(mw, reg, "Looks up policies in")
+Rel(mw, lim, "Checks and increments with")
+Rel(lim, cache, "INCR and EXPIRE")
+Rel(mw, sec, "Logs blocks with")
+Rel(interceptor, mw, "Receives 429 and Retry-After from")
+Rel(interceptor, page, "Navigates full-page requests to")
+@enduml

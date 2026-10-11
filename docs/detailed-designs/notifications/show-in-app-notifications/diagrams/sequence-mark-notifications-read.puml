@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Mark notifications read
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "NotificationCentreDialog" as page
+  participant "UnreadNotificationsStore" as store
+  participant "NotificationsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "notifications route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "MarkNotificationReadAction\nMarkAllNotificationsReadAction" as action
+  participant "NotificationService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+alt member activates one notification
+  actor -> page : Activate notification link
+  page -> client : markRead(id)
+  client -> route : POST /api/v1/notifications/{id}/read
+  route -> action : MarkNotificationReadAction.execute(currentUserId, id)
+  action -> service : markRead(userId, id)
+  service -> db : Update read_at where id and recipient_id = current user
+  db --> service : 0 or 1 row
+  service --> action : Done (0 rows answers 404, L2-017)
+  action --> route : Result
+  route --> client : 204 No Content
+  page -> page : Navigate to subjectUrl (L2-091)
+else member activates Mark all as read
+  actor -> page : Activate "Mark all as read"
+  page --> actor : Show busy button
+  page -> client : markAllRead()
+  client -> route : POST /api/v1/notifications/read-all
+  route -> action : MarkAllNotificationsReadAction.execute(currentUserId)
+  action -> service : markAllRead(userId)
+  service -> db : Update read_at for every unread row of the recipient
+  db --> service : Rows updated
+  service --> action : Count
+  action --> route : Result
+  route --> client : 204 No Content
+  page --> actor : Remove unread wash and dots
+end
+page -> store : refresh()
+store --> actor : Bell count updated
+@enduml

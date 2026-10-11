@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Log and trace
+
+Person(member, "Member", "Triggers requests")
+Person(ops, "Operations engineer", "Searches logs by correlation ID")
+System(ll, "Logos Lab", "Learning platform")
+System_Ext(logs, "Amazon CloudWatch Logs", "Canada (Central)")
+System_Ext(ses, "Amazon SES", "Email")
+System_Ext(mc, "AWS Elemental MediaConvert", "Video transcoding")
+
+Rel(member, ll, "Uses", "HTTPS")
+Rel(ll, logs, "Writes structured logs to")
+Rel(ll, ses, "Sends email with correlation tag")
+Rel(ll, mc, "Submits jobs with correlation metadata")
+Rel(ops, logs, "Queries")
+@enduml

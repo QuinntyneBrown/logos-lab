@@ -1,0 +1,141 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View expert content analytics
+package "Logos Lab Web" {
+  class StudioAnalyticsPage {
+    -period: AnalyticsPeriod
+    -summary: ExpertAnalytics
+    +choosePeriod(p: AnalyticsPeriod): void
+    +openCustomRange(): void
+    +exportCsv(): void
+  }
+  class AnalyticsItemPage {
+    -itemId: string
+    -detail: ItemAnalytics
+    +choosePeriod(p: AnalyticsPeriod): void
+  }
+  class DateRangeDialog {
+    -from: FormControl<string>
+    -to: FormControl<string>
+    +apply(): void
+  }
+  class AnalyticsEventCollector {
+    +track(event: ProductEvent): void
+  }
+  interface AnalyticsApi {
+    +expertSummary(period: AnalyticsPeriod): Observable<ExpertAnalytics>
+    +item(id: string, period: AnalyticsPeriod): Observable<ItemAnalytics>
+    +recordEvent(event: ProductEvent): Observable<void>
+  }
+  class HttpAnalyticsApi
+  class "ANALYTICS_API" as Token <<InjectionToken>>
+  class MetricValue {
+    +value: number
+    +suppressed: boolean
+    +label: string
+  }
+  class ItemAnalytics {
+    +itemId: string
+    +type: ContentType
+    +views: MetricValue
+    +uniqueLearners: MetricValue
+    +enrolmentsOrStarts: MetricValue
+    +completionRate: MetricValue
+    +averageProgress: MetricValue
+    +saves: MetricValue
+    +comments: MetricValue
+    +averageWatchedPercent: MetricValue
+    +lessonDropOff: LessonCompletion[]
+    +updatedAt: string
+  }
+  class ExpertAnalytics {
+    +headline: MetricValue[]
+    +weekly: SeriesPoint[]
+    +items: ItemAnalytics[]
+    +updatedAt: string
+  }
+}
+package "Logos Lab API" {
+  class GetExpertAnalyticsAction {
+    +execute(expertId: uuid, period: AnalyticsPeriod): ExpertAnalytics
+  }
+  class GetItemAnalyticsAction {
+    +execute(expertId: uuid, itemId: uuid, period: AnalyticsPeriod): ItemAnalytics
+  }
+  class RecordAnalyticsEventAction {
+    +execute(event: ProductEventInput, consent: CookieConsent): void
+  }
+  class AnalyticsQueryService {
+    +itemMetrics(itemIds: uuid[], period: AnalyticsPeriod): ItemMetricsRow[]
+    +lessonDropOff(courseId: uuid, period: AnalyticsPeriod): LessonCompletion[]
+    +lastRefreshedAt(): Date
+  }
+  class AnalyticsPrivacyService {
+    +minimumGroupSize: number = 5
+    +suppress(row: ItemMetricsRow): ItemAnalytics
+    +sanitize(event: ProductEventInput): ProductEventInput
+  }
+  class ContentOwnershipRepository {
+    +ownedBy(expertId: uuid, itemId: uuid): boolean
+    +publishedItemsOf(expertId: uuid): uuid[]
+  }
+  class AnalyticsRollupJob {
+    +run(hour: Date): void
+  }
+  class AnalyticsItemDaily {
+    +itemId: uuid
+    +day: date
+    +views: number
+    +uniqueLearners: number
+    +starts: number
+    +completions: number
+    +progressSum: number
+    +saves: number
+    +comments: number
+    +watchedPercentSum: number
+  }
+  class AnalyticsEvent {
+    +id: uuid
+    +name: string
+    +pseudonymousSessionId: string
+    +contentId: uuid
+    +occurredAt: timestamptz
+  }
+  enum AnalyticsPeriod {
+    Last7Days
+    Last30Days
+    Last90Days
+    AllTime
+  }
+}
+HttpAnalyticsApi ..|> AnalyticsApi
+Token ..> AnalyticsApi : provides
+StudioAnalyticsPage ..> AnalyticsApi : depends on
+AnalyticsItemPage ..> AnalyticsApi : depends on
+AnalyticsEventCollector ..> AnalyticsApi : depends on
+StudioAnalyticsPage ..> DateRangeDialog : opens
+ExpertAnalytics *-- ItemAnalytics
+ItemAnalytics *-- MetricValue
+GetExpertAnalyticsAction --> ContentOwnershipRepository
+GetItemAnalyticsAction --> ContentOwnershipRepository
+GetExpertAnalyticsAction --> AnalyticsQueryService
+GetItemAnalyticsAction --> AnalyticsQueryService
+GetExpertAnalyticsAction --> AnalyticsPrivacyService
+GetItemAnalyticsAction --> AnalyticsPrivacyService
+RecordAnalyticsEventAction --> AnalyticsPrivacyService
+RecordAnalyticsEventAction ..> AnalyticsEvent : inserts
+AnalyticsQueryService ..> AnalyticsItemDaily : reads
+AnalyticsRollupJob ..> AnalyticsItemDaily : writes
+GetExpertAnalyticsAction ..> AnalyticsPeriod
+@enduml

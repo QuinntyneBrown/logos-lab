@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Complete a course
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "LessonPlayerPage" as page
+  participant "CourseCompletePage" as done
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "lessons/[id]/completion route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "LessonCompletionService" as comp
+  participant "CourseCompletionService" as ccs
+  participant "CertificateService" as cs
+  participant "CertificateCodeGenerator" as gen
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Complete last incomplete required lesson
+page -> route : POST completion
+route -> comp : Record completion and recalculate progress
+comp -> ccs : onLessonCompleted(enrolment)
+ccs -> db : Count incomplete required lessons
+db --> ccs : 0 remaining
+alt enrolment not yet Completed
+  ccs -> db : Set enrolment Completed, completed_at (L2-031)
+  ccs -> cs : issue(enrolment, course, user)
+  cs -> gen : next()
+  gen --> cs : Non-guessable code
+  cs -> db : Insert certificate with issued name snapshot (unique user and course)
+  alt unique index already holds a certificate
+    db --> cs : Conflict; return existing certificate (issued once)
+  else new
+    db --> cs : Inserted
+  end
+  cs --> ccs : Certificate
+  ccs --> comp : courseCompleted = true
+else already Completed
+  ccs --> comp : courseCompleted = false
+end
+comp --> route : CompletionResult
+route --> page : 200 CompletionResult
+alt courseCompleted
+  page -> done : Navigate to /courses/{slug}/complete
+  done --> actor : Completion panel with View your certificate and Share; toast
+else
+  page --> actor : Show lesson completed
+end
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage account states
+
+Container(web, "Logos Lab Web", "Angular", "AdminUserPage, UserActionDialog, SignInPage, ll-comment")
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "admin/users route handlers", "app/api/v1/admin/users/[id]/...", "Suspension and deactivation")
+  Component(actions, "SuspendUserAction, ReactivateUserAction, DeactivateUserAction", "Actions", "One use case each")
+  Component(state, "AccountStateService", "Domain service", "Validates and applies transitions")
+  Component(sessions, "SessionService", "Domain service", "revokeAll")
+  Component(audit, "AuditLogService", "Domain service", "Audit entries")
+  Component(attr, "MemberAttributionService", "Domain service", "Removed member, Former member")
+  Component(mw, "SessionMiddleware", "Middleware", "Refuses sessions of blocked accounts")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "SuspensionExpiryJob", "Job", "Returns expired suspensions to Active")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, sessions, audit_entries")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "Notices")
+Rel(web, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Calls")
+Rel(actions, state, "Transition")
+Rel(state, sessions, "Revokes sessions")
+Rel(state, audit, "Appends entry")
+Rel(state, db, "Writes state", "SQL")
+Rel(sessions, db, "SQL")
+Rel(mw, db, "Reads session and state", "SQL")
+Rel(job, state, "Transition to Active")
+Rel(state, queue, "Enqueues notices")
+Rel(attr, db, "Reads author state", "SQL")
+@enduml

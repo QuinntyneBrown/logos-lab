@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Guard a non-production environment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Crawler or visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web (staging)" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API (staging)" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EnvironmentGate" as gate
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN (staging distribution)" as cdn
+  participant "Noindex headers policy" as headers
+end box
+actor -> cdn : GET any path
+cdn -> gate : Viewer request
+alt no valid credentials
+  gate --> cdn : 401 with credential challenge (Apply L2-145 requires authentication)
+  cdn -> headers : Apply policy
+  headers --> cdn : Add X-Robots-Tag: noindex, nofollow
+  cdn --> actor : 401
+else valid credentials
+  gate --> cdn : Continue
+  cdn -> web : Forward page request
+  web --> cdn : Response
+  cdn -> headers : Apply policy
+  headers --> cdn : Add X-Robots-Tag: noindex, nofollow (Apply L2-145)
+  cdn --> actor : Response with header
+end
+@enduml

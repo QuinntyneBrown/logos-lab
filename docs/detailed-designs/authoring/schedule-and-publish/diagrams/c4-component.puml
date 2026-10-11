@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Schedule and publish
+
+Container_Boundary(api, "Logos Lab API and Worker (shared domain code)") {
+  Component(routes, "items/{id}/publish, schedule, unschedule", "Next.js route handlers", "Editor role required")
+  Component(pub, "PublishContentAction", "Action", "Approved to Published")
+  Component(sch, "ScheduleContentAction", "Action", "Approved to Scheduled")
+  Component(uns, "UnscheduleContentAction", "Action", "Scheduled to Approved")
+  Component(job, "ScheduledContentPublishJob", "Worker job", "Publishes due Scheduled items once")
+  Component(workflow, "WorkflowService", "Domain service", "L2-076 transitions")
+  Component(publishing, "PublishingService", "Domain service", "Version, slug, search document, follow-up jobs")
+  Component(slug, "SlugService", "Domain service", "Title to unique slug")
+  Component(search, "SearchIndexService", "Domain service", "Full-text search document")
+  Component(repo, "ContentItemRepository, ContentVersionRepository", "Repositories", "PostgreSQL access")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_items, content_versions, workflow_transitions")
+ContainerQueue(sqs, "Job queue", "Amazon SQS", "CdnInvalidateJob, FollowerNotifyJob")
+
+Rel(routes, pub, "Calls")
+Rel(routes, sch, "Calls")
+Rel(routes, uns, "Calls")
+Rel(pub, workflow, "Checks transition with")
+Rel(sch, workflow, "Checks transition with")
+Rel(uns, workflow, "Checks transition with")
+Rel(pub, publishing, "Publishes through")
+Rel(job, publishing, "Publishes through")
+Rel(publishing, slug, "Generates slug with")
+Rel(publishing, search, "Refreshes search with")
+Rel(publishing, repo, "Writes through")
+Rel(sch, repo, "Writes through")
+Rel(uns, repo, "Writes through")
+Rel(job, repo, "Selects due items through")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(publishing, sqs, "Enqueues follow-up jobs", "SQS")
+@enduml

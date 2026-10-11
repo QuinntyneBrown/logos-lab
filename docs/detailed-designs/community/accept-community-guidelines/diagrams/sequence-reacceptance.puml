@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Re-accept updated guidelines
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ConversationPage" as page
+  participant "GuidelinesGate" as gate
+  participant "CommunityGuidelinesDialog" as dialog
+  participant "MessagesApi / PoliciesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SendMessageAction" as send
+  participant "GuidelinesAcceptanceService" as service
+  participant "AcceptPolicyVersionAction" as accept
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+note over db : Administrator published version 4 with requiresReacceptance = true
+actor -> page : Send a message
+page -> gate : ensureAccepted()
+gate --> page : true (status cached earlier in session)
+page -> client : send(conversationId, body)
+client -> route : POST /api/v1/messages/conversations/{id}/messages
+route -> send : execute(senderId, id, body)
+send -> service : assertAccepted(senderId)
+service -> db : Required version 4, member accepted 3
+service --> send : GuidelinesAcceptanceRequired(4)
+send --> route : Refused before any write
+route --> client : 403 problem guidelines-acceptance-required (L2-068)
+client --> gate : Invalidate cached status
+gate -> dialog : Open in Updated mode with change summary
+actor -> dialog : Accept version 4
+dialog -> client : accept("community-guidelines", 4)
+client -> route : POST /api/v1/me/policy-acceptances
+route -> accept : execute(userId, key, 4)
+accept -> db : Insert acceptance of version 4 with timestamp (L2-068)
+route --> client : 201
+dialog --> page : Accepted
+page -> client : Resend the same draft
+client -> route : POST /api/v1/messages/conversations/{id}/messages
+route --> client : 201 MessageView
+page --> actor : Message sent
+@enduml

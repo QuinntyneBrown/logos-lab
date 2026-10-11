@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage sessions
+
+Container(web, "Logos Lab Web", "Angular", "SettingsSessionsPage, dialogs, SessionActivityService")
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "SessionMiddleware", "Middleware", "Authentication stage: resolves the session")
+  Component(routes, "session route handlers", "app/api/v1/me/sessions, app/api/v1/auth/session", "List, end, extend")
+  Component(list, "ListSessionsAction", "Action", "Caller's active sessions")
+  Component(others, "SignOutOtherSessionsAction", "Action", "Revokes all but current")
+  Component(signout, "SignOutAction", "Action", "Revokes current session")
+  Component(extend, "ExtendSessionAction", "Action", "Records activity")
+  Component(service, "SessionService", "Domain service", "Session lifecycle")
+  Component(policy, "SessionPolicy", "Domain service", "Idle and absolute limits by role")
+  Component(repo, "SessionRepository", "Repository", "Owner-scoped session queries")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "sessions, user_roles")
+Rel(web, mw, "Every API request", "JSON/HTTPS")
+Rel(mw, service, "resolve(token)")
+Rel(service, policy, "Applies limits")
+Rel(mw, routes, "Passes authenticated request")
+Rel(routes, list, "Calls")
+Rel(routes, others, "Calls")
+Rel(routes, signout, "Calls")
+Rel(routes, extend, "Calls")
+Rel(list, repo, "Reads")
+Rel(others, service, "revokeAllExcept")
+Rel(signout, service, "revoke")
+Rel(extend, service, "touch")
+Rel(service, repo, "Reads and writes")
+Rel(repo, db, "SQL")
+@enduml

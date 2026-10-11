@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Notify followers of a publication
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "NotificationsPanel" as NotificationsPanel
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ExpertFollowerNotificationJob" as ExpertFollowerNotificationJob
+  participant "FollowRepository" as FollowRepository
+  participant "NotificationPreferenceService" as NotificationPreferenceService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+  participant "Amazon SES" as ses
+end box
+queue -> ExpertFollowerNotificationJob : Content or hosted event by expert published
+ExpertFollowerNotificationJob -> FollowRepository : followersOf(Expert expertId)
+FollowRepository -> db : Select current followers
+db --> FollowRepository : Follower ids (unfollowed members excluded)
+FollowRepository --> ExpertFollowerNotificationJob : Followers
+loop each follower
+  ExpertFollowerNotificationJob -> NotificationPreferenceService : channelsFor(follower, New content from people you follow) (L2-093)
+  NotificationPreferenceService --> ExpertFollowerNotificationJob : In-app and/or email
+  opt in-app on
+    ExpertFollowerNotificationJob -> db : Insert notification keyed by follower and content (idempotent)
+  end
+  opt email on
+    ExpertFollowerNotificationJob -> ses : Send email (L2-024)
+  end
+end
+ExpertFollowerNotificationJob --> queue : Acknowledge
+actor -> NotificationsPanel : Open notifications
+NotificationsPanel --> actor : New item from the followed expert
+@enduml

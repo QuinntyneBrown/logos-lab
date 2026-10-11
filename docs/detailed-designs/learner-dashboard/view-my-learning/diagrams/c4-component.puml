@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View my learning
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "MyLearningPage", "Angular page", "Tabs, sort, rows")
+  Component(client, "LearningApi", "Contract + HttpLearningApi", "Bound by LEARNING_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/learning", "Next.js route handler", "Validate and map")
+  Component(action, "ListMyLearningAction", "Action", "One page of one tab")
+  Component(service, "LearningActivityService", "Domain service", "Merge, exclude left, sort")
+  Component(repos, "EnrolmentRepository / LearningActivityRepository", "Repositories", "User-scoped reads")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "enrolments, learning_activity")
+Rel(page, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, service, "Uses")
+Rel(service, repos, "Reads")
+Rel(repos, db, "Reads", "SQL")
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Validate input and encode output
+
+Person(member, "Member", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR", "Encodes output by context through Angular bindings")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Validates every request against a schema")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Receives only parameterised queries")
+}
+System_Ext(site, "External web site", "Link preview target")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes with bound parameters", "SQL")
+Rel(api, site, "Fetches previews through SafeUrlFetcher", "HTTPS")
+@enduml

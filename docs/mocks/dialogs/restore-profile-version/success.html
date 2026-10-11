@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Restore profile version · success — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="restore-profile-version">
+<meta name="mock:state" content="success">
+<meta name="mock:requirements" content="L2-023">
+<meta name="description" content="After confirming the restore: the dialog has closed, a new entry tops the history, and a toast says Dr. Mensah has been notified.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/editor.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/review-queue/default.html">Review queue</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 4 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">4</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Naomi Ellis" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/sofia-marquez.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/studio/editor.html">Studio</a></li><li><a href="../../pages/expert-profile/default.html">Dr. Abena Mensah</a></li><li><span aria-current="page">Profile history</span></li></ol></nav>
+    <div class="page-head page-head--actions" style="padding-top: var(--space-8)">
+      <p class="eyebrow">Dr. Abena Mensah</p>
+      <h1 class="page-head__title">Profile history</h1>
+      <p class="page-head__sub">Every saved change to Dr. Abena Mensah's public profile, newest first. Restoring a version makes it live and notifies Dr. Mensah.</p>
+      <div class="page-head__actions"><a class="btn btn--quiet" href="../../pages/expert-profile/default.html">View public profile</a></div>
+    </div>
+    <div class="narrow" style="padding-bottom: var(--space-16)">
+      <ol class="timeline" aria-label="Versions, newest first"><li aria-current="true"><time datetime="2026-10-13T10:24-04:00">Today, 10:24 am ET</time><div class="cluster cluster--between"><p><strong>Naomi Ellis restored the version from Thu 1 Oct 2026</strong></p><span class="badge badge--success">Current version</span></div><div class="diff" role="group" aria-label="Changes to Professional title"><p class="diff__field">Professional title</p><div class="diff__row diff__row--removed"><span class="diff__sign" aria-hidden="true">−</span><span class="diff__text"><span class="vh">Removed: </span>Associate Professor of Systematic Theology</span></div><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Added: </span>Theologian and author</span></div></div></li><li><time datetime="2026-10-13T09:48-04:00">Today, 9:48 am ET</time><div class="cluster cluster--between"><p><strong>Dr. Abena Mensah changed Professional title and Bio</strong></p><a class="btn btn--quiet btn--sm" href="../../dialogs/restore-profile-version/default.html" aria-label="Restore the version from Today, 9:48 am ET">Restore this version</a></div><div class="diff" role="group" aria-label="Changes to Professional title"><p class="diff__field">Professional title</p><div class="diff__row diff__row--removed"><span class="diff__sign" aria-hidden="true">−</span><span class="diff__text"><span class="vh">Removed: </span>Theologian and author</span></div><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Added: </span>Associate Professor of Systematic Theology</span></div></div><div class="diff" role="group" aria-label="Changes to Bio"><p class="diff__field">Bio</p><div class="diff__row"><span class="diff__sign" aria-hidden="true"></span><span class="diff__text">Dr. Mensah teaches systematic theology <del class="diff__del">and leads</del> <ins class="diff__ins">, leads</ins> the Imago Dei cohort on Logos Lab each autumn<ins class="diff__ins">, and preaches regularly in congregations across the Maritimes and Ontario</ins>.</span></div></div></li><li><time datetime="2026-10-01T15:12-04:00">Thu 1 Oct 2026, 3:12 pm ET</time><div class="cluster cluster--between"><p><strong>Dr. Abena Mensah changed Areas of expertise</strong></p><a class="btn btn--quiet btn--sm" href="../../dialogs/restore-profile-version/default.html" aria-label="Restore the version from Thu 1 Oct 2026, 3:12 pm ET">Restore this version</a></div><div class="diff" role="group" aria-label="Changes to Areas of expertise"><p class="diff__field">Areas of expertise</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Added: </span>Formation and education</span></div></div></li><li><time datetime="2026-09-14T11:05-04:00">Mon 14 Sep 2026, 11:05 am ET</time><div class="cluster cluster--between"><p><strong>Dr. Abena Mensah added 2 links</strong></p><a class="btn btn--quiet btn--sm" href="../../dialogs/restore-profile-version/default.html" aria-label="Restore the version from Mon 14 Sep 2026, 11:05 am ET">Restore this version</a></div><div class="diff" role="group" aria-label="Changes to Links"><p class="diff__field">Links</p><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Added: </span>Made, Not Manufactured · https://made-not-manufactured.example.ca</span></div><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Added: </span>Sermons and lectures · https://abenamensah.example.ca/talks</span></div></div></li><li><time datetime="2026-09-02T10:30-04:00">Wed 2 Sep 2026, 10:30 am ET</time><div class="cluster cluster--between"><p><strong>Profile created</strong></p><a class="btn btn--quiet btn--sm" href="../../dialogs/restore-profile-version/default.html" aria-label="Restore the version from Wed 2 Sep 2026, 10:30 am ET">Restore this version</a></div></li></ol>
+    </div>
+  </div>
+</main>
+<div class="toast-region" aria-live="polite">
+  <div class="toast toast--success" role="status">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>
+    <p class="toast__title">Version restored</p>
+    <p class="toast__body">Dr. Abena Mensah's profile shows the 1 Oct version within a minute, and Dr. Mensah has been notified.</p>
+    
+    <button type="button" class="icon-btn toast__close" aria-label="Dismiss"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+</div>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Restore profile version</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="success.html" aria-current="page">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

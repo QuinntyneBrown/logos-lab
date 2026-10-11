@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Revise published content
+
+Person(owner, "Expert (owner)", "Revises their published content")
+Person(editor, "Editor", "Reviews revisions, restores versions and publishes corrections")
+Person_Ext(reader, "Learner or visitor", "Reads the live version")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(owner, logoslab, "Edits revisions in", "HTTPS")
+Rel(editor, logoslab, "Publishes revisions and corrections in", "HTTPS")
+Rel(reader, logoslab, "Reads the live version from", "HTTPS")
+@enduml

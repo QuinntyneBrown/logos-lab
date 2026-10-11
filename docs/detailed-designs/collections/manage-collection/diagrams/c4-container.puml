@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage a collection
+
+Person(expert, "Expert", "Invited subject-matter expert")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+}
+Rel(expert, web, "Uses CollectionBuilderPage", "HTTPS")
+Rel(web, api, "Studio collection and picker endpoints", "JSON/HTTPS")
+Rel(api, db, "Reads and writes collections, collection_items, content_revisions", "SQL")
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Control indexing
+
+System_Ext(crawler, "Search-engine crawler", "Reads robots.txt and sitemaps")
+Person(team, "Logos Lab team member", "Uses staging with credentials")
+System(prod, "Logos Lab production", "www.logoslab.ca")
+System(nonprod, "Logos Lab non-production", "Staging and drill environments")
+
+Rel(crawler, prod, "Reads robots.txt, sitemap.xml and public pages", "HTTPS")
+Rel(crawler, nonprod, "Refused, noindex", "HTTPS")
+Rel(team, nonprod, "Signs in to", "HTTPS")
+@enduml

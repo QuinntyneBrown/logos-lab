@@ -1,0 +1,59 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Send event reminders
+
+class EventReminderSweepJob {
+  +run(now: Instant): void
+}
+class EventReminderJob {
+  +run(registrationId: Uuid, kind: ReminderKind): void
+}
+class EventReminderService {
+  +offsets: Map<ReminderKind, Duration>
+  +dueKinds(r: EventRegistration, e: Event, now: Instant): ReminderKind[]
+  +applies(r: EventRegistration, e: Event, kind: ReminderKind): boolean
+}
+class EventReminderDelivery {
+  +id: Uuid
+  +registrationId: Uuid
+  +kind: ReminderKind
+  +sentAt: Instant
+  +emailSent: boolean
+  +inAppSent: boolean
+}
+class EventReminderDeliveryRepository {
+  +tryClaim(registrationId: Uuid, kind: ReminderKind): EventReminderDelivery | null
+}
+class NotificationPreferenceService {
+  +channels(userId: Uuid, category: NotificationCategory): ChannelSwitches
+}
+class EventRegistration {
+  +id: Uuid
+  +eventId: Uuid
+  +userId: Uuid
+  +status: RegistrationStatus
+  +createdAt: Instant
+}
+enum ReminderKind {
+  TwentyFourHours
+  OneHour
+}
+EventReminderSweepJob ..> EventReminderService : uses
+EventReminderSweepJob ..> EventReminderJob : enqueues
+EventReminderJob ..> EventReminderDeliveryRepository : claims
+EventReminderJob ..> NotificationPreferenceService : reads
+EventReminderService ..> EventRegistration : reads
+EventRegistration "1" *-- "0..2" EventReminderDelivery
+EventReminderDelivery --> ReminderKind
+@enduml

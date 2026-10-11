@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Store passwords and secrets
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(setpw, "SetPasswordAction", "Action", "Registration, reset and change password")
+  Component(hasher, "PasswordHasher", "Service", "Argon2id with unique salt; rehash on sign-in when parameters rise")
+  Component(mfa, "EnableMfaAction", "Action", "Stores the TOTP secret and recovery codes")
+  Component(cipher, "FieldEncryptionService", "Service", "Envelope encryption with an AWS KMS key")
+  Component(secrets, "SecretProvider", "Service", "Loads and caches secrets from Secrets Manager")
+  Component(ring, "SigningKeyRing", "Service", "Signs with the current key; verifies with current and previous keys")
+  Component(redact, "LogRedactor", "Function", "Removes password and secret fields from every log entry")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(rot, "SigningKeyRotationJob", "Job", "Every 90 days adds a new key and retires the oldest")
+}
+System_Ext(sm, "AWS Secrets Manager", "Secrets")
+System_Ext(kms, "AWS KMS", "Managed key")
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "credentials, mfa_factors, recovery_codes")
+Rel(setpw, hasher, "Hashes with")
+Rel(setpw, db, "Stores hash")
+Rel(mfa, cipher, "Encrypts secret with")
+Rel(mfa, hasher, "Hashes recovery codes with")
+Rel(cipher, kms, "GenerateDataKey and Decrypt")
+Rel(secrets, sm, "GetSecretValue")
+Rel(ring, secrets, "Reads keys from")
+Rel(rot, sm, "PutSecretValue")
+@enduml

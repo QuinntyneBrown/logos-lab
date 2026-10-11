@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Archive audit entries
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Scheduler (TO SUPPLY)" as sched
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AuditArchiveJob" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Amazon S3 audit archive" as s3
+end box
+sched -> queue : Enqueue AuditArchiveJob (nightly)
+queue -> job : Deliver message to the Worker
+job -> job : cutoff = now - 2 years (L2-099)
+loop each batch of entries older than cutoff
+  job -> db : Select batch ordered by id
+  db --> job : Entries
+  job -> s3 : PUT batch file keyed by first and last id (rerun overwrites the same key)
+  s3 --> job : Stored with Object Lock retention until the newest entry in the file is 7 years old
+  job -> db : Delete the batch via the archive role, in one transaction
+end
+job -> job : Record archived count
+job --> queue : Acknowledge
+note over s3 : The retention job deletes archive files once entries reach 7 years (L2-099, L2-118)
+@enduml

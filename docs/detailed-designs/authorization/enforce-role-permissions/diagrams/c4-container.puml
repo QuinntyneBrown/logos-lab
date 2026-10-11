@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Enforce role permissions
+
+Person(staff, "Staff member", "Expert, Editor, Moderator or Administrator")
+System_Boundary(lab, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+System_Ext(cw, "Amazon CloudWatch", "Security event logs, metrics and alarms")
+System_Ext(oncall, "On-call channel", "<TO SUPPLY>")
+
+Rel(staff, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/v1/me; capability-guarded endpoints", "JSON/HTTPS")
+Rel(api, db, "Reads current roles", "SQL")
+Rel(api, cw, "Writes security events")
+Rel(cw, oncall, "Sends alarm")
+@enduml

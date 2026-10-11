@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Browse experts
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+}
+Rel(visitor, web, "Opens /experts", "HTTPS")
+Rel(web, api, "GET /api/v1/experts", "JSON/HTTPS")
+Rel(api, db, "Reads expert_profiles, expertise areas, content", "SQL")
+@enduml

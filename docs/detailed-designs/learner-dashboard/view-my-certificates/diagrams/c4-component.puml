@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View my certificates
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "MyCertificatesPage", "Angular page", "List and actions")
+  Component(dialog, "CertificateShareDialog", "Angular CDK dialog", "Copy link and LinkedIn")
+  Component(client, "CertificatesApi", "Contract + HttpCertificatesApi", "Bound by CERTIFICATES_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/certificates", "Next.js route handlers", "Validate and map")
+  Component(actions, "Certificate actions", "ListMyCertificatesAction, GetCertificatePdfAction", "One use case each")
+  Component(share, "CertificateShareService", "Domain service", "Verification and LinkedIn URLs")
+  Component(repo, "CertificateRepository", "Repository", "User-scoped reads")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "certificates")
+ContainerDb(s3, "Media storage", "Amazon S3", "PDFs")
+Rel(page, client, "Calls")
+Rel(dialog, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, share, "Builds links")
+Rel(actions, repo, "Reads")
+Rel(actions, s3, "Signs URL", "AWS SDK")
+Rel(repo, db, "Reads", "SQL")
+@enduml

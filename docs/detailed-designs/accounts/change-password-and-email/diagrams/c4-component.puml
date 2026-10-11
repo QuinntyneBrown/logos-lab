@@ -1,0 +1,43 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Change password and email
+
+Container(web, "Logos Lab Web", "Angular", "SettingsAccountPage, EmailChangeConfirmPage, ReportChangePage")
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "Route handlers", "app/api/v1/me/..., app/api/v1/auth/email-changes/...", "Thin handlers")
+  Component(cp, "ChangePasswordAction", "Action", "Current password, rules, revoke others")
+  Component(re, "RequestEmailChangeAction", "Action", "Pending change and 24-hour link")
+  Component(ce, "ConfirmEmailChangeAction", "Action", "Swaps email, notifies old address")
+  Component(rc, "ReportEmailChangeAction", "Action", "Reverses and secures the account")
+  Component(hasher, "PasswordHasher", "Domain service", "Verifies and hashes")
+  Component(pwd, "PasswordPolicyService", "Domain service", "L2-006 rules")
+  Component(tokens, "AccountTokenService", "Domain service", "EmailChange and report tokens")
+  Component(sessions, "SessionService", "Domain service", "Revokes sessions")
+  Component(repo, "UserRepository", "Repository", "Users")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, account_tokens, sessions")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+Rel(web, routes, "Calls", "JSON/HTTPS")
+Rel(routes, cp, "Calls")
+Rel(routes, re, "Calls")
+Rel(routes, ce, "Calls")
+Rel(routes, rc, "Calls")
+Rel(cp, hasher, "Verifies current, hashes new")
+Rel(cp, pwd, "Validates")
+Rel(cp, sessions, "revokeAllExcept")
+Rel(re, hasher, "Verifies current")
+Rel(re, tokens, "Issues")
+Rel(ce, tokens, "Consumes, issues report token")
+Rel(ce, sessions, "revokeAllExcept")
+Rel(rc, tokens, "Consumes")
+Rel(rc, sessions, "revokeAll")
+Rel(cp, repo, "Updates")
+Rel(re, repo, "Updates")
+Rel(ce, repo, "Updates")
+Rel(rc, repo, "Updates")
+Rel(repo, db, "SQL")
+Rel(re, queue, "Enqueues email")
+Rel(ce, queue, "Enqueues email")
+Rel(rc, queue, "Enqueues email")
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Save and unsave an item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-content-card save control" as page
+  participant "SavedItemsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Saved items route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveItemAction" as save
+  participant "SavedItemService" as service
+  participant "UnsaveItemAction" as unsave
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Press Save (aria-pressed="false")
+page -> client : save(type, id)
+client -> route : PUT /api/v1/me/saved-items/{type}/{id}
+route -> save : execute(userId, type, id)
+save -> db : Check item exists and is published
+save -> service : save(userId, ref)
+service -> db : Lock member count, read count
+alt count already 1,000
+  service --> save : LimitReached
+  route --> client : 409 problem saved-limit-reached (L2-071)
+  page --> actor : Message explaining the 1,000-item limit, control stays off
+else below limit
+  service -> db : Insert saved_items row if absent
+  service --> save : Saved or AlreadySaved
+  route --> client : 204
+  page -> page : Set aria-pressed="true", label "Saved: {title}" (L2-071)
+  page --> actor : Announce "Saved" in live region and toast
+end
+actor -> page : Press control again
+page -> client : unsave(type, id)
+client -> route : DELETE /api/v1/me/saved-items/{type}/{id}
+route -> unsave : execute(userId, type, id)
+unsave -> db : Delete member's row
+route --> client : 204
+page --> actor : aria-pressed="false", removed from saved items (L2-071)
+@enduml

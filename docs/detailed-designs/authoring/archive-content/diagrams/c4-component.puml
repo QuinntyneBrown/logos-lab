@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Archive content
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "items/{id}/archive and restore", "Next.js route handlers", "Editor role required")
+  Component(pubroute, "content/{type}/{slug}", "Next.js route handler", "Public read; 410 for archived")
+  Component(archive, "ArchiveContentAction", "Action", "Published to Archived")
+  Component(restore, "RestoreArchivedContentAction", "Action", "Archived to Published")
+  Component(read, "GetPublicContentAction", "Action", "Content, enrolled access or gone response")
+  Component(workflow, "WorkflowService", "Domain service", "L2-076 transitions")
+  Component(search, "SearchIndexService", "Domain service", "Removes and restores search documents")
+  Component(related, "RelatedContentService", "Domain service", "Related items, L2-047")
+  Component(enrol, "EnrolmentRepository", "Repository", "Enrolment lookup, L2-025")
+  Component(repo, "ContentItemRepository", "Repository", "PostgreSQL access")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_items, enrolments, collection_items")
+
+Rel(routes, archive, "Calls")
+Rel(routes, restore, "Calls")
+Rel(pubroute, read, "Calls")
+Rel(archive, workflow, "Checks transition with")
+Rel(restore, workflow, "Checks transition with")
+Rel(archive, search, "Removes search document with")
+Rel(restore, search, "Restores search document with")
+Rel(read, related, "Gets suggestions from")
+Rel(read, enrol, "Checks enrolment with")
+Rel(archive, repo, "Writes through")
+Rel(restore, repo, "Writes through")
+Rel(read, repo, "Reads through")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(enrol, db, "Reads", "SQL")
+@enduml

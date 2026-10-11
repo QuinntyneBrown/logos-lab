@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Archive an item used by courses
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Studio editor page" as page
+  participant "ArchiveContentDialog" as dialog
+  participant "HttpStudioCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/content/[type]/[id]/usages route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetContentUsagesAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Archive this module
+page -> client : getUsages(type, id)
+client -> route : GET /api/v1/studio/content/{type}/{id}/usages
+route -> action : execute(type, id)
+action -> db : Find published courses whose lessons reference the item
+db --> action : Course usages
+action --> route : ContentUsage list
+route --> client : 200 usages
+client --> page : Usages
+page -> dialog : Open with usages
+alt item used by one or more published courses
+  dialog --> actor : Name each course and ask for deliberate confirmation (L2-026)
+  actor -> dialog : Confirm archive
+else not used
+  dialog --> actor : Standard archive confirmation
+  actor -> dialog : Confirm archive
+end
+dialog -> page : Confirmed
+page --> actor : Hand over to authoring archive flow (L2-081)
+@enduml

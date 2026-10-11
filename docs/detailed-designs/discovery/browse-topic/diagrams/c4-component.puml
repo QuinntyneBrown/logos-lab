@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse a topic
+
+Container(web, "Logos Lab Web", "Angular SSR", "TopicPage, NotFoundPage, TopicsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(r1, "GET /api/v1/topics/slug", "Route handler", "Topic header and experts")
+  Component(r2, "GET /api/v1/topics/slug/content", "Route handler", "Paged published items")
+  Component(r3, "GET /api/v1/topics", "Route handler", "Topics with published content")
+  Component(a1, "GetTopicPageAction", "Action", "Loads topic and experts")
+  Component(a2, "ListTopicContentAction", "Action", "Pages content newest first")
+  Component(svc, "TopicService", "Domain service", "Topic rules")
+  Component(policy, "PublishedContentPolicy", "Domain rule", "Published and visible")
+  Component(repo, "TopicRepository", "Repository", "topics, content_topics")
+  Component(crepo, "ContentRepository", "Repository", "content_items")
+  Component(erepo, "ExpertProfileRepository", "Repository", "expert_profiles")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Topics, content and experts")
+Rel(web, r1, "Calls", "JSON/HTTPS")
+Rel(web, r2, "Calls", "JSON/HTTPS")
+Rel(web, r3, "Calls from the catalogue", "JSON/HTTPS")
+Rel(r1, a1, "Invokes")
+Rel(r2, a2, "Invokes")
+Rel(r3, svc, "Lists filter options")
+Rel(a1, svc, "Uses")
+Rel(a2, svc, "Uses")
+Rel(svc, policy, "Applies")
+Rel(svc, repo, "Queries")
+Rel(svc, crepo, "Queries")
+Rel(svc, erepo, "Queries")
+Rel(repo, db, "Reads", "SQL")
+Rel(crepo, db, "Reads", "SQL")
+Rel(erepo, db, "Reads", "SQL")
+@enduml

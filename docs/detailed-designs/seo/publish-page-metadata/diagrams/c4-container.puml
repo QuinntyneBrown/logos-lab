@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Publish page metadata
+
+System_Ext(bots, "Crawlers and preview bots", "Search and social")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves pages and social images")
+  Container(ssr, "Logos Lab Web — SSR server", "Angular SSR", "Writes head tags and JSON-LD")
+  Container(api, "Logos Lab API", "Next.js", "Content with summary and socialImageUrl")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "")
+  Container(worker, "Logos Lab Worker", "Node.js", "SocialImageGenerateJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "social_image_key per item")
+  ContainerDb(s3, "Media storage", "Amazon S3", "social/{type}/{id}.png")
+}
+Rel(bots, cdn, "Fetch", "HTTPS")
+Rel(cdn, ssr, "Forwards page requests")
+Rel(cdn, s3, "Reads social images")
+Rel(ssr, api, "Reads content", "JSON/HTTPS")
+Rel(api, queue, "Enqueues on publish")
+Rel(worker, queue, "Consumes")
+Rel(worker, s3, "Writes image")
+Rel(worker, db, "Saves image key")
+Rel(api, db, "Reads", "SQL")
+@enduml

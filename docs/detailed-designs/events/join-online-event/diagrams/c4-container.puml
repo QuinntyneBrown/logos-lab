@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Join an online event
+
+Person(member, "Registered member", "On the event page")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Registration panel, Join event")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Caller state with join link")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL, encrypted at rest", "Events with join_url, registrations")
+}
+System_Ext(vc, "Video-conferencing service", "<TO SUPPLY>")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/v1/me/events/{eventId}", "JSON/HTTPS, no-store")
+Rel(api, db, "Reads", "SQL")
+Rel(web, vc, "Opens join link in a new tab", "HTTPS")
+@enduml

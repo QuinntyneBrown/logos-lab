@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record the moderation audit trail
+
+Person(moderator, "Moderator", "Takes moderation actions")
+Person(admin, "Administrator", "Reviews and exports the audit trail")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(moderator, logoslab, "Takes audited actions in", "HTTPS")
+Rel(admin, logoslab, "Filters and exports the audit trail in", "HTTPS")
+@enduml

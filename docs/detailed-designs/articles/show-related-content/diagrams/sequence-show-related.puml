@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Show related content
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArticlePage" as ArticlePage
+  participant "RelatedContentApi" as RelatedContentApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/content/contentId/related" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetRelatedContentAction" as GetRelatedContentAction
+  participant "RelatedContentService" as RelatedContentService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ArticlePage : Open an article, video, module or course page
+ArticlePage -> RelatedContentApi : getRelated(contentId)
+RelatedContentApi -> route : HTTPS GET (anonymous)
+route -> GetRelatedContentAction : execute(contentId)
+GetRelatedContentAction -> RelatedContentService : related(contentId, now)
+RelatedContentService -> db : Select pins in position order joined to published items
+db --> RelatedContentService : Pinned items
+RelatedContentService -> db : Select published candidates sharing topics, excluding current item
+db --> RelatedContentService : Candidates with shared topic count and published_at
+RelatedContentService -> RelatedContentService : Pins first in pinned order, then shared topics desc, then newest; dedupe; limit 4 (L2-047)
+RelatedContentService --> GetRelatedContentAction : Up to 4 items
+GetRelatedContentAction --> route : Items
+route --> RelatedContentApi : 200 JSON
+RelatedContentApi --> ArticlePage : Items
+alt no related items
+  ArticlePage --> actor : Related section omitted entirely (L2-047)
+else items found
+  ArticlePage --> actor : Related section with up to 4 cards
+end
+@enduml

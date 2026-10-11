@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Save the article body
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArticleEditorPage" as ArticleEditorPage
+  participant "StudioArticlesApi" as StudioArticlesApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/studio/articles/articleId/body" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveArticleBodyAction" as SaveArticleBodyAction
+  participant "ArticleBodySanitizer" as ArticleBodySanitizer
+  participant "ScriptureReferenceParser" as ScriptureReferenceParser
+  participant "ReadingTimeCalculator" as ReadingTimeCalculator
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ArticleEditorPage : Edit body; save
+ArticleEditorPage -> StudioArticlesApi : saveBody(articleId, html)
+StudioArticlesApi -> route : HTTPS PUT with session
+route -> route : Authenticate; require Expert or Editor
+route -> SaveArticleBodyAction : execute(userId, articleId, html)
+SaveArticleBodyAction -> db : Load article where id = articleId and owned by userId (L2-017)
+db --> SaveArticleBodyAction : Draft article
+SaveArticleBodyAction -> ArticleBodySanitizer : sanitize(html)
+ArticleBodySanitizer -> ArticleBodySanitizer : Remove script, on* handlers, javascript: URLs, non-allow-listed iframes, style attributes (L2-046)
+ArticleBodySanitizer --> SaveArticleBodyAction : Clean HTML with supported formatting only
+SaveArticleBodyAction -> ScriptureReferenceParser : tag(clean HTML)
+ScriptureReferenceParser --> SaveArticleBodyAction : References with translation (L2-046)
+SaveArticleBodyAction -> ReadingTimeCalculator : minutes(text)
+ReadingTimeCalculator --> SaveArticleBodyAction : ceil(words / 230), at least 1 (L2-045)
+SaveArticleBodyAction -> db : Update body and reading time
+db --> SaveArticleBodyAction : Commit
+SaveArticleBodyAction --> route : Saved
+route --> StudioArticlesApi : 204
+StudioArticlesApi --> ArticleEditorPage : Saved
+ArticleEditorPage --> actor : Saved status
+@enduml

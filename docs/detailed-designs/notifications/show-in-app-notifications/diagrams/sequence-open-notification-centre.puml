@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Open the notification centre
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Header bell" as bell
+  participant "NotificationCentreDialog" as page
+  participant "NotificationsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/notifications" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListNotificationsAction" as action
+  participant "NotificationService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> bell : Activate bell
+bell -> page : Open dialog (CDK Dialog)
+page -> client : list()
+client -> route : HTTPS GET with session cookie
+route -> route : Authenticate session
+route -> action : execute(currentUserId)
+action -> service : listForRecipient(userId, limit 20)
+service -> db : Select current user's notifications, newest first, limit 21
+db --> service : Rows
+service --> action : Page of 20 and next cursor (L2-091)
+action --> route : NotificationPage
+route --> client : 200 JSON
+client --> page : NotificationPage
+alt no notifications
+  page --> actor : Show empty state "You're all caught up"
+else notifications exist
+  page --> actor : Show 20 newest first, unread marked
+end
+opt member activates Load more
+  page -> client : list(nextCursor)
+  client -> route : GET ?before=cursor
+  route -> action : execute(currentUserId, cursor)
+  action -> service : listForRecipient(userId, cursor, 20)
+  service -> db : Select older rows before cursor
+  db --> service : Rows
+  service --> action : Next page
+  action --> route : NotificationPage
+  route --> client : 200 JSON
+  client --> page : Append older notifications
+end
+alt request fails
+  route --> client : RFC 9457 problem response
+  client --> page : Error
+  page --> actor : Show failed state with Try again
+end
+@enduml

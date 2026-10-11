@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record the administrative audit log
+Person(staff, "Administrator or Editor", "Makes administrative and editorial changes")
+Person(admin, "Administrator", "Reviews the audit log")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(staff, ll, "Makes recorded changes in", "HTTPS")
+Rel(admin, ll, "Filters audit entries in", "HTTPS")
+@enduml

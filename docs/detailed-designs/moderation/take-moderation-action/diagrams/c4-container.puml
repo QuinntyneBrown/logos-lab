@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Take a moderation action
+
+Person(moderator, "Moderator", "Acts on a case")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "ModerationActionDialog, AccountNoticePage")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "/api/v1/moderation actions")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "EmailSendJob messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "EmailSendJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Actions, notices, cases, audit, sessions")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(moderator, web, "Uses", "HTTPS")
+Rel(web, api, "Calls ModerationApi", "JSON/HTTPS")
+Rel(api, db, "Writes in one transaction", "SQL")
+Rel(api, sqs, "Enqueues email jobs on", "SQS")
+Rel(worker, sqs, "Consumes jobs from", "SQS")
+Rel(worker, ses, "Sends email through", "HTTPS API")
+@enduml

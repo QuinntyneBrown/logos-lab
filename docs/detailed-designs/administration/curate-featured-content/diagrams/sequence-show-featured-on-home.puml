@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Show featured items on the home page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+participant "CDN (CloudFront)" as cdn
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "HomePage (Angular SSR)" as page
+  participant "FeaturedApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/featured" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListHomeFeaturedAction" as action
+  participant "FeaturedContentService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> cdn : GET /
+cdn -> page : Render (cache miss)
+page -> client : listForHome()
+client -> route : HTTPS GET (anonymous)
+alt cached response younger than 60 s
+  route --> client : Cached list from CDN
+else cache expired
+  route -> action : execute(now)
+  action -> db : Select featured_items joined to content, ordered by position
+  db --> action : Items with content state
+  action -> service : visibleAt(items, now)
+  service -> service : Keep published, not archived or hidden (L2-097)
+  service -> service : Keep items whose start has passed and end has not (L2-097)
+  service --> action : Visible items in editor order
+  action --> route : FeaturedCard list
+  route --> client : 200 JSON, Cache-Control s-maxage at most 60
+end
+client --> page : Cards
+alt no visible items
+  page --> actor : Featured section hidden
+else items
+  page --> actor : ll-content-card per item, in editor order (L2-001)
+end
+@enduml

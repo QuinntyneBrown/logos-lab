@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account notice · appeal — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="account-notice">
+<meta name="mock:state" content="appeal">
+<meta name="mock:requirements" content="L2-087 L2-090 L2-019">
+<meta name="description" content="Samuel Okafor's appeal form: an explanation of up to 2,000 characters, with the suspension summarised above it.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="../../pages/home/default.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <div class="header__actions">
+      <a class="btn btn--text btn--sm" href="mailto:help@logoslab.ca">Get help</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap auth">
+    <div class="auth__card">
+      <div>
+        <p class="eyebrow">Appeal · open until Tue 27 Oct 2026</p>
+        <h1 class="auth__title" style="margin-top: var(--space-4)">Appeal your suspension</h1>
+        <p class="auth__sub">Tell us what you think we got wrong. Your suspension stays in place while the appeal is reviewed.</p>
+      </div>
+      <dl class="facts facts--inline">
+        <div><dt>Action</dt><dd>Suspended for 7 days, until Tue 20 Oct 2026</dd></div>
+        <div><dt>Reason</dt><dd>Personal attack on another member by name, after a warning on 21 Sep for the same behaviour.</dd></div>
+      </dl>
+      <form class="form" action="submitting.html" novalidate>
+        <div class="field">
+          <label class="field__label" for="explanation">Why should we reconsider?</label>
+          <p class="field__help" id="explanation-help">Up to 2,000 characters. A moderator who wasn't involved will read it. You can appeal this action once.</p>
+          <textarea class="textarea" id="explanation" name="explanation" rows="8" aria-describedby="explanation-help explanation-count">I was frustrated and I said it badly, and I've apologised to Clara. But I don't think one comment in a heated thread is harassment. I'd ask that the suspension be shortened to a warning so I can keep up with the Imago Dei course.</textarea>
+          <p class="field__counter" id="explanation-count">229 of 2,000 characters</p>
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" type="submit">Send appeal</button>
+        <a class="btn btn--quiet btn--block" href="default.html">Cancel</a>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab · your data is stored in Canada</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Account notice</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="appeal.html" aria-current="page">appeal</a></li>
+    <li><a href="submitting.html">submitting</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="appealed.html">appealed</a></li>
+    <li><a href="decided.html">decided</a></li>
+    <li><a href="expired.html">expired</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

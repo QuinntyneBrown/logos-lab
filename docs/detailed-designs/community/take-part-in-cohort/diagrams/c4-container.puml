@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Take part in a cohort
+
+Person(member, "Cohort member", "Learner")
+Person(leader, "Cohort leader", "Expert or editor")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "CohortSpacePage and CohortAnnouncementDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Cohort space, member list, discussion and announcement actions")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "CohortAnnouncementNotifyJob messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "Fans announcements out as notifications")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "cohorts, cohort_memberships, cohort_announcements, comments, notifications")
+}
+System_Ext(ses, "Amazon SES", "Email")
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(leader, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues notify jobs")
+Rel(worker, queue, "Consumes")
+Rel(worker, db, "Writes notifications", "SQL")
+Rel(worker, ses, "Sends email", "HTTPS API")
+@enduml

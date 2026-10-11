@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Revoke a certificate
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Admin user page" as page
+  participant "RevokeCertificateDialog" as dialog
+  participant "HttpCertificatesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "admin/certificates/[code]/revocation route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RevokeCertificateAction" as action
+  participant "AuditLogService" as audit
+  participant "CertificateRevocationNotifyJob" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as q
+  entity "Amazon SES" as ses
+end box
+actor -> page : Revoke certificate LL-7K4Q-29XM
+page -> dialog : Open
+actor -> dialog : Enter reason, confirm
+alt reason empty
+  dialog --> actor : Field error asks for a reason
+else reason given
+  dialog -> client : revoke(code, reason)
+  client -> route : POST /api/v1/admin/certificates/{code}/revocation
+  route -> route : Authenticate; require Administrator role (L2-016)
+  route -> action : execute(code, input, admin)
+  action -> db : Load certificate
+  db --> action : Certificate
+  action -> db : Set revoked_at, reason, revoked_by (L2-032)
+  action -> audit : Record revocation (L2-099)
+  audit -> db : Insert audit entry
+  action -> q : Enqueue CertificateRevocationNotifyJob
+  db --> action : Commit
+  action --> route : Done
+  route --> client : 204 No Content
+  client --> dialog : Revoked
+  dialog --> actor : Verification page now says revoked; learner emailed
+  q -> job : Deliver message
+  job -> ses : Send revocation email to learner
+end
+@enduml

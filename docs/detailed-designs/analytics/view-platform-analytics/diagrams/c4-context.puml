@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View platform analytics
+Person(staff, "Editor or Administrator", "Logos Lab staff")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(staff, ll, "Reads platform-wide metrics for a date range in", "HTTPS")
+@enduml

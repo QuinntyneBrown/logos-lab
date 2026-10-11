@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Commit SCORM runtime data
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "SCORM content" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Tessera scorm-player" as tess
+  participant "RuntimeCommitQueue" as queue
+  participant "HttpModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "module-attempts/[id]/runtime route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CommitScormRuntimeAction" as action
+  participant "ScormRuntimeValidator" as val
+  participant "ModuleAttemptService" as att
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> tess : SetValue cmi.suspend_data via message bridge
+tess -> tess : Check length against version limit (L2-036)
+alt longer than 4,096 (1.2) or 64,000 (2004 4th edition)
+  tess --> actor : Return standard SCORM error code; value unchanged
+else within limit
+  tess --> actor : "true"
+end
+actor -> tess : SetValue location, status, score
+actor -> tess : Commit
+tess -> queue : Enqueue changed values as batch n
+queue -> client : commitRuntime(attemptId, batch n)
+client -> route : PUT /api/v1/module-attempts/{attemptId}/runtime
+route -> route : Authenticate, CSRF check
+route -> action : execute(attemptId, batch, userId)
+action -> db : Load attempt owned by userId (L2-017)
+db --> action : Attempt
+alt sequence <= last_sequence
+  action --> route : Replay ignored, current outcome
+else new batch
+  action -> val : Re-validate elements and limits
+  val --> action : Valid
+  action -> db : Upsert scorm_runtime_values, last_sequence = n
+  action -> att : applyReportedStatus (L2-037)
+  att --> action : Outcome
+  db --> action : Commit
+  action --> route : Outcome
+end
+route --> client : 200 outcome
+client --> queue : Acknowledged; send next batch
+queue --> tess : Progress saved
+note over tess, db : Next session: launch returns stored values and GetValue answers from them (L2-036)
+@enduml

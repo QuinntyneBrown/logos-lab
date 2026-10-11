@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Protect sessions and CSRF
+
+Person(member, "Member", "Signs in and changes data")
+Person_Ext(attacker, "Attacker", "Hosts a cross-site page that forges requests")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+Rel(member, ll, "Signs in and sends state-changing requests", "HTTPS, session cookie")
+Rel(attacker, ll, "Attempts forged requests through the member's browser", "HTTPS")
+@enduml

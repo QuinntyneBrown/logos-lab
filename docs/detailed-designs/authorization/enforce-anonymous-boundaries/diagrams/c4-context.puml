@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Enforce anonymous boundaries
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(visitor, lab, "Explores public pages without an account", "HTTPS")
+Rel(member, lab, "Learns and contributes after signing in", "HTTPS")
+@enduml

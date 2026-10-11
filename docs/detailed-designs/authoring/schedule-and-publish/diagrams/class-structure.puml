@@ -1,0 +1,117 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Schedule and publish
+
+package "Logos Lab Web" {
+  class PublishScheduleDialog {
+    +mode: PublishMode
+    +date: string
+    +time: string
+    +timeZone: string
+    +confirm(): Promise<void>
+  }
+  class UnscheduleDialog {
+    +confirm(): Promise<void>
+  }
+  enum PublishMode {
+    Now
+    Schedule
+  }
+  interface StudioApi {
+    +publish(id: string, rowVersion: number): Observable<StudioItem>
+    +schedule(id: string, at: LocalSchedule, rowVersion: number): Observable<StudioItem>
+    +unschedule(id: string, rowVersion: number): Observable<StudioItem>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API and Worker" {
+  class PublishContentAction {
+    +execute(editor: CurrentUser, id: uuid, rowVersion: int): ContentItem
+  }
+  class ScheduleContentAction {
+    +execute(editor: CurrentUser, id: uuid, at: LocalSchedule, rowVersion: int): ContentItem
+  }
+  class UnscheduleContentAction {
+    +execute(editor: CurrentUser, id: uuid, rowVersion: int): ContentItem
+  }
+  class ScheduledContentPublishJob {
+    +run(message: JobMessage): void
+  }
+  class PublishingService {
+    +publish(item: ContentItem, actor: Actor): ContentVersion
+  }
+  class SlugService {
+    +uniqueSlug(type: ContentType, title: string): string
+  }
+  class SearchIndexService {
+    +refresh(item: ContentItem, version: ContentVersion): void
+  }
+  class WorkflowService {
+    +transition(item: ContentItem, to: WorkflowState, actor: Actor): TransitionResult
+  }
+  class ContentItem {
+    +id: uuid
+    +type: ContentType
+    +state: WorkflowState
+    +slug: string
+    +scheduledFor: timestamptz
+    +publishedAt: timestamptz
+    +liveVersionId: uuid
+    +rowVersion: int
+  }
+  class ContentVersion {
+    +id: uuid
+    +itemId: uuid
+    +number: int
+    +snapshot: jsonb
+    +publishedAt: timestamptz
+    +publishedById: uuid
+    +isCorrection: boolean
+  }
+  class LocalSchedule <<value object>> {
+    +date: LocalDate
+    +time: LocalTime
+    +timeZone: string
+    +toInstant(): timestamptz
+  }
+  class Actor <<value object>> {
+    +userId: uuid
+    +isSystem: boolean
+  }
+  class ContentItemRepository {
+    +lockDueScheduled(now: timestamptz): ContentItem[]
+    +save(item: ContentItem): void
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+PublishScheduleDialog ..> STUDIO_API : injects
+UnscheduleDialog ..> STUDIO_API : injects
+PublishScheduleDialog --> PublishMode
+PublishContentAction ..> WorkflowService : uses
+ScheduleContentAction ..> WorkflowService : uses
+UnscheduleContentAction ..> WorkflowService : uses
+PublishContentAction ..> PublishingService : uses
+ScheduledContentPublishJob ..> PublishingService : uses
+ScheduledContentPublishJob ..> ContentItemRepository : uses
+ScheduleContentAction ..> LocalSchedule : converts
+PublishingService ..> SlugService : uses
+PublishingService ..> SearchIndexService : uses
+PublishingService ..> WorkflowService : uses
+PublishingService ..> Actor : records
+ContentItem "1" *-- "*" ContentVersion
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Keep data in Canada
+
+Person(member, "Member", "Signed-in learner, expert or staff member")
+Person(visitor, "Visitor", "Anonymous reader of public pages")
+Person(operator, "Platform operator", "Provisions and runs the platform")
+System(ll, "Logos Lab", "Learning platform at www.logoslab.ca")
+System_Ext(aws, "AWS Canada (Central) and Canada West", "Hosting, database, storage, backups, logs and search")
+System_Ext(ses, "Amazon SES", "Email processor, Canada (Central)")
+System_Ext(proc, "Other third-party processors", "Listed in the Privacy Policy with location and DPA")
+Rel(member, ll, "Uses", "HTTPS")
+Rel(visitor, ll, "Reads public content", "HTTPS")
+Rel(operator, aws, "Provisions resources only in Canadian regions")
+Rel(ll, aws, "Stores and processes personal data in")
+Rel(ll, ses, "Sends account email through")
+Rel(ll, proc, "Shares personal data only under a DPA with")
+@enduml

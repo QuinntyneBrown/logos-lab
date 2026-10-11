@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — Join with a link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+actor "Cohort leader" as leader
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortJoinPage" as page
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "JoinCohortAction" as action
+  participant "CohortService" as service
+  participant "EnrolmentService" as enrol
+  participant "RegenerateCohortJoinLinkAction" as regen
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /cohorts/join/{token}
+page -> client : previewJoin(token)
+client -> route : GET /api/v1/cohorts/join/{token}
+route --> client : Cohort name, course, dates, space left
+alt visitor
+  page --> actor : Show visitor state with sign-in, return to link afterwards
+else unverified member
+  page --> actor : Show unverified state with verify prompt
+else verified member
+  actor -> page : Press Join cohort
+  page -> client : join(token)
+  client -> route : POST /api/v1/cohorts/join/{token}
+  route -> action : execute(userId, token)
+  action -> db : Resolve token hash, count active members
+  db --> action : Cohort and count, or none
+  alt token not current (regenerated or unknown)
+    route --> client : 404 problem
+    page --> actor : Show invalid-link state
+  else end date passed
+    action -> service : assertJoinable
+    service --> action : Ended
+    route --> client : 409 problem
+    page --> actor : Show ended state
+  else cohort full
+    service --> action : Full
+    route --> client : 409 problem
+    page --> actor : Show full state
+  else joinable
+    action -> enrol : ensureEnrolled(userId, courseId)
+    action -> db : Insert membership
+    route --> client : 200 CohortMembershipView
+    page --> actor : Show success state (L2-063)
+  end
+end
+== Leader regenerates the link ==
+leader -> client : regenerateJoinLink(cohortId)
+client -> route : POST /api/v1/studio/cohorts/{id}/join-link
+route -> regen : execute(userId, cohortId)
+regen -> db : Replace joinTokenHash, old token no longer resolves (L2-063)
+regen --> route : New JoinLink
+route --> client : 200 JoinLink
+client --> leader : Show new link
+@enduml

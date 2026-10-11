@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Set up two-step verification
+
+Container(web, "Logos Lab Web", "Angular", "SettingsSecurityPage, MfaSetupPage, SignInVerifyPage, MfaDisableDialog, mfaEnrolmentGuard")
+Container_Boundary(api, "Logos Lab API") {
+  Component(gate, "MfaEnrolmentGate", "Middleware", "Holds mandatory-MFA roles at setup")
+  Component(routes, "Route handlers", "app/api/v1/me/mfa, app/api/v1/auth/mfa-challenges", "Thin handlers")
+  Component(start, "StartMfaEnrolmentAction", "Action", "Creates pending secret")
+  Component(confirm, "ConfirmMfaEnrolmentAction", "Action", "Enables and issues 10 recovery codes")
+  Component(verify, "VerifySecondFactorAction", "Action", "Completes sign-in")
+  Component(disable, "DisableMfaAction", "Action", "Turns off when allowed")
+  Component(totp, "TotpService", "Domain service", "6-digit codes, 30-second step")
+  Component(throttle, "SecondFactorThrottle", "Domain service", "5 wrong in 15 minutes locks 15 minutes")
+  Component(sessions, "SessionService", "Domain service", "Creates the session")
+  Component(repo, "MfaRepository", "Repository", "Enrolments, codes, challenges")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "mfa_enrolments, mfa_recovery_codes, mfa_challenges")
+ContainerDb(cache, "Cache", "Redis", "Wrong-code counters")
+System_Ext(kms, "AWS KMS", "Envelope encryption")
+Rel(web, gate, "Every authenticated request", "JSON/HTTPS")
+Rel(gate, routes, "Passes allowed request")
+Rel(routes, start, "Calls")
+Rel(routes, confirm, "Calls")
+Rel(routes, verify, "Calls")
+Rel(routes, disable, "Calls")
+Rel(start, totp, "Generates secret")
+Rel(confirm, totp, "Verifies code")
+Rel(verify, totp, "Verifies code")
+Rel(disable, totp, "Verifies code")
+Rel(verify, throttle, "Checks and records")
+Rel(throttle, cache, "Reads and writes")
+Rel(verify, sessions, "Creates session")
+Rel(start, repo, "Writes")
+Rel(confirm, repo, "Writes")
+Rel(verify, repo, "Reads and writes")
+Rel(disable, repo, "Deletes")
+Rel(gate, repo, "Reads enrolment status")
+Rel(repo, db, "SQL")
+Rel(totp, kms, "Decrypts secret")
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Add an event to a calendar
+
+Person(user, "Member or visitor", "Plans to attend")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(gcal, "Google Calendar", "Web calendar")
+System_Ext(outlook, "Outlook.com", "Web calendar")
+System_Ext(local, "Calendar application", "Imports .ics files")
+Rel(user, ll, "Adds events to a calendar from", "HTTPS")
+Rel(user, gcal, "Opens pre-filled entry in", "HTTPS")
+Rel(user, outlook, "Opens pre-filled entry in", "HTTPS")
+Rel(user, local, "Imports .ics into")
+@enduml

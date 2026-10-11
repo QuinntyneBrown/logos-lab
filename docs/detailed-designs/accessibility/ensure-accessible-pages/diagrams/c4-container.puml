@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Ensure accessible pages
+
+
+Person(learner, "Learner", "Browser with assistive technology")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR", "Landmarks, titles, announcements, forms, players")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Session extension; stable error codes")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Sessions")
+}
+System_Ext(ci, "CI pipeline", "AccessibilityScan in Chromium")
+
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes")
+Rel(ci, web, "Scans")
+@enduml

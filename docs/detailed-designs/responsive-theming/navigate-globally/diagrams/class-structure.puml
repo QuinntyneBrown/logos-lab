@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Navigate globally
+
+
+class NavItem {
+  +labelKey: string
+  +path: string
+}
+
+note right of NavItem
+  Explore, Courses, Events,
+  Experts, Collections
+end note
+
+class CurrentMember {
+  +id: string
+  +displayName: string
+  +avatarUrl: string
+  +roles: Role[]
+}
+
+enum Role {
+  Learner
+  Expert
+  Editor
+  Moderator
+  Administrator
+}
+
+class TopBarComponent <<ll-top-bar>> {
+  +primaryNav: NavItem[]
+  +member: CurrentMember
+  +unreadCount: number
+  +menuExpanded: boolean
+  +onMenu(): void
+  +onSearch(): void
+}
+
+class GlobalNavigationService {
+  -dialog: Dialog
+  -breakpoints: BreakpointObserver
+  -drawerRef: DialogRef
+  +drawerOpen: Signal<boolean>
+  +openDrawer(): void
+  +closeDrawer(): void
+  -onLgMatched(): void
+}
+
+class NavDrawerDialog {
+  +items: NavItem[]
+  +member: CurrentMember
+  +close(): void
+}
+
+interface AccountApi {
+  +getCurrentMember(): Observable<CurrentMember>
+}
+
+interface NotificationsApi {
+  +getUnreadCount(): Observable<number>
+}
+
+class HttpAccountApi
+class HttpNotificationsApi
+
+TopBarComponent --> GlobalNavigationService : delegates to
+TopBarComponent "1" *-- "5" NavItem
+GlobalNavigationService ..> NavDrawerDialog : opens
+NavDrawerDialog --> NavItem
+GlobalNavigationService --> AccountApi : loads member through
+TopBarComponent --> NotificationsApi : loads badge through
+CurrentMember --> Role
+HttpAccountApi ..|> AccountApi
+HttpNotificationsApi ..|> NotificationsApi
+@enduml

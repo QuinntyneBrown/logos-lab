@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Keep data in Canada
+
+Container_Boundary(edge, "CDN") {
+  Component(pub, "Public cache behaviour", "CloudFront cache policy", "Caches anonymous pages and public assets")
+  Component(signed, "Signed media behaviour", "CloudFront cache policy with trusted key group", "Serves media only with a valid signature")
+  Component(nocache, "Personal traffic behaviour", "CloudFront managed CachingDisabled policy", "Forwards /api/v1 and session-bearing requests without storing them")
+}
+Container_Boundary(web, "Logos Lab Web") {
+  Component(ssrpol, "SsrCachePolicy", "SSR server middleware", "Sets Cache-Control: private, no-store when a session cookie is present")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(ccp, "CacheControlPolicy", "Response step in the middleware pipeline", "Sets Cache-Control: private, no-store on authenticated responses")
+  Component(sms, "SignedMediaUrlService", "Domain service", "Issues short-lived CloudFront signed URLs")
+}
+Container_Boundary(platform, "AWS account and deployment pipeline") {
+  Component(iac, "Infrastructure definitions", "Infrastructure as code (<TO SUPPLY>)", "Declares every resource in ca-central-1 or ca-west-1")
+  Component(scp, "Region guard", "AWS Organizations service control policy", "Denies resource creation outside the two Canadian regions")
+}
+ComponentDb(store, "Database, media storage, backups, logs, search", "RDS, S3, CloudWatch", "All in Canadian regions")
+Rel(pub, ssrpol, "Caches only responses that SsrCachePolicy allows")
+Rel(nocache, ccp, "Forwards uncached API calls to the pipeline step")
+Rel(sms, signed, "Signs URLs verified by")
+Rel(signed, store, "Fetches objects from")
+Rel(iac, scp, "Is checked at deploy time by")
+Rel(iac, store, "Provisions")
+@enduml

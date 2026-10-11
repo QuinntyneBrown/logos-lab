@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Generate and confirm captions
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Author" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioVideoCaptionsPage" as page
+  participant "ConfirmCaptionsDialog" as dialog
+  participant "StudioVideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "captions route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GenerateCaptionsAction" as gen
+  participant "CaptionGenerateJob" as job
+  participant "ConfirmCaptionReviewAction" as confirm
+  participant "VideoSubmissionRule" as rule
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+  participant "Speech-to-text service" as stt
+end box
+actor -> page : Generate English captions
+page -> client : generateCaptions(videoId)
+client -> route : POST .../captions/generate
+route -> gen : execute(userId, videoId)
+gen -> db : Insert English track, state Generating
+gen -> q : Enqueue CaptionGenerateJob
+route --> client : 202
+page --> actor : Generating state, may leave the page
+q -> job : Deliver
+job -> stt : Transcribe audio
+stt --> job : Timed text
+job -> db : Save track as MachineGenerated, ReviewRequired (L2-041)
+job -> job : Notify author
+page --> actor : "Machine-generated - review required"
+opt Submit before review
+  rule -> db : Load tracks
+  rule --> actor : Submission refused until review is confirmed
+end
+actor -> dialog : Confirm review
+dialog -> client : confirmCaptionReview(videoId, trackId)
+client -> route : POST .../captions/{trackId}/review-confirmation
+route -> confirm : execute(userId, videoId, trackId)
+confirm -> db : Mark Reviewed with reviewer and date
+route --> client : 200 CaptionTrackView
+dialog --> actor : "English captions confirmed", Submit for review
+@enduml

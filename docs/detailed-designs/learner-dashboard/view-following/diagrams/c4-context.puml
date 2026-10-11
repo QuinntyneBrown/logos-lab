@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View following
+
+Person(member, "Member", "Follows experts and collections")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, ll, "Reviews and ends follows using")
+@enduml

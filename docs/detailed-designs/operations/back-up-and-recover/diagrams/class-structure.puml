@@ -1,0 +1,65 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Back up and recover
+
+package "Infrastructure as code" {
+  class DatabaseBackupPolicy {
+    +pointInTimeRecovery: boolean = true
+    +rpoMinutes: number = 5
+    +retentionDays: number = 35
+    +backupWindow: string
+    +kmsKeyId: string
+  }
+  class BucketProtection {
+    +bucketName: string
+    +versioning: boolean = true
+    +replicaRegion: string = "ca-west-1"
+    +replicaKmsKeyId: string
+  }
+  enum ProtectedBucket {
+    Media
+    Packages
+    Certificates
+  }
+}
+
+package "Restore drill" {
+  class RestoreDrill {
+    +RTO_MINUTES: number = 240
+    +quarter: string
+    +run(): Promise<RestoreDrillRecord>
+  }
+  class RestoreDrillRecord {
+    +drillDate: Date
+    +restoredToPointInTime: Date
+    +startedAt: Date
+    +operationalAt: Date
+    +rtoMinutes: number
+    +passed: boolean
+    +notes: string
+  }
+  class IsolatedEnvironment {
+    +accountId: string
+    +outboundEmail: boolean = false
+    +publicTraffic: boolean = false
+    +tearDown(): Promise<void>
+  }
+}
+
+BucketProtection --> ProtectedBucket : protects
+RestoreDrill ..> DatabaseBackupPolicy : restores from
+RestoreDrill ..> BucketProtection : reads replicas of
+RestoreDrill --> IsolatedEnvironment : restores into
+RestoreDrill ..> RestoreDrillRecord : produces
+@enduml

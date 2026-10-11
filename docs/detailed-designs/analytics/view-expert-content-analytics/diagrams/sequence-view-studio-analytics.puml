@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — View studio analytics
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioAnalyticsPage" as page
+  participant "AnalyticsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/studio/analytics" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetExpertAnalyticsAction" as action
+  participant "AnalyticsQueryService" as query
+  participant "AnalyticsPrivacyService" as privacy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /studio/analytics, choose 7, 30 or 90 days or all time
+page --> actor : Loading: busy stats, greyed chart, table skeletons
+page -> client : expertSummary(period)
+client -> route : HTTPS GET ?period=
+route -> route : Authenticate; require Expert role
+route -> action : execute(currentUserId, period)
+action -> db : Published items owned by current user (L2-017)
+db --> action : Item ids
+alt no published items
+  action --> route : Empty summary
+  page --> actor : Empty state pointing to Studio
+else items
+  action -> query : itemMetrics(itemIds, period)
+  query -> db : Sum rollups for the period
+  db --> query : Rows and last refresh time
+  query --> action : Metrics per item (L2-100)
+  action -> privacy : suppress(each row)
+  privacy --> action : Values under 5 learners replaced by "Fewer than 5 learners"; no learner identifiers (L2-102)
+  action --> route : ExpertAnalytics with updatedAt
+  route --> client : 200 JSON, Cache-Control private, no-store
+  page --> actor : Headline stats, weekly chart with table twin, per-item table, "Updated at" (L2-100)
+end
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Cancel a registration and change an event
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(dlgs, "CancelRegistrationDialog, EventChangeNotifyDialog, CancelEventDialog", "Angular CDK dialogs", "Confirmations")
+  Component(editor, "EventEditorPage", "Angular page", "Studio event editor")
+  Component(clients, "HttpEventsApi, HttpStudioEventsApi", "API library", "Typed HTTP clients")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "registration, changes and cancellation route handlers", "app/api/v1/...", "Thin handlers")
+  Component(actions, "CancelRegistrationAction, PublishEventChangeAction, CancelEventAction", "Actions", "Own the transaction")
+  Component(change, "EventChangeService", "Domain service", "Time, format, venue diff")
+  Component(ics, "IcsCalendarService", "Domain service", "REQUEST and CANCEL messages")
+  Component(repo, "EventRepository, EventRegistrationRepository, WaitlistEntryRepository", "Repositories", "PostgreSQL")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(notify, "EventChangeNotifyJob", "Job", "One email and one in-app item per recipient")
+  Component(promo, "WaitlistPromotionJob", "Job", "Owned by register-for-event")
+}
+Rel(editor, dlgs, "Opens")
+Rel(dlgs, clients, "Calls")
+Rel(clients, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, change, "Detects material change")
+Rel(actions, repo, "Reads and writes")
+Rel(notify, ics, "Builds .ics")
+Rel(notify, repo, "Reads recipients")
+Rel(actions, promo, "Enqueues on freed place")
+@enduml

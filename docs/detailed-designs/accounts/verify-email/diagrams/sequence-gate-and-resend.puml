@@ -1,0 +1,76 @@
+@startuml
+title UML sequence behaviour — Contribution gate and resend
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Unverified member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Content page" as page
+  participant "VerificationGateService" as gate
+  participant "VerifyEmailPromptDialog" as dialog
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Contribution action" as contrib
+  participant "VerifiedAccountPolicy" as policy
+  participant "ResendVerificationAction" as resend
+  participant "VerificationEmailThrottle" as throttle
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Press Comment, Enrol, Register or Message
+page -> route : Contribution request
+route -> contrib : execute
+contrib -> policy : assertCanContribute(user)
+policy --> contrib : Refused, state is Unverified (L2-007)
+contrib --> route : EmailUnverified
+route --> page : 403 problem "email-unverified"
+page -> gate : handle(problem)
+gate -> dialog : Open prompt
+dialog --> actor : "Verify your email" with "Resend email"
+actor -> dialog : Press "Resend email"
+dialog -> client : resendVerification()
+client -> route : POST /api/v1/auth/email-verifications/resend
+route -> resend : execute(userId)
+resend -> throttle : check(userId)
+throttle -> cache : Read last-sent time and 24-hour count
+cache --> throttle : Values
+alt within 60 seconds of last email
+  throttle --> resend : Cooldown with seconds remaining
+  resend --> route : TooManyRequests
+  route --> client : 429 with Retry-After
+  client --> dialog : retryAfterSeconds
+  dialog --> actor : Disable button, count down seconds (cooldown state)
+else 5 emails already sent in 24 hours
+  throttle --> resend : Daily limit reached
+  resend --> route : TooManyRequests
+  route --> client : 429 with Retry-After
+  dialog --> actor : Show failed state, last link still works
+else allowed
+  resend -> db : Invalidate unused verification tokens, store new token hash (24 h)
+  resend -> throttle : record(userId)
+  throttle -> cache : Set last-sent time, increment count
+  resend -> queue : Enqueue EmailSendJob
+  resend --> route : ResendResult
+  route --> client : 200 ResendResult
+  client --> dialog : Sent
+  dialog --> actor : Show success state, button rests 60 seconds
+end
+@enduml

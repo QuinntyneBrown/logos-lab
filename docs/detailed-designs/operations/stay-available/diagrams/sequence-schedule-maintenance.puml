@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Schedule planned maintenance
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminAnnouncementsPage" as page
+  participant "MaintenanceWindowDialog" as dialog
+  participant "AnnouncementsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "maintenance-windows route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ScheduleMaintenanceWindowAction" as action
+  participant "MaintenanceWindow" as entity
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /admin/announcements
+page -> dialog : Open maintenance window dialog
+actor -> dialog : Enter start, end and Warning announcement
+dialog -> client : scheduleMaintenance(request)
+client -> route : POST /api/v1/admin/maintenance-windows
+route -> route : Authenticate and require Administrator role
+route -> action : execute(actor, input)
+action -> db : Load linked announcement
+db --> action : Announcement with startsAt
+alt start is less than 72 hours after announcement start
+  action --> route : Validation failure
+  route --> client : 422 problem response with field error
+  client --> dialog : Error result
+  dialog --> actor : Show "announce at least 72 hours ahead" error
+else notice is at least 72 hours
+  action -> entity : Create window (Apply L2-135 72-hour notice rule)
+  action -> db : Insert maintenance_windows row in one transaction
+  db --> action : Commit result
+  action --> route : MaintenanceWindow
+  route --> client : 201 Created with window
+  client --> dialog : Success
+  dialog --> page : Close and refresh list
+  page --> actor : Show window and live announcement
+end
+@enduml

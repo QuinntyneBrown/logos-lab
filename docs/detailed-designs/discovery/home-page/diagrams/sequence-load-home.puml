@@ -1,0 +1,73 @@
+@startuml
+title UML sequence behaviour — Load the home page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "HomePage" as HomePage
+  participant "HomeApi" as HomeApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/home" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetHomePageAction" as GetHomePageAction
+  participant "FeaturedContentService" as FeaturedContentService
+  participant "ContentCatalogueService" as ContentCatalogueService
+  participant "EventScheduleService" as EventScheduleService
+  participant "ExpertDirectoryService" as ExpertDirectoryService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> HomePage : Open /
+HomePage -> HomeApi : getHome()
+HomeApi -> route : HTTPS GET (anonymous, CDN-cacheable for at most 60 s)
+route -> GetHomePageAction : execute(now)
+GetHomePageAction -> FeaturedContentService : Apply L2-001 featured rule (up to 6, editor order)
+FeaturedContentService -> db : Select active featured slots joined to published content
+db --> FeaturedContentService : Slots in position order
+FeaturedContentService --> GetHomePageAction : Featured section
+GetHomePageAction -> ContentCatalogueService : Apply L2-001 latest rule (8 newest published)
+ContentCatalogueService -> db : Select published items order by published_at desc limit 8
+db --> ContentCatalogueService : Items
+ContentCatalogueService --> GetHomePageAction : Latest section
+GetHomePageAction -> EventScheduleService : Apply L2-001 events rule (next 3 published, future start)
+alt events read succeeds
+  EventScheduleService -> db : Select published events where starts_at > now order by starts_at limit 3
+  db --> EventScheduleService : Events
+  alt no upcoming events
+    EventScheduleService --> GetHomePageAction : Section status Empty
+  else events found
+    EventScheduleService --> GetHomePageAction : Section status Ok with events
+  end
+else events read fails
+  EventScheduleService --> GetHomePageAction : Section status Unavailable
+end
+GetHomePageAction -> ExpertDirectoryService : Read featured experts
+ExpertDirectoryService -> db : Select featured experts with completed profiles
+db --> ExpertDirectoryService : Experts
+ExpertDirectoryService --> GetHomePageAction : Experts section
+GetHomePageAction --> route : HomePageView
+route --> HomeApi : 200 JSON
+HomeApi --> HomePage : HomePageView
+alt events status Empty
+  HomePage --> actor : Show empty state linking to past event recordings
+else events status Unavailable
+  HomePage --> actor : Show inline events error with Try again; other sections render
+else all sections Ok
+  HomePage --> actor : Show featured, latest, events and experts
+end
+@enduml

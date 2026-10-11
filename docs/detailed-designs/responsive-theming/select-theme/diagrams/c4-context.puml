@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Select theme
+
+
+Person(visitor, "Visitor", "Not signed in")
+Person(member, "Member", "Signed in")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(os, "Operating system", "prefers-color-scheme setting")
+
+Rel(visitor, ll, "Chooses System, Light or Dark in")
+Rel(member, ll, "Chooses System, Light or Dark in")
+Rel(ll, os, "Follows the colour-scheme preference of")
+@enduml

@@ -1,0 +1,88 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Enforce role permissions
+
+package "Logos Lab Web" {
+  interface MeApi {
+    +getMe(): Observable<CurrentMember>
+  }
+  class CurrentMember {
+    +id: Uuid
+    +displayName: string
+    +roles: Role[]
+    +capabilities: Capability[]
+  }
+  class CapabilityService {
+    +can(capability: Capability): boolean
+  }
+  class capabilityGuard <<CanActivateFn>>
+  class NavigationService {
+    +links(area: NavArea): NavLink[]
+  }
+  class ForbiddenPage
+}
+package "Logos Lab API" {
+  enum Role {
+    Learner
+    Expert
+    Editor
+    Moderator
+    Administrator
+  }
+  enum Capability {
+    Learn
+    AuthorOwnContent
+    LeadOwnCohorts
+    ManageAnyContent
+    CurateAsLogosLab
+    Moderate
+    Administer
+    ViewPlatformAnalytics
+  }
+  class RolePermissionMatrix {
+    +grants: Map<Role, Capability[]>
+  }
+  class PermissionService {
+    +capabilitiesFor(roles: Role[]): Set<Capability>
+    +can(roles: Role[], capability: Capability): boolean
+  }
+  class AuthorizationMiddleware {
+    +handle(req: AuthenticatedRequest, next: Handler): Promise<Response>
+  }
+  class EndpointAccess {
+    +mode: AccessMode
+    +capability: Capability | null
+  }
+  class SecurityEventLogger {
+    +log(event: SecurityEvent): void
+  }
+  class ForbiddenProblem {
+    +type: string = "forbidden"
+    +status: number = 403
+  }
+}
+MeApi ..> CurrentMember
+CapabilityService ..> MeApi
+capabilityGuard ..> CapabilityService
+capabilityGuard ..> ForbiddenPage : renders
+NavigationService ..> CapabilityService
+CurrentMember --> Capability
+RolePermissionMatrix --> Role
+RolePermissionMatrix --> Capability
+PermissionService ..> RolePermissionMatrix
+AuthorizationMiddleware ..> EndpointAccess
+AuthorizationMiddleware ..> PermissionService
+AuthorizationMiddleware ..> SecurityEventLogger
+AuthorizationMiddleware ..> ForbiddenProblem : returns
+@enduml

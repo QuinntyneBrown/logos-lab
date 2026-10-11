@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Hide content automatically
+
+Person(member, "Member", "Reports a comment, cohort post or message")
+Person(moderator, "Moderator", "Reviews auto-hidden content")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(member, logoslab, "Reports content in", "HTTPS")
+Rel(moderator, logoslab, "Reviews and dismisses or acts in", "HTTPS")
+@enduml

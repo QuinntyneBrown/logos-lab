@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Protect sessions and CSRF
+
+Person(member, "Member", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Sends the anti-CSRF token header on every state-changing call")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Creates, rotates and checks sessions; checks CSRF tokens and origins")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Session records keyed by a hash of the session identifier")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls with __Host- cookies and X-CSRF-Token", "JSON/HTTPS")
+Rel(api, db, "Reads and writes sessions", "SQL")
+@enduml

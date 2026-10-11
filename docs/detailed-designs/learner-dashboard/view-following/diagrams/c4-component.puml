@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View following
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "FollowingPage", "Angular page", "Tabs, rows, focus management")
+  Component(dialog, "UnfollowDialog", "Angular CDK dialog", "Confirms unfollow")
+  Component(client, "FollowsApi", "Contract + HttpFollowsApi", "Bound by FOLLOWS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/follows", "Next.js route handlers", "Validate and map")
+  Component(actions, "Follow actions", "ListFollowsAction, UnfollowAction", "One use case each")
+  Component(repo, "FollowRepository", "Repository", "User-scoped access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "follows")
+Rel(page, dialog, "Opens")
+Rel(page, client, "Calls")
+Rel(dialog, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, repo, "Reads and deletes")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

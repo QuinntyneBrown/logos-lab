@@ -1,0 +1,92 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Run background jobs
+
+package "Logos Lab API" {
+  class JobPublisher {
+    +publish(message: JobMessage): Promise<void>
+  }
+}
+
+package "Shared" {
+  class JobMessage {
+    +jobType: string
+    +idempotencyKey: string
+    +correlationId: string
+    +attempt: number
+    +payload: object
+  }
+}
+
+package "Logos Lab Worker" {
+  class JobRunner {
+    +start(): Promise<void>
+    +stop(graceMs: number): Promise<void>
+    -handle(message: SqsMessage): Promise<void>
+  }
+  interface JobHandler {
+    +jobType: string
+    +run(payload: object, ctx: JobContext): Promise<void>
+  }
+  class EventReminderJob {
+    +run(payload: object, ctx: JobContext): Promise<void>
+  }
+  class JobContext {
+    +correlationId: string
+    +checkpoint: object | null
+    +saveCheckpoint(value: object): Promise<void>
+  }
+  class JobHandlerRegistry {
+    +get(jobType: string): JobHandler
+  }
+  class RetryPolicy {
+    +MAX_RETRIES: number = 5
+    +isTransient(error: Error): boolean
+    +delaySeconds(attempt: number): number
+  }
+  class JobExecutionRepository {
+    +claim(key: string, jobType: string): Promise<ClaimResult>
+    +markSucceeded(key: string, tx: Transaction): Promise<void>
+    +saveCheckpoint(key: string, checkpoint: object): Promise<void>
+  }
+  class JobExecution {
+    +idempotencyKey: string
+    +jobType: string
+    +status: JobExecutionStatus
+    +checkpoint: object | null
+    +startedAt: Date
+    +completedAt: Date | null
+  }
+  enum JobExecutionStatus {
+    Running
+    Succeeded
+  }
+  enum ClaimResult {
+    Claimed
+    AlreadySucceeded
+  }
+}
+
+JobPublisher ..> JobMessage : sends
+JobRunner ..> JobMessage : receives
+JobRunner --> JobHandlerRegistry : uses
+JobHandlerRegistry "1" o-- "*" JobHandler : holds
+EventReminderJob ..|> JobHandler
+JobRunner --> RetryPolicy : uses
+JobRunner --> JobExecutionRepository : uses
+JobHandler ..> JobContext : receives
+JobExecutionRepository --> JobExecution : persists
+JobExecution --> JobExecutionStatus : has
+JobExecutionRepository ..> ClaimResult : returns
+@enduml

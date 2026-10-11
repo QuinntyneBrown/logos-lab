@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Comment on content
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(section, "CommentsSection", "Angular component", "Composer, sort, thread and paging")
+  Component(dialogs, "EditCommentDialog / DeleteCommentDialog", "Angular CDK dialogs", "Edit text and confirm deletion")
+  Component(client, "CommentsApi", "Contract + HttpCommentsApi", "Typed HTTP client bound by COMMENTS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/comments", "Next.js route handlers", "Validate input, map results and problems")
+  Component(actions, "Comment actions", "PostCommentAction, ListCommentsAction, EditCommentAction, DeleteCommentAction, SetCommentSortAction", "One use case each, own the transaction")
+  Component(service, "CommentService", "Domain service", "Threading, edit window, deletion rules")
+  Component(spam, "CommentSpamService", "Domain service", "Rate, duplicate and new-account rules")
+  Component(format, "CommentFormattingService", "Domain service", "Allow-list sanitizing and link rel")
+  Component(repo, "CommentRepository", "Repository", "comments table access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "comments, user_preferences")
+ContainerDb(cache, "Cache", "Redis", "Rate counters")
+Rel(section, client, "Calls")
+Rel(dialogs, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, service, "Applies thread rules")
+Rel(actions, spam, "Checks spam rules")
+Rel(actions, format, "Sanitizes body")
+Rel(actions, repo, "Loads and saves")
+Rel(spam, cache, "Counts posts", "RESP")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

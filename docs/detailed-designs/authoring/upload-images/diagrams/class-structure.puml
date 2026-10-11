@@ -1,0 +1,105 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Upload images
+
+package "Logos Lab Web" {
+  class ImageUploadDialog {
+    +purpose: ImagePurpose
+    +progress: Signal<number>
+    +image: Signal<ImageView>
+    +altText: string
+    +decorative: boolean
+    +focalPoint: FocalPoint
+    +choose(file: File): Promise<void>
+    +insert(): Promise<void>
+  }
+  interface MediaApi {
+    +createImageUpload(request: CreateUploadRequest): Observable<PresignedUpload>
+    +uploadToStorage(upload: PresignedUpload, file: File): Observable<number>
+    +completeImageUpload(id: string): Observable<ImageView>
+    +getImage(id: string): Observable<ImageView>
+    +updateImageDetails(id: string, details: ImageDetails): Observable<ImageView>
+  }
+  class HttpMediaApi
+  class MEDIA_API <<InjectionToken>>
+}
+
+package "Logos Lab API and Worker" {
+  class CreateImageUploadAction {
+    +execute(user: CurrentUser, request: CreateUploadRequest): PresignedUpload
+  }
+  class CompleteImageUploadAction {
+    +execute(user: CurrentUser, id: uuid): ImageAsset
+  }
+  class UpdateImageDetailsAction {
+    +execute(user: CurrentUser, id: uuid, details: ImageDetails): ImageAsset
+  }
+  class ImageProcessJob {
+    +run(message: ImageProcessMessage): void
+  }
+  class ImageService {
+    +acceptedTypes: string[]
+    +maxBytes: 15 MB
+    +renditionWidths: int[]
+    +renditionFormats: string[]
+    +detectType(bytes: Buffer): string
+    +canInsert(image: ImageAsset): boolean
+  }
+  class ImageAsset {
+    +id: uuid
+    +ownerId: uuid
+    +state: ImageState
+    +storageKey: string
+    +mimeType: string
+    +width: int
+    +height: int
+    +altText: string
+    +decorative: boolean
+    +focalX: decimal
+    +focalY: decimal
+    +renditions: Rendition[]
+  }
+  class Rendition <<value object>> {
+    +width: int
+    +format: string
+    +key: string
+  }
+  class FocalPoint <<value object>> {
+    +x: decimal
+    +y: decimal
+  }
+  enum ImageState {
+    Pending
+    Processing
+    Ready
+    Rejected
+    Quarantined
+  }
+  enum ImagePurpose {
+    Cover
+    Body
+  }
+}
+
+HttpMediaApi ..|> MediaApi
+MEDIA_API ..> MediaApi : provides
+ImageUploadDialog ..> MEDIA_API : injects
+ImageUploadDialog --> ImagePurpose
+CreateImageUploadAction ..> ImageService : uses
+ImageProcessJob ..> ImageService : uses
+UpdateImageDetailsAction ..> ImageService : uses
+ImageAsset --> ImageState
+ImageAsset "1" *-- "*" Rendition
+ImageAsset *-- FocalPoint
+@enduml

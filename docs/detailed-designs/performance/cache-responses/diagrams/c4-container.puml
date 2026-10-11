@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Cache responses
+
+
+Person(visitor, "Visitor or member", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Edge cache; AuthStateViewerFunction")
+  ContainerDb(assets, "Static asset origin", "Amazon S3", "Hashed build output")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "Renders pages; sets page cache headers")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Sets private, no-store by default")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "CdnInvalidateJob messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs CdnInvalidateJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Content state")
+}
+System_Ext(cfapi, "CloudFront API", "CreateInvalidation")
+
+Rel(visitor, cdn, "Requests", "HTTPS")
+Rel(cdn, assets, "Fetches assets on miss")
+Rel(cdn, web, "Fetches pages on miss or bypass")
+Rel(cdn, api, "Forwards API calls")
+Rel(api, db, "Commits content change")
+Rel(api, sqs, "Enqueues invalidation")
+Rel(worker, sqs, "Consumes")
+Rel(worker, cfapi, "Calls")
+@enduml

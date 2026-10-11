@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Confirm an email change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EmailChangeConfirmPage" as page
+  participant "AuthApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "email-changes route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ConfirmEmailChangeAction" as action
+  participant "AccountTokenService" as tokens
+  participant "SessionService" as sessions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Open link from the new address, press confirm
+page -> client : confirmEmailChange(token)
+client -> route : POST /api/v1/auth/email-changes/confirmations
+route -> action : execute(token)
+action -> tokens : consume(token, EmailChange)
+tokens -> db : Find unused token with expiresAt > now, set usedAt
+alt older than 24 hours, used or unknown
+  action --> route : LinkExpired
+  route --> client : 410 "link-expired"
+  page --> actor : Expired state: email unchanged, request again
+else valid
+  action -> db : Re-check address is free; set email = pendingEmail, keep previousEmail
+  action -> sessions : revokeAllExcept(userId, currentSession or none)
+  sessions -> db : Revoke other sessions (L2-010)
+  action -> tokens : issue(userId, EmailChangeReport, <TO SUPPLY>)
+  action -> queue : Enqueue EmailSendJob (notice to old address with report link, L2-012)
+  action --> route : Ok
+  route --> client : 204
+  page --> actor : Success state: new address in use, old address told
+end
+@enduml

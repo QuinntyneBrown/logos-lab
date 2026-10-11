@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Show and dismiss an announcement
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SiteAnnouncementBanner" as banner
+  participant "SiteAdminApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "/api/v1/announcements" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListActiveAnnouncementsAction\nDismissAnnouncementAction" as action
+  participant "AnnouncementService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> banner : Load any page
+banner -> client : activeAnnouncements()
+client -> route : GET /api/v1/announcements/active
+route -> action : ListActiveAnnouncementsAction.execute(viewerId or none, now)
+action -> service : activeAt(now)
+service -> db : Select where starts_at <= now < ends_at
+db --> service : Rows
+opt viewer is signed in
+  action -> db : Exclude rows in announcement_dismissals for viewer
+end
+action --> route : Active, undismissed announcements, Warning first
+route --> client : 200 JSON
+banner -> banner : Visitors: drop ids kept in browser storage
+banner --> actor : Dismissible ll-alert banner per announcement (L2-098)
+actor -> banner : Dismiss
+alt signed in
+  banner -> client : dismiss(id)
+  client -> route : POST /api/v1/announcements/{id}/dismiss
+  route -> action : DismissAnnouncementAction.execute(userId, id)
+  action -> db : Insert dismissal if absent
+  route --> client : 204
+else visitor
+  banner -> banner : Store id in browser storage
+end
+banner --> actor : Banner removed and stays dismissed (L2-098)
+@enduml

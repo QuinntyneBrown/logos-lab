@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Upload a SCORM package
+
+Person(expert, "Expert or Editor", "Authors courses and modules in Studio")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Carries job messages from the API to the Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+  ContainerDb(s3, "Media storage", "Amazon S3", "Private buckets for SCORM packages and generated files")
+  Container(origin, "SCORM content origin", "Amazon CloudFront on a separate registrable domain", "Serves unpacked SCORM content")
+}
+System_Ext(scanner, "Malware scanner", "Scans uploaded files (product TO SUPPLY)")
+System_Ext(cw, "Amazon CloudWatch", "Logs, metrics and alarms, including security events")
+
+Rel(expert, web, "Uses Studio package page", "HTTPS")
+Rel(web, api, "Start, complete, poll and cancel", "JSON/HTTPS")
+Rel(web, s3, "Uploads .zip with presigned multipart URLs", "HTTPS")
+Rel(api, db, "Writes scorm_packages", "SQL")
+Rel(api, queue, "Enqueues ScormPackageProcessJob", "SQS")
+Rel(worker, queue, "Receives jobs from", "SQS")
+Rel(worker, s3, "Reads zip, writes unpacked files", "AWS SDK")
+Rel(worker, scanner, "Scans files")
+Rel(worker, db, "Updates package status", "SQL")
+Rel(worker, cw, "Logs security events", "AWS SDK")
+Rel(origin, s3, "Serves unpacked content from", "HTTPS")
+@enduml

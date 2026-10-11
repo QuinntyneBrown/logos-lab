@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Deploy and migrate
+
+Container_Boundary(ci, "CI/CD pipeline") {
+  Component(build, "Build stage", "Pipeline stage", "Builds images once")
+  Component(test, "Test stage", "Pipeline stage", "Lint, unit, integration, Playwright, Lighthouse")
+  Component(staging, "Deploy staging stage", "Pipeline stage", "IaC, migrate, deploy")
+  Component(approval, "Approval gate", "Pipeline stage", "Manual approval")
+  Component(prod, "Deploy production stage", "Pipeline stage", "IaC, migrate, deploy")
+}
+Container_Boundary(api, "Logos Lab API artifact") {
+  Component(boot, "ApiBootstrap", "Start-up module", "No migrations")
+  Component(migrator, "MigrationRunner", "migrate command", "Applies pending migrations")
+  Component(seeder, "SeedRunner", "seed command", "Idempotent upserts")
+}
+Component(controller, "DeploymentController", "Compute platform deployment service", "Shifts traffic, rolls back")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+Rel(build, test, "Then")
+Rel(test, staging, "Then")
+Rel(staging, approval, "Then")
+Rel(approval, prod, "Then")
+Rel(prod, migrator, "Runs")
+Rel(prod, controller, "Starts deployment with")
+Rel(controller, boot, "Starts new instances of")
+Rel(migrator, db, "Migrates")
+Rel(seeder, db, "Upserts")
+@enduml

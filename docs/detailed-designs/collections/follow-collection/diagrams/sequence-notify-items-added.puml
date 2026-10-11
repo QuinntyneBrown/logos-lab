@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Notify followers when items are added
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "NotificationsPanel" as NotificationsPanel
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CollectionRevisionPublishedHandler" as CollectionRevisionPublishedHandler
+  participant "CollectionFollowerNotificationJob" as CollectionFollowerNotificationJob
+  participant "NotificationPreferenceService" as NotificationPreferenceService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+  participant "Amazon SES" as ses
+end box
+CollectionRevisionPublishedHandler -> db : Load item ids of new revision and previous published version
+db --> CollectionRevisionPublishedHandler : Item sets
+CollectionRevisionPublishedHandler -> CollectionRevisionPublishedHandler : addedItems = current minus previous
+opt at least one item added
+  CollectionRevisionPublishedHandler -> queue : Enqueue one CollectionFollowerNotificationJob with all added ids
+  queue -> CollectionFollowerNotificationJob : Deliver
+  CollectionFollowerNotificationJob -> db : Select current followers of the collection
+  db --> CollectionFollowerNotificationJob : Followers
+  loop each follower
+    CollectionFollowerNotificationJob -> NotificationPreferenceService : Channels for follower (L2-093)
+    NotificationPreferenceService --> CollectionFollowerNotificationJob : In-app and/or email
+    opt in-app on
+      CollectionFollowerNotificationJob -> db : Insert one notification listing every added item, key follower + revision (L2-050)
+    end
+    opt email on
+      CollectionFollowerNotificationJob -> ses : Send one email listing the added items
+    end
+  end
+  CollectionFollowerNotificationJob --> queue : Acknowledge
+end
+actor -> NotificationsPanel : Open notifications
+NotificationsPanel --> actor : One notification naming the added items
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit an expert profile
+
+Container(web, "Logos Lab Web", "Angular", "StudioProfilePage, ExpertProfileHistoryPage, RestoreProfileVersionDialog")
+Container_Boundary(api, "Logos Lab API") {
+  Component(authz, "Authorization policy", "Middleware", "Expert for edit; Editor for history")
+  Component(r1, "PUT /api/v1/experts/expertId/profile", "Route handler", "Save own profile")
+  Component(r2, "profile-history routes", "Route handlers", "List and restore")
+  Component(a1, "UpdateExpertProfileAction", "Action", "One transaction per save")
+  Component(a2, "RestoreProfileVersionAction", "Action", "Restore as new version")
+  Component(val, "ExpertProfileValidator", "Domain service", "Bio, areas, links rules")
+  Component(san, "BioSanitizer", "Domain service", "Paragraphs, bold, italic, links")
+  Component(ver, "ProfileVersionService", "Domain service", "Field changes and snapshots")
+  Component(audit, "AuditService", "Domain service", "Audit entries")
+  Component(notify, "NotificationService", "Domain service", "In-app notifications")
+  Component(repo, "ExpertProfileRepository", "Repository", "Owner-scoped queries")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "expert_profiles, expert_profile_versions, audit_entries, notifications")
+Rel(web, authz, "Calls", "JSON/HTTPS")
+Rel(authz, r1, "Expert")
+Rel(authz, r2, "Editor")
+Rel(r1, a1, "Invokes")
+Rel(r2, a2, "Invokes")
+Rel(a1, val, "Validates")
+Rel(a1, san, "Sanitizes bio")
+Rel(a1, repo, "Loads by expertId and user id")
+Rel(a1, ver, "Records version")
+Rel(a1, audit, "Records changes")
+Rel(a1, notify, "Notifies editors")
+Rel(a2, ver, "Reads snapshot and records version")
+Rel(a2, repo, "Writes live profile")
+Rel(a2, audit, "Records restore")
+Rel(a2, notify, "Notifies expert")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(ver, db, "Writes", "SQL")
+Rel(audit, db, "Writes", "SQL")
+Rel(notify, db, "Writes", "SQL")
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Suspend an account
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator or Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUserPage" as page
+  participant "UserActionDialog" as dialog
+  participant "AdminUsersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "suspension route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SuspendUserAction" as action
+  participant "AccountStateService" as state
+  participant "SessionService" as sessions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Press "Suspend"
+page -> dialog : Open
+actor -> dialog : Choose end date, enter reason, confirm
+dialog -> client : suspend(id, until, reason)
+client -> route : PUT /api/v1/admin/users/{id}/suspension (requires Moderate)
+route -> action : execute(actor, id, until, reason)
+action -> action : Validate: end date in the future, reason present
+alt invalid
+  route --> client : 422 problem
+  dialog --> actor : Invalid state
+else valid
+  action -> state : transition(actor, user, Suspended, until, reason)
+  state -> db : Begin; set state = Suspended, suspendedUntil
+  state -> sessions : revokeAll(userId)
+  sessions -> db : Revoke every session (L2-019: within 5 seconds)
+  state -> db : Append audit entry; commit
+  state -> queue : Enqueue notice email and in-app notice with reason and appeal route
+  route --> client : 204
+  dialog --> actor : Success: sessions ended, member emailed, change audited
+end
+note over db : Any request on an old session now fails in SessionMiddleware
+@enduml

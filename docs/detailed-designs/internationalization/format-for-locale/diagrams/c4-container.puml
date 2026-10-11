@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Format for locale
+
+
+Person(learner, "Learner", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR", "LocaleFormatService and pipes")
+  Container(api, "Logos Lab API", "Next.js route handlers", "ISO 8601 UTC timestamps, seconds, numbers")
+  Container(worker, "Logos Lab Worker", "Node.js", "Formats values in email")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Raw values")
+}
+System_Ext(ses, "Amazon SES", "Email delivery")
+
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Reads raw values from", "JSON/HTTPS")
+Rel(api, db, "Reads")
+Rel(worker, db, "Reads")
+Rel(worker, ses, "Sends through")
+@enduml

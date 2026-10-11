@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Track course progress
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+Person(expert, "Expert or Editor", "Authors courses and modules in Studio")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+
+Rel(learner, logos, "Sees course progress in", "HTTPS")
+Rel(expert, logos, "Publishes course changes in", "HTTPS")
+@enduml

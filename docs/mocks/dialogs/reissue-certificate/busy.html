@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reissue certificate · busy — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="reissue-certificate">
+<meta name="mock:state" content="busy">
+<meta name="mock:requirements" content="L2-031">
+<meta name="description" content="The certificate is being reissued; the button shows Reissuing….">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+<a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div class="wrap">
+    <div class="page-head page-head--actions"><p class="eyebrow">Certificate · LL-7K4Q-29XM</p><p class="page-head__title">Christian Ethics for AI Builders</p><p class="page-head__sub">Your name is now Miriam J. Clarke · Completed Wed 2 Sep 2026 · issued to Miriam Clarke</p><div class="page-head__actions"><span class="btn btn--primary">Download PDF</span><span class="btn btn--quiet">Share</span></div></div>
+    <div class="certificate" aria-labelledby="behind-cert"><p class="certificate__title" id="behind-cert">Certificate of completion</p><p class="certificate__name">Miriam Clarke</p><p class="certificate__for">has completed</p><p class="certificate__course">Christian Ethics for AI Builders</p><dl class="certificate__facts"><div><dt>Completed</dt><dd>2 Sep 2026</dd></div><div><dt>Course by</dt><dd>Rev. Dr. Thomas Hale</dd></div><div><dt>Length</dt><dd>18 lessons · 4 h 10 min</dd></div></dl><div class="certificate__sign"><span class="certificate__signature">Thomas Hale</span><span>Rev. Dr. Thomas Hale, course author</span></div><p class="certificate__code">Verify at logoslab.ca/certificates/LL-7K4Q-29XM · LL-7K4Q-29XM</p></div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog dialog--sm" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Reissue with your current name?</h1>
+        <a class="icon-btn" href="../../pages/certificate/name-changed.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+<p id="dialog-desc">The certificate will read <strong>Miriam J. Clarke</strong> instead of Miriam Clarke. The code LL-7K4Q-29XM, the course and the completion date stay the same, and the verification page shows the new name.</p>
+      </div>
+      <footer class="dialog__footer">
+<a class="btn btn--quiet" href="../../pages/certificate/name-changed.html">Keep Miriam Clarke</a>
+<button type="button" class="btn btn--primary" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Reissuing…</button>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Reissue certificate</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html" aria-current="page">busy</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

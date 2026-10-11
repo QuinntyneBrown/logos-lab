@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Monitor and alert
+
+Person(member, "Member or visitor", "Uses pages")
+System_Ext(cloudwatch, "Amazon CloudWatch", "Metrics, dashboard, alarms, Synthetics")
+System_Ext(oncall, "On-call channel", "TO SUPPLY")
+System_Boundary(ll, "Logos Lab") {
+  Container(alb, "Application Load Balancer", "AWS ELB", "Routes to ready instances")
+  Container(web, "Logos Lab Web", "Angular SSR", "Reports Core Web Vitals")
+  Container(api, "Logos Lab API", "Next.js", "Health endpoints and request metrics")
+  Container(worker, "Logos Lab Worker", "Node.js", "Job metrics")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Queue depth and age")
+  ContainerDb(db, "Logos Lab database", "RDS PostgreSQL", "Probed by readiness")
+  ContainerDb(cache, "Cache", "ElastiCache Redis", "Probed by readiness")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Posts web vitals to", "JSON/HTTPS")
+Rel(alb, api, "Probes /health/ready")
+Rel(cloudwatch, api, "Synthetic checks", "HTTPS")
+Rel(api, db, "Probes", "SELECT 1")
+Rel(api, cache, "Probes", "PING")
+Rel(api, cloudwatch, "Publishes metrics", "EMF")
+Rel(worker, cloudwatch, "Publishes metrics", "EMF")
+Rel(queue, cloudwatch, "Publishes queue metrics")
+Rel(db, cloudwatch, "Publishes saturation metrics")
+Rel(cloudwatch, oncall, "Alerts", "Amazon SNS")
+@enduml

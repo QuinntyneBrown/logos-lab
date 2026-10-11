@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Remove a cohort member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Cohort leader" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortSettingsPage" as page
+  participant "RemoveCohortMemberDialog" as dialog
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RemoveCohortMemberAction" as action
+  participant "CohortService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Choose Remove on a member row
+page -> dialog : Open
+actor -> dialog : Confirm
+dialog -> client : removeMember(cohortId, memberId)
+client -> route : DELETE /api/v1/studio/cohorts/{id}/members/{memberId}
+route -> action : execute(userId, cohortId, memberId)
+action -> db : Load cohort led by caller and active membership
+db --> action : Cohort and membership, or none
+alt caller does not lead the cohort or member not found
+  route --> client : 404 problem
+  dialog --> actor : Show failed state
+else found
+  action -> db : Set membership removedAt
+  note right of db : Enrolment and progress rows are untouched (L2-063)
+  db --> action : Done
+  action --> route : Ok
+  route --> client : 204
+  dialog --> page : Close
+  page --> actor : Member list without the member
+end
+@enduml

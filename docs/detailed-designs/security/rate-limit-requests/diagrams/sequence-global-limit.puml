@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Apply the global and endpoint limits to an API request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Page" as page
+  participant "RateLimitInterceptor" as icpt
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "RateLimitMiddleware" as mw
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RateLimiter" as lim
+  participant "SecurityEventLogger" as sec
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache (Redis)" as cache
+end box
+actor -> page : Act on a page
+page -> icpt : HTTP request
+icpt -> mw : POST /api/v1/comments
+mw -> mw : Resolve key: user id if signed in, else client IP
+mw -> lim : hit(global policy: 300 per minute signed in, 120 anonymous) (L2-107)
+lim -> cache : INCR key; EXPIRE at window end
+cache --> lim : Count
+lim --> mw : Decision
+mw -> lim : hit(endpoint policy, e.g. comments 5 per minute and 50 per hour) (L2-107, L2-062)
+lim -> cache : INCR endpoint keys
+cache --> lim : Counts
+lim --> mw : Decision
+alt Any policy exceeded
+  mw -> sec : record(RateLimitBlocked, key, policy, IP, user agent, correlation ID) (L2-111)
+  mw --> icpt : 429 problem+json with Retry-After seconds to window reset
+  icpt --> page : Rate-limited result with retry time
+  page --> actor : Show when the action is available again
+else All policies within limit
+  mw -> route : Continue pipeline
+  route --> icpt : Normal response
+  icpt --> page : Result
+  page --> actor : Updated page
+end
+@enduml

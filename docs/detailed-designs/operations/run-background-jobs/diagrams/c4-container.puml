@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Run background jobs
+
+System_Ext(scheduler, "Amazon EventBridge Scheduler", "Recurring jobs")
+System_Ext(cw, "Amazon CloudWatch", "Dead-letter alarm")
+System_Ext(ext, "External services", "SES, MediaConvert")
+System_Boundary(ll, "Logos Lab") {
+  Container(api, "Logos Lab API", "Next.js", "Enqueues jobs after commit")
+  ContainerQueue(queue, "Job queue", "Amazon SQS logos-lab-jobs", "Redrive after 6 receives")
+  ContainerQueue(dlq, "Dead-letter queue", "Amazon SQS logos-lab-jobs-dlq", "Failed jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "job_executions and feature data")
+}
+Rel(api, queue, "Enqueues JobMessage")
+Rel(scheduler, queue, "Enqueues recurring jobs")
+Rel(worker, queue, "Long-polls and acknowledges")
+Rel(queue, dlq, "Redrives after final retry")
+Rel(worker, db, "Claims keys, writes results", "SQL")
+Rel(worker, ext, "Calls")
+Rel(dlq, cw, "Publishes depth")
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Verify a certificate
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "CertificateVerifyPage", "Angular SSR page", "Public verification result")
+  Component(dialog, "RevokeCertificateDialog", "Angular CDK dialog", "Revocation with reason")
+  Component(contract, "CertificatesApi / CERTIFICATES_API", "API contract and token", "verify and revoke")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(rl, "Rate-limiting middleware", "Middleware", "certificate-verification: 30 per minute per IP")
+  Component(verify, "VerifyCertificateAction", "Action", "Resolves a code")
+  Component(vsvc, "CertificateVerificationService", "Domain service", "Public projection")
+  Component(revoke, "RevokeCertificateAction", "Action", "Administrator revocation")
+  Component(audit, "AuditLogService", "Domain service", "Records admin actions")
+  Component(job, "CertificateRevocationNotifyJob", "Worker job", "Emails the learner")
+}
+ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate-limit counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+System_Ext(ses, "Amazon SES", "Email")
+
+Rel(page, contract, "Depends on")
+Rel(dialog, contract, "Depends on")
+Rel(contract, rl, "GET /api/v1/certificates/{code}", "JSON/HTTPS")
+Rel(rl, cache, "Increments counter", "Redis")
+Rel(rl, verify, "Passes allowed requests to")
+Rel(verify, vsvc, "Projects with")
+Rel(verify, db, "Reads certificates", "SQL")
+Rel(contract, revoke, "POST revocation", "JSON/HTTPS")
+Rel(revoke, audit, "Records with")
+Rel(revoke, db, "Updates certificate", "SQL")
+Rel(revoke, job, "Enqueues")
+Rel(job, ses, "Sends email", "AWS SDK")
+@enduml

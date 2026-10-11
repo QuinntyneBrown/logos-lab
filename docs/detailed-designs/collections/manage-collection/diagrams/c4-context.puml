@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage a collection
+
+Person(expert, "Expert", "Invited subject-matter expert")
+Person(editor, "Editor", "Logos Lab staff who review and curate")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(expert, logos, "Builds own collections in", "HTTPS")
+Rel(editor, logos, "Builds Logos Lab collections and reviews revisions in", "HTTPS")
+@enduml

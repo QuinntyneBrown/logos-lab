@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Server-render public pages
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(server, "server.ts", "Express with AngularNodeAppEngine", "Renders each request")
+  Component(noindex, "NoIndexHeaderMiddleware", "Express middleware", "X-Robots-Tag: noindex for member routes")
+  Component(routes, "serverRoutes", "app.routes.server.ts", "RenderMode per route")
+  Component(page, "CourseOverviewPage", "Angular page", "Public course page")
+  Component(resolver, "courseResolver", "Route resolver", "Loads course by slug")
+  Component(contract, "CoursesApi / COURSES_API", "API contract and token", "HttpCoursesApi bound at root")
+  Component(transfer, "HTTP transfer cache", "provideClientHydration", "Carries SSR responses to browser")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "courses route", "app/api/v1/courses/[slug]/route.ts", "Anonymous GET")
+  Component(action, "GetCourseAction", "Action", "Loads published course")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+Rel(server, noindex, "Runs first")
+Rel(server, routes, "Reads render mode from")
+Rel(server, page, "Renders")
+Rel(page, resolver, "Gets data from")
+Rel(resolver, contract, "Calls")
+Rel(contract, route, "GET /api/v1/courses/{slug}", "JSON/HTTPS")
+Rel(contract, transfer, "Stores response in")
+Rel(route, action, "Calls")
+Rel(action, db, "Reads", "SQL")
+@enduml

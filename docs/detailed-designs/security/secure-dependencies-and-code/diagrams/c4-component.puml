@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Secure dependencies and code
+
+Container_Boundary(pr, "Pull request workflow") {
+  Component(depstage, "Dependency scan stage", "CI job", "Fails on a critical or high finding")
+  Component(saststage, "SAST stage", "CI job", "Fails on a critical or high finding")
+  Component(secstage, "Secret scan stage", "CI job", "Fails on any detected secret")
+  Component(gate, "Security gate", "Required status check", "Blocks merge unless every stage passes")
+}
+Container_Boundary(rel, "Release workflow") {
+  Component(build, "Build stage", "CI job", "Builds the Web, API and Worker images")
+  Component(sbom, "SBOM stage", "CI job, CycloneDX or SPDX <TO SUPPLY>", "Produces the software bill of materials")
+  Component(publish, "Publish stage", "CI job", "Stores the SBOM with the release identifier")
+}
+ContainerDb(store, "Release artifact store", "Amazon S3", "releases/<version>/sbom")
+Rel(depstage, gate, "Reports status to")
+Rel(saststage, gate, "Reports status to")
+Rel(secstage, gate, "Reports status to")
+Rel(build, sbom, "Hands image contents to")
+Rel(sbom, publish, "Hands SBOM to")
+Rel(publish, store, "Writes")
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Revise published content
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "items/{id}/revisions, versions, corrections", "Next.js route handlers", "Parse, authorize, map")
+  Component(create, "CreateRevisionAction", "Action", "Draft revision from the live version")
+  Component(restore, "RestoreVersionAction", "Action", "Draft revision from an earlier version")
+  Component(correct, "PublishCorrectionAction", "Action", "Publish without a second editor")
+  Component(publish, "PublishContentAction", "Action", "Publishes an approved revision")
+  Component(revisions, "RevisionService", "Domain service", "Copies snapshots and computes diffs")
+  Component(publishing, "PublishingService", "Domain service", "New version, live pointer, Last updated")
+  Component(workflow, "WorkflowService", "Domain service", "L2-076 transitions")
+  Component(repos, "ContentRevisionRepository, ContentVersionRepository", "Repositories", "PostgreSQL access")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_revisions, content_versions, content_items")
+
+Rel(routes, create, "Calls")
+Rel(routes, restore, "Calls")
+Rel(routes, correct, "Calls")
+Rel(routes, publish, "Calls")
+Rel(create, revisions, "Creates revision with")
+Rel(restore, revisions, "Creates revision with")
+Rel(correct, publishing, "Publishes through")
+Rel(publish, workflow, "Checks transition with")
+Rel(publish, publishing, "Publishes through")
+Rel(revisions, repos, "Reads and writes through")
+Rel(publishing, repos, "Writes through")
+Rel(repos, db, "Reads and writes", "SQL")
+@enduml

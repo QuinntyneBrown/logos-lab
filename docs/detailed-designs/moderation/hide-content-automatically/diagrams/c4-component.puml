@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Hide content automatically
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(submit, "SubmitReportAction", "Action", "Stores each report")
+  Component(take, "TakeModerationActionAction", "Action", "Dismiss restores auto-hidden content")
+  Component(autohide, "AutoHideService", "Domain service", "3 distinct reporters, accounts 24 hours or older")
+  Component(visibility, "ContentVisibilityService", "Domain service", "Hide and restore")
+  Component(priority, "ModerationPriorityPolicy", "Domain service", "Auto-hidden cases first")
+  Component(audit, "ModerationAuditService", "Domain service", "Records the automatic hide")
+  Component(repo, "ReportRepository", "Repository", "Distinct eligible reporter count")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "reports, moderation_cases")
+
+Rel(submit, autohide, "Calls after each report")
+Rel(autohide, repo, "Counts eligible reporters through")
+Rel(autohide, visibility, "Hides target with")
+Rel(autohide, priority, "Raises priority with")
+Rel(autohide, audit, "Records with")
+Rel(take, visibility, "Restores target with")
+Rel(repo, db, "Reads", "SQL")
+Rel(visibility, db, "Updates", "SQL")
+@enduml

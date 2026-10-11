@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Play a lesson
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+System_Ext(tessv, "Tessera video-player", "Video player library embedded in Logos Lab Web")
+
+Rel(learner, web, "Opens lessons and marks them complete", "HTTPS")
+Rel(web, tessv, "Embeds")
+Rel(web, api, "GET lesson, POST and DELETE completion", "JSON/HTTPS")
+Rel(api, db, "Reads lessons, writes lesson_completions", "SQL")
+@enduml

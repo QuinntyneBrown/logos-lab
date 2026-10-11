@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notify registrants · failed — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="event-change-notify">
+<meta name="mock:state" content="failed">
+<meta name="mock:requirements" content="L2-055">
+<meta name="description" content="Publishing the change failed: nothing was sent, the old time still shows, and the message is kept.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header">
+    <div class="wrap header__inner">
+      <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+      <nav class="nav" id="primary-nav" popover aria-label="Studio">
+        <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/review-queue/default.html">Review queue</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+        </ul>
+        <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+      </nav>
+      <div class="header__actions">
+        <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+        <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Naomi Ellis"><img class="avatar" src="../../assets/photos/sofia-marquez.jpg" width="40" height="40" alt=""></a>
+        <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+      </div>
+    </div>
+  </header>
+  <div class="workflow">
+    <div class="wrap workflow__inner">
+      <div class="workflow__title">
+        <p class="workflow__name">Faith and AI Evening: Is Creativity Sacred?</p>
+        <div class="workflow__meta">
+          <span class="badge badge--success">Published</span>
+          <span class="inline-status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Saved 10:24 am</span>
+          <ol class="workflow__steps" aria-label="Workflow"><li>Draft</li><li>In review</li><li>Approved</li><li aria-current="step">Published</li></ol>
+        </div>
+      </div>
+      <div class="workflow__actions">
+        <span class="btn btn--quiet btn--sm">Preview</span>
+        <span class="btn btn--quiet btn--sm">Cancel event</span>
+        <span class="btn btn--primary btn--sm">Publish changes</span>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Event · In person</p>
+      <p class="page-head__title">Faith and AI Evening: Is Creativity Sacred?</p>
+      <p class="page-head__sub">Thu 22 Oct 2026 · St. Brigid's Hall, Ottawa · 87 of 120 registered</p>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">Publish the new time and tell registrants?</h1>
+        <a class="icon-btn" href="../../pages/event-editor/in-person.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">All 87 registered people get an email and an in-app notification describing the change, with an updated calendar file (.ics).</p>
+        <div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><p class="alert__title">The change wasn't published</p><p class="alert__body">Nothing was sent, and the event page still shows 7:00 pm ET. Your message is kept, so try again in a moment.</p></div>
+        <div class="diff" role="group" aria-label="Changes to Time"><p class="diff__field">Time</p><div class="diff__row diff__row--removed"><span class="diff__sign" aria-hidden="true">−</span><span class="diff__text"><span class="vh">Removed: </span>Thu 22 Oct 2026, 7:00 to 9:00 pm ET</span></div><div class="diff__row diff__row--added"><span class="diff__sign" aria-hidden="true">+</span><span class="diff__text"><span class="vh">Added: </span>Thu 22 Oct 2026, 7:30 to 9:30 pm ET</span></div></div>
+        <div class="field">
+          <label class="field__label" for="message">Message to registrants <span class="field__optional">(optional)</span></label>
+          <textarea class="textarea" id="message" name="message" rows="3" aria-describedby="message-count">We've moved the start back half an hour so people can come straight from work. The hall and everything else stay the same.</textarea>
+          <p class="field__counter" id="message-count">122 of 500 characters</p>
+        </div>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/event-editor/in-person.html">Cancel</a>
+        <a class="btn btn--primary" href="busy.html">Try again</a>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Notify registrants</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html" aria-current="page">failed</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

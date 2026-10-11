@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Take a moderation action
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(dialog, "ModerationActionDialog", "Angular CDK dialog", "Action, guideline, reason, preview")
+  Component(client, "HttpModerationApi", "ModerationApi via MODERATION_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "moderation actions routes", "Next.js route handlers", "Report and proactive actions")
+  Component(action, "TakeModerationActionAction", "Action", "One transaction per action")
+  Component(rules, "ModerationActionService", "Domain service", "Reason, durations, published-content rule")
+  Component(visibility, "ContentVisibilityService", "Domain service", "Hide, remove, restore")
+  Component(account, "AccountStateService", "Domain service", "Warn, suspend, ban; revoke sessions")
+  Component(audit, "ModerationAuditService", "Domain service", "Append-only audit entry")
+  Component(notify, "NotificationService", "Domain service", "In-app notice, MemberNotice, email job")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "moderation_actions, member_notices, audit")
+ComponentQueue(sqs, "Job queue", "Amazon SQS", "EmailSendJob")
+
+Rel(dialog, client, "Submits action through")
+Rel(client, route, "POST", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, rules, "Validates with")
+Rel(action, visibility, "Changes content with")
+Rel(action, account, "Changes account with")
+Rel(action, audit, "Records with")
+Rel(action, notify, "Notifies with")
+Rel(visibility, db, "Updates", "SQL")
+Rel(account, db, "Updates", "SQL")
+Rel(audit, db, "Inserts", "SQL")
+Rel(notify, sqs, "Enqueues", "SQS")
+@enduml

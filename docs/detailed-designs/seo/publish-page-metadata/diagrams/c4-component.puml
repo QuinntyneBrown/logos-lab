@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Publish page metadata
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "Public page", "CourseOverviewPage and others", "Calls SEO services after resolve")
+  Component(seo, "SeoService", "Angular service", "Title, meta, canonical, OG, Twitter")
+  Component(metaf, "PageMetadataFactory", "Angular service", "Applies 60 and 155 character limits")
+  Component(sd, "StructuredDataService", "Angular service", "Writes JSON-LD script elements")
+  Component(jsonld, "JsonLdFactory", "Angular service", "Course, VideoObject, Article, Event, Person, BreadcrumbList")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "SocialImageGenerateJob", "Job", "Crops cover or renders branded image")
+}
+ContainerDb(s3, "Media storage", "Amazon S3", "")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+Rel(page, seo, "set(metadata)")
+Rel(seo, metaf, "Builds through")
+Rel(page, sd, "set(objects)")
+Rel(sd, jsonld, "Builds through")
+Rel(job, s3, "Writes 1200x630 PNG")
+Rel(job, db, "Saves social_image_key")
+@enduml

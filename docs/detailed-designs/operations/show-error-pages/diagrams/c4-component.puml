@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Show error pages
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(resolver, "ErrorPageResolver", "Angular service", "Maps problem status to error page")
+  Component(status, "ResponseStatusService", "Angular service", "Sets SSR response status")
+  Component(pages, "Error pages", "NotFoundPage, ForbiddenPage, GonePage, TooManyRequestsPage, ServerErrorPage", "ll-error-page")
+  Component(search, "SearchResultsPage", "Angular page", "Shows ll-alert service notice")
+  Component(conn, "ConnectivityService", "Angular service", "Tracks network state")
+  Component(offline, "OfflineInterceptor", "HttpInterceptor", "Shows offline notice, marks retryable")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "search route", "app/api/v1/search/route.ts", "GET /api/v1/search")
+  Component(action, "SearchContentAction", "Action", "Index search with title fallback")
+  Component(guard, "DependencyGuard", "Module", "Timeout and circuit breaker")
+  Component(catalogue, "CatalogueRepository", "Repository", "Database title match")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+ContainerDb(cache, "Cache", "Redis", "")
+Rel(resolver, pages, "Selects")
+Rel(pages, status, "Declare status to")
+Rel(search, route, "GET /api/v1/search", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, guard, "Queries index through")
+Rel(guard, db, "Full-text query")
+Rel(guard, cache, "Reads circuit state")
+Rel(action, catalogue, "Falls back to")
+Rel(catalogue, db, "Title match")
+Rel(offline, conn, "Reports failures to")
+@enduml

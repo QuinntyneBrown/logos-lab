@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Pin related items
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseBuilderPage" as CourseBuilderPage
+  participant "ItemPickerDialog" as ItemPickerDialog
+  participant "RelatedContentApi" as RelatedContentApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT .../contentId/related-pins" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SetRelatedPinsAction" as SetRelatedPinsAction
+  participant "RelatedPinRepository" as RelatedPinRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> CourseBuilderPage : Press Pin an item
+CourseBuilderPage -> ItemPickerDialog : Open with CDK Dialog
+actor -> ItemPickerDialog : Choose published items; confirm
+ItemPickerDialog --> CourseBuilderPage : Ordered selection
+CourseBuilderPage -> RelatedContentApi : setPins(contentId, ids)
+RelatedContentApi -> route : HTTPS PUT with session
+route -> route : Authenticate; require Editor
+route -> SetRelatedPinsAction : execute(editorId, contentId, ids)
+SetRelatedPinsAction -> SetRelatedPinsAction : Refuse current item and unpublished items
+SetRelatedPinsAction -> RelatedPinRepository : replace(contentId, pins)
+RelatedPinRepository -> db : Delete and insert related_pins in one transaction
+db --> RelatedPinRepository : Commit
+SetRelatedPinsAction --> route : Done
+route --> RelatedContentApi : 204
+RelatedContentApi --> CourseBuilderPage : Saved
+CourseBuilderPage --> actor : Pinned items listed in order; they show first on the page (L2-047)
+@enduml

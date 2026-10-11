@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Submit an appeal
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AccountNoticePage" as page
+  participant "HttpAccountNoticesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "account/notices route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitAppealAction" as action
+  participant "AppealService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /account/notices/{id} from the email link, signed out
+page -> client : getNotice(id, token)
+client -> route : GET /api/v1/account/notices/{id}
+route -> db : Load notice; verify token hash
+db --> route : Notice, deadline, existing appeal
+route --> client : 200 JSON
+client --> page : Notice
+alt Window of 14 days has closed
+  page --> actor : Expired state, no appeal offered
+else Appeal possible
+  actor -> page : Appeal this decision; write explanation; Send appeal
+  page -> page : Check explanation is 2,000 characters or fewer
+  alt Over 2,000 characters
+    page --> actor : Error summary and field error with the overage
+  else Valid
+    page -> client : submitAppeal(id, token, explanation)
+    client -> route : POST /api/v1/account/notices/{id}/appeal
+    route -> route : Verify token, rate limit, validate schema
+    route -> action : execute(id, token, explanation)
+    action -> service : assertCanAppeal(notice, now) (L2-090)
+    alt Window closed or appeal already exists for the action
+      service --> action : Refused
+      action --> route : Conflict
+      route --> client : 409 problem response
+      client --> page : Refused
+      page --> actor : Expired or already-appealed message
+    else Allowed
+      action -> service : chooseAssignee(original action)
+      service -> db : Select moderators other than the one who acted (L2-090)
+      db --> service : Eligible moderators
+      service --> action : Assignee id
+      action -> db : INSERT appeal (unique action_id); notify assignee
+      db --> action : Saved
+      action --> route : Appeal
+      route --> client : 201 Created
+      client --> page : Received
+      page --> actor : Appealed state: who reviews it and how the outcome arrives
+    end
+  end
+end
+@enduml

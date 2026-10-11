@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Use the authoring workspace
+
+Person(author, "Expert or Editor", "Authors content in Studio")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application; never caches personal data")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "StudioPage, ReviewQueuePage, NewContentDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Studio endpoints under /api/v1/studio")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Content items, revisions, attributions, transitions")
+}
+Rel(author, cdn, "Uses", "HTTPS")
+Rel(cdn, web, "Forwards page requests to", "HTTPS")
+Rel(web, api, "Calls StudioApi", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

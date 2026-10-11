@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Meet Core Web Vitals
+
+
+Person(visitor, "Visitor or learner", "Loads Logos Lab pages on a phone or desktop")
+Person(dev, "Developer", "Opens pull requests")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(cw, "Amazon CloudWatch", "Metrics, percentiles and alarms")
+System_Ext(oncall, "On-call channel", "<TO SUPPLY>")
+System_Ext(ci, "CI pipeline", "Builds, budgets and Lighthouse audits")
+
+Rel(visitor, ll, "Loads pages from", "HTTPS")
+Rel(ll, cw, "Publishes web-vitals metrics to")
+Rel(cw, oncall, "Alarms when a 75th percentile leaves the good range")
+Rel(dev, ci, "Opens pull requests in")
+Rel(ci, ll, "Builds and audits a preview of")
+@enduml

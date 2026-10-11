@@ -1,0 +1,106 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage notification preferences
+package "Logos Lab Web" {
+  class SettingsNotificationsPage {
+    -form: FormGroup
+    -state: PageState
+    +ngOnInit(): void
+    +save(): void
+    +retry(): void
+  }
+  interface NotificationPreferencesApi {
+    +get(): Observable<NotificationPreferences>
+    +update(changes: PreferenceChange[]): Observable<NotificationPreferences>
+  }
+  class HttpNotificationPreferencesApi
+  class "NOTIFICATION_PREFERENCES_API" as Token <<InjectionToken>>
+  class NotificationPreferences {
+    +categories: CategoryPreference[]
+    +alwaysOn: AlwaysOnEmail[]
+  }
+  class CategoryPreference {
+    +category: NotificationCategory
+    +inApp: boolean
+    +email: boolean
+    +emailLocked: boolean
+    +lockReason: string
+  }
+  class PreferenceChange {
+    +category: NotificationCategory
+    +inApp: boolean
+    +email: boolean
+  }
+}
+package "Logos Lab API" {
+  class GetNotificationPreferencesAction {
+    +execute(userId: uuid): NotificationPreferences
+  }
+  class UpdateNotificationPreferencesAction {
+    +execute(userId: uuid, changes: PreferenceChange[]): NotificationPreferences
+  }
+  class NotificationPreferenceService {
+    +createDefaults(userId: uuid, marketingConsent: boolean): void
+    +forUser(userId: uuid): NotificationPreference[]
+    +isEnabled(userId: uuid, category: NotificationCategory, channel: Channel): boolean
+    +update(userId: uuid, changes: PreferenceChange[]): void
+  }
+  class ConsentService {
+    +hasMarketingConsent(userId: uuid): boolean
+  }
+  class NotificationPreferenceRepository {
+    +findByUser(userId: uuid): NotificationPreference[]
+    +upsertMany(rows: NotificationPreference[]): void
+  }
+  class NotificationPreference {
+    +userId: uuid
+    +category: NotificationCategory
+    +inApp: boolean
+    +email: boolean
+    +updatedAt: timestamptz
+  }
+  enum NotificationCategory {
+    NewContentFromFollowed
+    CommentReplies
+    DirectMessages
+    CohortAnnouncements
+    EventReminders
+    EventChanges
+    PlatformNews
+  }
+  enum AlwaysOnEmail {
+    EmailVerification
+    PasswordReset
+    SignInAlert
+    ModerationNotice
+    EventCancellation
+  }
+  enum Channel {
+    InApp
+    Email
+  }
+}
+HttpNotificationPreferencesApi ..|> NotificationPreferencesApi
+Token ..> NotificationPreferencesApi : provides
+SettingsNotificationsPage ..> NotificationPreferencesApi : depends on
+NotificationPreferences *-- "7" CategoryPreference
+NotificationPreferences --> "5" AlwaysOnEmail
+GetNotificationPreferencesAction --> NotificationPreferenceService
+UpdateNotificationPreferencesAction --> NotificationPreferenceService
+NotificationPreferenceService --> ConsentService
+NotificationPreferenceService --> NotificationPreferenceRepository
+NotificationPreferenceRepository ..> NotificationPreference : persists
+NotificationPreference --> NotificationCategory
+NotificationPreferenceService ..> Channel
+@enduml

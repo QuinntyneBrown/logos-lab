@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Attach a recording and notify
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Host or editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventEditorPage" as page
+  participant "ItemPickerDialog" as picker
+  participant "StudioEventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "recording route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AttachEventRecordingAction" as action
+  participant "EventRecordingNotifyJob" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+  participant "Amazon SES" as ses
+end box
+actor -> page : Attach recording
+page -> picker : Open with type Videos
+actor -> picker : Choose a published video
+picker --> page : videoId
+page -> client : attachRecording(eventId, videoId)
+client -> route : PUT /api/v1/studio/events/{eventId}/recording
+route -> route : Require host or editor (L2-016)
+route -> action : execute(userId, eventId, videoId)
+action -> db : Load event and video
+alt Event not ended, or video not published
+  route --> client : 409 or 422 problem
+  page --> actor : Reason shown
+else Valid (L2-059)
+  action -> db : Set recording_video_id
+  action -> q : Enqueue EventRecordingNotifyJob
+  route --> client : 204
+  page --> actor : "Recording: Attached"
+  q -> job : Deliver
+  loop Each registrant
+    job -> db : Skip if already notified for this video
+    job -> db : In-app "Recording available"
+    job -> ses : Email with link to the event page
+  end
+end
+@enduml

@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Block a member
+
+package "Logos Lab Web" {
+  class BlockMemberDialog {
+    +member: MemberSummary
+    +confirm(): void
+  }
+  class BlockedMembersPage {
+    +blocked: BlockedMemberRow[]
+    +unblock(row: BlockedMemberRow): void
+  }
+  interface BlocksApi {
+    +list(): Observable<BlockedMemberRow[]>
+    +block(memberId: string): Observable<void>
+    +unblock(memberId: string): Observable<void>
+  }
+  class HttpBlocksApi
+  class BLOCKS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class BlocksRouteHandler {
+    +GET(req: Request): Response
+    +PUT(req: Request): Response
+    +DELETE(req: Request): Response
+  }
+  class BlockMemberAction {
+    +execute(userId: string, memberId: string): Promise<MemberBlock>
+  }
+  class UnblockMemberAction {
+    +execute(userId: string, memberId: string): Promise<void>
+  }
+  class ListBlockedMembersAction {
+    +execute(userId: string): Promise<BlockedMemberRow[]>
+  }
+  class BlockService {
+    +isBlocked(blockerId: string, memberId: string): boolean
+    +blockedIds(blockerId: string): Set<string>
+    +isDeliveryExempt(sender: User, kind: MessageKind): boolean
+  }
+  class BlockRepository {
+    +find(blockerId: string, blockedId: string): MemberBlock | null
+    +listFor(blockerId: string): MemberBlock[]
+    +save(block: MemberBlock): void
+    +delete(blockerId: string, blockedId: string): void
+  }
+  class MemberBlock {
+    +blockerId: string
+    +blockedId: string
+    +createdAt: Date
+  }
+  enum MessageKind {
+    Member
+    ModerationNotice
+    AccountNotice
+  }
+  class ListCommentsAction
+  class SendMessageAction
+}
+BlockMemberDialog ..> BlocksApi
+BlockedMembersPage ..> BlocksApi
+HttpBlocksApi ..|> BlocksApi
+BLOCKS_API ..> BlocksApi : provides
+BlockMemberAction ..> BlockRepository
+UnblockMemberAction ..> BlockRepository
+ListBlockedMembersAction ..> BlockRepository
+BlockService ..> BlockRepository
+BlockService ..> MessageKind
+ListCommentsAction ..> BlockService : collapse
+SendMessageAction ..> BlockService : refuse
+BlockRepository --> MemberBlock : persists
+BlocksRouteHandler ..> BlockMemberAction
+BlocksRouteHandler ..> UnblockMemberAction
+BlocksRouteHandler ..> ListBlockedMembersAction
+@enduml

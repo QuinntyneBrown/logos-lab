@@ -1,0 +1,70 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Log security events
+
+enum SecurityEventType {
+  SignInSucceeded
+  SignInFailed
+  AccountLockedOut
+  MfaChanged
+  PasswordChanged
+  EmailChanged
+  RoleChanged
+  AuthorizationFailed
+  RateLimitBlocked
+  UploadQuarantined
+  PackageRefused
+}
+class SecurityEvent <<value object>> {
+  +type: SecurityEventType
+  +timestamp: Instant
+  +accountId: UserId?
+  +ipAddress: string
+  +userAgent: string
+  +correlationId: string
+  +details: Map<string, string>
+}
+class ClientContext <<value object>> {
+  +ipAddress: string
+  +userAgent: string
+  +correlationId: string
+}
+class SecurityEventLogger {
+  +record(type: SecurityEventType, ctx: ClientContext, accountId: UserId?, details: object): void
+}
+class LogRedactor {
+  +deniedKeys: string[]
+  +redact(entry: object): object
+}
+class SecurityAlertPublisher {
+  +topicArn: string
+  +publishRoleChange(event: SecurityEvent): Promise<void>
+}
+class AuthorizationFailureAlarm <<infrastructure config>> {
+  +threshold: number = 100
+  +periodSeconds: number = 300
+  +keys: string[] = [accountId, ipAddress]
+}
+class SecurityLogRetention <<infrastructure config>> {
+  +cloudWatchRetentionDays: number = 365
+  +archiveObjectLockMode: string = "COMPLIANCE"
+  +archiveRetentionDays: number = 365
+}
+SecurityEvent --> SecurityEventType : has
+SecurityEventLogger ..> SecurityEvent : builds
+SecurityEventLogger ..> ClientContext : reads
+SecurityEventLogger ..> LogRedactor : uses
+SecurityAlertPublisher ..> SecurityEvent : publishes
+AuthorizationFailureAlarm ..> SecurityEvent : counts AuthorizationFailed
+@enduml

@@ -1,0 +1,126 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Send direct messages
+
+package "Logos Lab Web" {
+  class MessagesPage {
+    +conversations: ConversationSummary[]
+    +selectedId: string | null
+  }
+  class ConversationPage {
+    +messages: MessageView[]
+    +send(body: string): void
+    +back(): void
+  }
+  interface MessagesApi {
+    +listConversations(): Observable<ConversationSummary[]>
+    +start(recipientId: string, body: string): Observable<ConversationSummary>
+    +listMessages(id: string, before?: string): Observable<MessageView[]>
+    +send(id: string, body: string): Observable<MessageView>
+    +markRead(id: string): Observable<void>
+    +unreadCount(): Observable<number>
+    +stream(): Observable<MessageEvent>
+    +eligibility(memberId: string): Observable<MessagingEligibility>
+  }
+  class HttpMessagesApi
+  class MESSAGES_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class MessagesRouteHandler {
+    +GET(req: Request): Response
+    +POST(req: Request): Response
+  }
+  class StartConversationAction {
+    +execute(senderId: string, recipientId: string, body: string): Promise<Conversation>
+  }
+  class SendMessageAction {
+    +execute(senderId: string, conversationId: string, body: string): Promise<Message>
+  }
+  class MarkConversationReadAction {
+    +execute(userId: string, conversationId: string): Promise<void>
+  }
+  class MessagingEligibilityService {
+    +canStart(sender: User, recipient: User): EligibilityResult
+  }
+  class MessageRateLimitService {
+    +MESSAGES_PER_MINUTE: number = 20
+    +NEW_CONVERSATIONS_PER_DAY: number = 10
+    +checkSend(userId: string): void
+    +checkStart(userId: string): void
+  }
+  class MessageEncryptionService {
+    +encrypt(plain: string): EncryptedBody
+    +decrypt(body: EncryptedBody): string
+  }
+  class MessageDeliveryService {
+    +publish(recipientId: string, message: Message, unread: number): void
+  }
+  class Conversation {
+    +id: string
+    +createdBy: string
+    +createdAt: Date
+    +lastMessageAt: Date
+  }
+  class ConversationParticipant {
+    +conversationId: string
+    +userId: string
+    +lastReadMessageId: string | null
+    +lastReadAt: Date | null
+  }
+  class Message {
+    +id: string
+    +conversationId: string
+    +senderId: string
+    +bodyCiphertext: bytes
+    +encryptedDataKey: bytes
+    +sentAt: Date
+  }
+  class PrivacySettings {
+    +userId: string
+    +allowDirectMessages: boolean = true
+    +sendReadReceipts: boolean = true
+  }
+  enum EligibilityResult {
+    Allowed
+    NoSharedCohort
+    RecipientClosed
+    Blocked
+    Unverified
+  }
+  class ConversationRepository
+  class MessageRepository {
+    +findReportContext(reportId: string): Message[]
+  }
+  class PrivacySettingsRepository
+}
+MessagesPage ..> MessagesApi
+ConversationPage ..> MessagesApi
+HttpMessagesApi ..|> MessagesApi
+MESSAGES_API ..> MessagesApi : provides
+StartConversationAction ..> MessagingEligibilityService
+StartConversationAction ..> MessageRateLimitService
+StartConversationAction ..> MessageEncryptionService
+SendMessageAction ..> MessageRateLimitService
+SendMessageAction ..> MessageEncryptionService
+SendMessageAction ..> MessageDeliveryService
+SendMessageAction ..> MessageRepository
+MarkConversationReadAction ..> ConversationRepository
+MessagingEligibilityService ..> PrivacySettingsRepository
+MessagingEligibilityService --> EligibilityResult : returns
+Conversation "1" *-- "2" ConversationParticipant
+Conversation "1" *-- "1..*" Message
+MessagesRouteHandler ..> StartConversationAction
+MessagesRouteHandler ..> SendMessageAction
+MessagesRouteHandler ..> MarkConversationReadAction
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Save and reorder a course structure
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseBuilderPage" as page
+  participant "ll-sortable" as sort
+  participant "HttpStudioCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/courses/[id]/structure route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveCourseStructureAction" as action
+  participant "CourseStructureService" as svc
+  participant "CourseDurationCalculator" as dur
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> sort : Drag lesson 3.3 above 3.2, or press Move up
+sort -> sort : Show drop line and announce new position
+sort --> page : Reordered positions
+actor -> page : Save
+page -> client : saveStructure(id, ordered sections and lessons)
+client -> route : PUT /api/v1/studio/courses/{id}/structure
+route -> route : Authenticate, require author or editor of course (L2-016)
+route -> action : execute(courseId, input, userId)
+action -> db : Load draft course for author (L2-017)
+db --> action : Course
+action -> svc : Apply L2-026 limits, types and author order
+alt over 20 sections, over 30 lessons, or unknown type
+  svc --> action : Violations
+  action --> route : Invalid
+  route --> client : 422 problem response with field errors
+  client --> page : Errors
+  page --> actor : Show error summary
+else valid
+  svc -> dur : Sum lesson durations, round to nearest 5 minutes (L2-026)
+  dur --> svc : Estimated minutes
+  svc --> action : Updated course
+  action -> db : Write sections and lessons with positions in one transaction
+  db --> action : Commit
+  action --> route : Course
+  route --> client : 200 Course
+  client --> page : Saved structure
+  page --> actor : Show saved order and duration
+end
+@enduml

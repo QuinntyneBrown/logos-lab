@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Comment on content
+
+Person(member, "Member", "Verified member who reads and writes comments")
+Person(visitor, "Visitor", "Reads comments without signing in")
+Person(moderator, "Moderator", "Reviews held and reported comments")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, ll, "Posts, edits and deletes comments using")
+Rel(visitor, ll, "Reads comments using")
+Rel(moderator, ll, "Reviews held comments using")
+@enduml

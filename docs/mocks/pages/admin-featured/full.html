@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Featured content · full — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="admin-featured">
+<meta name="mock:state" content="full">
+<meta name="mock:requirements" content="L2-097 L2-001">
+<meta name="description" content="All 6 featured slots are in use, so Add item is disabled with the reason given.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Isaac Moreau" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/elijah-brooks.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="../../pages/admin/default.html">Overview</a>
+      <a href="../../pages/admin-users/default.html">Users</a>
+      <a href="../../pages/admin-invitations/default.html">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="../../pages/admin-topics/default.html">Topics</a>
+      <a href="../../pages/admin-featured/default.html" aria-current="page">Featured</a>
+      <a href="../../pages/admin-announcements/default.html">Announcements</a>
+      <a href="../../pages/admin-policies/default.html">Policies</a>
+      <a href="../../pages/admin-settings/default.html">Site settings</a>
+      <a href="../../pages/admin-audit/default.html">Audit log</a>
+      <a href="../../pages/admin-analytics/default.html">Analytics</a>
+    </nav>
+
+    <div>
+      <div class="page-head page-head--actions" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Admin</p>
+        <h1 class="page-head__title">Featured content</h1>
+        <p class="page-head__sub">Up to 6 published items, shown in this order at the top of the home page. Saved changes reach the home page within 60 seconds.</p>
+        <div class="page-head__actions"><button class="btn btn--quiet" type="button" disabled aria-describedby="slots-full">Add item</button><button class="btn btn--primary" type="submit" form="featured-form">Save order</button></div>
+      </div>
+      <form id="featured-form" action="default.html">
+        <p class="toolbar__count" style="margin-block: var(--space-6) var(--space-4)"><strong>6 of 6</strong> slots in use</p>
+        <p class="field__help" id="slots-full">All 6 slots are in use. Remove an item to add another.</p>
+        <ol class="sortable" aria-label="Featured items, in home page order">
+          <li class="sortable__item"><button class="icon-btn sortable__handle" type="button" aria-label="Reorder Imago Dei in an Age of Machines"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6.5" r="1"/><circle cx="15" cy="6.5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17.5" r="1"/><circle cx="15" cy="17.5" r="1"/></svg></button><div class="sortable__main"><span class="sortable__title">1. Imago Dei in an Age of Machines</span><span class="sortable__meta">Course · Dr. Abena Mensah · Shown now</span></div><div class="sortable__actions"><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Imago Dei in an Age of Machines up" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Imago Dei in an Age of Machines down"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--text btn--sm" type="button" aria-label="Schedule Imago Dei in an Age of Machines">Schedule</button><button class="btn btn--text btn--sm" type="button" aria-label="Remove Imago Dei in an Age of Machines">Remove</button></div></li>
+          <li class="sortable__item"><button class="icon-btn sortable__handle" type="button" aria-label="Reorder What Augustine Might Say About Large Language Models"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6.5" r="1"/><circle cx="15" cy="6.5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17.5" r="1"/><circle cx="15" cy="17.5" r="1"/></svg></button><div class="sortable__main"><span class="sortable__title">2. What Augustine Might Say About Large Language Models</span><span class="sortable__meta">Article · Dr. Lucía Ortega · Shown now</span></div><div class="sortable__actions"><button class="icon-btn icon-btn--sm" type="button" aria-label="Move What Augustine Might Say About Large Language Models up"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="icon-btn icon-btn--sm" type="button" aria-label="Move What Augustine Might Say About Large Language Models down"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--text btn--sm" type="button" aria-label="Schedule What Augustine Might Say About Large Language Models">Schedule</button><button class="btn btn--text btn--sm" type="button" aria-label="Remove What Augustine Might Say About Large Language Models">Remove</button></div></li>
+          <li class="sortable__item"><button class="icon-btn sortable__handle" type="button" aria-label="Reorder Live Q&amp;A: Imago Dei and Machine Personhood"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6.5" r="1"/><circle cx="15" cy="6.5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17.5" r="1"/><circle cx="15" cy="17.5" r="1"/></svg></button><div class="sortable__main"><span class="sortable__title">3. Live Q&amp;A: Imago Dei and Machine Personhood</span><span class="sortable__meta">Event · Tue 27 Oct 2026, 12:00 pm ET · Shown until Tue 27 Oct 2026, 1:00 pm ET</span></div><div class="sortable__actions"><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Live Q&amp;A: Imago Dei and Machine Personhood up"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Live Q&amp;A: Imago Dei and Machine Personhood down"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--text btn--sm" type="button" aria-label="Schedule Live Q&amp;A: Imago Dei and Machine Personhood">Schedule</button><button class="btn btn--text btn--sm" type="button" aria-label="Remove Live Q&amp;A: Imago Dei and Machine Personhood">Remove</button></div></li>
+          <li class="sortable__item"><button class="icon-btn sortable__handle" type="button" aria-label="Reorder Can a Machine Pray?"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6.5" r="1"/><circle cx="15" cy="6.5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17.5" r="1"/><circle cx="15" cy="17.5" r="1"/></svg></button><div class="sortable__main"><span class="sortable__title">4. Can a Machine Pray?</span><span class="sortable__meta">Video · Prof. Simon Keller · 24:18 · Shown now</span></div><div class="sortable__actions"><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Can a Machine Pray? up"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Can a Machine Pray? down"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--text btn--sm" type="button" aria-label="Schedule Can a Machine Pray?">Schedule</button><button class="btn btn--text btn--sm" type="button" aria-label="Remove Can a Machine Pray?">Remove</button></div></li>
+          <li class="sortable__item"><button class="icon-btn sortable__handle" type="button" aria-label="Reorder Start Here: Faith and AI"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6.5" r="1"/><circle cx="15" cy="6.5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17.5" r="1"/><circle cx="15" cy="17.5" r="1"/></svg></button><div class="sortable__main"><span class="sortable__title">5. Start Here: Faith and AI</span><span class="sortable__meta">Collection · Logos Lab · 12 items · Shown now</span></div><div class="sortable__actions"><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Start Here: Faith and AI up"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Start Here: Faith and AI down"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--text btn--sm" type="button" aria-label="Schedule Start Here: Faith and AI">Schedule</button><button class="btn btn--text btn--sm" type="button" aria-label="Remove Start Here: Faith and AI">Remove</button></div></li>
+          <li class="sortable__item"><button class="icon-btn sortable__handle" type="button" aria-label="Reorder Five Questions to Ask Before Your Church Adopts AI"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6.5" r="1"/><circle cx="15" cy="6.5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17.5" r="1"/><circle cx="15" cy="17.5" r="1"/></svg></button><div class="sortable__main"><span class="sortable__title">6. Five Questions to Ask Before Your Church Adopts AI</span><span class="sortable__meta">Article · Logos Lab · 6 min read · Shown now</span></div><div class="sortable__actions"><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Five Questions to Ask Before Your Church Adopts AI up"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="icon-btn icon-btn--sm" type="button" aria-label="Move Five Questions to Ask Before Your Church Adopts AI down" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--text btn--sm" type="button" aria-label="Schedule Five Questions to Ask Before Your Church Adopts AI">Schedule</button><button class="btn btn--text btn--sm" type="button" aria-label="Remove Five Questions to Ask Before Your Church Adopts AI">Remove</button></div></li>
+        </ol>
+        <p class="vh" role="status"></p>
+      </form>
+      <p class="field__help" style="margin-block: var(--space-4) var(--space-12)">Only published items can be featured. Draft, scheduled and archived items never show on the home page.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab admin · actions here are recorded in the audit log</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Featured content</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="full.html" aria-current="page">full</a></li>
+    <li><a href="scheduled.html">scheduled</a></li>
+    <li><a href="slot-warning.html">slot-warning</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

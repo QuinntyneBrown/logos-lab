@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Show related content
+
+Container(web, "Logos Lab Web", "Angular", "Content pages, ItemPickerDialog, RelatedContentApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(r1, "GET /api/v1/content/contentId/related", "Route handler", "Anonymous")
+  Component(r2, "PUT /api/v1/studio/content/contentId/related-pins", "Route handler", "Editor only")
+  Component(a1, "GetRelatedContentAction", "Action", "Up to 4 related items")
+  Component(a2, "SetRelatedPinsAction", "Action", "Replaces ordered pins")
+  Component(svc, "RelatedContentService", "Domain service", "Pins first, then shared topics and recency")
+  Component(policy, "PublishedContentPolicy", "Domain rule", "Published and visible")
+  Component(prepo, "RelatedPinRepository", "Repository", "related_pins")
+  Component(crepo, "ContentRepository", "Repository", "Candidates by shared topics")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "related_pins, content_items, content_topics")
+Rel(web, r1, "Calls", "JSON/HTTPS")
+Rel(web, r2, "Calls", "JSON/HTTPS")
+Rel(r1, a1, "Invokes")
+Rel(r2, a2, "Invokes")
+Rel(a1, svc, "Ranks")
+Rel(a2, prepo, "Writes")
+Rel(svc, policy, "Applies")
+Rel(svc, prepo, "Reads pins")
+Rel(svc, crepo, "Reads candidates")
+Rel(prepo, db, "Reads and writes", "SQL")
+Rel(crepo, db, "Reads", "SQL")
+@enduml

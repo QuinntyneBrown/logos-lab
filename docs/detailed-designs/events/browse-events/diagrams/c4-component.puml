@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse events
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "EventsPage", "Angular page", "Tabs, filters in the URL, list")
+  Component(dialog, "ExploreFiltersDialog", "Angular CDK dialog", "Filter sheet on narrow viewports")
+  Component(row, "ll-event-row, ll-search-filter-toolbar, ll-tabs", "Shared components", "List presentation")
+  Component(client, "HttpEventsApi", "EventsApi via EVENTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "events route handler", "app/api/v1/events/route.ts", "Anonymous")
+  Component(action, "ListEventsAction", "Action", "Validates the query")
+  Component(svc, "EventListingService", "Domain service", "Ordering, happening now, capacity")
+  Component(repo, "EventRepository", "Repository", "Published events")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "events, event_hosts, event_registrations")
+Rel(page, dialog, "Opens")
+Rel(page, row, "Renders")
+Rel(page, client, "listEvents(query)")
+Rel(client, route, "GET", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, svc, "Lists")
+Rel(svc, repo, "Queries")
+Rel(repo, db, "SQL")
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Follow a collection
+
+Person(learner, "Learner", "Signed-in member")
+Person(editor, "Editor", "Logos Lab staff who review and curate")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends transactional email")
+Rel(learner, logos, "Follows collections in", "HTTPS")
+Rel(editor, logos, "Publishes collection revisions in", "HTTPS")
+Rel(logos, ses, "Sends follower email via", "SES API")
+Rel(ses, learner, "Delivers notification email to", "Email")
+@enduml

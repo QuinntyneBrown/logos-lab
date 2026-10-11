@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Unfollow an expert
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExpertProfilePage" as ExpertProfilePage
+  participant "UnfollowDialog" as UnfollowDialog
+  participant "FollowsApi" as FollowsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "DELETE /api/v1/me/follows/experts/expertId" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UnfollowExpertAction" as UnfollowExpertAction
+  participant "FollowService" as FollowService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ExpertProfilePage : Press Following
+ExpertProfilePage -> UnfollowDialog : Open with CDK Dialog
+alt Keep following
+  UnfollowDialog --> actor : Close; nothing changes
+else Unfollow confirmed
+  actor -> UnfollowDialog : Press Unfollow
+  UnfollowDialog -> FollowsApi : unfollowExpert(expertId)
+  FollowsApi -> route : HTTPS DELETE with session (rate limited as for follow)
+  route -> UnfollowExpertAction : execute(userId, expertId)
+  UnfollowExpertAction -> FollowService : unfollow(userId, Expert expertId)
+  FollowService -> db : Delete follow for current user (L2-024)
+  FollowService -> db : Count followers
+  db --> FollowService : 1,284
+  FollowService --> UnfollowExpertAction : Count
+  UnfollowExpertAction --> route : FollowState
+  route --> FollowsApi : 200 JSON
+  FollowsApi --> UnfollowDialog : Unfollowed
+  UnfollowDialog --> ExpertProfilePage : Close
+  ExpertProfilePage --> actor : Follow shown again; toast confirms with Undo
+end
+@enduml

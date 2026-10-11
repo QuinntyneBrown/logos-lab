@@ -1,0 +1,101 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View an expert profile
+
+package "Logos Lab Web" {
+  class ExpertProfilePage {
+    -expertsApi: ExpertsApi
+    +profile: Signal<ExpertProfileView>
+    +activeTab: Signal<ContentType>
+    +selectTab(type: ContentType): void
+  }
+  interface ExpertsApi {
+    +getProfile(slug: string): Observable<ExpertProfileView>
+    +getContent(slug: string, type: ContentType, page: number): Observable<ContentPage>
+  }
+  class HttpExpertsApi
+  class EXPERTS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class GetExpertProfileAction {
+    +execute(slug: string): Promise<ExpertProfileView>
+  }
+  class ListExpertContentAction {
+    +execute(slug: string, type: ContentType, page: number): Promise<ContentPage>
+  }
+  class ExpertProfileService {
+    +getPublicProfile(slug: string, now: Date): Promise<ExpertProfileView>
+    +countByType(expertId: UUID, now: Date): Promise<TabCount[]>
+  }
+  class BioSanitizer {
+    +allowedElements: string[] = [p, strong, em, a]
+    +sanitize(html: string): string
+  }
+  class ContributorAttributionService {
+    +attribute(contributorId: UUID): Promise<ContributorAttribution>
+  }
+  class ExpertProfileRepository {
+    +findBySlug(slug: string): Promise<ExpertProfile>
+    +hasExpertRole(userId: UUID): Promise<boolean>
+  }
+  class ExpertProfile {
+    +id: UUID
+    +userId: UUID
+    +slug: string
+    +name: string
+    +photoUrl: string
+    +professionalTitle: string
+    +affiliation: string
+    +bioHtml: string
+    +isComplete(): boolean
+  }
+  class ExternalLink {
+    +label: string
+    +url: string
+    +{static} create(label: string, url: string): ExternalLink
+  }
+  class ExpertiseArea {
+    +topicId: UUID
+    +name: string
+  }
+  class ExpertProfileView {
+    +profile: ExpertProfile
+    +links: ExternalLink[]
+    +areas: ExpertiseArea[]
+    +followerCount: number
+    +tabs: TabCount[]
+  }
+  class TabCount {
+    +type: ContentType
+    +count: number
+  }
+  class ContributorAttribution {
+    +name: string
+    +profileUrl: string
+  }
+  class ExpertNotFoundError
+}
+ExpertProfilePage ..> ExpertsApi
+HttpExpertsApi ..|> ExpertsApi
+EXPERTS_API ..> ExpertsApi : provides
+GetExpertProfileAction --> ExpertProfileService
+ListExpertContentAction --> ExpertProfileService
+ExpertProfileService --> ExpertProfileRepository
+ExpertProfileService --> BioSanitizer
+ExpertProfileService ..> ExpertNotFoundError : throws
+ContributorAttributionService --> ExpertProfileRepository
+ContributorAttributionService ..> ContributorAttribution : creates
+ExpertProfile "1" *-- "0..5" ExternalLink
+ExpertProfile "1" o-- "1..*" ExpertiseArea
+ExpertProfileView --> ExpertProfile
+ExpertProfileView *-- TabCount
+@enduml

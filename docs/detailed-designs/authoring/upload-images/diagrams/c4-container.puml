@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Upload images
+
+Person(author, "Expert or Editor", "Uploads images")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "ImageUploadDialog, ArticleEditorPage")
+  Container(api, "Logos Lab API", "Next.js route handlers", "/api/v1/media/images")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "ImageProcessJob")
+  Container(worker, "Logos Lab Worker", "Node.js", "Type check, scan, EXIF removal, renditions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "image_assets")
+  ContainerDb(s3, "Media storage", "Amazon S3, private, Canada (Central)", "Quarantine prefix and renditions")
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves renditions with platform-set headers")
+}
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+Rel(author, web, "Uses", "HTTPS")
+Rel(web, api, "Calls MediaApi", "JSON/HTTPS")
+Rel(web, s3, "Uploads file with presigned POST", "HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, sqs, "Enqueues ImageProcessJob", "SQS")
+Rel(worker, sqs, "Consumes", "SQS")
+Rel(worker, s3, "Reads original and writes renditions", "S3 API")
+Rel(worker, scanner, "Scans file with")
+Rel(worker, db, "Updates image state", "SQL")
+Rel(cdn, s3, "Reads renditions from", "Origin access control")
+@enduml

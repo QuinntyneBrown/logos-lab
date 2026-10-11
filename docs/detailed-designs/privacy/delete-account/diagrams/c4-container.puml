@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Delete an account
+
+Person(member, "Member", "Signed-in member")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Your data page, delete dialog, account deleted and restore pages")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Deletion, eligibility and restore endpoints")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Email and purge jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Purges due accounts")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, sessions, account_deletion_requests and personal data")
+  ContainerDb(media, "Media storage", "Amazon S3, versioned", "Avatars, exports and the purge ledger")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues email", "SQS")
+Rel(queue, worker, "Delivers")
+Rel(worker, db, "Deletes and anonymizes", "SQL")
+Rel(worker, media, "Deletes objects and appends ledger entries", "S3 API")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

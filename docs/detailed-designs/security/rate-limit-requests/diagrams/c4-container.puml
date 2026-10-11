@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Rate limit requests
+
+Person(member, "Visitor or member", "Browser")
+Person_Ext(bot, "Abusive client", "Bot")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Blocks bad-bot signatures and volumetric patterns at the edge")
+  Container(web, "Logos Lab Web", "Angular SSR", "Shows the 429 page and rate-limited states")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Applies the global and endpoint-specific limits")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate-limit counters")
+}
+System_Ext(cw, "Amazon CloudWatch", "Logs and metrics")
+Rel(member, cdn, "Requests", "HTTPS")
+Rel(bot, cdn, "Requests, blocked by WAF", "HTTPS")
+Rel(cdn, web, "Forwards page requests", "HTTPS")
+Rel(cdn, api, "Forwards API requests", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, cache, "Increments counters", "Redis protocol")
+Rel(api, cw, "Writes rate-limit block events", "JSON logs")
+Rel(cdn, cw, "Writes WAF metrics and logs")
+@enduml

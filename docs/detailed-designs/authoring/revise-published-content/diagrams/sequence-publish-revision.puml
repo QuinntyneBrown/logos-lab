@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Publish a revision
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "PublishScheduleDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/publish route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishContentAction" as action
+  participant "WorkflowService" as workflow
+  participant "PublishingService" as publishing
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Publish the approved revision
+dialog -> client : publish(id, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/publish
+route -> action : execute(editor, id, rowVersion)
+action -> db : Load item and working revision FOR UPDATE
+db --> action : Item Published, revision Approved
+action -> workflow : transition(revision, Published, editor)
+alt Revision not Approved
+  workflow --> action : Refused with current state
+  action --> route : Conflict
+  route --> client : 409 problem response
+  client --> dialog : Failed state
+else Allowed
+  workflow --> action : Allowed
+  action -> publishing : publish(item, editor)
+  publishing -> db : Insert ContentVersion n+1 from the revision
+  publishing -> db : Move live_version_id, set last_updated_at, close the revision (L2-080)
+  publishing -> db : Keep item id and slug; progress rows untouched (L2-080)
+  publishing -> db : Append WorkflowTransition
+  db --> publishing : Commit
+  publishing -> sqs : Enqueue CdnInvalidateJob for the item path
+  publishing --> action : New live version
+  action --> route : Item
+  route --> client : 200 JSON
+  client --> dialog : Success
+  dialog --> actor : Revision live with a new Last updated date
+end
+@enduml

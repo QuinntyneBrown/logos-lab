@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Download a certificate PDF
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CertificatePage" as page
+  participant "CertificateDownloadDialog" as dialog
+  participant "HttpCertificatesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me/certificates/[code]/pdf route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCertificatePdfAction" as action
+  participant "CertificatePdfService" as pdf
+  participant "PdfRenderer" as renderer
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Media storage (S3)" as s3
+end box
+actor -> page : Download PDF
+page -> dialog : Open
+actor -> dialog : Choose A4 or US Letter, Download
+dialog -> dialog : Show Preparing your PDF...
+dialog -> client : getPdfUrl(code, paper)
+client -> route : GET /api/v1/me/certificates/{code}/pdf?paper=a4
+route -> route : Authenticate session
+route -> action : execute(code, paper, userId)
+action -> db : Load certificate owned by userId (L2-017)
+db --> action : Certificate
+alt revoked
+  action --> route : Refused
+  route --> client : 409 problem certificate-revoked
+  client --> dialog : Failed
+else valid
+  action -> pdf : getUrl(certificate, paper)
+  pdf -> s3 : Look up {id}/{version}/{paper}.pdf
+  alt cached
+    s3 --> pdf : Exists
+  else not cached
+    pdf -> renderer : Render PDF/A with issued name (L2-031)
+    renderer --> pdf : PDF bytes
+    pdf -> s3 : Store PDF
+  end
+  pdf --> action : Short-lived signed URL
+  action --> route : URL
+  route --> client : 200 URL (p95 within 5 s, L2-031)
+  client --> dialog : URL
+  dialog --> actor : Browser downloads file; dialog names it
+end
+@enduml

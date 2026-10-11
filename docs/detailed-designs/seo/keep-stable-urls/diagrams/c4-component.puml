@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Keep stable URLs
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(mw, "CanonicalUrlMiddleware", "Express middleware", "Lower case, no trailing slash")
+  Component(resolver, "Public page resolver", "Route resolver", "Loads item, asks for redirect on 404")
+  Component(responder, "RedirectResponder", "SSR step", "One 301 to the final URL")
+  Component(urls, "PublicUrls", "Angular service", "URL patterns")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "slug-redirects route", "app/api/v1/slug-redirects/route.ts", "Anonymous GET")
+  Component(resolve, "ResolveSlugRedirectAction", "Action", "Old slug to current slug")
+  Component(publish, "PublishContentAction", "Action", "Publishes title changes")
+  Component(slugs, "SlugService", "Domain service", "Derives and changes slugs")
+  Component(repo, "SlugHistoryRepository", "Repository", "slug_history")
+  Component(builder, "PublicUrlBuilder", "Module", "URL patterns")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "")
+Rel(mw, resolver, "Passes canonical path to")
+Rel(resolver, route, "GET /api/v1/slug-redirects", "JSON/HTTPS")
+Rel(resolver, responder, "Reports target to")
+Rel(responder, urls, "Builds Location with")
+Rel(route, resolve, "Calls")
+Rel(resolve, repo, "Reads")
+Rel(publish, slugs, "Calls changeSlug")
+Rel(slugs, repo, "Writes")
+Rel(repo, db, "SQL")
+Rel(resolve, builder, "Builds URL with")
+@enduml

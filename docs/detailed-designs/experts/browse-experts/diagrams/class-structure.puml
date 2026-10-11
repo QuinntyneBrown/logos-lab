@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse experts
+
+package "Logos Lab Web" {
+  class ExpertsPage {
+    -expertsApi: ExpertsApi
+    +query: FormControl<string>
+    +topic: FormControl<string>
+    +results: Signal<ExpertListPage>
+    +search(): void
+    +clearFilters(): void
+  }
+  interface ExpertsApi {
+    +listExperts(query: ExpertDirectoryQuery): Observable<ExpertListPage>
+  }
+  class HttpExpertsApi
+  class EXPERTS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class ExpertsRouteHandler <<route: GET /api/v1/experts>> {
+    +GET(request: Request): Promise<Response>
+  }
+  class ListExpertsAction {
+    +execute(query: ExpertDirectoryQuery): Promise<ExpertListPage>
+  }
+  class ExpertDirectoryService {
+    +pageSize: number = 24
+    +list(query: ExpertDirectoryQuery, now: Date): Promise<ExpertListPage>
+  }
+  class ExpertProfileRepository {
+    +findCompleted(query: ExpertDirectoryQuery, now: Date): Promise<ExpertListItem[]>
+    +countCompleted(query: ExpertDirectoryQuery): Promise<number>
+  }
+  class ExpertDirectoryQuery {
+    +nameText: string
+    +topicSlug: string
+    +page: number
+  }
+  class ExpertListPage {
+    +items: ExpertListItem[]
+    +total: number
+    +page: number
+  }
+  class ExpertListItem {
+    +slug: string
+    +name: string
+    +sortName: string
+    +photoUrl: string
+    +professionalTitle: string
+    +publishedItemCount: number
+  }
+}
+ExpertsPage ..> ExpertsApi
+HttpExpertsApi ..|> ExpertsApi
+EXPERTS_API ..> ExpertsApi : provides
+ExpertsRouteHandler ..> ListExpertsAction
+ListExpertsAction --> ExpertDirectoryService
+ExpertDirectoryService --> ExpertProfileRepository
+ExpertDirectoryService ..> ExpertDirectoryQuery
+ExpertListPage *-- "0..24" ExpertListItem
+@enduml

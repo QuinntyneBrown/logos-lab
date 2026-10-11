@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Search content
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate-limit counters and short-lived caches")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Carries job messages to the Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+}
+Rel(visitor, web, "Types in header search and opens results", "HTTPS")
+Rel(web, api, "GET /api/v1/search and /api/v1/search/suggestions", "JSON/HTTPS")
+Rel(api, cache, "Counts requests per client per minute", "Redis")
+Rel(api, db, "Queries search_documents", "SQL")
+Rel(api, queue, "Enqueues SearchIndexUpdateJob on publish, archive or hide", "SQS")
+Rel(queue, worker, "Delivers index jobs", "SQS")
+Rel(worker, db, "Writes search_documents", "SQL")
+@enduml

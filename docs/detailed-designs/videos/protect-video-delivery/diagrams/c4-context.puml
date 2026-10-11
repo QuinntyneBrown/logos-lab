@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Protect video delivery
+
+Person(viewer, "Viewer", "Member, visitor, author or editor")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(sm, "AWS Secrets Manager", "Holds the CloudFront signing key")
+System_Ext(cw, "Amazon CloudWatch", "Logs")
+Rel(viewer, ll, "Requests playback and streams video from", "HTTPS")
+Rel(ll, sm, "Reads signing key from")
+Rel(ll, cw, "Logs grant decisions to")
+@enduml

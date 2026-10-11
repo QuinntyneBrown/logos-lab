@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage users
+Container_Boundary(web, "Logos Lab Web") {
+  Component(list, "AdminUsersPage", "Angular page", "Search, filter and page through users")
+  Component(detail, "AdminUserPage", "Angular page", "Roles, state, MFA, consent and moderation history")
+  Component(dialog, "UserActionDialog", "Angular CDK dialog", "Confirms an account action")
+  Component(client, "AdminUsersApi / HttpAdminUsersApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "Authorization policy middleware", "Middleware", "Requires the Administrator role; derives member ids from the session")
+  Component(routes, "app/api/v1/admin/users route handlers", "Route handlers", "Search, detail and actions")
+  Component(actions, "SearchUsersAction, GetUserDetailAction and 7 account actions", "Actions", "One use case each")
+  Component(state, "AccountStateService", "Domain service", "Account-state transitions (L2-019)")
+  Component(sessions, "SessionService", "Domain service", "Revokes sessions")
+  Component(audit, "AuditLogService", "Domain service", "Appends audit entries (L2-099)")
+  Component(repo, "UserRepository", "Repository", "User queries and admin projection")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "users, sessions, audit_entries")
+Rel(list, client, "Calls")
+Rel(detail, client, "Calls")
+Rel(detail, dialog, "Opens")
+Rel(dialog, client, "Calls")
+Rel(client, mw, "Calls", "JSON/HTTPS")
+Rel(mw, routes, "Passes authorized requests to")
+Rel(routes, actions, "Invokes")
+Rel(actions, state, "Uses")
+Rel(actions, sessions, "Uses")
+Rel(actions, audit, "Records with")
+Rel(actions, repo, "Uses")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(audit, db, "Inserts", "SQL")
+Rel(sessions, db, "Deletes sessions", "SQL")
+@enduml

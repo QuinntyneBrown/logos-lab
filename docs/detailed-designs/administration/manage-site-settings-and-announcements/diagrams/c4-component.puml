@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage site settings and announcements
+Container_Boundary(web, "Logos Lab Web") {
+  Component(annPage, "AdminAnnouncementsPage and AnnouncementEditDialog", "Angular page and CDK dialog", "List, create and schedule announcements")
+  Component(banner, "SiteAnnouncementBanner", "Angular component using ll-alert", "Shows active, undismissed banners")
+  Component(polPages, "AdminPoliciesPage, PolicyEditorPage, PolicyPage", "Angular pages", "Versioned policies")
+  Component(setPage, "AdminSettingsPage", "Angular page", "Support contact and mailing address")
+  Component(llfooter, "ll-footer", "Shared component", "Shows support contact")
+  Component(client, "SiteAdminApi / HttpSiteAdminApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "announcements, policies and site-settings route handlers", "Route handlers", "Admin and public endpoints")
+  Component(annSvc, "AnnouncementService", "Domain service", "200-character limit, severity, window, dismissal")
+  Component(polSvc, "PolicyService", "Domain service", "Creates versions with effective dates")
+  Component(setSvc, "SiteSettingsService", "Domain service", "Support contact and mailing address")
+  Component(audit, "AuditLogService", "Domain service", "Appends audit entries (L2-099)")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(renderer, "EmailTemplateRenderer", "Component", "Adds support contact to every email")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "Announcements, policy versions, settings")
+Rel(annPage, client, "Calls")
+Rel(banner, client, "Calls")
+Rel(polPages, client, "Calls")
+Rel(setPage, client, "Calls")
+Rel(llfooter, client, "Reads public settings with")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, annSvc, "Uses")
+Rel(routes, polSvc, "Uses")
+Rel(routes, setSvc, "Uses")
+Rel(annSvc, audit, "Records with")
+Rel(polSvc, audit, "Records with")
+Rel(setSvc, audit, "Records with")
+Rel(annSvc, db, "Reads and writes", "SQL")
+Rel(polSvc, db, "Reads and writes", "SQL")
+Rel(setSvc, db, "Reads and writes", "SQL")
+Rel(renderer, setSvc, "Reads support details from")
+@enduml

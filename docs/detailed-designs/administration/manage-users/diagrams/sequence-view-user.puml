@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — View a user
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUserPage" as page
+  participant "AdminUsersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/admin/users/{id}" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetUserDetailAction" as action
+  participant "UserRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open a user from the list
+page -> client : get(id)
+client -> route : HTTPS GET
+route -> route : Authenticate and require Administrator role
+route -> action : execute(actor, id)
+action -> repo : findAdminDetail(id)
+repo -> db : Select admin projection: never password_hash or mfa_secret columns (L2-095)
+db --> repo : User, roles, sessions count
+repo -> db : Select consent_records and moderation history
+db --> repo : Rows
+repo --> action : AdminUserDetail
+action --> route : AdminUserDetail
+route --> client : 200 JSON
+client --> page : Detail
+page --> actor : Account facts, consent records, moderation history, account actions
+@enduml

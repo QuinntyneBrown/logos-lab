@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Enrol in a course
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "CourseOverviewPage", "Angular page", "Enrol and Leave course actions")
+  Component(leave, "LeaveCourseDialog", "Angular CDK dialog", "Confirms leaving")
+  Component(verify, "VerifyEmailPromptDialog", "Angular CDK dialog (accounts)", "Asks for email verification")
+  Component(contract, "CoursesApi / COURSES_API", "API contract and token", "enrol and leave")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "courses/[slug]/enrolment route", "Next.js route handler", "POST and DELETE")
+  Component(enrol, "EnrolInCourseAction", "Action", "Creates, returns or restores")
+  Component(leaveA, "LeaveCourseAction", "Action", "Marks enrolment Left")
+  Component(svc, "EnrolmentService", "Domain service", "Enrolment rules")
+  Component(repo, "EnrolmentRepository", "Repository", "enrolments table, scoped by user id")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(page, leave, "Opens")
+Rel(page, verify, "Opens when unverified")
+Rel(page, contract, "Depends on")
+Rel(contract, route, "Calls through HttpCoursesApi", "JSON/HTTPS")
+Rel(route, enrol, "Invokes on POST")
+Rel(route, leaveA, "Invokes on DELETE")
+Rel(enrol, svc, "Applies rules with")
+Rel(leaveA, svc, "Applies rules with")
+Rel(svc, repo, "Persists through")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

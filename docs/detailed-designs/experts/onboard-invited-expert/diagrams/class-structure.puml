@@ -1,0 +1,123 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Onboard an invited expert
+
+package "Logos Lab Web" {
+  class AdminInvitationsPage {
+    +invitations: Signal<InvitationRow[]>
+    +openInvite(): void
+    +openRevoke(row: InvitationRow): void
+  }
+  class InviteExpertDialog {
+    +form: FormGroup
+    +send(): void
+  }
+  class RevokeInvitationDialog {
+    +invitation: InvitationRow
+    +confirm(): void
+  }
+  class ExpertInvitationPage {
+    +status: Signal<InvitationStatus>
+    +accept(): void
+  }
+  interface ExpertInvitationsApi {
+    +list(): Observable<InvitationRow[]>
+    +send(request: SendInvitationRequest): Observable<InvitationRow>
+    +revoke(invitationId: UUID): Observable<void>
+    +check(token: string): Observable<InvitationCheck>
+    +accept(token: string): Observable<void>
+  }
+  class HttpExpertInvitationsApi
+  class EXPERT_INVITATIONS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class SendExpertInvitationAction {
+    +execute(adminId: UUID, request: SendInvitationRequest): Promise<ExpertInvitation>
+  }
+  class RevokeExpertInvitationAction {
+    +execute(adminId: UUID, invitationId: UUID): Promise<void>
+  }
+  class CheckExpertInvitationAction {
+    +execute(token: string): Promise<InvitationCheck>
+  }
+  class AcceptExpertInvitationAction {
+    +execute(userId: UUID, token: string): Promise<void>
+  }
+  class ExpertInvitationService {
+    +validityDays: number = 14
+    +create(email: string, name: string, note: string, inviterId: UUID): IssuedInvitation
+    +statusAt(invitation: ExpertInvitation, now: Date): InvitationStatus
+    +accept(invitation: ExpertInvitation, userId: UUID, now: Date): void
+    +revoke(invitation: ExpertInvitation, now: Date): void
+  }
+  class RoleService {
+    +grant(userId: UUID, role: Role): Promise<void>
+  }
+  class ExpertProfileCompletenessService {
+    +evaluate(expertId: UUID): Promise<OnboardingChecklist>
+    +canSubmit(expertId: UUID): Promise<boolean>
+  }
+  class ExpertInvitationRepository {
+    +findByTokenHash(hash: string): Promise<ExpertInvitation>
+    +findById(id: UUID): Promise<ExpertInvitation>
+    +list(): Promise<ExpertInvitation[]>
+    +save(invitation: ExpertInvitation): Promise<void>
+  }
+  class InvitationEmailSendJob {
+    +run(invitationId: UUID, token: string): Promise<void>
+  }
+  class ExpertInvitation {
+    +id: UUID
+    +email: string
+    +name: string
+    +note: string
+    +tokenHash: string
+    +status: InvitationStatus
+    +invitedById: UUID
+    +sentAt: Date
+    +expiresAt: Date
+    +acceptedAt: Date
+    +revokedAt: Date
+    +acceptedUserId: UUID
+  }
+  enum InvitationStatus {
+    Pending
+    Accepted
+    Expired
+    Revoked
+  }
+  class OnboardingChecklist {
+    +hasPhoto: boolean
+    +hasTitle: boolean
+    +bioLengthValid: boolean
+    +hasExpertiseArea: boolean
+    +mfaEnabled: boolean
+    +isComplete(): boolean
+  }
+}
+AdminInvitationsPage ..> InviteExpertDialog : opens
+AdminInvitationsPage ..> RevokeInvitationDialog : opens
+AdminInvitationsPage ..> ExpertInvitationsApi
+ExpertInvitationPage ..> ExpertInvitationsApi
+HttpExpertInvitationsApi ..|> ExpertInvitationsApi
+EXPERT_INVITATIONS_API ..> ExpertInvitationsApi : provides
+SendExpertInvitationAction --> ExpertInvitationService
+SendExpertInvitationAction ..> InvitationEmailSendJob : enqueues
+RevokeExpertInvitationAction --> ExpertInvitationService
+CheckExpertInvitationAction --> ExpertInvitationService
+AcceptExpertInvitationAction --> ExpertInvitationService
+AcceptExpertInvitationAction --> RoleService
+ExpertInvitationService --> ExpertInvitationRepository
+ExpertInvitationRepository ..> ExpertInvitation
+ExpertInvitation --> InvitationStatus
+ExpertProfileCompletenessService ..> OnboardingChecklist : returns
+@enduml

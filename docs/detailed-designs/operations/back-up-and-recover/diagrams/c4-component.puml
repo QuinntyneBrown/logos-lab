@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Back up and recover
+
+Person(ops, "Operations engineer", "Reviews result")
+Container_Boundary(pipeline, "restore-drill pipeline") {
+  Component(restoreDb, "RestoreDatabaseStep", "Pipeline step", "Restores PITR into the isolated environment")
+  Component(attach, "AttachReplicaStorageStep", "Pipeline step", "Points storage at Canada West replicas")
+  Component(deploy, "DeployArtifactStep", "Pipeline step", "Deploys current production artifact")
+  Component(verify, "VerifyOperationalStep", "Pipeline step", "Runs /health/ready and synthetic checks")
+  Component(record, "RecordDrillResultStep", "Pipeline step", "Writes RestoreDrillRecord")
+}
+System_Ext(backup, "RDS backup storage", "")
+System_Ext(replica, "Replica buckets — Canada West", "")
+System_Ext(log, "Drill log", "TO SUPPLY")
+Rel(ops, restoreDb, "Starts")
+Rel(restoreDb, backup, "Restores from")
+Rel(restoreDb, attach, "Then")
+Rel(attach, replica, "Uses")
+Rel(attach, deploy, "Then")
+Rel(deploy, verify, "Then")
+Rel(verify, record, "Then")
+Rel(record, log, "Writes to")
+@enduml

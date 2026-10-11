@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Home page
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+System_Boundary(logos, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application and public responses; never caches personal data")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+}
+Rel(visitor, cdn, "Requests /", "HTTPS")
+Rel(learner, cdn, "Requests / while signed in", "HTTPS")
+Rel(cdn, web, "Forwards page requests", "HTTPS")
+Rel(web, api, "GET /api/v1/home and GET /api/v1/me/continue-learning", "JSON/HTTPS")
+Rel(cdn, api, "Caches anonymous home response for at most 60 s", "HTTPS")
+Rel(api, db, "Reads featured slots, content, events, experts and progress", "SQL")
+@enduml

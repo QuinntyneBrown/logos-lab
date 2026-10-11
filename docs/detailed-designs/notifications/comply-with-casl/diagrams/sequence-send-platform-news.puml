@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Send Platform news under CASL
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Platform news send\n(editor action)" as caller
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EmailService" as email
+  participant "ConsentService" as consent
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EmailSendJob" as job
+  participant "CaslFooterBuilder" as llfooter
+  participant "UnsubscribeTokenService" as tokens
+end box
+participant "Amazon SES" as ses
+caller -> email : queue Platform news for each member
+loop each member
+  email -> consent : hasMarketingConsent(member)
+  alt no express consent
+    email -> email : Skip member (L2-094)
+  else consent given
+    email -> db : Insert outbox row
+  end
+end
+job -> db : Claim message
+job -> consent : Re-check consent and preference at send time
+alt consent withdrawn since queueing
+  job -> db : Mark Skipped
+else still consented
+  job -> db : Read site settings: mailing address and contact (L2-098)
+  job -> llfooter : build(member, PlatformNews, settings)
+  llfooter -> tokens : sign(member, PlatformNews)
+  tokens --> llfooter : Token
+  llfooter --> job : Identification, mailing address, contact method, unsubscribe link (L2-094)
+  job -> ses : SendEmail with List-Unsubscribe and List-Unsubscribe-Post headers
+  ses --> job : Accepted
+  job -> db : Mark Sent
+end
+@enduml

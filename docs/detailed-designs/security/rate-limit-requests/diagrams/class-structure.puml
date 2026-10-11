@@ -1,0 +1,76 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Rate limit requests
+
+enum RateLimitScope {
+  User
+  IpAddress
+  Account
+  EmailAddress
+}
+class RateLimitPolicy <<value object>> {
+  +name: string
+  +routePattern: string
+  +methods: string[]
+  +scope: RateLimitScope
+  +limit: number
+  +windowSeconds: number
+  +blockSeconds: number?
+}
+class RateLimitPolicyRegistry {
+  +globalSignedIn: RateLimitPolicy = 300 per 60 s
+  +globalAnonymous: RateLimitPolicy = 120 per 60 s
+  +endpointPolicies: RateLimitPolicy[]
+  +policiesFor(request: NextRequest, signedIn: boolean): RateLimitPolicy[]
+}
+class RateLimiter {
+  +hit(policy: RateLimitPolicy, key: string): Promise<RateLimitDecision>
+}
+class RateLimitDecision <<value object>> {
+  +allowed: boolean
+  +remaining: number
+  +retryAfterSeconds: number
+}
+class ClientKeyResolver {
+  +resolve(request: NextRequest, scope: RateLimitScope): string
+}
+class RateLimitMiddleware {
+  +handle(request: NextRequest, next: Handler): Promise<NextResponse>
+  -tooManyRequests(decision: RateLimitDecision): NextResponse
+}
+class SecurityEventLogger {
+  +record(event: SecurityEvent): void
+}
+class WafWebAcl <<infrastructure config>> {
+  +managedRuleGroups: string[] = <TO SUPPLY>
+  +rateBasedRuleLimit: number = <TO SUPPLY>
+}
+class RateLimitInterceptor <<Angular HttpInterceptor>> {
+  +intercept(req: HttpRequest, next: HttpHandler): Observable<HttpEvent>
+  -retryAfter(response: HttpErrorResponse): number
+}
+class TooManyRequestsPage <<Angular page /429>> {
+  +retryAfterSeconds: Signal<number>
+  +tryAgain(): void
+}
+RateLimitInterceptor ..> RateLimitMiddleware : receives 429 and Retry-After from
+RateLimitInterceptor ..> TooManyRequestsPage : routes full-page requests to
+RateLimitPolicyRegistry "1" *-- "*" RateLimitPolicy : holds
+RateLimitPolicy --> RateLimitScope : keyed by
+RateLimitMiddleware ..> RateLimitPolicyRegistry : reads
+RateLimitMiddleware ..> RateLimiter : calls
+RateLimitMiddleware ..> ClientKeyResolver : uses
+RateLimitMiddleware ..> SecurityEventLogger : logs blocks
+RateLimiter ..> RateLimitDecision : returns
+@enduml

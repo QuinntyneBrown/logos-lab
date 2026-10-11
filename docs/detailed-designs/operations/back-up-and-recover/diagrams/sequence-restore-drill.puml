@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Run the quarterly restore drill
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operations engineer" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Restored Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Restored Logos Lab API" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "restore-drill pipeline" as pipeline
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "RDS backup storage" as backup
+  database "Restored database" as rdb
+  database "Replica bucket (Canada West)" as replica
+  participant "Drill log" as log
+end box
+actor -> pipeline : Start quarterly drill
+pipeline -> pipeline : Record startedAt
+pipeline -> backup : Restore to latest restorable time
+backup -> rdb : Create instance in isolated environment
+rdb --> pipeline : Available
+pipeline -> replica : Configure restored storage to read replicas
+pipeline -> api : Deploy current production artifact
+pipeline -> web : Deploy current production artifact
+pipeline -> api : GET /health/ready
+api -> rdb : SELECT 1
+rdb --> api : ok
+api --> pipeline : 200
+pipeline -> web : Synthetic checks on public pages
+web --> pipeline : Pages render with restored content
+pipeline -> pipeline : Record operationalAt and compute rtoMinutes
+alt operational within 4 hours
+  pipeline -> log : RestoreDrillRecord passed (Apply L2-138 RTO of 4 hours)
+else over 4 hours or checks fail
+  pipeline -> log : RestoreDrillRecord failed with notes
+end
+pipeline -> pipeline : Tear down isolated environment
+pipeline --> actor : Drill result
+@enduml

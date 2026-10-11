@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Appeal a moderation decision
+
+Person(member, "Member", "Appeals")
+Person(moderator, "Moderator", "Decides")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "AccountNoticePage, AppealsPage, AppealReviewPage")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "/api/v1/account/notices, /api/v1/moderation/appeals")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "EmailSendJob")
+  Container(worker, "Logos Lab Worker", "Node.js", "EmailSendJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "appeals, member_notices, moderation_actions")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Uses signed out", "HTTPS")
+Rel(moderator, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, sqs, "Enqueues email jobs on", "SQS")
+Rel(worker, sqs, "Consumes", "SQS")
+Rel(worker, ses, "Sends email through", "HTTPS API")
+@enduml

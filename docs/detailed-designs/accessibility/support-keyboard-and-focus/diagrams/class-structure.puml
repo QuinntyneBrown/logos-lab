@@ -1,0 +1,98 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Support keyboard and focus
+
+
+class SkipLinkComponent <<ll-skip-link>> {
+  +targetId: string = "main"
+  +label: string
+}
+
+class RouteFocusService {
+  -router: Router
+  +start(): void
+  -focusMainHeading(): void
+  -isFirstLoad: boolean
+}
+
+class LogosLabTitleStrategy {
+  +updateTitle(snapshot: RouterStateSnapshot): void
+}
+
+class DialogLauncher {
+  -dialog: Dialog
+  +open<T>(component: Type<T>, options: DialogLaunchOptions): DialogRef<T>
+}
+
+class DialogLaunchOptions {
+  +autoFocus: string
+  +restoreFocus: boolean = true
+  +blocking: boolean
+}
+
+class UnsavedChangesDialog {
+  +stay(): void
+  +leave(): void
+}
+
+class SortableComponent <<ll-sortable>> {
+  +items: SortableItem[]
+  +moveUp(index: number): void
+  +moveDown(index: number): void
+  +reorder: EventEmitter<ReorderEvent>
+}
+
+class ReorderEvent {
+  +itemId: string
+  +fromIndex: number
+  +toIndex: number
+  +orderedIds: string[]
+}
+
+class Announcer {
+  +polite(message: string): void
+}
+
+interface StudioApi {
+  +reorderLessons(courseId: string, lessonIds: string[]): Observable<void>
+}
+
+class HttpStudioApi {
+  +reorderLessons(courseId: string, lessonIds: string[]): Observable<void>
+}
+
+class CourseBuilderPage {
+  -api: StudioApi
+  +onReorder(event: ReorderEvent): void
+}
+
+class ReorderLessonsRoute <<route handler>> {
+  +path = "/api/v1/studio/courses/{courseId}/lessons/order"
+  +PUT(request: Request): Response
+}
+
+class ReorderLessonsAction {
+  +execute(courseId: string, lessonIds: string[], currentUserId: string): void
+}
+
+RouteFocusService ..> LogosLabTitleStrategy : runs alongside
+DialogLauncher ..> DialogLaunchOptions
+DialogLauncher ..> UnsavedChangesDialog : opens (blocking = false)
+SortableComponent ..> ReorderEvent : emits
+SortableComponent ..> Announcer : announces position
+CourseBuilderPage --> SortableComponent : renders
+CourseBuilderPage --> StudioApi : saves through
+HttpStudioApi ..|> StudioApi
+ReorderLessonsRoute ..> ReorderLessonsAction : calls
+@enduml

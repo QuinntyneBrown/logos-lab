@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Search and filter the experts directory
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExpertsPage" as ExpertsPage
+  participant "ExpertsApi" as ExpertsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/experts" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListExpertsAction" as ListExpertsAction
+  participant "ExpertDirectoryService" as ExpertDirectoryService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ExpertsPage : Enter name text and choose topic Philosophy of mind
+alt trimmed name text of 1 character
+  ExpertsPage --> actor : No request; field asks for at least 2 characters (L2-022)
+else empty or at least 2 characters
+  ExpertsPage -> ExpertsPage : Write q, topic and page to the URL
+  ExpertsPage -> ExpertsApi : listExperts(query)
+  ExpertsApi -> route : HTTPS GET ?q=...&topic=philosophy-of-mind
+  route -> route : Validate q of 2 characters or more, otherwise 400
+  route -> ListExpertsAction : execute(query)
+  ListExpertsAction -> ExpertDirectoryService : list(query, now)
+  ExpertDirectoryService -> db : Completed profiles with Expert role; name contains q, case- and accent-insensitive
+  note right of db : Topic filter = area of expertise OR published content in topic (L2-022)
+  db --> ExpertDirectoryService : Rows ordered by sort_name, limit 24, with published item counts
+  ExpertDirectoryService --> ListExpertsAction : ExpertListPage
+  ListExpertsAction --> route : Page
+  route --> ExpertsApi : 200 JSON
+  ExpertsApi --> ExpertsPage : Page
+  alt no experts match
+    ExpertsPage --> actor : Names the query and filter, with Clear filters
+  else experts found
+    ExpertsPage --> actor : Photo, name, title and published item count, by surname
+  end
+end
+@enduml

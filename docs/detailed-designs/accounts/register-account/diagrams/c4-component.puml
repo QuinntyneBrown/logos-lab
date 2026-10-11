@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Register an account
+
+Container(web, "Logos Lab Web", "Angular", "RegisterPage and AuthApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(rl, "RateLimitMiddleware", "Middleware", "5 registrations per IP address per 10 minutes")
+  Component(route, "registrations route handler", "app/api/v1/auth/registrations/route.ts", "Parses the request and maps results")
+  Component(action, "RegisterAccountAction", "Action", "Creates the account or notifies the existing owner")
+  Component(pwd, "PasswordPolicyService", "Domain service", "Length and breached-password rules")
+  Component(hasher, "PasswordHasher", "Domain service", "One-way password hashing")
+  Component(tokens, "AccountTokenService", "Domain service", "Issues 24-hour verification tokens")
+  Component(consent, "ConsentService", "Domain service", "Records policy acceptance and marketing consent")
+  Component(repo, "UserRepository", "Repository", "Users and roles")
+}
+ContainerDb(cache, "Cache", "Redis", "Attempt counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, user_roles, account_tokens, consent_records")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+System_Ext(breach, "Breached password list", "<TO SUPPLY>")
+Rel(web, rl, "POST /api/v1/auth/registrations", "JSON/HTTPS")
+Rel(rl, cache, "Increments counter")
+Rel(rl, route, "Passes request within limit")
+Rel(route, action, "Calls")
+Rel(action, pwd, "Validates password")
+Rel(pwd, breach, "Looks up")
+Rel(action, hasher, "Hashes password")
+Rel(action, tokens, "Issues verification token")
+Rel(action, consent, "Records consent")
+Rel(action, repo, "Finds by email, inserts user")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(action, queue, "Enqueues email")
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Move through the editorial workflow
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "studio/items/{id} workflow routes", "Next.js route handlers", "submit, request-changes, approve, review-comments, diff, history")
+  Component(submit, "SubmitForReviewAction", "Action", "Draft or Changes requested to In review")
+  Component(changes, "RequestChangesAction", "Action", "In review to Changes requested")
+  Component(approve, "ApproveContentAction", "Action", "In review to Approved")
+  Component(comments, "AddReviewCommentAction, ResolveReviewCommentAction", "Actions", "Anchored review comments")
+  Component(history, "GetContentHistoryAction", "Action", "Ordered transitions")
+  Component(workflow, "WorkflowService", "Domain service", "L2-076 transition table and role rules")
+  Component(validation, "ContentValidationService", "Domain service", "L2-082 submission rules")
+  Component(notify, "NotificationService", "Domain service", "In-app notifications and email jobs")
+  Component(repos, "ContentItemRepository, WorkflowTransitionRepository, ReviewCommentRepository", "Repositories", "PostgreSQL access")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_items, content_revisions, workflow_transitions, review_comments")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+
+Rel(routes, submit, "Calls")
+Rel(routes, changes, "Calls")
+Rel(routes, approve, "Calls")
+Rel(routes, comments, "Calls")
+Rel(routes, history, "Calls")
+Rel(submit, validation, "Validates with")
+Rel(submit, workflow, "Applies transition with")
+Rel(changes, workflow, "Applies transition with")
+Rel(approve, workflow, "Applies transition with")
+Rel(submit, notify, "Notifies editors through")
+Rel(changes, notify, "Notifies owner through")
+Rel(approve, notify, "Notifies owner through")
+Rel(submit, repos, "Writes through")
+Rel(changes, repos, "Writes through")
+Rel(approve, repos, "Writes through")
+Rel(comments, repos, "Writes through")
+Rel(history, repos, "Reads through")
+Rel(repos, db, "Reads and writes", "SQL")
+Rel(notify, queue, "Enqueues", "SQS")
+@enduml

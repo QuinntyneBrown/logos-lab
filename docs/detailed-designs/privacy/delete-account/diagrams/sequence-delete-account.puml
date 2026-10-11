@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Delete an account
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsDataPage" as page
+  participant "DeleteAccountDialog" as dialog
+  participant "PersonalDataApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "deletion route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DeleteAccountAction" as action
+  participant "AccountDeletionService" as svc
+  participant "SessionService" as sess
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as queue
+end box
+actor -> page : Choose "Delete my account"
+page -> client : getDeletionEligibility()
+client -> route : GET /api/v1/me/deletion
+route -> svc : Eligibility for current user
+svc -> db : Count other Administrators; list member's published content
+alt Sole Administrator or expert with published content (L2-117)
+  route --> client : 200 with blockers and published items
+  client --> dialog : Open in blocked state
+  dialog --> actor : Explain what must happen first; no password field
+else Eligible
+  route --> client : 200 eligible
+  client --> dialog : Open with consequences and password field
+  actor -> dialog : Re-enter password, confirm
+  dialog -> client : deleteAccount(password)
+  client -> route : POST /api/v1/me/deletion
+  route -> action : Execute for current user
+  action -> action : Verify password; recheck eligibility
+  alt Password wrong or empty
+    route --> client : 400 with field-level errors
+    client --> dialog : Invalid state
+  else Confirmed
+    action -> svc : schedule(user, now)
+    svc -> db : User state Deactivated (L2-019)
+    svc -> db : Insert account_deletion_requests (purgeAfter now plus 30 days, hashed restore token)
+    action -> sess : revokeAll(user)
+    sess -> db : Delete every session row
+    action -> queue : Enqueue confirmation email with cancel link
+    action --> route : Scheduled
+    route --> client : 200 with purge date; session cookie cleared
+    client --> dialog : Close
+    dialog --> actor : Navigate to /account/deleted
+  end
+end
+@enduml

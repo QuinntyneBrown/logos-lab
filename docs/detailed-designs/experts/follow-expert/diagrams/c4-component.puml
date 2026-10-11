@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Follow an expert
+
+Container(web, "Logos Lab Web", "Angular", "ExpertProfilePage, UnfollowDialog, FollowsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(rl, "FollowRateLimiter", "Middleware", "10 per member and expert per minute")
+  Component(r, "me/follows/experts routes", "Route handlers", "PUT and DELETE")
+  Component(fa, "FollowExpertAction", "Action", "Records follow")
+  Component(ua, "UnfollowExpertAction", "Action", "Removes follow")
+  Component(svc, "FollowService", "Domain service", "Current-user follows and counts")
+  Component(repo, "FollowRepository", "Repository", "follows")
+  Component(job, "ExpertFollowerNotificationJob", "Job", "Fans out notifications")
+  Component(pref, "NotificationPreferenceService", "Domain service", "Per-category channel choices")
+}
+ContainerDb(cache, "Cache", "Redis", "Counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "follows, notifications, notification_preferences")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(web, rl, "Calls", "JSON/HTTPS")
+Rel(rl, cache, "Increments", "Redis")
+Rel(rl, r, "Passes under limit")
+Rel(r, fa, "PUT")
+Rel(r, ua, "DELETE")
+Rel(fa, svc, "Follows")
+Rel(ua, svc, "Unfollows")
+Rel(svc, repo, "Persists")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(job, repo, "Reads followers")
+Rel(job, pref, "Applies preferences")
+Rel(job, db, "Writes notifications", "SQL")
+Rel(job, ses, "Sends email", "SES API")
+@enduml

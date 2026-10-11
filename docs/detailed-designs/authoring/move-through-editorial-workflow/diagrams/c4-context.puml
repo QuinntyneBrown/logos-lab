@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Move through the editorial workflow
+
+Person(owner, "Expert (owner)", "Writes and submits content")
+Person(editor, "Editor", "Reviews, comments and approves content")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends email notifications")
+
+Rel(owner, logoslab, "Submits and resubmits content in", "HTTPS")
+Rel(editor, logoslab, "Reviews, requests changes and approves in", "HTTPS")
+Rel(logoslab, ses, "Sends review notifications through", "HTTPS API")
+Rel(ses, owner, "Delivers notification email to", "SMTP")
+Rel(ses, editor, "Delivers notification email to", "SMTP")
+@enduml

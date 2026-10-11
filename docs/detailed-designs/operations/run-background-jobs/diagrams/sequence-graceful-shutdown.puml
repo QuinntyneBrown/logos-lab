@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Survive a deployment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Deployment controller" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "JobRunner (old Worker)" as old
+  participant "JobRunner (new Worker)" as new
+  participant "JobHandler" as handler
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  database "Logos Lab database" as db
+end box
+actor -> old : SIGTERM
+old -> old : Stop polling
+alt in-flight job finishes within grace period
+  handler -> db : Commit results and Succeeded mark
+  old -> queue : DeleteMessage
+else grace period ends first
+  old -> old : Exit without acknowledging
+  note over queue : Visibility timeout expires
+  queue -> new : Deliver same message
+  new -> db : Load checkpoint for idempotencyKey
+  db --> new : Last checkpoint
+  new -> handler : run(payload, ctx with checkpoint) (Apply L2-140 resume without data loss)
+  handler -> db : Commit results and Succeeded mark
+  new -> queue : DeleteMessage
+end
+@enduml

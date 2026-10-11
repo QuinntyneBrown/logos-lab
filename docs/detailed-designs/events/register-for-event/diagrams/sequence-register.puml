@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Register for an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Verified member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventPage" as page
+  participant "EventFullDialog" as dialog
+  participant "EventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "registration route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RegisterForEventAction" as action
+  participant "RegistrationService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+end box
+actor -> page : Register
+page -> client : register(eventId)
+client -> route : POST /api/v1/events/{eventId}/registration
+route -> route : Authenticate, require verified email, CSRF, rate limit
+route -> action : execute(userId, eventId)
+action -> db : BEGIN; SELECT event FOR UPDATE
+action -> db : Existing registration for user?
+alt Already registered (L2-053)
+  action --> route : Existing registration, no duplicate
+else After cut-off
+  action -> svc : checkCutoff(event, now)
+  svc --> action : Closed
+  route --> client : 409 registration-closed with reason
+  page --> actor : "Registration has closed" with the reason
+else No place left
+  action -> svc : hasPlace(event, count)
+  svc --> action : false
+  action -> db : ROLLBACK
+  route --> client : 409 event-full
+  client --> page : Full
+  page -> dialog : Open EventFullDialog
+  dialog --> actor : "This workshop just filled up", Join the waitlist
+else Place available
+  action -> db : Insert EventRegistration; COMMIT (capacity never exceeded)
+  action -> q : Enqueue RegistrationConfirmationJob (.ics attached)
+  route --> client : 201 EventViewerState
+  page --> actor : "You're registered"
+end
+@enduml

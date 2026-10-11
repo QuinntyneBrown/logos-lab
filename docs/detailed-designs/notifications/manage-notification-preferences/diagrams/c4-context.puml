@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage notification preferences
+Person(member, "Member", "Signed-in user")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(member, ll, "Chooses in-app and email settings per category in", "HTTPS")
+@enduml

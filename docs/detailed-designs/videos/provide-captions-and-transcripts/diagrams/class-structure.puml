@@ -1,0 +1,108 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Provide captions and transcripts
+
+package "Logos Lab Web" {
+  class StudioVideoCaptionsPage {
+    +tracks: Signal<CaptionTrackView[]>
+    +addTrack(language: string, file: File): void
+    +generate(): void
+    +openConfirm(trackId: string): void
+  }
+  class ConfirmCaptionsDialog {
+    +trackId: string
+    +confirm(): void
+  }
+  class LlTranscript <<ll-transcript>> {
+    +cues: Input<TranscriptCue[]>
+    +currentTime: Input<number>
+    +query: string
+    +seek: Output<number>
+  }
+}
+package "Logos Lab API" {
+  class AddCaptionTrackAction {
+    +execute(userId: Uuid, videoId: Uuid, language: string, file: Upload): Result<CaptionTrackView>
+  }
+  class ConfirmCaptionReviewAction {
+    +execute(userId: Uuid, videoId: Uuid, trackId: Uuid): Result<CaptionTrackView>
+  }
+  class GenerateCaptionsAction {
+    +execute(userId: Uuid, videoId: Uuid): Result<CaptionTrackView>
+  }
+  class CaptionService {
+    +parse(file: Upload): ParsedCaptions
+    +toWebVtt(parsed: ParsedCaptions): string
+  }
+  class ParsedCaptions {
+    +format: CaptionFormat
+    +cues: TranscriptCue[]
+    +faults: CaptionFault[]
+  }
+  class CaptionFault <<value object>> {
+    +line: number
+    +message: string
+  }
+  class VideoSubmissionRule {
+    +check(video: Video, tracks: CaptionTrack[]): RuleResult
+  }
+  class CaptionTrack {
+    +id: Uuid
+    +videoId: Uuid
+    +languageTag: string
+    +origin: CaptionOrigin
+    +reviewState: ReviewState
+    +reviewedBy: Uuid
+    +reviewedAt: Instant
+    +storageKey: string
+  }
+  class TranscriptCue <<value object>> {
+    +startSeconds: number
+    +endSeconds: number
+    +text: string
+  }
+  class PlayerPreference {
+    +userId: Uuid
+    +captionsOn: boolean
+    +captionLanguage: string
+  }
+  enum CaptionOrigin {
+    Uploaded
+    MachineGenerated
+  }
+  enum ReviewState {
+    Reviewed
+    ReviewRequired
+  }
+  enum CaptionFormat {
+    WebVTT
+    SRT
+  }
+  class CaptionGenerateJob {
+    +run(videoId: Uuid): void
+  }
+}
+StudioVideoCaptionsPage ..> ConfirmCaptionsDialog : opens
+AddCaptionTrackAction ..> CaptionService : validates with
+GenerateCaptionsAction ..> CaptionGenerateJob : enqueues
+CaptionGenerateJob ..> CaptionTrack : creates
+ConfirmCaptionReviewAction ..> CaptionTrack : marks Reviewed
+CaptionService ..> ParsedCaptions : produces
+ParsedCaptions *-- "0..*" CaptionFault
+ParsedCaptions *-- "0..*" TranscriptCue
+ParsedCaptions --> CaptionFormat
+VideoSubmissionRule ..> CaptionTrack : checks
+CaptionTrack --> CaptionOrigin
+CaptionTrack --> ReviewState
+@enduml

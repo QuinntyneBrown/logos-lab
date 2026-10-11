@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Keep data in Canada
+
+Person(member, "Member", "Signed-in user")
+Person(visitor, "Visitor", "Anonymous user")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Caches public content and signed media only")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "Server-renders pages; marks personal responses no-store")
+  Container(api, "Logos Lab API", "Next.js route handlers", "JSON API; marks every authenticated response no-store")
+  Container(worker, "Logos Lab Worker", "Node.js", "Background jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on RDS, Canada (Central)", "System of record and search index")
+  ContainerDb(media, "Media storage", "Amazon S3, Canada (Central), replicated to Canada West", "Uploads, renditions, exports")
+  Container(cache, "Cache", "ElastiCache for Redis, Canada (Central)", "Rate-limit counters")
+}
+System_Ext(logs, "Amazon CloudWatch", "Logs and metrics, Canada (Central)")
+System_Ext(ses, "Amazon SES", "Email, Canada (Central)")
+Rel(visitor, cdn, "Requests pages and media", "HTTPS")
+Rel(member, cdn, "Requests pages, API and media", "HTTPS")
+Rel(cdn, web, "Forwards page requests", "HTTPS")
+Rel(cdn, api, "Forwards /api/v1 requests uncached", "HTTPS")
+Rel(cdn, media, "Fetches signed media", "Origin access control")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, cache, "Counts requests", "Redis")
+Rel(worker, db, "Reads and writes", "SQL")
+Rel(worker, media, "Writes renditions and exports", "S3 API")
+Rel(api, logs, "Writes logs", "CloudWatch Logs")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

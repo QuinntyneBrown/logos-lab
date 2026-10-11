@@ -1,0 +1,121 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Play a lesson
+
+enum LessonType {
+  Video
+  Article
+  LearningModule
+  Text
+}
+enum CompletionSource {
+  Manual
+  VideoWatched
+  ModuleReported
+}
+enum NavigationMode {
+  Free
+  Sequential
+}
+class LessonView {
+  +lessonId: string
+  +title: string
+  +type: LessonType
+  +itemId: string
+  +outline: OutlineEntry[]
+  +previousLessonId: string
+  +nextLessonId: string
+  +completed: boolean
+  +progressPercent: number
+}
+class OutlineEntry {
+  +lessonId: string
+  +done: boolean
+  +locked: boolean
+  +lockReason: string
+}
+class CompletionResult {
+  +lessonCompleted: boolean
+  +progressPercent: number
+  +courseCompleted: boolean
+}
+class LessonCompletion {
+  +userId: string
+  +lessonId: string
+  +enrolmentId: string
+  +source: CompletionSource
+  +completedAt: Date
+}
+interface CoursesApi {
+  +getLesson(slug: string, lessonId: string): Observable<LessonView>
+  +markComplete(slug: string, lessonId: string): Observable<CompletionResult>
+  +markIncomplete(slug: string, lessonId: string): Observable<CompletionResult>
+}
+class LessonPlayerPage {
+  -api: CoursesApi
+  +endReached: Signal<boolean>
+  +markComplete(): void
+  +markIncomplete(): void
+  +openOutline(): void
+}
+class CourseOutlineDialog
+class PendingCompletionQueue {
+  +enqueue(request: CompletionRequest): void
+  +flush(): void
+}
+class OpenLessonAction {
+  +execute(slug: string, lessonId: string, userId: string): Promise<LessonView>
+}
+class MarkLessonCompleteAction {
+  +execute(slug: string, lessonId: string, userId: string): Promise<CompletionResult>
+}
+class MarkLessonIncompleteAction {
+  +execute(slug: string, lessonId: string, userId: string): Promise<CompletionResult>
+}
+class LessonAccessService {
+  +assertEnrolled(enrolment: Enrolment): void
+  +isLocked(lesson: Lesson, course: Course, done: Set<string>): boolean
+}
+class LessonCompletionService {
+  +VIDEO_THRESHOLD: number = 0.9
+  +completeManually(enrolment: Enrolment, lesson: Lesson): void
+  +removeManual(enrolment: Enrolment, lesson: Lesson): void
+  +evaluateVideoLesson(userId: string, videoId: string): Promise<void>
+  +completeModuleLessons(userId: string, moduleId: string): Promise<void>
+}
+class LessonCompletionRepository {
+  +insertIfAbsent(c: LessonCompletion): Promise<boolean>
+  +delete(userId: string, lessonId: string): Promise<void>
+}
+class WatchSegmentRepository {
+  +distinctSeconds(userId: string, videoId: string): Promise<number>
+}
+class ProgressService {
+  +recalculate(enrolmentId: string): Promise<number>
+}
+LessonView "1" *-- "*" OutlineEntry
+LessonView --> LessonType
+LessonCompletion --> CompletionSource
+LessonPlayerPage ..> CoursesApi : injects COURSES_API
+LessonPlayerPage ..> CourseOutlineDialog : opens
+LessonPlayerPage ..> PendingCompletionQueue
+OpenLessonAction ..> LessonAccessService
+LessonAccessService ..> NavigationMode
+MarkLessonCompleteAction ..> LessonCompletionService
+MarkLessonIncompleteAction ..> LessonCompletionService
+LessonCompletionService ..> LessonCompletionRepository
+LessonCompletionService ..> WatchSegmentRepository
+LessonCompletionService ..> ProgressService
+LessonCompletionRepository ..> LessonCompletion : persists
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Validate input and encode output
+
+Person(member, "Member", "Submits forms and text")
+Person_Ext(attacker, "Attacker", "Sends malformed, injection or SSRF payloads")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(site, "External web site", "Target of a member-supplied link")
+Rel(member, ll, "Submits data to", "HTTPS")
+Rel(attacker, ll, "Sends hostile input to", "HTTPS")
+Rel(ll, site, "Fetches link previews from public addresses only", "HTTPS")
+@enduml

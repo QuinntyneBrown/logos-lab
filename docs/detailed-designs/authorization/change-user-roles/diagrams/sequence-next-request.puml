@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Removed role takes effect on the next request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Former Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationQueuePage" as page
+  participant "ModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "SessionMiddleware" as mw
+  participant "AuthorizationMiddleware" as authz
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PermissionService" as perm
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> page : Act in the moderation queue (still signed in)
+page -> client : Call moderation endpoint
+client -> mw : HTTPS request with existing session cookie
+mw -> db : Resolve session and load current roles
+db --> mw : Roles without Moderator
+mw -> authz : Request with current roles
+authz -> perm : can(roles, Moderate)
+perm --> authz : false
+authz -> cw : Log 403 security event
+authz --> client : 403 "forbidden" (no new sign-in needed, L2-018)
+client --> page : Forbidden
+page --> actor : "You don't have access to this page"
+@enduml

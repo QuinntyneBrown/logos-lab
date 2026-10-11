@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Open the cohort space
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Cohort member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortSpacePage" as page
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCohortSpaceAction" as action
+  participant "CohortAccessService" as access
+  participant "ListCohortMembersAction" as members
+  participant "ProgressService" as progress
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /cohorts/{id}
+page -> client : getSpace(id)
+client -> route : GET /api/v1/cohorts/{id}
+route -> route : Authenticate
+route -> action : execute(userId, id)
+action -> access : resolve(userId, id)
+access -> db : Find active membership or leader role
+db --> access : Membership or none
+alt not a member and not the leader
+  access --> action : NotFound
+  action --> route : NotFound
+  route --> client : 404 problem (L2-064)
+  page --> actor : Not found page
+else member or leader
+  access --> action : CohortAccess(role, readOnly)
+  action -> db : Load announcements pinned first, schedule
+  db --> action : Rows
+  action --> route : CohortSpace
+  route --> client : 200 CohortSpace
+  page -> client : listMembers(id)
+  client -> route : GET /api/v1/cohorts/{id}/members
+  route -> members : execute(userId, id)
+  members -> access : resolve(userId, id)
+  members -> db : Active memberships with names and avatars
+  opt caller is the leader
+    members -> progress : coursePercent per member (L2-064)
+    progress --> members : Percentages
+  end
+  members --> route : CohortMemberView list
+  route --> client : 200
+  page --> actor : Announcements, discussion, members and schedule
+end
+@enduml

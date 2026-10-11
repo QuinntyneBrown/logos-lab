@@ -1,0 +1,83 @@
+@startuml
+title UML sequence behaviour — Process an uploaded video
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Author" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioVideoMediaPage" as page
+  participant "StudioVideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "media route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CompleteVideoUploadAction" as action
+  participant "VideoProcessingService" as svc
+  participant "VideoScanJob" as scanJob
+  participant "VideoTranscodeJob" as tcJob
+  participant "VideoTranscodeStatusJob" as statusJob
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+  participant "MediaConvert" as mc
+  participant "Malware scanner" as scan
+  participant "Amazon SES" as ses
+end box
+route -> action : execute(complete upload)
+action -> svc : start(video)
+svc -> db : Set Scanning
+action -> q : Enqueue VideoScanJob
+q -> scanJob : Deliver
+scanJob -> scanJob : Check magic bytes (L2-108)
+scanJob -> scan : Scan source file
+alt Infected or type mismatch
+  scan --> scanJob : Infected
+  scanJob -> svc : Quarantine and mark Failed with reason
+  svc -> db : Save Failed
+else Clean
+  scan --> scanJob : Clean
+  scanJob -> q : Enqueue VideoTranscodeJob
+  q -> tcJob : Deliver
+  tcJob -> svc : renditionLadder(sourceHeight)
+  svc --> tcJob : 360p, 720p, 1080p up to source height (L2-039)
+  tcJob -> mc : CreateJob (HLS group and poster frame)
+  tcJob -> db : Set Transcoding, store job id
+  loop Status events from EventBridge
+    mc -> q : STATUS_UPDATE, COMPLETE or ERROR
+    q -> statusJob : Deliver
+    statusJob -> svc : applyStatus(event)
+    svc -> db : Save progress, rendition states or failure reason
+  end
+  opt Complete
+    statusJob -> ses : Send "video ready" email
+  end
+end
+loop Page polls while processing
+  page -> client : getMedia(videoId)
+  client -> route : GET /api/v1/studio/videos/{videoId}/media
+  route --> client : State, progress, renditions, reason
+  client --> page : VideoMedia
+end
+alt Failed
+  page --> actor : Show Failed with the reason (L2-039)
+  actor -> page : Try processing again
+  page -> client : retryProcessing(videoId)
+  client -> route : POST .../processing/retry
+  route -> svc : Restart from stored source
+else Ready
+  page --> actor : Show streams and poster Ready
+end
+@enduml

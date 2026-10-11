@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Upload images
+
+Person(author, "Expert or Editor", "Uploads cover and body images")
+Person_Ext(reader, "Reader", "Sees responsive images on public pages")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+
+Rel(author, logoslab, "Uploads and describes images in", "HTTPS")
+Rel(logoslab, scanner, "Scans every uploaded file with")
+Rel(reader, logoslab, "Loads image renditions from", "HTTPS")
+@enduml

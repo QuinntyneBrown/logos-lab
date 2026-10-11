@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your analytics · suppressed — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="studio-analytics">
+<meta name="mock:state" content="suppressed">
+<meta name="mock:requirements" content="L2-100 L2-102 L2-103">
+<meta name="description" content="Studio analytics for the last 7 days, where values based on fewer than 5 learners are hidden and replaced by Fewer than 5 learners.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html" aria-current="page">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap" style="padding-bottom: var(--space-16)">
+    <div class="page-head page-head--actions">
+      <p class="eyebrow">Studio</p>
+      <h1 class="page-head__title">Your analytics</h1>
+      <p class="page-head__sub">How your published courses, videos, articles and collections are doing. Learners are never named.</p>
+      <div class="page-head__actions"><a class="btn btn--quiet" href="exporting.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>Export CSV</a></div>
+    </div>
+    <div class="toolbar">
+      <div class="cluster">
+        <label class="select"><span>Period</span><span class="select__wrap"><select class="select__control"><option selected>Last 7 days</option><option>Last 30 days</option><option>Last 90 days</option><option>This year</option><option>All time</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+        <a class="btn btn--quiet btn--sm" href="../../dialogs/date-range/default.html">Custom range</a>
+        <span class="muted">6 Oct to 12 Oct 2026</span>
+      </div>
+      <p class="inline-status" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Updated at 9:00 am ET<span class="mock-note">Figures refresh hourly and are never more than 1 hour old.</span></p>
+    </div>
+    <div class="alert" role="status" style="margin-bottom: var(--space-8)"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><p class="alert__title">Some numbers are hidden to protect privacy</p><p class="alert__body">Where a number is based on fewer than 5 learners, we show “Fewer than 5 learners” instead, so no one can be identified. Choose a longer period to see more.</p></div>
+    <div class="stats" role="list" aria-label="Your content, last 7 days"><p class="stats__item" role="listitem"><span class="stats__value">Fewer than 5</span><span class="stats__label">learners enrolled · hidden to protect privacy</span></p><p class="stats__item" role="listitem"><span class="stats__value">Fewer than 5</span><span class="stats__label">learners completed · hidden to protect privacy</span></p><p class="stats__item" role="listitem"><span class="stats__value">44%</span><span class="stats__label">average course progress</span></p><p class="stats__item" role="listitem"><span class="stats__value">31 h</span><span class="stats__label">of video watched</span></p></div>
+    <div class="page-block">
+      <section class="chart" aria-labelledby="ch-weekly"><div class="chart__head"><h2 class="chart__title" id="ch-weekly">Lesson completions per day</h2><p class="chart__note">Imago Dei in an Age of Machines · last 7 days</p></div><p class="inline-status" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Fewer than 5 learners are in this group, so we don’t show their numbers.</p></section>
+    </div>
+      <section class="page-block" aria-labelledby="items-title">
+        <h2 class="section__title" id="items-title" style="margin-bottom: var(--space-6)">By item</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption class="vh">Your items, last 7 days, with values under 5 learners hidden</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">Type</th><th scope="col" class="num">Views</th><th scope="col" class="num">Unique learners</th><th scope="col" class="num">Enrolments or starts</th><th scope="col" class="num">Completion rate</th><th scope="col" class="num">Average progress</th><th scope="col" class="num">Saves</th><th scope="col" class="num">Comments</th><th scope="col" class="num">Average watched</th></tr></thead>
+            <tbody>
+            <tr><td><a href="../../pages/analytics-item/default.html">Imago Dei in an Age of Machines</a></td><td>Course</td><td class="num">296</td><td class="num">61</td><td class="num">Fewer than 5 learners</td><td class="num">Fewer than 5 learners</td><td class="num">44%</td><td class="num">9</td><td class="num">17</td><td class="num">—</td></tr>
+            <tr><td><a href="../../pages/analytics-item/video.html">The Image Restored in Christ</a></td><td>Video</td><td class="num">248</td><td class="num">171</td><td class="num">171</td><td class="num">37%</td><td class="num">61%</td><td class="num">6</td><td class="num">2</td><td class="num">61%</td></tr>
+            <tr><td><a href="../../pages/analytics-item/default.html">Sabbath for the Always-On Mind</a></td><td>Article</td><td class="num">503</td><td class="num">388</td><td class="num">388</td><td class="num">55%</td><td class="num">69%</td><td class="num">21</td><td class="num">3</td><td class="num">—</td></tr>
+            <tr><td><a href="../../pages/analytics-item/suppressed.html">A Personhood Reading List</a></td><td>Collection</td><td class="num">41</td><td class="num">Fewer than 5 learners</td><td class="num">Fewer than 5 learners</td><td class="num">Fewer than 5 learners</td><td class="num">Fewer than 5 learners</td><td class="num">6</td><td class="num">—</td><td class="num">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Your analytics</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="suppressed.html" aria-current="page">suppressed</a></li>
+    <li><a href="exporting.html">exporting</a></li>
+    <li><a href="export-queued.html">export-queued</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

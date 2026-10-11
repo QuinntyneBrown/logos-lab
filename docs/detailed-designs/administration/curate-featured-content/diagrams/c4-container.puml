@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Curate featured content
+Person(editor, "Editor or Administrator", "Logos Lab staff")
+Person(visitor, "Visitor or member", "Reader")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches the public featured list for at most 60 s")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Admin featured page; home page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Featured endpoints and rules")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Featured slot check jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs FeaturedSlotCheckJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "featured_items, content, notifications")
+}
+Rel(editor, web, "Uses", "HTTPS")
+Rel(visitor, cdn, "Requests the home page from", "HTTPS")
+Rel(cdn, web, "Forwards cache misses to", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues slot checks when content is archived or hidden", "SQS")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, db, "Reads featured items; writes notifications", "SQL")
+@enduml

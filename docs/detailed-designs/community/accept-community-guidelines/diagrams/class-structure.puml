@@ -1,0 +1,100 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Accept the community guidelines
+
+package "Logos Lab Web" {
+  class GuidelinesGate {
+    -status: GuidelinesStatus | null
+    +ensureAccepted(): Promise<boolean>
+  }
+  class CommunityGuidelinesDialog {
+    +policy: PolicyVersionView
+    +mode: GuidelinesDialogMode
+    +accept(): void
+    +notNow(): void
+  }
+  enum GuidelinesDialogMode {
+    FirstTime
+    Updated
+  }
+  interface PoliciesApi {
+    +current(key: string): Observable<PolicyVersionView>
+    +status(key: string): Observable<GuidelinesStatus>
+    +accept(key: string, version: number): Observable<void>
+  }
+  class HttpPoliciesApi
+  class POLICIES_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class PolicyAcceptancesRouteHandler {
+    +GET(req: Request): Response
+    +POST(req: Request): Response
+  }
+  class AcceptPolicyVersionAction {
+    +execute(userId: string, key: string, version: number): Promise<PolicyAcceptance>
+  }
+  class GetGuidelinesStatusAction {
+    +execute(userId: string): Promise<GuidelinesStatus>
+  }
+  class GuidelinesAcceptanceService {
+    +requiredVersion(now: Date): PolicyVersion
+    +isCompliant(userId: string): boolean
+    +assertAccepted(userId: string): void
+  }
+  class Policy {
+    +key: string
+    +title: string
+  }
+  class PolicyVersion {
+    +policyKey: string
+    +version: number
+    +effectiveAt: Date
+    +requiresReacceptance: boolean
+    +changeSummary: string
+    +body: string
+  }
+  class PolicyAcceptance {
+    +userId: string
+    +policyKey: string
+    +version: number
+    +acceptedAt: Date
+  }
+  class GuidelinesStatus {
+    +requiredVersion: number
+    +acceptedVersion: number | null
+    +compliant: boolean
+  }
+  class PolicyRepository
+  class PolicyAcceptanceRepository
+  class PostCommentAction
+  class SendMessageAction
+}
+GuidelinesGate ..> PoliciesApi
+GuidelinesGate ..> CommunityGuidelinesDialog : opens
+CommunityGuidelinesDialog ..> PoliciesApi
+CommunityGuidelinesDialog --> GuidelinesDialogMode
+HttpPoliciesApi ..|> PoliciesApi
+POLICIES_API ..> PoliciesApi : provides
+AcceptPolicyVersionAction ..> GuidelinesAcceptanceService
+AcceptPolicyVersionAction ..> PolicyAcceptanceRepository
+GetGuidelinesStatusAction ..> GuidelinesAcceptanceService
+GuidelinesAcceptanceService ..> PolicyRepository
+GuidelinesAcceptanceService ..> PolicyAcceptanceRepository
+PostCommentAction ..> GuidelinesAcceptanceService : assertAccepted
+SendMessageAction ..> GuidelinesAcceptanceService : assertAccepted
+Policy "1" *-- "1..*" PolicyVersion
+PolicyAcceptance "0..*" --> "1" PolicyVersion : accepts
+PolicyAcceptancesRouteHandler ..> AcceptPolicyVersionAction
+PolicyAcceptancesRouteHandler ..> GetGuidelinesStatusAction
+@enduml

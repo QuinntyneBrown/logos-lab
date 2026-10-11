@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Stay available
+
+Person(admin, "Administrator", "Schedules maintenance")
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "AdminAnnouncementsPage", "Angular page", "Lists announcements and opens the dialog")
+  Component(dialog, "MaintenanceWindowDialog", "Angular CDK dialog", "Captures start and end")
+  Component(client, "HttpAnnouncementsApi", "AnnouncementsApi via ANNOUNCEMENTS_API", "Typed HTTP client")
+  Component(banner, "ll-alert banner", "Shared component", "Shows the announcement on every page")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "maintenance-windows route", "app/api/v1/admin/maintenance-windows/route.ts", "Parses and validates the request")
+  Component(action, "ScheduleMaintenanceWindowAction", "Action", "Applies the 72-hour notice rule")
+  Component(repo, "MaintenanceWindowRepository", "Repository", "Persists maintenance windows")
+  Component(report, "AvailabilityReport", "Domain service", "Computes monthly availability")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "maintenance_windows, announcements")
+System_Ext(cloudwatch, "Amazon CloudWatch", "Canary results")
+Rel(admin, page, "Uses")
+Rel(page, dialog, "Opens")
+Rel(dialog, client, "Submits through")
+Rel(client, route, "POST /api/v1/admin/maintenance-windows", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, repo, "Saves through")
+Rel(repo, db, "Writes", "SQL")
+Rel(report, repo, "Reads windows through")
+Rel(report, cloudwatch, "Reads canary results from")
+@enduml

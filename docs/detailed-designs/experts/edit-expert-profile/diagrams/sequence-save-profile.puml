@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Save an expert profile
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioProfilePage" as StudioProfilePage
+  participant "StudioProfileApi" as StudioProfileApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/experts/expertId/profile" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateExpertProfileAction" as UpdateExpertProfileAction
+  participant "ExpertProfileValidator" as ExpertProfileValidator
+  participant "ProfileVersionService" as ProfileVersionService
+  participant "NotificationService" as NotificationService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> StudioProfilePage : Edit title and bio; press Save profile
+StudioProfilePage -> StudioProfileApi : saveProfile(myExpertId, changes)
+StudioProfileApi -> route : HTTPS PUT with session
+route -> route : Authenticate; require Expert
+route -> UpdateExpertProfileAction : execute(userId, expertId, changes)
+UpdateExpertProfileAction -> ExpertProfileValidator : validate(changes)
+alt invalid
+  ExpertProfileValidator --> UpdateExpertProfileAction : Errors
+  UpdateExpertProfileAction --> route : Validation problem
+  route --> StudioProfileApi : 400 problem with field errors
+  StudioProfileApi --> StudioProfilePage : Errors
+  StudioProfilePage --> actor : Error summary linking to each field
+else valid
+  UpdateExpertProfileAction -> db : Begin; load profile where id = expertId and user_id = userId
+  db --> UpdateExpertProfileAction : Current profile
+  UpdateExpertProfileAction -> ProfileVersionService : diff and record Edit version
+  ProfileVersionService -> db : Insert expert_profile_versions with old and new values (L2-023)
+  UpdateExpertProfileAction -> db : Update expert_profiles (live immediately)
+  UpdateExpertProfileAction -> db : Insert audit entry with changed fields, old and new values (L2-023)
+  UpdateExpertProfileAction -> NotificationService : notifyEditors(ProfileChanged, expertId)
+  NotificationService -> db : Insert in-app notifications for editors
+  UpdateExpertProfileAction -> db : Commit
+  UpdateExpertProfileAction --> route : Saved profile
+  route --> StudioProfileApi : 200 JSON
+  StudioProfileApi --> StudioProfilePage : Saved
+  StudioProfilePage --> actor : Success; public page updates within a minute and editors are told
+end
+@enduml

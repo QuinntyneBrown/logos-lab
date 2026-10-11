@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — View a module page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModulePage" as page
+  participant "HttpModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "modules/[slug] route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetModulePageAction" as a1
+  participant "GetMyModuleStateAction" as a2
+  participant "BestResultSelector" as best
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /modules/{slug}
+page -> client : getModule(slug)
+client -> route : GET /api/v1/modules/{slug} (anonymous)
+route -> a1 : execute(slug)
+a1 -> db : Load published module, contributor, topics
+db --> a1 : Module or none
+alt not published or unknown
+  a1 --> route : NotFound
+  route --> client : 404 problem response
+  client --> page : Not found
+  page --> actor : Not-found page
+else published
+  a1 -> db : Find published courses using module (L2-038)
+  db --> a1 : Course usages
+  a1 --> route : ModuleOverview
+  route --> client : 200 (cacheable)
+  client --> page : Overview
+  page --> actor : Title, summary, contributor, duration, topics, level, Part of these courses
+  alt visitor
+    page --> actor : Sign in to start
+  else signed in
+    page -> client : getMyModuleState(slug)
+    client -> route : GET /api/v1/modules/{slug}/me
+    route -> a2 : execute(slug, userId)
+    a2 -> db : Load attempts for userId (L2-017)
+    db --> a2 : Attempts
+    a2 -> best : select(attempts) (L2-037)
+    best --> a2 : Best attempt
+    a2 --> route : MyModuleState
+    route --> client : 200 (no-store)
+    client --> page : State
+    page --> actor : Status, best score; Start, Resume with date, or Try again
+  end
+end
+@enduml

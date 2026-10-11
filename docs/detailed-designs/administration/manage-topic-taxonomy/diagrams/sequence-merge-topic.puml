@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Merge a topic into another
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MergeTopicDialog" as dialog
+  participant "TopicsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/admin/topics/{id}/merge" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "MergeTopicAction" as action
+  participant "TopicService" as service
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Choose target topic, confirm "Merge into ..."
+alt no target chosen
+  dialog --> actor : Invalid state: choose a topic
+else target chosen
+  dialog -> client : merge(sourceId, targetId)
+  client -> route : HTTPS POST with CSRF token
+  route -> route : Authenticate and require Administrator role
+  route -> action : execute(actor, A, B)
+  action -> db : Begin; lock topics A and B
+  action -> service : merge(A, B)
+  service -> db : Retag content A to B; items already tagged with both keep one tag (L2-096)
+  service -> db : Insert redirect from A's slug to B; repoint A's old redirects to B
+  service -> db : Delete topic A
+  action -> audit : record("Topic merged", A, before and after)
+  action -> db : Commit
+  action --> route : 204
+  route --> client : Done
+  dialog --> actor : Success: items retagged, address redirects
+end
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Update support contact details
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminSettingsPage" as page
+  participant "SiteAdminApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/admin/site-settings" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateSiteSettingsAction" as action
+  participant "SiteSettingsService" as service
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+participant "Footer and EmailTemplateRenderer" as consumers
+actor -> page : Edit support email, phone, reply times, mailing address; Save settings
+page -> client : saveSettings(input)
+client -> route : HTTPS PUT with CSRF token
+route -> action : execute(actor, input)
+action -> service : update(input)
+alt support email invalid or mailing address empty
+  service --> action : Errors
+  action --> route : 422 problem
+  page --> actor : Invalid state
+else valid
+  service -> db : Update site_settings single row
+  action -> audit : record("Settings changed", before, after)
+  action -> db : Commit
+  action --> route : 200 settings
+  page --> actor : Saved: footer now, every email from now on
+end
+consumers -> service : get() on the next footer render (via GET /api/v1/site-settings/public) or email send
+service --> consumers : Support details shown in the footer and every email (L2-098)
+@enduml

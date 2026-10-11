@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Show the continue-learning strip
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "HomePage" as HomePage
+  participant "HomeApi" as HomeApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/me/continue-learning" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetContinueLearningAction" as GetContinueLearningAction
+  participant "LearningProgressService" as LearningProgressService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> HomePage : Open / while signed in
+HomePage -> HomeApi : getContinueLearning()
+HomeApi -> route : HTTPS GET with session cookie (not cached by CDN)
+route -> route : Authenticate and resolve current user
+route -> GetContinueLearningAction : execute(currentUserId)
+GetContinueLearningAction -> LearningProgressService : getInProgress(currentUserId, 3)
+LearningProgressService -> db : Select in-progress items where user_id = currentUserId order by last_accessed_at desc limit 3 (L2-017)
+db --> LearningProgressService : Up to 3 items
+LearningProgressService --> GetContinueLearningAction : ContinueLearningItem[]
+GetContinueLearningAction --> route : Items
+route --> HomeApi : 200 JSON
+HomeApi --> HomePage : Items
+alt at least one item in progress
+  HomePage --> actor : Show Continue learning strip, most recently accessed first (L2-001)
+else none in progress
+  HomePage --> actor : Omit the strip
+end
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Build a course structure
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "CourseBuilderPage", "Angular page", "Edits settings, sections and lessons")
+  Component(sortable, "ll-sortable", "Shared component", "Drag and keyboard reordering")
+  Component(picker, "ItemPickerDialog", "Angular CDK dialog", "Chooses items to add as lessons")
+  Component(contract, "StudioCoursesApi / STUDIO_COURSES_API", "API contract and token", "Typed Studio course calls")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "studio/courses route handlers", "Next.js route handlers", "Structure, submission, library, usages")
+  Component(save, "SaveCourseStructureAction", "Action", "Saves ordered structure")
+  Component(submit, "SubmitForReviewAction", "Action (authoring)", "Moves the draft to In review")
+  Component(usages, "GetContentUsagesAction", "Action", "Lists published courses using an item")
+  Component(svc, "CourseStructureService", "Domain service", "Limits, ordering, empty-section check")
+  Component(dur, "CourseDurationCalculator", "Domain service", "Sum rounded to nearest 5 minutes")
+  Component(repo, "CourseRepository", "Repository", "courses, course_sections, course_lessons")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(page, sortable, "Reorders with")
+Rel(page, picker, "Opens")
+Rel(page, contract, "Depends on")
+Rel(contract, route, "Calls through HttpStudioCoursesApi", "JSON/HTTPS")
+Rel(route, save, "Invokes")
+Rel(route, submit, "Invokes")
+Rel(route, usages, "Invokes")
+Rel(save, svc, "Validates with")
+Rel(submit, svc, "Checks empty sections with")
+Rel(svc, dur, "Computes duration with")
+Rel(save, repo, "Writes through")
+Rel(usages, repo, "Queries through")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

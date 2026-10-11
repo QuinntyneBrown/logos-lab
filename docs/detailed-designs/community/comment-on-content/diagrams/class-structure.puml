@@ -1,0 +1,148 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Comment on content
+
+package "Logos Lab Web" {
+  class CommentsSection {
+    +target: CommentTarget
+    +sort: CommentSort
+    +comments: CommentView[]
+    +post(body: string, parentId?: string): void
+    +showMore(): void
+    +changeSort(sort: CommentSort): void
+  }
+  class EditCommentDialog {
+    +comment: CommentView
+    +save(body: string): void
+  }
+  class DeleteCommentDialog {
+    +comment: CommentView
+    +hasReplies: boolean
+    +confirm(): void
+  }
+  interface CommentsApi {
+    +list(target: CommentTarget, sort: CommentSort, cursor?: string): Observable<CommentPage>
+    +post(request: PostCommentRequest): Observable<CommentView>
+    +edit(id: string, body: string): Observable<CommentView>
+    +delete(id: string): Observable<void>
+    +setSort(sort: CommentSort): Observable<void>
+  }
+  class HttpCommentsApi
+  class COMMENTS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CommentsRouteHandler {
+    +GET(req: Request): Response
+    +POST(req: Request): Response
+    +PATCH(req: Request): Response
+    +DELETE(req: Request): Response
+  }
+  class PostCommentAction {
+    +execute(userId: string, req: PostCommentRequest): Promise<Comment>
+  }
+  class ListCommentsAction {
+    +execute(viewerId: string | null, query: CommentQuery): Promise<CommentPage>
+  }
+  class EditCommentAction {
+    +execute(userId: string, id: string, body: string): Promise<Comment>
+  }
+  class DeleteCommentAction {
+    +execute(userId: string, id: string): Promise<void>
+  }
+  class CommentService {
+    +EDIT_WINDOW_MINUTES: number = 15
+    +PAGE_SIZE: number = 20
+    +assertOpen(target: CommentTarget): void
+    +threadFor(parent: Comment | null): ThreadPosition
+    +canEdit(comment: Comment, now: Date): boolean
+    +delete(comment: Comment, replyCount: number): DeleteOutcome
+  }
+  class CommentSpamService {
+    +check(userId: string, body: string, accountCreatedAt: Date): SpamVerdict
+  }
+  class CommentFormattingService {
+    +sanitize(source: string): string
+    +containsLink(source: string): boolean
+  }
+  class CommentRepository {
+    +findPage(target: CommentTarget, sort: CommentSort, cursor?: string): Comment[]
+    +findOwn(id: string, authorId: string): Comment | null
+    +countReplies(id: string): number
+    +lastByAuthor(authorId: string): Comment | null
+    +save(comment: Comment): void
+    +remove(id: string): void
+  }
+  class Comment {
+    +id: string
+    +targetType: CommentTargetType
+    +targetId: string
+    +authorId: string
+    +rootId: string | null
+    +inReplyToId: string | null
+    +bodySource: string
+    +bodyHtml: string
+    +status: CommentStatus
+    +createdAt: Date
+    +editedAt: Date | null
+  }
+  enum CommentStatus {
+    Visible
+    Held
+    Deleted
+    Removed
+  }
+  enum CommentTargetType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+    Cohort
+  }
+  enum CommentSort {
+    Newest
+    Oldest
+  }
+  enum SpamVerdict {
+    Accept
+    Hold
+    RateLimited
+    Duplicate
+  }
+}
+CommentsSection ..> CommentsApi : depends on
+EditCommentDialog ..> CommentsApi
+DeleteCommentDialog ..> CommentsApi
+HttpCommentsApi ..|> CommentsApi
+COMMENTS_API ..> CommentsApi : provides
+CommentsRouteHandler ..> PostCommentAction
+CommentsRouteHandler ..> ListCommentsAction
+CommentsRouteHandler ..> EditCommentAction
+CommentsRouteHandler ..> DeleteCommentAction
+PostCommentAction ..> CommentService
+PostCommentAction ..> CommentSpamService
+PostCommentAction ..> CommentFormattingService
+EditCommentAction ..> CommentService
+DeleteCommentAction ..> CommentService
+PostCommentAction ..> CommentRepository
+ListCommentsAction ..> CommentRepository
+EditCommentAction ..> CommentRepository
+DeleteCommentAction ..> CommentRepository
+CommentRepository --> Comment : persists
+Comment --> CommentStatus
+Comment --> CommentTargetType
+Comment "0..*" --> "0..1" Comment : rootId / inReplyToId
+CommentSpamService --> SpamVerdict : returns
+@enduml

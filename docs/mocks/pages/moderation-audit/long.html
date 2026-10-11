@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moderation audit trail · long — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="moderation-audit">
+<meta name="mock:state" content="long">
+<meta name="mock:requirements" content="L2-089">
+<meta name="description" content="The audit trail with long targets and reasons and 147 entries across 13 pages, to prove wrapping.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Owen Bradley" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/noah-fischer.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Moderation">
+      <p class="sidebar-nav__group">Moderation</p>
+      <a href="../../pages/moderation-queue/default.html">Queue <span class="badge badge--count">7</span></a>
+      <a href="../../pages/moderation-queue/held.html">Held for review <span class="badge badge--count">1</span></a>
+      <a href="../../pages/appeals/default.html">Appeals <span class="badge badge--count">1</span></a>
+      <a href="../../pages/moderation-audit/default.html" aria-current="page">Audit trail</a>
+    </nav>
+
+    <div>
+      <div class="page-head page-head--actions" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Moderation</p>
+        <h1 class="page-head__title">Audit trail</h1>
+        <p class="page-head__sub">Every moderation action, kept permanently. Entries can't be edited or deleted, by anyone.</p>
+        <div class="page-head__actions"><a class="btn btn--quiet" href="default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>Export CSV</a></div>
+      </div>
+      <form class="form-inline" action="no-results.html" style="margin-bottom: var(--space-6)">
+        <div class="field"><label class="field__label" for="f-mod">Moderator</label><span class="select__wrap"><select class="select__control" id="f-mod"><option selected>Any moderator</option><option>Owen Bradley</option><option>Isaac Moreau</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
+        <div class="field"><label class="field__label" for="f-member">Member</label><input class="input" id="f-member" name="member" type="search" placeholder="Name" value=""></div>
+        <div class="field"><label class="field__label" for="f-action">Action</label><span class="select__wrap"><select class="select__control" id="f-action"><option selected>Any action</option><option>Dismissed reports</option><option>Hid content</option><option>Removed content</option><option>Warned member</option><option>Suspended member</option><option>Banned member</option><option>Decided appeal</option><option>Approved held comment</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
+        <div class="field"><label class="field__label" for="f-from">From</label><input class="input" id="f-from" name="from" type="date" value="2026-09-01"></div>
+        <div class="field"><label class="field__label" for="f-to">To</label><input class="input" id="f-to" name="to" type="date" value="2026-10-13"></div>
+        <button class="btn btn--quiet" type="submit">Apply filters</button>
+      </form>
+      <p class="toolbar__count" style="margin-bottom: var(--space-4)">Showing <strong>1–12</strong> of <strong>147</strong> entries from 1 Sep to 13 Oct 2026, newest first</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <caption class="vh">Moderation actions, page 1 of 13</caption>
+          <thead><tr><th scope="col">When</th><th scope="col">Moderator</th><th scope="col">Action</th><th scope="col">Target</th><th scope="col">Reason</th><th scope="col">Reports</th></tr></thead>
+          <tbody>
+            <tr><td class="data-table__nowrap">Tue 13 Oct 2026, 10:40 am ET</td><td>Owen Bradley</td><td>Upheld appeal</td><td>Jonah Fraser's appeal, cohort post</td><td>Quote was a prompt for the lesson discussion, not his view</td><td>R-1028</td></tr>
+            <tr><td class="data-table__nowrap">Tue 13 Oct 2026, 10:31 am ET</td><td>Owen Bradley</td><td>Suspended 7 days</td><td>Samuel Okafor</td><td>Personal attack on another member by name, after a warning</td><td>R-1042<br>R-1043<br>R-1044</td></tr>
+            <tr><td class="data-table__nowrap">Mon 12 Oct 2026, 3:40 pm ET</td><td>Owen Bradley</td><td>Dismissed reports</td><td>Comment by Priya Raman</td><td>Disagreement, not harassment</td><td>R-1036</td></tr>
+            <tr><td class="data-table__nowrap">Mon 12 Oct 2026, 11:02 am ET</td><td>Isaac Moreau</td><td>Removed content</td><td>Comment by Former member on Augustine and the Algorithm</td><td>Repeated links to a paid course</td><td>R-1029<br>R-1030</td></tr>
+            <tr><td class="data-table__nowrap">Fri 9 Oct 2026, 4:12 pm ET</td><td>Isaac Moreau</td><td>Hid content</td><td>Cohort post by Jonah Fraser</td><td>Quoted a chatbot claiming divine likeness</td><td>R-1028</td></tr>
+            <tr><td class="data-table__nowrap">Mon 28 Sep 2026, 2:20 pm ET</td><td>Isaac Moreau</td><td>Upheld appeal</td><td>Priya Raman's appeal, cohort post</td><td>Question was on topic for lesson 2.4</td><td>R-0991</td></tr>
+            <tr><td class="data-table__nowrap">Fri 25 Sep 2026, 9:05 am ET</td><td>Owen Bradley</td><td>Hid content</td><td>Cohort post by Priya Raman</td><td>Looked off-topic for the cohort</td><td>R-0991</td></tr>
+            <tr><td class="data-table__nowrap">Mon 21 Sep 2026, 9:15 am ET</td><td>Owen Bradley</td><td>Warned member</td><td>Samuel Okafor</td><td>Personal attack in a comment on Can a Machine Pray?</td><td>R-0977</td></tr>
+            <tr><td class="data-table__nowrap">Fri 18 Sep 2026, 4:48 pm ET</td><td>Isaac Moreau</td><td>Hid content pending editor review</td><td>Article: Five Questions to Ask Before Your Church Adopts AI, by Logos Lab, edited by Naomi Ellis</td><td>Reported as out of date on data retention; Naomi Ellis notified and the correction published on 21 Sep</td><td>R-0962</td></tr>
+            <tr><td class="data-table__nowrap">Wed 16 Sep 2026, 11:30 am ET</td><td>Owen Bradley</td><td>Removed content</td><td>Comment by Former member on How Language Models Work: A Primer for Pastors, lesson 4.2</td><td>Shared another member's email address and phone number in a public comment</td><td>R-0951<br>R-0952<br>R-0953</td></tr>
+            <tr><td class="data-table__nowrap">Mon 14 Sep 2026, 8:02 pm ET</td><td>Owen Bradley</td><td>Dismissed reports</td><td>Cohort post by Clara Novak in Imago Dei, Autumn 2026, welcome thread</td><td>Introductions with a link to a personal site are allowed in the welcome thread</td><td>R-0940</td></tr>
+            <tr><td class="data-table__nowrap">Sat 12 Sep 2026, 1:15 pm ET</td><td>Isaac Moreau</td><td>Approved held comment</td><td>Comment by a new member on Augustine and the Algorithm</td><td>Link was to a public library catalogue entry</td><td>Held H-0212</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <nav class="pager" aria-label="Pages of audit entries">
+        <div class="pager__meter" aria-hidden="true"><span style="--ll-pager-progress: 8%"></span></div>
+        <p class="pager__text">Page 1 of 13</p>
+        <div class="pager__pages"><a class="btn btn--sm" href="long.html" aria-current="page">1</a><a class="btn btn--quiet btn--sm" href="long.html">2</a><a class="btn btn--quiet btn--sm" href="long.html">3</a><span aria-hidden="true">…</span><a class="btn btn--quiet btn--sm" href="long.html">13</a><a class="btn btn--quiet btn--sm" href="long.html">Next page</a></div>
+      </nav>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab moderation · every action is recorded in the audit trail</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Moderation audit trail</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="no-results.html">no-results</a></li>
+    <li><a href="long.html" aria-current="page">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Join an online event
+
+Person(member, "Registered member", "Attends online")
+Person(host, "Host", "Enters the join link in Studio")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(vc, "Video-conferencing service", "<TO SUPPLY>")
+Rel(host, ll, "Sets the protected join link in", "HTTPS")
+Rel(member, ll, "Gets the join link from, inside the window", "HTTPS")
+Rel(member, vc, "Joins the online room on", "HTTPS")
+@enduml

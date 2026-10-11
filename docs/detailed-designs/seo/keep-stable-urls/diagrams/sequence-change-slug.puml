@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Change a slug on publish
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Studio editor page" as page
+  participant "StudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "publish route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishContentAction" as action
+  participant "SlugService" as slugs
+  participant "SlugHistoryRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Publish new title
+page -> client : publish(itemId)
+client -> route : POST publish request
+route -> action : execute
+action -> slugs : toSlug(newTitle)
+slugs -> repo : isReserved(type, candidate)
+repo -> db : Check items and slug_history
+db --> repo : Free or taken
+repo --> slugs : Result
+slugs --> action : New slug (suffix added when taken)
+action -> slugs : changeSlug(item, newSlug, tx)
+slugs -> repo : add(old slug -> item id) (Apply L2-146 old URL keeps resolving)
+repo -> db : Insert slug_history row
+slugs -> db : Update item slug
+action -> db : Commit in one transaction
+db --> action : Committed
+action --> route : Published with new URL
+route --> client : 200
+client --> page : Result
+page --> actor : Show new public URL
+@enduml

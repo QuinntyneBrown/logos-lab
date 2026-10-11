@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Filter and sort the catalogue
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExplorePage" as ExplorePage
+  participant "CatalogueApi" as CatalogueApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/catalogue" as route
+  participant "CatalogueQueryParser" as CatalogueQueryParser
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "BrowseCatalogueAction" as BrowseCatalogueAction
+  participant "CatalogueService" as CatalogueService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ExplorePage : Check type Video and topic AI ethics
+ExplorePage -> ExplorePage : Write type=video&topic=ai-ethics to the URL (L2-002)
+ExplorePage -> CatalogueApi : browse(state)
+CatalogueApi -> route : HTTPS GET ?type=video&topic=ai-ethics&sort=newest&page=1
+route -> CatalogueQueryParser : parse(query string)
+CatalogueQueryParser -> CatalogueQueryParser : Drop unknown values such as type=podcast without error (L2-002)
+CatalogueQueryParser --> route : CatalogueQuery
+route -> BrowseCatalogueAction : execute(query)
+BrowseCatalogueAction -> CatalogueService : browse(query, now)
+CatalogueService -> CatalogueService : Apply published-content rule and filters
+alt sort = MostPopular
+  CatalogueService -> db : Select page ordered by distinct members engaged in last 30 days desc
+else sort = Newest
+  CatalogueService -> db : Select page ordered by published_at desc
+end
+db --> CatalogueService : Up to 24 items, total and facet counts
+CatalogueService --> BrowseCatalogueAction : CataloguePage
+BrowseCatalogueAction --> route : CataloguePage
+route --> CatalogueApi : 200 JSON
+CatalogueApi --> ExplorePage : CataloguePage
+alt total = 0
+  ExplorePage --> actor : Empty state naming active filters with one Clear filters action
+else results found
+  ExplorePage --> actor : Cards with type, title, contributor, topic, duration or date
+end
+@enduml

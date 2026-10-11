@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Record a module outcome
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Tessera scorm-player" as tess
+  participant "ModulePage" as page
+  participant "HttpModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ModuleAttemptService" as att
+  participant "BestResultSelector" as best
+  participant "LessonCompletionService" as lesson
+  participant "ProgressService" as prog
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+tess -> client : Commit with status and score
+client -> route : PUT /api/v1/module-attempts/{id}/runtime
+route -> att : applyReportedStatus(attempt, values)
+alt completed or passed (L2-037)
+  att -> db : Attempt Completed or Passed with score and timestamp
+  att -> lesson : completeModuleLessons(userId, moduleId) (L2-029)
+  lesson -> db : Insert lesson_completions for enrolled course lessons
+  lesson -> prog : Recalculate course progress (L2-030)
+  prog --> lesson : Progress
+  lesson --> att : Done
+  att --> route : Completed
+else failed
+  att -> db : Attempt Failed with score; earlier attempts kept
+  att --> route : Failed
+  route --> client : 200 Failed with score
+  client --> page : Show score and Try again
+  actor -> page : Try again
+  page -> client : launch(slug, newAttempt = true)
+  client -> route : POST /api/v1/modules/{slug}/launches
+  route -> att : openOrCreate(newAttempt) creates attempt n + 1
+  att -> db : Insert attempt
+else incomplete or no status
+  att --> route : In progress
+end
+opt module page shows best result
+  att -> best : select(attempts)
+  best --> att : Highest-scoring passed or completed attempt
+end
+opt module set to Complete on launch and never reports completion
+  att -> db : Mark attempt complete at launch (L2-037)
+end
+@enduml

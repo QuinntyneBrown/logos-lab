@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Adapt layouts across viewports
+
+
+Person(learner, "Learner", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves hashed style sheets")
+  Container(web, "Logos Lab Web", "Angular SSR", "Pages and the shared components library")
+}
+System_Ext(ci, "CI pipeline", "Visual and target-size checks")
+
+Rel(learner, cdn, "Requests pages and styles", "HTTPS")
+Rel(cdn, web, "Forwards page requests to")
+Rel(ci, web, "Captures")
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Warn before a session expires
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Author" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SessionExpiryWatcher" as watch
+  participant "SessionTimeoutDialog" as dlg
+  participant "HttpSessionApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/session/extend" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ExtendSessionAction" as act
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+watch -> watch : 2 minutes remain (L2-128 AC4)
+watch -> dlg : Open; focus moves into dialog
+loop Each second
+  dlg -> dlg : Update countdown; announce each minute
+end
+alt Author activates Stay signed in
+  actor -> dlg : Stay signed in
+  dlg -> dlg : Busy state
+  dlg -> client : extend()
+  client -> route : POST
+  route -> act : execute(sessionId, userId)
+  act -> db : Extend session expiry
+  db --> act : New expiry
+  act --> route : SessionExpiry
+  alt Extension succeeds
+    route --> client : 200 with expiresAt
+    client --> dlg : SessionExpiry
+    dlg -> watch : Restart with new expiry
+    dlg --> actor : Close; focus returns to the editor
+  else Extension fails
+    route --> client : Problem response with error code
+    client --> dlg : Error
+    dlg --> actor : Failed state with retry
+  end
+else Countdown reaches 0:00
+  dlg --> actor : Open sign in; signing in returns to the draft
+end
+@enduml

@@ -1,0 +1,78 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Server-render public pages
+
+package "Logos Lab Web" {
+  class PublicRoute {
+    +path: string
+    +renderMode: RenderMode
+  }
+  enum RenderMode {
+    Server
+    Client
+  }
+  class NoIndexHeaderMiddleware {
+    +MEMBER_PREFIXES: string[]
+    +handle(req: Request, res: Response, next: NextFunction): void
+  }
+  class CourseOverviewPage {
+    +course: Signal<CourseDetail>
+    +memberState: Signal<CourseMemberState | null>
+  }
+  interface CoursesApi {
+    +getCourse(slug: string): Observable<CourseDetail>
+    +getMemberState(slug: string): Observable<CourseMemberState>
+  }
+  class HttpCoursesApi {
+    +getCourse(slug: string): Observable<CourseDetail>
+    +getMemberState(slug: string): Observable<CourseMemberState>
+  }
+  class COURSES_API <<InjectionToken>> {
+  }
+  class CourseDetail {
+    +slug: string
+    +title: string
+    +summary: string
+    +outline: OutlineSection[]
+    +coverImage: ImageRef
+  }
+  class ImageRef {
+    +url: string
+    +width: number
+    +height: number
+    +alt: string
+  }
+}
+
+package "Logos Lab API" {
+  class CourseRoute {
+    +GET(request: Request, params: SlugParams): Promise<Response>
+  }
+  class GetCourseAction {
+    +execute(slug: string): Promise<Result<CourseDetail>>
+  }
+  class CourseRepository {
+    +findPublishedBySlug(slug: string): Promise<Course | null>
+  }
+}
+
+PublicRoute --> RenderMode : has
+CourseOverviewPage ..> CoursesApi : depends on
+HttpCoursesApi ..|> CoursesApi
+COURSES_API ..> CoursesApi : provides
+CoursesApi ..> CourseDetail : returns
+CourseDetail --> ImageRef : cover
+CourseRoute ..> GetCourseAction : calls
+GetCourseAction ..> CourseRepository : uses
+@enduml

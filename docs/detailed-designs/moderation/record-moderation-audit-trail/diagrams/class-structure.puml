@@ -1,0 +1,82 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Record the moderation audit trail
+
+package "Logos Lab Web" {
+  class ModerationAuditPage {
+    +filters: AuditFilters
+    +entries: Signal<AuditEntryRow[]>
+    +applyFilters(): void
+    +exportCsv(): void
+  }
+  interface ModerationApi {
+    +listAudit(filters: AuditFilters, page: number): Observable<AuditPage>
+    +exportAuditCsv(filters: AuditFilters): Observable<Blob>
+  }
+  class HttpModerationApi
+  class MODERATION_API <<InjectionToken>>
+  class AuditFilters {
+    +moderatorId: string
+    +memberId: string
+    +action: string
+    +from: string
+    +to: string
+  }
+}
+
+package "Logos Lab API" {
+  class ModerationAuditRoute <<route handler>> {
+    +GET(request: Request): Response
+  }
+  class ModerationAuditExportRoute <<route handler>> {
+    +GET(request: Request): Response
+  }
+  class ListModerationAuditAction {
+    +execute(user: CurrentUser, filters: AuditFilters, page: number): AuditPage
+  }
+  class ExportModerationAuditAction {
+    +execute(user: CurrentUser, filters: AuditFilters): ReadableStream
+  }
+  class ModerationAuditService {
+    +append(entry: ModerationAuditEntry): void
+  }
+  class ModerationAuditRepository {
+    +insert(entry: ModerationAuditEntry): void
+    +query(filters: AuditFilters, page: number): AuditPage
+    +stream(filters: AuditFilters): AsyncIterable<ModerationAuditEntry>
+  }
+  class ModerationAuditEntry <<append-only>> {
+    +id: uuid
+    +moderatorId: uuid
+    +action: string
+    +targetType: ReportTargetType
+    +targetId: uuid
+    +memberId: uuid
+    +reason: string
+    +reportRefs: string[]
+    +createdAt: timestamptz
+  }
+}
+
+HttpModerationApi ..|> ModerationApi
+MODERATION_API ..> ModerationApi : provides
+ModerationAuditPage ..> MODERATION_API : injects
+ModerationAuditPage --> AuditFilters
+ModerationAuditRoute ..> ListModerationAuditAction : calls
+ModerationAuditExportRoute ..> ExportModerationAuditAction : calls
+ListModerationAuditAction ..> ModerationAuditRepository : uses
+ExportModerationAuditAction ..> ModerationAuditRepository : uses
+ModerationAuditService ..> ModerationAuditRepository : uses
+ModerationAuditRepository ..> ModerationAuditEntry : persists
+@enduml

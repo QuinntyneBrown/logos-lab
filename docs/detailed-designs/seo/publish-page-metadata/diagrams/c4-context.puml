@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Publish page metadata
+
+Person(visitor, "Visitor", "Shares links")
+System_Ext(search, "Search engines", "Google and others")
+System_Ext(social, "Social and messaging platforms", "LinkedIn, Facebook, Slack")
+System(ll, "Logos Lab", "Public pages with metadata and JSON-LD")
+
+Rel(visitor, social, "Shares Logos Lab links on")
+Rel(search, ll, "Fetches pages and JSON-LD", "HTTPS")
+Rel(social, ll, "Fetches page head and og:image", "HTTPS")
+@enduml

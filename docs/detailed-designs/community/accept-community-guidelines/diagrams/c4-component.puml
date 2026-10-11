@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Accept the community guidelines
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(composer, "Contribution components", "CommentsSection, ConversationPage", "Ask the gate before sending")
+  Component(gate, "GuidelinesGate", "Angular service", "Session status, opens the dialog")
+  Component(dialog, "CommunityGuidelinesDialog", "Angular CDK dialog", "Shows guidelines, records acceptance")
+  Component(client, "PoliciesApi", "Contract + HttpPoliciesApi", "Bound by POLICIES_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/policies and app/api/v1/me/policy-acceptances", "Next.js route handlers", "Validate and map")
+  Component(actions, "Policy actions", "GetCurrentPolicyAction, GetGuidelinesStatusAction, AcceptPolicyVersionAction", "One use case each")
+  Component(contrib, "Contribution actions", "PostCommentAction, StartConversationAction, SendMessageAction", "Call the gate before writing")
+  Component(service, "GuidelinesAcceptanceService", "Domain service", "Required version, assertAccepted")
+  Component(repos, "PolicyRepository / PolicyAcceptanceRepository", "Repositories", "Table access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Policy tables")
+Rel(composer, gate, "ensureAccepted()")
+Rel(gate, dialog, "Opens")
+Rel(gate, client, "Reads status")
+Rel(dialog, client, "Accepts")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, service, "Uses")
+Rel(contrib, service, "assertAccepted")
+Rel(service, repos, "Reads")
+Rel(actions, repos, "Saves acceptance")
+Rel(repos, db, "Reads and writes", "SQL")
+@enduml

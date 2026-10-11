@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Appeal a moderation decision
+
+Person(member, "Member", "Received a moderation action")
+Person(moderator, "Moderator", "Different from the one who acted")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends email")
+
+Rel(member, logoslab, "Appeals from the account notice in", "HTTPS")
+Rel(moderator, logoslab, "Decides appeals in", "HTTPS")
+Rel(logoslab, ses, "Sends notice and outcome email through", "HTTPS API")
+Rel(ses, member, "Delivers email to")
+@enduml

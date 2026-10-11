@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Hide published content pending editor review
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationActionDialog" as dialog
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "report actions route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "TakeModerationActionAction" as action
+  participant "ModerationActionService" as rules
+  participant "ContentVisibilityService" as visibility
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Open Take action on a report about a published article
+dialog --> actor : Only Hide pending editor review is offered
+actor -> dialog : Confirm hide with reason
+dialog -> client : takeAction(reportId, HideContent)
+client -> route : POST /api/v1/moderation/reports/{id}/actions
+route -> action : execute(currentUser, request)
+action -> rules : validate(request, published content)
+alt Any action other than Hide content
+  rules --> action : Refused (L2-087)
+  action --> route : Conflict
+  route --> client : 409 problem response
+  client --> dialog : Refused
+  dialog --> actor : Only hiding pending editor review is allowed
+else Hide content
+  rules --> action : Allowed
+  action -> visibility : hide(published item) pending editor review
+  visibility -> db : Set item hidden from public pages
+  action -> notify : notifyEditors(itemId) (L2-087)
+  notify -> db : INSERT in-app notification for editors
+  notify -> sqs : Enqueue EmailSendJob for editors
+  action -> db : INSERT moderation_action and audit entry; COMMIT
+  action --> route : ActionResult
+  route --> client : 200 JSON
+  client --> dialog : Hidden
+  dialog --> actor : Hidden pending editor review; an editor is notified
+end
+@enduml

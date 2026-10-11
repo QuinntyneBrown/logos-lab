@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Rotate the session on a privilege change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUserPage" as page
+  participant "UsersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/admin/users/{id}/roles" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ChangeRolesAction" as action
+  participant "SessionService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Grant a role
+page -> client : changeRoles(userId, roles)
+client -> route : PUT with X-CSRF-Token
+route -> action : execute(actor, target, roles)
+action -> db : Update roles in one transaction
+action -> svc : rotate each active session of the target (L2-106)
+svc -> db : Insert new session rows, mark old rows replacedBy
+note right of svc : Old rows keep replacedBy; the next request of the target\nreceives the new identifier through Set-Cookie
+svc --> action : Rotated
+action --> route : Done
+route --> client : 204
+client --> page : Updated
+page --> actor : Roles saved
+@enduml

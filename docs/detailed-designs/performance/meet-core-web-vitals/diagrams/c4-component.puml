@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Meet Core Web Vitals
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(shell, "AppShell", "Angular component", "Root layout; loads self-hosted fonts")
+  Component(img, "ResponsiveImageDirective", "Angular directive", "srcset, sizes, lazy loading, LCP preload")
+  Component(cards, "ll-content-card, ll-hero, ll-media-tile", "Shared components", "Reserve media boxes")
+  Component(lazy, "Lazy feature routes", "Angular router", "Studio, admin, moderation and players")
+  Component(rep, "WebVitalsReporter", "Angular service", "Observes LCP, INP and CLS")
+  Component(tapi, "HttpTelemetryApi", "TelemetryApi implementation", "Sends samples by beacon")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "POST /api/v1/telemetry/web-vitals", "Route handler, anonymous", "Validates the sample")
+  Component(act, "RecordWebVitalsAction", "Action", "Turns a sample into a metric")
+  Component(pub, "MetricsPublisher", "Infrastructure adapter", "Writes CloudWatch metrics")
+}
+System_Ext(cw, "Amazon CloudWatch", "WebVitalsAlarm per metric and device class")
+
+Rel(shell, cards, "Hosts pages built from")
+Rel(cards, img, "Render images through")
+Rel(shell, lazy, "Loads on demand")
+Rel(rep, tapi, "Reports samples through")
+Rel(tapi, route, "POST", "JSON/HTTPS")
+Rel(route, act, "Calls")
+Rel(act, pub, "Publishes through")
+Rel(pub, cw, "Writes metrics to")
+@enduml

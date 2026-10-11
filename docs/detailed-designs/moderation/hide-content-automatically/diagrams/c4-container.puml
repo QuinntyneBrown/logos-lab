@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Hide content automatically
+
+Person(member, "Member", "Reports content")
+Person(moderator, "Moderator", "Reviews the queue")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "ReportContentDialog, ModerationQueuePage")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Report and action endpoints, AutoHideService")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "reports, moderation_cases, content visibility")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(moderator, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Counts reports and updates visibility in", "SQL")
+@enduml

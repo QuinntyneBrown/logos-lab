@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Select theme
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(boot, "ThemeBootScript", "Inline head script", "Applies ll-theme before paint")
+  Component(ssr, "AppShell server render", "Angular SSR", "Writes data-theme for members")
+  Component(svc, "ThemeService", "Angular service", "Preference signal; applies data-theme")
+  Component(ctl, "Theme control", "ll-menu menuitemradio", "Header, account menu, drawer")
+  Component(papi, "HttpPreferencesApi", "PreferencesApi implementation", "updateTheme")
+  Component(tok, "Theme tokens", "tokens.css", "Light and dark role values")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "PATCH /api/v1/me/preferences", "Route handler", "Authenticated")
+  Component(act, "UpdateMemberPreferencesAction", "Action", "Updates own preferences")
+  Component(repo, "MemberPreferencesRepository", "Repository", "Scoped to current user")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "member_preferences")
+
+Rel(ctl, svc, "Calls setPreference on")
+Rel(svc, tok, "Selects values through data-theme")
+Rel(boot, tok, "Selects values through data-theme")
+Rel(ssr, tok, "Selects values through data-theme")
+Rel(svc, papi, "Saves member choice through")
+Rel(papi, route, "PATCH", "JSON/HTTPS")
+Rel(route, act, "Calls")
+Rel(act, repo, "Updates through")
+Rel(repo, db, "Writes")
+@enduml

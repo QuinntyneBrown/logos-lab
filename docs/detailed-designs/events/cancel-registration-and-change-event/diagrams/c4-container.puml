@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Cancel a registration and change an event
+
+Person(member, "Member", "Registrant")
+Person(host, "Host or editor", "Studio user")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "EventPage, EventEditorPage, dialogs")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Cancel, publish change, cancel event")
+  Container(worker, "Logos Lab Worker", "Node.js", "EventChangeNotifyJob, WaitlistPromotionJob")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Events, registrations, notifications")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Uses", "HTTPS")
+Rel(host, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Writes", "SQL")
+Rel(api, queue, "Enqueues fan-out and promotion")
+Rel(worker, queue, "Consumes")
+Rel(worker, db, "Writes in-app notifications", "SQL")
+Rel(worker, ses, "Sends email with .ics", "AWS SDK")
+@enduml

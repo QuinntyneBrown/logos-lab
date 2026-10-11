@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — List certificates
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MyCertificatesPage" as page
+  participant "CertificatesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Certificates route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListMyCertificatesAction" as action
+  participant "CertificateShareService" as share
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /dashboard/certificates
+page -> client : listMine()
+client -> route : GET /api/v1/me/certificates
+route -> action : execute(userId)
+action -> db : Certificates where userId = caller (L2-017)
+db --> action : Rows
+loop each valid certificate
+  action -> share : verificationUrl(code), linkedInUrl(certificate)
+  share --> action : URLs
+end
+action --> route : CertificateView list
+route --> client : 200
+alt no certificates
+  page --> actor : Empty state explaining how certificates are earned, Browse courses (L2-073)
+else certificates
+  page --> actor : Course title, completion date, Download PDF, Copy verification link, Add to LinkedIn (L2-073)
+  note right of page : Revoked rows show reason and date, without share actions
+end
+@enduml

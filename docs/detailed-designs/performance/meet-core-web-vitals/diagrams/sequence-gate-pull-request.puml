@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Gate a pull request on performance
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer" as actor
+box "Delivery — CI pipeline" #F2F4F7
+  participant "CI pipeline" as ci
+  participant "BundleBudgetCheck" as budget
+  participant "LighthouseGate" as lh
+end box
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Preview of Logos Lab Web" as web
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Baseline store <TO SUPPLY>" as base
+end box
+actor -> ci : Open or update pull request
+ci -> ci : Production build of Logos Lab Web
+ci -> budget : Measure compressed initial JS and CSS per route
+alt JS > 200 KB, CSS > 50 KB, or a lazy area in the public bundle (L2-123)
+  budget --> ci : Fail
+  ci --> actor : Build failed, naming the over-budget route
+else Within budget
+  budget --> ci : Pass
+  ci -> web : Deploy preview with seed data
+  ci -> lh : Audit home, catalogue, course, video, article, dashboard (mobile profile)
+  lh -> web : Load each page
+  web --> lh : Lab metrics and score
+  lh -> base : Read main-branch scores
+  base --> lh : Baseline scores
+  alt Any score < 90 or a drop > 5 points (L2-120)
+    lh --> ci : Fail
+    ci --> actor : Build failed with page scores
+  else All pages pass
+    lh --> ci : Pass
+    ci --> actor : Performance checks passed
+  end
+end
+@enduml

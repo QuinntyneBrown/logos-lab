@@ -1,0 +1,103 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Publish page metadata
+
+package "Logos Lab Web" {
+  class SeoService {
+    +set(metadata: PageMetadata): void
+  }
+  class PageMetadataFactory {
+    +MAX_TITLE: number = 60
+    +MAX_DESCRIPTION: number = 155
+    +SITE_ORIGIN: string = "https://www.logoslab.ca"
+    +forItem(item: PublicItem): PageMetadata
+    +forHome(): PageMetadata
+    -shorten(text: string, max: number): string
+  }
+  class PageMetadata {
+    +title: string
+    +description: string
+    +canonicalUrl: string
+    +ogType: string
+    +imageUrl: string
+    +imageAlt: string
+    +twitterCard: string = "summary_large_image"
+  }
+  class StructuredDataService {
+    +set(objects: JsonLdObject[]): void
+  }
+  class JsonLdFactory {
+    +course(item: CourseDetail): JsonLdObject
+    +video(item: VideoDetail): JsonLdObject
+    +article(item: ArticleDetail): JsonLdObject
+    +event(item: EventDetail): JsonLdObject
+    +person(expert: ExpertProfile): JsonLdObject
+    +breadcrumbs(trail: BreadcrumbItem[]): JsonLdObject
+    +organization(): JsonLdObject
+    +website(): JsonLdObject
+  }
+  class JsonLdObject {
+    +context: string = "https://schema.org"
+    +type: SchemaType
+    +properties: Map<string, unknown>
+  }
+  enum SchemaType {
+    Course
+    VideoObject
+    Article
+    Event
+    Person
+    BreadcrumbList
+    Organization
+    WebSite
+  }
+  class PublicItem {
+    +type: ContentType
+    +slug: string
+    +title: string
+    +summary: string
+    +socialImageUrl: string
+  }
+}
+
+package "Logos Lab Worker" {
+  class SocialImageGenerateJob {
+    +WIDTH: number = 1200
+    +HEIGHT: number = 630
+    +run(payload: SocialImagePayload, ctx: JobContext): Promise<void>
+  }
+  class SocialImagePayload {
+    +itemId: string
+    +contentType: ContentType
+  }
+  class SocialImage {
+    +key: string
+    +source: SocialImageSource
+  }
+  enum SocialImageSource {
+    CoverCrop
+    BrandedTemplate
+  }
+}
+
+SeoService ..> PageMetadataFactory : uses
+PageMetadataFactory ..> PageMetadata : creates
+PageMetadataFactory ..> PublicItem : reads
+StructuredDataService ..> JsonLdFactory : uses
+JsonLdFactory ..> JsonLdObject : creates
+JsonLdObject --> SchemaType : has
+SocialImageGenerateJob ..> SocialImagePayload : receives
+SocialImageGenerateJob ..> SocialImage : produces
+SocialImage --> SocialImageSource : has
+@enduml

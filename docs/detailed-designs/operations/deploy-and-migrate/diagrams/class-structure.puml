@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Deploy and migrate
+
+package "Pipeline" {
+  class Release {
+    +commitSha: string
+    +artifact: Artifact
+    +stages: PipelineStage[]
+    +promote(to: Environment): Promise<void>
+  }
+  class Artifact {
+    +webImage: string
+    +apiImage: string
+    +workerImage: string
+    +tag: string
+  }
+  enum PipelineStage {
+    Build
+    Test
+    DeployStaging
+    Approval
+    DeployProduction
+  }
+  enum Environment {
+    Staging
+    Production
+  }
+  class DeploymentController {
+    +ROLLBACK_LIMIT_MINUTES: number = 10
+    +shiftTraffic(to: Artifact): Promise<DeploymentOutcome>
+    +rollback(to: Artifact): Promise<void>
+  }
+  enum DeploymentOutcome {
+    Succeeded
+    RolledBack
+  }
+}
+
+package "Logos Lab API" {
+  class ApiBootstrap {
+    +start(): Promise<void>
+  }
+  class MigrationRunner {
+    +runPending(): Promise<MigrationResult>
+  }
+  class Migration {
+    +id: string
+    +phase: MigrationPhase
+    +up(db: Transaction): Promise<void>
+  }
+  enum MigrationPhase {
+    Expand
+    Contract
+  }
+  class SeedRunner {
+    +run(sets: SeedSet[]): Promise<void>
+  }
+  class SeedSet {
+    +name: string
+    +naturalKey: string[]
+    +rows: object[]
+    +apply(db: Transaction): Promise<void>
+  }
+}
+
+Release --> Artifact : carries
+Release --> PipelineStage : runs
+Release ..> Environment : promotes to
+Release ..> DeploymentController : deploys with
+DeploymentController ..> DeploymentOutcome : returns
+MigrationRunner "1" --> "*" Migration : applies
+Migration --> MigrationPhase : has
+SeedRunner "1" --> "*" SeedSet : applies
+Release ..> MigrationRunner : runs before traffic
+@enduml

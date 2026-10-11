@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Add an event to a calendar
+
+Person(user, "Member or visitor", "On an event page")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "AddToCalendarDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers", ".ics and link generation")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Events")
+}
+System_Ext(gcal, "Google Calendar", "Web calendar")
+System_Ext(outlook, "Outlook.com", "Web calendar")
+Rel(user, web, "Uses", "HTTPS")
+Rel(web, api, "GET calendar.ics and calendar-links", "HTTPS")
+Rel(api, db, "Reads event", "SQL")
+Rel(web, gcal, "Opens link in a new tab", "HTTPS")
+Rel(web, outlook, "Opens link in a new tab", "HTTPS")
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Follow an old or non-canonical URL
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or crawler" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CanonicalUrlMiddleware" as mw
+  participant "Page resolver" as resolver
+  participant "RedirectResponder" as responder
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "courses route" as content
+  participant "slug-redirects route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ResolveSlugRedirectAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> mw : GET /Courses/Old-Title/
+mw -> mw : Canonical form /courses/old-title (Apply L2-146)
+mw -> resolver : Resolve with canonical path
+resolver -> content : GET /api/v1/courses/old-title
+content -> db : Find published course by slug
+db --> content : None
+content --> resolver : 404
+resolver -> route : GET /api/v1/slug-redirects?type=course&slug=old-title
+route -> action : execute(course, old-title)
+action -> db : slug_history -> item id -> current slug
+alt slug found in history
+  db --> action : new-title
+  action --> route : SlugRedirect /courses/new-title
+  route --> resolver : 200
+  resolver -> responder : redirect(/courses/new-title)
+  responder --> actor : 301 Location /courses/new-title (one hop)
+else not in history
+  db --> action : None
+  action --> route : Not found
+  route --> resolver : 404
+  resolver --> actor : 404 NotFoundPage
+end
+note over mw, responder : When only the case or trailing slash differs, the item loads and the responder sends one 301 to the canonical path
+@enduml

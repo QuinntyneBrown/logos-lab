@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Enforce anonymous boundaries
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(gate, "MemberActionGate", "Angular service", "Prompts visitors before member actions")
+  Component(dialog, "SignInRequiredDialog", "CDK dialog", "Sign in or create account")
+  Component(resumer, "PendingActionResumer", "Angular service", "Returns to the same action")
+  Component(icpt, "UnauthorizedInterceptor", "HTTP interceptor", "Turns 401 into the prompt")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(authn, "AuthenticationMiddleware", "Middleware", "401 for non-anonymous endpoints without a session")
+  Component(registry, "EndpointAccessRegistry", "Configuration", "Access declared by defineEndpoint")
+  Component(routes, "Route handlers", "app/api/v1/...", "Public reads and member actions")
+  Component(play, "PlaybackAccessPolicy", "Domain service", "Public preview rule")
+  Component(sessions, "SessionService", "Domain service", "Resolves sessions")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "sessions, videos")
+Rel(gate, dialog, "Opens for visitors")
+Rel(dialog, resumer, "Hands the pending action to")
+Rel(icpt, gate, "Reports 401 to")
+Rel(gate, authn, "Calls API", "JSON/HTTPS")
+Rel(authn, registry, "Looks up endpoint access")
+Rel(authn, sessions, "Resolves session")
+Rel(authn, routes, "Passes allowed request")
+Rel(routes, play, "Checks public preview")
+Rel(sessions, db, "SQL")
+Rel(play, db, "Reads video flag", "SQL")
+@enduml

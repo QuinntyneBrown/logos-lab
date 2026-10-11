@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Resolve a session on each request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Any page" as page
+  participant "Area API client" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "SessionMiddleware" as mw
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SessionService" as service
+  participant "SessionPolicy" as policy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Act on a page
+page -> client : Call API
+client -> mw : HTTPS request with session cookie
+mw -> service : resolve(token, now)
+service -> db : Load session by token hash, with user roles
+db --> service : Session and roles
+service -> policy : limitsFor(roles)
+policy --> service : Learner/Expert 14 d idle, 30 d absolute; staff 30 min idle, 12 h absolute (L2-010)
+alt no session, revoked, idle limit passed or absolute limit passed
+  service --> mw : null
+  mw --> client : 401 "session-expired", clear cookie
+  client --> page : Unauthenticated
+  page --> actor : Sign-in page, session-expired state, returnUrl kept
+else valid
+  service -> db : Update lastActivityAt
+  service --> mw : ResolvedSession (user, current roles)
+  mw -> route : Request with CurrentUser
+  route --> mw : Response
+  mw --> client : Response with Cache-Control: no-store
+  client --> page : Result
+  page --> actor : Updated page
+end
+@enduml

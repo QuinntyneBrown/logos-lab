@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Mandatory enrolment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Angular Router" as router
+  participant "mfaEnrolmentGuard" as guard
+  participant "MfaSetupPage" as setup
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "SessionMiddleware" as mw
+  participant "MfaEnrolmentGate" as gate
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "MfaPolicy" as policy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> router : Open any page after sign-in
+router -> guard : canActivate(route)
+guard -> mw : GET /api/v1/me
+mw -> gate : Authenticated request with current roles
+gate -> db : Load MfaEnrolment status
+gate -> policy : isMandatory(roles)
+policy --> gate : true for Expert, Editor, Moderator or Administrator
+alt mandatory role and no enabled enrolment (L2-014)
+  gate --> guard : 200 me with mfaEnrolmentRequired = true
+  guard -> setup : Redirect to /settings/security/two-step (mandatory state)
+  setup --> actor : "Set up two-step verification", reason stated
+  note over gate : Any other API call answers 403 "mfa-enrolment-required" until enrolment completes
+  actor -> setup : Complete the enable flow
+  setup -> router : Navigate to the original page
+else enrolled, or role without mandate
+  gate --> guard : 200 me
+  guard --> router : Allow
+  router --> actor : Requested page
+end
+@enduml

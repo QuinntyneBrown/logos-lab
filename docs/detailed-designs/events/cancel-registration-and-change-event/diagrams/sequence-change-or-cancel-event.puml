@@ -1,0 +1,74 @@
+@startuml
+title UML sequence behaviour — Publish an event change or cancellation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Host or editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventEditorPage" as page
+  participant "EventChangeNotifyDialog or CancelEventDialog" as dialog
+  participant "StudioEventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio event route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishEventChangeAction / CancelEventAction" as action
+  participant "EventChangeService" as change
+  participant "EventChangeNotifyJob" as job
+  participant "IcsCalendarService" as ics
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+  participant "Amazon SES" as ses
+end box
+alt Material change
+  actor -> page : Change time, format or venue, Publish
+  page -> client : previewChange(eventId)
+  client -> route : GET .../change-preview
+  route -> change : diff(published, pending)
+  route --> client : Diff and recipient count
+  dialog --> actor : Diff, optional message (500 characters)
+  actor -> dialog : Publish and notify
+  dialog -> client : publishChange(eventId, message)
+  client -> route : POST /api/v1/studio/events/{eventId}/changes
+  route -> action : execute(userId, eventId, message)
+  action -> db : Apply change, icsSequence + 1
+  action -> q : Enqueue EventChangeNotifyJob(Changed)
+else Cancellation
+  actor -> dialog : Reason, Cancel event
+  dialog -> client : cancelEvent(eventId, reason)
+  client -> route : POST /api/v1/studio/events/{eventId}/cancellation
+  route -> action : execute(userId, eventId, reason)
+  action -> db : Status Cancelled, reason, icsSequence + 1
+  action -> q : Enqueue EventChangeNotifyJob(Cancelled)
+end
+route --> client : 202
+dialog --> actor : Success state
+q -> job : Deliver
+loop Each registrant and waitlisted member (L2-055)
+  job -> db : Skip if (event, sequence, recipient) already sent
+  alt Changed
+    job -> ics : request(event) same UID, higher SEQUENCE
+    job -> db : In-app notification if "Event changes" is on (L2-093)
+    job -> ses : Email describing the change, if email is on
+  else Cancelled (always on)
+    job -> ics : cancel(event) METHOD:CANCEL
+    job -> db : In-app notification with reason
+    job -> ses : Email with reason and .ics cancellation
+  end
+  job -> db : Record delivery
+end
+@enduml

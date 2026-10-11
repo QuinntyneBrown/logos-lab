@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Encrypt data at rest
+
+Person(member, "Member", "Sends direct messages and sets up MFA")
+Person(keyadmin, "Key administrator", "Reviews key policies and key use")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(kms, "AWS KMS", "Customer managed keys")
+System_Ext(trail, "AWS CloudTrail", "Logs every key use")
+Rel(member, ll, "Stores messages and MFA secrets in", "HTTPS")
+Rel(ll, kms, "Encrypts storage and fields with")
+Rel(kms, trail, "Records each key use in")
+Rel(keyadmin, kms, "Reviews key policies in")
+Rel(keyadmin, trail, "Reviews key use in")
+@enduml

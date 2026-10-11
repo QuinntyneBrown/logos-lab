@@ -1,0 +1,166 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage cohorts
+
+package "Logos Lab Web" {
+  class StudioCohortsPage {
+    +cohorts: CohortSummary[]
+  }
+  class CohortSettingsPage {
+    +cohort: CohortSettings
+    +save(form: CohortForm): void
+    +openInvite(): void
+    +openRegenerateLink(): void
+    +openRemove(member: CohortMemberRow): void
+  }
+  class CohortInviteDialog {
+    +emails: string[]
+    +send(): void
+  }
+  class RegenerateJoinLinkDialog {
+    +confirm(): void
+  }
+  class RemoveCohortMemberDialog {
+    +member: CohortMemberRow
+    +confirm(): void
+  }
+  class CohortJoinPage {
+    +preview: CohortJoinPreview
+    +join(): void
+  }
+  interface CohortsApi {
+    +listLed(): Observable<CohortSummary[]>
+    +create(form: CohortForm): Observable<CohortSettings>
+    +update(id: string, form: CohortForm): Observable<CohortSettings>
+    +invite(id: string, emails: string[]): Observable<InviteResult>
+    +regenerateJoinLink(id: string): Observable<JoinLink>
+    +removeMember(id: string, memberId: string): Observable<void>
+    +previewJoin(token: string): Observable<CohortJoinPreview>
+    +join(token: string): Observable<CohortMembershipView>
+  }
+  class HttpCohortsApi
+  class COHORTS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CohortsRouteHandler {
+    +GET(req: Request): Response
+    +POST(req: Request): Response
+    +PATCH(req: Request): Response
+    +DELETE(req: Request): Response
+  }
+  class CreateCohortAction {
+    +execute(userId: string, form: CohortForm): Promise<Cohort>
+  }
+  class InviteCohortMembersAction {
+    +execute(userId: string, cohortId: string, emails: string[]): Promise<InviteResult>
+  }
+  class JoinCohortAction {
+    +execute(userId: string, token: string): Promise<CohortMembership>
+  }
+  class RegenerateCohortJoinLinkAction {
+    +execute(userId: string, cohortId: string): Promise<JoinLink>
+  }
+  class RemoveCohortMemberAction {
+    +execute(userId: string, cohortId: string, memberId: string): Promise<void>
+  }
+  class CohortService {
+    +MIN_CAPACITY: number = 2
+    +MAX_CAPACITY: number = 500
+    +READ_ONLY_DAYS: number = 90
+    +assertCanLead(user: User, course: Course): void
+    +assertJoinable(cohort: Cohort, activeCount: number, now: Date): void
+    +statusOn(cohort: Cohort, today: Date): CohortStatus
+  }
+  class EnrolmentService {
+    +ensureEnrolled(userId: string, courseId: string): Enrolment
+  }
+  class Cohort {
+    +id: string
+    +courseId: string
+    +leaderId: string
+    +name: string
+    +startsOn: Date
+    +endsOn: Date
+    +capacity: number
+    +enrolmentMode: CohortEnrolmentMode
+    +joinTokenHash: string | null
+    +status: CohortStatus
+  }
+  class CohortMembership {
+    +cohortId: string
+    +userId: string
+    +role: CohortRole
+    +joinedAt: Date
+    +removedAt: Date | null
+  }
+  class CohortInvitation {
+    +id: string
+    +cohortId: string
+    +email: string
+    +tokenHash: string
+    +invitedAt: Date
+    +acceptedAt: Date | null
+  }
+  enum CohortEnrolmentMode {
+    InviteOnly
+    OpenWithLink
+  }
+  enum CohortStatus {
+    Active
+    ReadOnly
+    Archived
+  }
+  enum CohortRole {
+    Leader
+    Member
+  }
+  class CohortRepository
+  class CohortMembershipRepository
+  class CohortInvitationRepository
+  class CohortInvitationSendJob {
+    +run(invitationId: string): Promise<void>
+  }
+  class CohortArchiveJob {
+    +run(today: Date): Promise<void>
+  }
+}
+StudioCohortsPage ..> CohortsApi
+CohortSettingsPage ..> CohortsApi
+CohortJoinPage ..> CohortsApi
+CohortSettingsPage ..> CohortInviteDialog : opens
+CohortSettingsPage ..> RegenerateJoinLinkDialog : opens
+CohortSettingsPage ..> RemoveCohortMemberDialog : opens
+HttpCohortsApi ..|> CohortsApi
+COHORTS_API ..> CohortsApi : provides
+CreateCohortAction ..> CohortService
+JoinCohortAction ..> CohortService
+JoinCohortAction ..> EnrolmentService
+InviteCohortMembersAction ..> CohortInvitationSendJob : enqueues
+CreateCohortAction ..> CohortRepository
+JoinCohortAction ..> CohortMembershipRepository
+InviteCohortMembersAction ..> CohortInvitationRepository
+RegenerateCohortJoinLinkAction ..> CohortRepository
+RemoveCohortMemberAction ..> CohortMembershipRepository
+CohortArchiveJob ..> CohortService
+Cohort "1" *-- "0..500" CohortMembership
+Cohort "1" *-- "0..*" CohortInvitation
+Cohort --> CohortEnrolmentMode
+Cohort --> CohortStatus
+CohortMembership --> CohortRole
+CohortsRouteHandler ..> CreateCohortAction
+CohortsRouteHandler ..> InviteCohortMembersAction
+CohortsRouteHandler ..> JoinCohortAction
+CohortsRouteHandler ..> RegenerateCohortJoinLinkAction
+CohortsRouteHandler ..> RemoveCohortMemberAction
+@enduml

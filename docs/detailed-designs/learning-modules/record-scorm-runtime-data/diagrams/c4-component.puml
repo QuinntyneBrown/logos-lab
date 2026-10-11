@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record SCORM runtime data
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(tess, "Tessera scorm-player", "External library component", "Runtime data model and SCORM API")
+  Component(persist, "ScormRuntimePersistence", "Angular service", "Turns commits into batches")
+  Component(queue, "RuntimeCommitQueue", "Angular service", "Ordered, offline-tolerant sending")
+  Component(contract, "ModulesApi / MODULES_API", "API contract and token", "commitRuntime")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "module-attempts/[id]/runtime route", "Next.js route handler", "PUT runtime")
+  Component(commit, "CommitScormRuntimeAction", "Action", "Validates and stores a batch")
+  Component(val, "ScormRuntimeValidator", "Domain service", "Allow-list and suspend_data limits")
+  Component(att, "ModuleAttemptService", "Domain service", "Applies reported status")
+  Component(best, "BestResultSelector", "Domain service", "Best passing or completed attempt")
+  Component(lesson, "LessonCompletionService", "Domain service (courses)", "Completes module lessons")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(tess, persist, "Calls on commit")
+Rel(persist, queue, "Enqueues batch")
+Rel(queue, contract, "Sends through")
+Rel(contract, route, "Calls through HttpModulesApi", "JSON/HTTPS")
+Rel(route, commit, "Invokes")
+Rel(commit, val, "Validates with")
+Rel(commit, att, "Applies status with")
+Rel(att, best, "Uses")
+Rel(att, lesson, "Completes course lessons with")
+Rel(commit, db, "Writes scorm_runtime_values", "SQL")
+Rel(att, db, "Writes module_attempts", "SQL")
+@enduml

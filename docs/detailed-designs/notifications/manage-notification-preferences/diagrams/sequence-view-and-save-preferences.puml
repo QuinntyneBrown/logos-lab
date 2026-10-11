@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — View and save notification preferences
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsNotificationsPage" as page
+  participant "NotificationPreferencesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "/api/v1/me/notification-preferences" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Get / Update\nNotificationPreferencesAction" as action
+  participant "NotificationPreferenceService" as service
+  participant "ConsentService" as consent
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open Settings > Notifications
+page --> actor : Loading state with skeleton rows
+page -> client : get()
+client -> route : GET
+route -> route : Authenticate session
+route -> action : GetNotificationPreferencesAction.execute(currentUserId)
+action -> service : forUser(userId)
+service -> db : Select rows for user
+db --> service : 7 category rows
+service -> consent : hasMarketingConsent(userId)
+consent --> service : true or false
+service --> action : Settings, Platform news email locked without consent (L2-093)
+action --> route : NotificationPreferences with 5 always-on emails
+route --> client : 200 JSON
+client --> page : Preferences
+page --> actor : Table of 7 categories; always-on section folded (L2-093)
+actor -> page : Change checkboxes and Save notification settings
+page --> actor : Busy "Saving" button
+page -> client : update(changes)
+client -> route : PUT with CSRF token
+route -> action : UpdateNotificationPreferencesAction.execute(userId, changes)
+action -> service : update(userId, changes)
+alt Platform news email turned on without marketing consent
+  service --> action : Refused, locked category
+  action --> route : 422 problem response
+  route --> client : Problem
+  page --> actor : Error alert; link to Privacy and messaging
+else valid
+  service -> db : Upsert rows in one transaction
+  db --> service : Committed
+  service --> action : Saved
+  action --> route : NotificationPreferences
+  route --> client : 200 JSON
+  page --> actor : Success: applies from the next notification
+end
+@enduml

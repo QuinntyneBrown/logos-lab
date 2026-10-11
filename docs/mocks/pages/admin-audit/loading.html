@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit log · loading — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="admin-audit">
+<meta name="mock:state" content="loading">
+<meta name="mock:requirements" content="L2-099 L2-018">
+<meta name="description" content="The audit log while entries load: the filters stay and skeleton rows stand in for the table.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Isaac Moreau" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/elijah-brooks.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="../../pages/admin/default.html">Overview</a>
+      <a href="../../pages/admin-users/default.html">Users</a>
+      <a href="../../pages/admin-invitations/default.html">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="../../pages/admin-topics/default.html">Topics</a>
+      <a href="../../pages/admin-featured/default.html">Featured</a>
+      <a href="../../pages/admin-announcements/default.html">Announcements</a>
+      <a href="../../pages/admin-policies/default.html">Policies</a>
+      <a href="../../pages/admin-settings/default.html">Site settings</a>
+      <a href="../../pages/admin-audit/default.html" aria-current="page">Audit log</a>
+      <a href="../../pages/admin-analytics/default.html">Analytics</a>
+    </nav>
+
+    <div>
+      <div class="page-head page-head--actions" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Admin</p>
+        <h1 class="page-head__title">Audit log</h1>
+        <p class="page-head__sub">Every administrative and editorial change, newest first. Entries can't be edited or deleted; after 2 years they move to cold storage and are kept 7 years in total.</p>
+        <div class="page-head__actions"><button class="btn btn--quiet" type="button"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>Export CSV</button></div>
+      </div>
+      <form class="toolbar toolbar--stacked" action="default.html" role="search" aria-label="Filter the audit log">
+        <div class="toolbar__tools">
+          <label class="select"><span>Actor</span><span class="select__wrap"><select class="select__control"><option selected>Anyone</option><option>Isaac Moreau</option><option>Naomi Ellis</option><option>Owen Bradley</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+          <label class="select"><span>Action</span><span class="select__wrap"><select class="select__control"><option selected>Any action</option><option>Role changes</option><option>Account states</option><option>Invitations</option><option>Topics</option><option>Featured content</option><option>Announcements</option><option>Policies</option><option>Settings</option><option>Content workflow</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+          <div class="field"><label class="field__label" for="au-target">Target</label><input class="input" id="au-target" name="target" type="search" placeholder="Name, title or email" value=""></div>
+          <div class="field"><label class="field__label" for="au-from">From</label><input class="input" id="au-from" name="from" type="date" value="2026-09-13"></div>
+          <div class="field"><label class="field__label" for="au-to">To</label><input class="input" id="au-to" name="to" type="date" value="2026-10-13"></div>
+        </div>
+        <div class="toolbar__tools"><button class="btn btn--quiet btn--sm" type="submit">Apply filters</button><a class="btn btn--text btn--sm" href="default.html">Clear filters</a></div>
+      </form>
+      <div style="margin-top: var(--space-6)"></div>
+      <div aria-busy="true">
+        <p class="vh" role="status">Loading audit entries…</p>
+        <div class="table-wrap" aria-hidden="true">
+          <table class="data-table">
+            <thead><tr><th scope="col">When</th><th scope="col">Actor</th><th scope="col">Action</th><th scope="col">Target</th><th scope="col">Before → after</th><th scope="col">IP address</th></tr></thead>
+            <tbody>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            <tr><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td><td><span class="skeleton skeleton--text"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab admin · actions here are recorded in the audit log</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Audit log</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html" aria-current="page">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="no-results.html">no-results</a></li>
+    <li><a href="long.html">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

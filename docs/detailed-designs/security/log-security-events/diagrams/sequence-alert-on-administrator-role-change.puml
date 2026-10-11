@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Alert on any Administrator role change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+actor "On-call engineer" as oncall
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUserPage" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/admin/users/{id}/roles" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ChangeRolesAction" as action
+  participant "SecurityEventLogger" as logger
+  participant "SecurityAlertPublisher" as alert
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CloudWatch log group security" as cw
+  participant "Amazon SNS" as sns
+  participant "On-call channel" as channel
+end box
+actor -> page : Grant or remove Administrator
+page -> route : PUT roles
+route -> action : execute(actor, target, roles)
+action -> action : Save roles and audit entry (L2-099)
+action -> logger : record(RoleChanged, ctx, target, before and after roles)
+logger -> cw : JSON line
+opt Administrator role added or removed (L2-111)
+  action -> alert : publishRoleChange(event)
+  alert -> sns : Publish
+  sns -> channel : Alert
+  channel -> oncall : Notify within 5 minutes
+end
+action --> route : Done
+route --> page : 204
+page --> actor : Roles saved
+@enduml

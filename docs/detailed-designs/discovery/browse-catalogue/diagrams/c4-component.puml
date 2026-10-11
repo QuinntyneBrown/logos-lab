@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse the catalogue
+
+Container(web, "Logos Lab Web", "Angular", "ExplorePage, ExploreFiltersDialog, CatalogueApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "GET /api/v1/catalogue", "Route handler", "Anonymous catalogue endpoint")
+  Component(parser, "CatalogueQueryParser", "Request parser", "Keeps valid values, drops unknown ones")
+  Component(action, "BrowseCatalogueAction", "Action", "Runs one catalogue query")
+  Component(svc, "CatalogueService", "Domain service", "Filters, sorts and pages published content")
+  Component(policy, "PublishedContentPolicy", "Domain rule", "Published state and publish time passed")
+  Component(topics, "TopicFilterOptions", "Domain service", "Topics that have published content")
+  Component(repo, "ContentRepository", "Repository", "Parameterised catalogue SQL")
+}
+Container(worker, "Logos Lab Worker", "Node.js", "ContentPopularityRefreshJob")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "content_items, content_topics, content_popularity")
+Rel(web, route, "Calls", "JSON/HTTPS")
+Rel(route, parser, "Parses query string")
+Rel(route, action, "Invokes with CatalogueQuery")
+Rel(action, svc, "Browses")
+Rel(svc, policy, "Applies")
+Rel(svc, topics, "Reads topic options")
+Rel(svc, repo, "Queries")
+Rel(repo, db, "Reads", "SQL")
+Rel(worker, db, "Refreshes popularity counts", "SQL")
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Export analytics
+Person(user, "Expert, Editor or Administrator", "Exports an analytics view")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ses, "Amazon SES", "Emails the download link for large exports")
+Rel(user, ll, "Exports CSV and downloads it from", "HTTPS")
+Rel(ll, ses, "Sends export-ready email via", "AWS SDK")
+Rel(ses, user, "Delivers link to", "SMTP")
+@enduml

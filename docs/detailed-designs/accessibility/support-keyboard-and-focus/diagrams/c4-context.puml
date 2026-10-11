@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Support keyboard and focus
+
+
+Person(learner, "Keyboard or switch user", "Operates Logos Lab without a mouse")
+Person(dev, "Developer", "Changes screens")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ci, "CI pipeline", "KeyboardJourneySuite in Chromium")
+
+Rel(learner, ll, "Operates by keyboard")
+Rel(dev, ci, "Pushes changes to")
+Rel(ci, ll, "Runs keyboard journeys against")
+@enduml

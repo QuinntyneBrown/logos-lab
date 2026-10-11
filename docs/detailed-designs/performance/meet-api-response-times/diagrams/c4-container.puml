@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Meet API response times
+
+
+Person(learner, "Learner", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves pages and video segments")
+  Container(web, "Logos Lab Web", "Angular SSR", "Requests pages of results; polls operations")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Answers within latency budgets; auto-scaled")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "Background operation jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs long work and reports progress")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Data and background_operations")
+  ContainerDb(s3, "Media storage", "Amazon S3", "HLS segments")
+}
+System_Ext(cw, "Amazon CloudWatch", "Metrics and alarms")
+
+Rel(learner, cdn, "Uses", "HTTPS")
+Rel(cdn, web, "Forwards to")
+Rel(cdn, s3, "Reads segments from")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes")
+Rel(api, sqs, "Enqueues jobs to")
+Rel(worker, sqs, "Consumes")
+Rel(worker, db, "Updates progress in")
+Rel(api, cw, "Publishes ApiLatency to")
+@enduml

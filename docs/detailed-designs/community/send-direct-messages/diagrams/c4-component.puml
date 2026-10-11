@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send direct messages
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(pages, "MessagesPage / ConversationPage", "Angular pages", "Inbox and thread")
+  Component(top, "ll-top-bar unread count", "Shared component", "Unread conversations badge")
+  Component(client, "MessagesApi", "Contract + HttpMessagesApi", "Bound by MESSAGES_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/messages", "Next.js route handlers", "Validate, map, stream")
+  Component(actions, "Messaging actions", "StartConversationAction, SendMessageAction, ListConversationsAction, MarkConversationReadAction", "One use case each")
+  Component(elig, "MessagingEligibilityService", "Domain service", "Cohort, staff and setting rules")
+  Component(block, "BlockService", "Domain service", "Block check (L2-067)")
+  Component(rate, "MessageRateLimitService", "Domain service", "20 per minute, 10 new per day")
+  Component(crypto, "MessageEncryptionService", "Domain service", "Envelope encryption")
+  Component(delivery, "MessageDeliveryService", "Domain service", "Publishes delivery events")
+  Component(repos, "Repositories", "ConversationRepository, MessageRepository, PrivacySettingsRepository", "Table access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Messaging tables")
+ContainerDb(cache, "Cache", "Redis", "Counters and pub/sub")
+System_Ext(kms, "AWS KMS", "Keys")
+Rel(pages, client, "Calls")
+Rel(top, client, "Reads unread count")
+Rel(client, route, "Calls", "JSON/HTTPS, SSE")
+Rel(route, actions, "Invokes")
+Rel(actions, elig, "Checks eligibility")
+Rel(actions, block, "Checks blocks")
+Rel(actions, rate, "Checks limits")
+Rel(actions, crypto, "Encrypts and decrypts")
+Rel(actions, delivery, "Publishes")
+Rel(actions, repos, "Loads and saves")
+Rel(repos, db, "Reads and writes", "SQL")
+Rel(rate, cache, "Counts", "RESP")
+Rel(delivery, cache, "Publishes", "RESP")
+Rel(crypto, kms, "Data keys", "HTTPS API")
+@enduml

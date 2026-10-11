@@ -1,0 +1,115 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Revise published content
+
+package "Logos Lab Web" {
+  class StudioEditorPage {
+    +item: Signal<StudioItem>
+    +startRevision(): void
+    +openPublishCorrection(): void
+  }
+  class ContentHistoryPage {
+    +versions: Signal<VersionView[]>
+    +openRestore(version: VersionView): void
+  }
+  class PublishCorrectionDialog {
+    +note: string
+    +publish(): Promise<void>
+  }
+  class RestoreVersionDialog {
+    +version: VersionView
+    +restore(): Promise<void>
+  }
+  interface StudioApi {
+    +createRevision(id: string): Observable<StudioItem>
+    +listVersions(id: string): Observable<VersionView[]>
+    +publishCorrection(id: string, note: string, rowVersion: number): Observable<StudioItem>
+    +restoreVersion(id: string, versionId: string): Observable<StudioItem>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class CreateRevisionAction {
+    +execute(user: CurrentUser, id: uuid): ContentRevision
+  }
+  class RestoreVersionAction {
+    +execute(editor: CurrentUser, id: uuid, versionId: uuid): ContentRevision
+  }
+  class PublishCorrectionAction {
+    +execute(editor: CurrentUser, id: uuid, note: string, rowVersion: int): ContentVersion
+  }
+  class RevisionService {
+    +fromVersion(item: ContentItem, version: ContentVersion, kind: RevisionKind): ContentRevision
+    +diff(revision: ContentRevision, live: ContentVersion): FieldDiff[]
+  }
+  class PublishingService {
+    +publish(item: ContentItem, actor: Actor): ContentVersion
+    +publishCorrection(item: ContentItem, editor: Actor, note: string): ContentVersion
+  }
+  class ContentItem {
+    +id: uuid
+    +state: WorkflowState
+    +slug: string
+    +liveVersionId: uuid
+    +workingRevisionId: uuid
+    +lastUpdatedAt: timestamptz
+  }
+  class ContentRevision {
+    +id: uuid
+    +itemId: uuid
+    +kind: RevisionKind
+    +state: WorkflowState
+    +basedOnVersionId: uuid
+    +fields: jsonb
+    +rowVersion: int
+  }
+  class ContentVersion {
+    +id: uuid
+    +number: int
+    +snapshot: jsonb
+    +publishedAt: timestamptz
+    +publishedById: uuid
+    +isCorrection: boolean
+    +note: string
+  }
+  class LessonProgress {
+    +userId: uuid
+    +itemId: uuid
+    +state: string
+  }
+  enum RevisionKind {
+    Initial
+    Revision
+    Restore
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+StudioEditorPage ..> STUDIO_API : injects
+ContentHistoryPage ..> STUDIO_API : injects
+StudioEditorPage ..> PublishCorrectionDialog : opens
+ContentHistoryPage ..> RestoreVersionDialog : opens
+CreateRevisionAction ..> RevisionService : uses
+RestoreVersionAction ..> RevisionService : uses
+PublishCorrectionAction ..> PublishingService : uses
+ContentItem "1" *-- "0..1" ContentRevision : working
+ContentItem "1" *-- "*" ContentVersion : versions
+ContentItem --> ContentVersion : live
+ContentRevision --> ContentVersion : basedOn
+ContentRevision --> RevisionKind
+LessonProgress --> ContentItem : keyed by item id
+@enduml

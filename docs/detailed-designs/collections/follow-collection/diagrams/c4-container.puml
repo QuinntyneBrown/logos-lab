@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Follow a collection
+
+Person(learner, "Learner", "Signed-in member")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Carries job messages to the Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+}
+System_Ext(ses, "Amazon SES", "Sends transactional email")
+Rel(learner, web, "Presses Follow; opens Following", "HTTPS")
+Rel(web, api, "PUT and DELETE /api/v1/me/follows/collections/collectionId", "JSON/HTTPS")
+Rel(api, db, "Writes follows", "SQL")
+Rel(api, queue, "Enqueues CollectionFollowerNotificationJob", "SQS")
+Rel(queue, worker, "Delivers job", "SQS")
+Rel(worker, db, "Reads followers and preferences; writes notifications", "SQL")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

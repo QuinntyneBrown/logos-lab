@@ -1,0 +1,94 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Verify a certificate
+
+enum VerificationStatus {
+  Verified
+  Revoked
+  Unavailable
+}
+class CertificateVerification {
+  +status: VerificationStatus
+  +code: string
+  +issuedName: string
+  +courseTitle: string
+  +completedOn: Date
+  +revokedAt: Date
+}
+class Certificate {
+  +id: string
+  +code: string
+  +userId: string
+  +issuedName: string
+  +courseTitle: string
+  +completedOn: Date
+  +revokedAt: Date
+  +revocationReason: string
+  +revokedBy: string
+  +revoke(reason: string, by: string, at: Date): void
+}
+class RevokeCertificateInput {
+  +reason: string
+}
+interface CertificatesApi {
+  +verify(code: string): Observable<CertificateVerification>
+  +revoke(code: string, input: RevokeCertificateInput): Observable<void>
+}
+class CertificateVerifyPage {
+  -api: CertificatesApi
+  +result: Signal<CertificateVerification>
+  +setResponseStatus(status: number): void
+}
+class RevokeCertificateDialog {
+  +reason: FormControl<string>
+  +confirm(): void
+}
+class RateLimitPolicy {
+  +name: string = "certificate-verification"
+  +limit: number = 30
+  +windowSeconds: number = 60
+  +key: string = "viewer IP"
+}
+class VerifyCertificateAction {
+  +execute(code: string): Promise<CertificateVerification>
+}
+class CertificateVerificationService {
+  +project(c: Certificate, accountPurged: boolean): CertificateVerification
+}
+class RevokeCertificateAction {
+  +execute(code: string, input: RevokeCertificateInput, admin: SessionUser): Promise<void>
+}
+class AuditLogService {
+  +record(actorId: string, action: string, targetId: string, detail: string): Promise<void>
+}
+class CertificateRevocationNotifyJob {
+  +certificateId: string
+  +run(): Promise<void>
+}
+class CertificateRepository {
+  +findByCode(code: string): Promise<Certificate>
+  +save(c: Certificate): Promise<void>
+}
+CertificateVerification --> VerificationStatus
+CertificateVerifyPage ..> CertificatesApi : injects CERTIFICATES_API
+RevokeCertificateDialog ..> CertificatesApi
+VerifyCertificateAction ..> RateLimitPolicy : guarded by
+VerifyCertificateAction ..> CertificateVerificationService
+VerifyCertificateAction ..> CertificateRepository
+CertificateVerificationService ..> CertificateVerification : creates
+CertificateVerificationService ..> Certificate : reads
+RevokeCertificateAction ..> CertificateRepository
+RevokeCertificateAction ..> AuditLogService
+RevokeCertificateAction ..> CertificateRevocationNotifyJob : enqueues
+@enduml

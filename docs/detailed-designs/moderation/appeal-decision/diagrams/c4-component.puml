@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Appeal a moderation decision
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(notice, "AccountNoticePage", "Angular standalone page", "Notice and appeal form")
+  Component(review, "AppealReviewPage and AppealDecisionDialog", "Angular page and CDK dialog", "Decide appeal")
+  Component(noticeclient, "HttpAccountNoticesApi", "AccountNoticesApi via ACCOUNT_NOTICES_API", "Typed HTTP client")
+  Component(modclient, "HttpModerationApi", "ModerationApi via MODERATION_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "account/notices and moderation/appeals routes", "Next.js route handlers", "Anonymous with token, or Moderator")
+  Component(submit, "SubmitAppealAction", "Action", "Files and assigns the appeal")
+  Component(decide, "DecideAppealAction", "Action", "Records decision, reverses if upheld")
+  Component(appeals, "AppealService", "Domain service", "14 days, one per action, 2,000 characters, other moderator")
+  Component(actions, "ModerationActionService", "Domain service", "Reverses the original action")
+  Component(notify, "NotificationService", "Domain service", "Outcome notice and email")
+  Component(audit, "ModerationAuditService", "Domain service", "Audit entry for the decision")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "appeals, member_notices")
+
+Rel(notice, noticeclient, "Submits appeal through")
+Rel(review, modclient, "Decides through")
+Rel(noticeclient, routes, "Calls", "JSON/HTTPS")
+Rel(modclient, routes, "Calls", "JSON/HTTPS")
+Rel(routes, submit, "Calls")
+Rel(routes, decide, "Calls")
+Rel(submit, appeals, "Validates and assigns with")
+Rel(decide, appeals, "Checks assignee with")
+Rel(decide, actions, "Reverses upheld action with")
+Rel(decide, notify, "Notifies member with")
+Rel(decide, audit, "Records with")
+Rel(submit, db, "Inserts appeal", "SQL")
+Rel(decide, db, "Updates appeal and action", "SQL")
+@enduml

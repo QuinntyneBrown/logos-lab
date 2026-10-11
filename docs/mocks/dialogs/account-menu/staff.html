@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account menu · staff — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="account-menu">
+<meta name="mock:state" content="staff">
+<meta name="mock:requirements" content="L2-133 L2-010 L2-016">
+<meta name="description" content="The account menu for Isaac Moreau: account links, the staff links with queue counts, the theme choice and Sign out.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Isaac Moreau" aria-haspopup="menu" aria-expanded="true"><img class="avatar" src="../../assets/photos/elijah-brooks.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+  <div class="menu-anchor">
+    <div class="menu" role="menu" aria-label="Your account">
+        <div class="menu__header" role="presentation"><p class="rows__title">Isaac Moreau</p><p class="rows__meta">isaac.moreau@logoslab.ca</p></div>
+        <a class="menu__item" role="menuitem" href="../../pages/dashboard/default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8.5 20h7M12 16.5V20"/></svg>Dashboard</a>
+        <a class="menu__item" role="menuitem" href="../../pages/messages/default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5h15v10h-9l-4.5 4v-4h-1.5z"/></svg>Messages</a>
+        <a class="menu__item" role="menuitem" href="../../pages/settings-profile/default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Settings</a>
+        <hr class="menu__divider" role="separator">
+        <div role="group" aria-labelledby="menu-staff">
+          <p class="menu__label" id="menu-staff">Staff</p>
+          <a class="menu__item" role="menuitem" href="../../pages/studio/editor.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5h4l10-10-4-4-10 10z"/><path d="m13 7 4 4"/></svg>Studio</a>
+          <a class="menu__item" role="menuitem" href="../../pages/review-queue/default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg>Review queue<span class="menu__shortcut">5 waiting</span></a>
+          <a class="menu__item" role="menuitem" href="../../pages/moderation-queue/default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 21V4.5M5.5 4.5h11l-2 4 2 4h-11"/></svg>Moderation<span class="menu__shortcut">7 open</span></a>
+          <a class="menu__item" role="menuitem" href="../../pages/admin/default.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 19 6v6c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V6z"/></svg>Admin</a>
+        </div>
+        <hr class="menu__divider" role="separator">
+        <div role="group" aria-labelledby="menu-theme">
+          <p class="menu__label" id="menu-theme">Theme</p>
+          <a class="menu__item" role="menuitemradio" aria-checked="true" href="default.html"><svg class="icon icon--sm menu__check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Match my device</a>
+          <button class="menu__item" type="button" role="menuitemradio" aria-checked="false"><svg class="icon icon--sm menu__check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Light</button>
+          <a class="menu__item" role="menuitemradio" aria-checked="false" href="selected.html"><svg class="icon icon--sm menu__check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Dark</a>
+        </div>
+        <hr class="menu__divider" role="separator">
+        <a class="menu__item" role="menuitem" href="../../pages/sign-in/signed-out.html"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 4.5h-3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3M15 8l4 4-4 4M19 12H9.5"/></svg>Sign out</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="../../pages/admin/default.html">Overview</a>
+      <a href="../../pages/admin-users/default.html" aria-current="page">Users</a>
+      <a href="../../pages/admin-invitations/default.html">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="../../pages/admin-topics/default.html">Topics</a>
+      <a href="../../pages/admin-featured/default.html">Featured</a>
+      <a href="../../pages/admin-announcements/default.html">Announcements</a>
+      <a href="../../pages/admin-policies/default.html">Policies</a>
+      <a href="../../pages/admin-settings/default.html">Site settings</a>
+      <a href="../../pages/admin-audit/default.html">Audit log</a>
+      <a href="../../pages/admin-analytics/default.html">Analytics</a>
+    </nav>
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Admin</p>
+        <h1 class="page-head__title">Users</h1>
+        <p class="page-head__sub">4,812 accounts: 38 experts, 4 editors, 2 moderators and 2 administrators.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/default.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Account menu</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="staff.html" aria-current="page">staff</a></li>
+    <li><a href="selected.html">selected</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

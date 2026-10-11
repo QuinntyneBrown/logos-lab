@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform analytics · empty — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="admin-analytics">
+<meta name="mock:state" content="empty">
+<meta name="mock:requirements" content="L2-101 L2-103">
+<meta name="description" content="Platform analytics for December 2025, before Logos Lab opened, with a way to choose another range.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Isaac Moreau" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/elijah-brooks.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="../../pages/admin/default.html">Overview</a>
+      <a href="../../pages/admin-users/default.html">Users</a>
+      <a href="../../pages/admin-invitations/default.html">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="../../pages/admin-topics/default.html">Topics</a>
+      <a href="../../pages/admin-featured/default.html">Featured</a>
+      <a href="../../pages/admin-announcements/default.html">Announcements</a>
+      <a href="../../pages/admin-policies/default.html">Policies</a>
+      <a href="../../pages/admin-settings/default.html">Site settings</a>
+      <a href="../../pages/admin-audit/default.html">Audit log</a>
+      <a href="../../pages/admin-analytics/default.html" aria-current="page">Analytics</a>
+    </nav>
+
+    <div>
+      <div class="page-head page-head--actions" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Admin</p>
+        <h1 class="page-head__title">Platform analytics</h1>
+        <p class="page-head__sub">Activity across Logos Lab for editors and administrators. Learners are counted, never listed.</p>
+        <div class="page-head__actions"><button class="btn btn--quiet" type="button" disabled><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>Export CSV</button></div>
+      </div>
+      <div class="toolbar toolbar--stacked">
+        <div class="cluster cluster--between">
+          <div class="cluster">
+            <label class="select"><span>Date range</span><span class="select__wrap"><select class="select__control"><option>Last 7 days</option><option>Last 30 days</option><option>Last 90 days</option><option>This year</option><option selected>Custom range</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+            <a class="btn btn--quiet btn--sm" href="../../dialogs/date-range/default.html">Custom range</a>
+            <span class="muted">1 Dec to 31 Dec 2025</span>
+          </div>
+          <p class="inline-status" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Updated at 9:00 am ET<span class="mock-note">Figures refresh hourly and are never more than 1 hour old.</span></p>
+        </div>
+        <div class="cluster cluster--between">
+          <div class="switch switch--plain"><div><label class="switch__title" for="compare">Compare with the previous 30 days</label></div><input class="switch__control" id="compare" name="compare" type="checkbox" role="switch"></div>
+          <div class="btn-group btn-group--segmented" role="group" aria-label="View"><button type="button" class="btn btn--sm" aria-pressed="true">Charts</button><button type="button" class="btn btn--sm" aria-pressed="false">Table</button></div>
+        </div>
+      </div>
+      <div class="empty">
+        <span class="empty__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg></span>
+        <h2 class="empty__title">No activity in this range</h2>
+        <p>Nothing was recorded between 1 and 31 Dec 2025. Platform analytics begin on 2 Mar 2026, when Logos Lab opened to learners.</p>
+        <div class="empty__actions"><a class="btn btn--primary" href="../../dialogs/date-range/default.html">Choose another range</a></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab admin · actions here are recorded in the audit log</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Platform analytics</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="comparison.html">comparison</a></li>
+    <li><a href="table.html">table</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html" aria-current="page">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="export-queued.html">export-queued</a></li>
+    <li><a href="forbidden.html">forbidden</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

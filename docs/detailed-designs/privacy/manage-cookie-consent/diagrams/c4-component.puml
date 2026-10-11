@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage cookie consent
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(banner, "ll-consent-banner", "Shared component", "Accept all, Reject non-essential, Customize with equal prominence")
+  Component(dialog, "CookieSettingsDialog", "CDK dialog", "Essential (always on), Analytics, Video quality preferences switches")
+  Component(footer, "ll-footer", "Shared component", "Cookie settings link")
+  Component(svc, "CookieConsentService", "Application service", "Reads and writes the consent cookie, applies the choice")
+  Component(loader, "AnalyticsLoader", "Application service", "Injects the analytics script and removes its cookies")
+  Component(privacy, "SettingsPrivacyPage", "Page", "Shows the current choice and next ask date")
+  Component(api_client, "ConsentApi", "Contract and CONSENT_API token", "recordCookieConsent()")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "cookie consent route handler", "app/api/v1/me/cookie-consent", "PUT; authenticated")
+  Component(action, "RecordCookieConsentAction", "Action", "Stores the member's choice")
+  ComponentDb(db, "Logos Lab database", "PostgreSQL", "cookie_consents")
+}
+Rel(banner, svc, "Sends choice to")
+Rel(dialog, svc, "Saves choice through")
+Rel(footer, dialog, "Opens")
+Rel(privacy, dialog, "Opens")
+Rel(svc, loader, "Enables or disables")
+Rel(svc, api_client, "Records signed-in choice through")
+Rel(api_client, route, "PUT /api/v1/me/cookie-consent", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, db, "Inserts", "SQL")
+@enduml

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expert profile · rate-limited — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="expert-profile">
+<meta name="mock:state" content="rate-limited">
+<meta name="mock:requirements" content="L2-021 L2-024 L2-144">
+<meta name="description" content="The profile after too many follow and unfollow presses in a minute: Follow is paused, and a notice says when it works again.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html" aria-current="page">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/experts/default.html">Experts</a></li><li><span aria-current="page">Dr. Abena Mensah</span></li></ol></nav>
+    <header class="profile-head">
+      <div class="profile-head__who">
+        <img class="profile-head__photo" src="../../assets/photos/amara-osei.jpg" width="96" height="96" alt="Dr. Abena Mensah">
+        <div class="profile-head__text">
+          <h1 class="profile-head__name">Dr. Abena Mensah</h1>
+          <p class="profile-head__sub">Associate Professor of Systematic Theology, Kingsgate Theological College</p>
+          <p class="profile-head__meta"><span><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 19a5 5 0 0 0-2.5-4.3"/></svg>1,284 followers</span><span><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg>7 published items</span></p>
+        </div>
+      </div>
+      <div class="profile-head__actions">
+        <button type="button" class="btn btn--primary" aria-pressed="false" aria-disabled="true" aria-describedby="limit-alert">Follow</button>
+      </div>
+    </header>
+    <div class="alert alert--warning" role="alert" id="limit-alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 21 19.5H3z"/><path d="M12 10v4.5M12 17.2v.3"/></svg><p class="alert__title">Give it a minute</p><p class="alert__body">You've followed and unfollowed Dr. Abena Mensah more than 10 times in a minute, so Follow is paused. You can try again at 10:25 am ET.</p></div>
+    <div style="padding-top: var(--space-10)"></div>
+    <div class="two-col">
+      <section aria-labelledby="about-title">
+        <h2 class="vh" id="about-title">About Dr. Abena Mensah</h2>
+        <div class="prose">
+          <p>Abena Mensah is a theologian who writes about what it means to be human. Dr. Mensah's work in <em>theological anthropology</em> asks how the church's teaching that we are made in the image of God should shape the way we build and use machines that speak and reason.</p>
+          <p>Dr. Mensah teaches systematic theology, leads the Imago Dei cohort on Logos Lab each autumn, and preaches regularly in congregations across the Maritimes and Ontario. The book <strong>Made, Not Manufactured</strong> came out in 2025.</p>
+        </div>
+      </section>
+      <aside class="aside-card" aria-labelledby="expertise-title">
+        <h2 class="aside-card__title" id="expertise-title">Areas of expertise</h2>
+        <ul class="chips" aria-label="Areas of expertise"><li><a class="chip chip--sm" href="../../pages/topic/default.html">The image of God and personhood</a></li><li><a class="chip chip--sm" href="../../pages/topic/default.html">Theology of technology</a></li><li><a class="chip chip--sm" href="../../pages/topic/default.html">Formation and education</a></li></ul>
+        <h2 class="aside-card__title" style="margin-top: var(--space-6)">Elsewhere</h2>
+        <ul class="list list--plain"><li><a href="https://kingsgate.example.ca/faculty/mensah" target="_blank" rel="noopener noreferrer">Faculty page<span class="vh"> (external site, opens in a new tab)</span></a></li><li><a href="https://made-not-manufactured.example.ca" target="_blank" rel="noopener noreferrer">Made, Not Manufactured<span class="vh"> (external site, opens in a new tab)</span></a></li><li><a href="https://abenamensah.example.ca/talks" target="_blank" rel="noopener noreferrer">Sermons and lectures<span class="vh"> (external site, opens in a new tab)</span></a></li></ul>
+      </aside>
+    </div>
+    <section class="page-block" aria-labelledby="published-title" style="padding-bottom: var(--space-16)">
+      <div class="section__head" style="margin-bottom: var(--space-6)">
+        <h2 class="section__title" id="published-title">Published on Logos Lab</h2>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Published content by type"><button class="tab" type="button" role="tab" id="tab-courses" aria-selected="true" aria-controls="panel-courses">Courses<span class="badge badge--plain">1</span></button><button class="tab" type="button" role="tab" id="tab-videos" aria-selected="false" aria-controls="panel-courses" tabindex="-1">Videos<span class="badge badge--plain">1</span></button><button class="tab" type="button" role="tab" id="tab-articles" aria-selected="false" aria-controls="panel-courses" tabindex="-1">Articles<span class="badge badge--plain">3</span></button><button class="tab" type="button" role="tab" id="tab-collections" aria-selected="false" aria-controls="panel-courses" tabindex="-1">Collections<span class="badge badge--plain">1</span></button><button class="tab" type="button" role="tab" id="tab-events" aria-selected="false" aria-controls="panel-courses" tabindex="-1">Events<span class="badge badge--plain">1</span></button></div>
+      <div role="tabpanel" id="panel-courses" aria-labelledby="tab-courses" tabindex="0" style="padding-top: var(--space-8)">
+        <div class="content-grid"><article class="content-card"><div class="content-card__cover tile--sage"><svg class="content-card__glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h12.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h12.5v-3"/></svg></div><button type="button" class="icon-btn content-card__save" aria-pressed="false" aria-label="Save Imago Dei in an Age of Machines"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16.5l-5-3.5-5 3.5z"/></svg></button><div class="content-card__body"><p class="content-card__type">Course</p><h3 class="content-card__title"><a href="../../pages/course-overview/enrolled.html">Imago Dei in an Age of Machines</a></h3><p class="content-card__by"><img src="../../assets/photos/amara-osei.jpg" alt="">Dr. Abena Mensah</p><p class="content-card__meta"><span>24 lessons</span><span>5 h 40 min</span></p></div></article></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Expert profile</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="following.html">following</a></li>
+    <li><a href="rate-limited.html" aria-current="page">rate-limited</a></li>
+    <li><a href="long.html">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

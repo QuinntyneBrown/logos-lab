@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Accept an expert invitation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Invited expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExpertInvitationPage" as ExpertInvitationPage
+  participant "ExpertInvitationsApi" as ExpertInvitationsApi
+  participant "MfaSetupPage" as MfaSetupPage
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/expert-invitations/token" as check
+  participant "POST .../token/accept" as accept
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CheckExpertInvitationAction" as CheckExpertInvitationAction
+  participant "AcceptExpertInvitationAction" as AcceptExpertInvitationAction
+  participant "ExpertInvitationService" as ExpertInvitationService
+  participant "RoleService" as RoleService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ExpertInvitationPage : Open invitation link
+ExpertInvitationPage -> ExpertInvitationsApi : check(token)
+ExpertInvitationsApi -> check : HTTPS GET (anonymous)
+check -> CheckExpertInvitationAction : execute(token)
+CheckExpertInvitationAction -> db : Find invitation by SHA-256 of token
+db --> CheckExpertInvitationAction : Invitation
+CheckExpertInvitationAction -> ExpertInvitationService : statusAt(invitation, now)
+ExpertInvitationService --> CheckExpertInvitationAction : Status
+CheckExpertInvitationAction --> check : InvitationCheck
+check --> ExpertInvitationsApi : 200 JSON
+ExpertInvitationsApi --> ExpertInvitationPage : Status
+alt Revoked, Accepted or Expired
+  ExpertInvitationPage --> actor : Link shown as no longer valid, with a contact (L2-020)
+else Pending
+  ExpertInvitationPage --> actor : Who invited whom; Accept the invitation or Sign in to accept
+  actor -> ExpertInvitationPage : Sign in or create an account, then accept
+  ExpertInvitationPage -> ExpertInvitationsApi : accept(token)
+  ExpertInvitationsApi -> accept : HTTPS POST with session
+  accept -> AcceptExpertInvitationAction : execute(userId, token)
+  AcceptExpertInvitationAction -> db : Begin; lock invitation row by token hash
+  AcceptExpertInvitationAction -> ExpertInvitationService : accept(invitation, userId, now)
+  ExpertInvitationService -> ExpertInvitationService : Require Pending and now before expiresAt; mark Accepted (single use)
+  AcceptExpertInvitationAction -> RoleService : grant(userId, Expert)
+  RoleService -> db : Insert Expert role; set mfaRequired (L2-014)
+  AcceptExpertInvitationAction -> db : Commit
+  AcceptExpertInvitationAction --> accept : Accepted
+  accept --> ExpertInvitationsApi : 204
+  ExpertInvitationsApi --> ExpertInvitationPage : Accepted
+  ExpertInvitationPage -> MfaSetupPage : Navigate; MFA enrolment required before any page (L2-020)
+  MfaSetupPage --> actor : Mandatory two-step setup
+end
+@enduml

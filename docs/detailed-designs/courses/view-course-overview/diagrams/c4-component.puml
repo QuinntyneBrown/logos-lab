@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a course overview
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "CourseOverviewPage", "Angular page", "Renders overview, syllabus and learner action")
+  Component(outline, "ll-course-outline", "Shared component", "Sections and lesson rows with state")
+  Component(contract, "CoursesApi / COURSES_API", "API contract and token", "Typed course calls")
+  Component(http, "HttpCoursesApi", "HTTP implementation", "Calls /api/v1/courses")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "courses/[slug] route handlers", "Next.js route handlers", "GET overview (anonymous) and GET /me")
+  Component(a1, "GetCourseOverviewAction", "Action", "Builds the public overview")
+  Component(a2, "GetMyCourseStateAction", "Action", "Builds the learner's state")
+  Component(cat, "CourseCatalogueService", "Domain service", "Visibility of published and archived courses")
+  Component(prog, "ProgressService", "Domain service", "Stored progress and lock state")
+  Component(repo, "CourseRepository / EnrolmentRepository", "Repositories", "SQL access, scoped by user id")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(page, outline, "Renders syllabus with")
+Rel(page, contract, "Depends on")
+Rel(http, contract, "Implements")
+Rel(http, route, "Calls", "JSON/HTTPS")
+Rel(route, a1, "Invokes")
+Rel(route, a2, "Invokes")
+Rel(a1, cat, "Checks visibility with")
+Rel(a2, cat, "Checks visibility with")
+Rel(a2, prog, "Reads progress from")
+Rel(a1, repo, "Loads course through")
+Rel(a2, repo, "Loads enrolment through")
+Rel(repo, db, "Queries", "SQL")
+@enduml

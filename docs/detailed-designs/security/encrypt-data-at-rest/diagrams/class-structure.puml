@@ -1,0 +1,69 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Encrypt data at rest
+
+class EncryptedField <<value object>> {
+  +ciphertext: Bytes
+  +iv: Bytes
+  +authTag: Bytes
+  +encryptedDataKey: Bytes
+  +keyId: string
+}
+class EncryptionContext <<value object>> {
+  +table: string
+  +recordId: string
+}
+class FieldEncryptionService {
+  +encrypt(plain: Bytes, ctx: EncryptionContext): Promise<EncryptedField>
+  +decrypt(field: EncryptedField, ctx: EncryptionContext): Promise<Bytes>
+}
+class DirectMessage {
+  +id: MessageId
+  +conversationId: ConversationId
+  +senderId: UserId
+  +body: EncryptedField
+  +sentAt: Instant
+}
+class MfaFactor {
+  +userId: UserId
+  +secret: EncryptedField
+}
+class SendMessageAction {
+  +execute(senderId: UserId, conversationId: ConversationId, text: string): Promise<DirectMessage>
+}
+class MessageRepository {
+  +insert(message: DirectMessage): Promise<void>
+  +listForParticipant(userId: UserId, conversationId: ConversationId): Promise<DirectMessage[]>
+}
+class KmsKeyPolicy <<infrastructure config>> {
+  +keyUsers: string[] = [api task role, worker task role]
+  +keyAdministrators: string[] = <TO SUPPLY>
+  +cloudTrailLogging: boolean = true
+}
+class StorageEncryptionSettings <<infrastructure config>> {
+  +rdsStorageEncrypted: boolean = true
+  +s3DefaultEncryption: string = "aws:kms"
+  +cloudWatchLogsKmsKey: string
+  +elastiCacheAtRest: boolean = true
+  +sqsSse: string = "aws:kms"
+}
+DirectMessage *-- EncryptedField : body
+MfaFactor *-- EncryptedField : secret
+FieldEncryptionService ..> EncryptedField : produces
+FieldEncryptionService ..> EncryptionContext : binds
+FieldEncryptionService ..> KmsKeyPolicy : governed by
+SendMessageAction ..> FieldEncryptionService : uses
+SendMessageAction --> MessageRepository : uses
+MessageRepository --> DirectMessage : persists
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Follow an expert
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExpertProfilePage" as ExpertProfilePage
+  participant "FollowsApi" as FollowsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "FollowRateLimiter" as rl
+  participant "PUT /api/v1/me/follows/experts/expertId" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "FollowExpertAction" as FollowExpertAction
+  participant "FollowService" as FollowService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> ExpertProfilePage : Press Follow
+ExpertProfilePage -> FollowsApi : followExpert(expertId)
+FollowsApi -> rl : HTTPS PUT with session
+rl -> cache : Increment counter for member and expert, 1-minute window
+cache --> rl : Count
+alt more than 10 in the minute
+  rl --> FollowsApi : 429 with Retry-After (L2-024)
+  FollowsApi --> ExpertProfilePage : Rate limited
+  ExpertProfilePage --> actor : Follow paused; notice says when it works again
+else under the limit
+  rl -> route : Forward
+  route -> route : Authenticate
+  route -> FollowExpertAction : execute(userId, expertId)
+  FollowExpertAction -> FollowService : follow(userId, Expert expertId)
+  FollowService -> db : Insert follow if absent for current user
+  FollowService -> db : Count followers
+  db --> FollowService : 1,285
+  FollowService --> FollowExpertAction : Count
+  FollowExpertAction --> route : FollowState
+  route --> FollowsApi : 200 JSON
+  FollowsApi --> ExpertProfilePage : Following
+  ExpertProfilePage --> actor : Button reads Following with aria-pressed true; count rises by 1 (L2-024)
+end
+@enduml

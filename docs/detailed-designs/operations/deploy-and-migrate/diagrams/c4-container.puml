@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Deploy and migrate
+
+System_Ext(ci, "CI/CD pipeline", "TO SUPPLY")
+System_Ext(ecr, "Container registry", "Amazon ECR")
+System_Boundary(ll, "Logos Lab production") {
+  Container(alb, "Application Load Balancer", "AWS ELB", "Shifts traffic between versions")
+  Container(webapi, "Logos Lab Web, API and Worker", "Version N and N+1", "Same artifact as staging")
+  Container(migrate, "migrate task", "One-off task from the API image", "Runs pending migrations")
+  ContainerDb(db, "Logos Lab database", "RDS PostgreSQL", "Schema compatible with N and N+1")
+}
+Rel(ci, ecr, "Pushes images tagged with commit SHA")
+Rel(ci, migrate, "Runs before traffic shift")
+Rel(migrate, db, "Applies migrations", "SQL")
+Rel(ci, alb, "Starts gradual traffic shift")
+Rel(alb, webapi, "Routes to healthy version")
+Rel(webapi, ecr, "Pulls images")
+Rel(webapi, db, "Reads and writes", "SQL")
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Autosave and resolve conflicts
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "StudioEditorPage, ArticleEditorPage", "Angular pages", "Editor screens with ll-workflow-bar")
+  Component(autosave, "AutosaveService", "Angular service", "5 second debounce, status, retry")
+  Component(outbox, "DraftOutbox", "IndexedDB store", "Keeps changes offline")
+  Component(guard, "UnsavedChangesGuard", "CanDeactivate guard", "Opens UnsavedChangesDialog")
+  Component(conflict, "ConflictDialog", "Angular CDK dialog", "Side-by-side ll-diff")
+  Component(client, "HttpStudioApi", "StudioApi via STUDIO_API", "saveDraft, heartbeat, resolveConflict")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(save, "SaveDraftAction", "Action", "If-Match row version; 409 on stale")
+  Component(resolve, "ResolveDraftConflictAction", "Action", "Saves chosen version, snapshots the other")
+  Component(presence, "EditingPresenceService", "Domain service", "Who else is editing")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_revisions, draft_snapshots")
+ComponentDb(redis, "Cache", "Redis", "presence keys")
+
+Rel(page, autosave, "Reports changes to")
+Rel(autosave, outbox, "Queues offline changes in")
+Rel(autosave, client, "Saves through")
+Rel(page, guard, "Is protected by")
+Rel(autosave, conflict, "Opens on 409")
+Rel(conflict, client, "Resolves through")
+Rel(client, save, "PATCH", "JSON/HTTPS")
+Rel(client, resolve, "POST", "JSON/HTTPS")
+Rel(client, presence, "PUT heartbeat", "JSON/HTTPS")
+Rel(save, db, "Conditional update", "SQL")
+Rel(resolve, db, "Writes", "SQL")
+Rel(presence, redis, "Reads and writes", "RESP")
+@enduml

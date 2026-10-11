@@ -1,0 +1,103 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Export analytics
+package "Logos Lab Web" {
+  class StudioAnalyticsPage {
+    +exportCsv(): void
+  }
+  class AdminAnalyticsPage {
+    +exportCsv(): void
+  }
+  interface AnalyticsExportApi {
+    +export(request: ExportRequest): Observable<ExportResult>
+  }
+  class HttpAnalyticsExportApi
+  class "ANALYTICS_EXPORT_API" as Token <<InjectionToken>>
+  class ExportRequest {
+    +view: AnalyticsView
+    +itemId: string
+    +from: string
+    +to: string
+    +period: string
+    +compare: boolean
+  }
+  class ExportResult {
+    +kind: 'file' | 'queued'
+    +file: Blob
+    +exportId: string
+  }
+}
+package "Logos Lab API" {
+  class ExportAnalyticsAction {
+    +rowLimit: number = 50000
+    +execute(actor: Actor, request: ExportRequest): ExportOutcome
+  }
+  class DownloadAnalyticsExportAction {
+    +execute(actor: Actor, exportId: uuid, now: Date): SignedUrl
+  }
+  class AnalyticsExportJob {
+    +run(exportId: uuid): void
+  }
+  class AnalyticsViewQuery {
+    +rows(actor: Actor, request: ExportRequest): AsyncIterable<Row>
+    +count(actor: Actor, request: ExportRequest): number
+  }
+  class AnalyticsPrivacyService {
+    +suppress(row: Row): Row
+  }
+  class CsvWriter {
+    +header(columns: string[]): string
+    +row(cells: string[]): string
+    +escapeCell(value: string): string
+  }
+  class AnalyticsExport {
+    +id: uuid
+    +requesterId: uuid
+    +request: jsonb
+    +status: ExportStatus
+    +rowCount: number
+    +s3Key: string
+    +readyAt: timestamptz
+    +expiresAt: timestamptz
+  }
+  enum ExportStatus {
+    Queued
+    Building
+    Ready
+    Failed
+    Expired
+  }
+  enum AnalyticsView {
+    StudioSummary
+    StudioItem
+    Platform
+  }
+}
+HttpAnalyticsExportApi ..|> AnalyticsExportApi
+Token ..> AnalyticsExportApi : provides
+StudioAnalyticsPage ..> AnalyticsExportApi : depends on
+AdminAnalyticsPage ..> AnalyticsExportApi : depends on
+AnalyticsExportApi ..> ExportRequest
+AnalyticsExportApi ..> ExportResult
+ExportRequest --> AnalyticsView
+ExportAnalyticsAction --> AnalyticsViewQuery
+ExportAnalyticsAction --> CsvWriter
+ExportAnalyticsAction ..> AnalyticsExport : creates when over 50,000 rows
+AnalyticsExportJob --> AnalyticsViewQuery
+AnalyticsExportJob --> CsvWriter
+AnalyticsExportJob --> AnalyticsExport
+DownloadAnalyticsExportAction --> AnalyticsExport
+AnalyticsViewQuery --> AnalyticsPrivacyService
+AnalyticsExport --> ExportStatus
+@enduml

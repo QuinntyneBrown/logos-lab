@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Add items with the picker
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CollectionBuilderPage" as CollectionBuilderPage
+  participant "ItemPickerDialog" as ItemPickerDialog
+  participant "StudioCollectionsApi" as StudioCollectionsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/studio/pickable-items" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CollectionRepository" as CollectionRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> CollectionBuilderPage : Press Add items
+alt collection already holds 100 items
+  CollectionBuilderPage --> actor : Add items disabled with the reason (L2-049)
+else under 100 items
+  CollectionBuilderPage -> ItemPickerDialog : Open with CDK Dialog
+  actor -> ItemPickerDialog : Search and filter by type
+  ItemPickerDialog -> StudioCollectionsApi : searchPickable(q, type)
+  StudioCollectionsApi -> route : HTTPS GET with session
+  route -> CollectionRepository : Search published items of any type
+  CollectionRepository -> db : Parameterised query
+  db --> CollectionRepository : Items
+  CollectionRepository --> route : Items
+  route --> StudioCollectionsApi : 200 JSON
+  StudioCollectionsApi --> ItemPickerDialog : Results; items already present are marked
+  actor -> ItemPickerDialog : Choose items; press Add
+  ItemPickerDialog --> CollectionBuilderPage : Chosen items appended in order
+  CollectionBuilderPage --> actor : Rows with note fields (unsaved)
+end
+@enduml

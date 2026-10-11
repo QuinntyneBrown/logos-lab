@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Create a cohort
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Cohort leader" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortSettingsPage" as page
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateCohortAction" as action
+  participant "CohortService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open New cohort and fill name, course, dates, capacity, enrolment mode
+page -> client : create(form)
+client -> route : POST /api/v1/studio/cohorts
+route -> route : Authenticate, apply studio policy, validate body
+route -> action : execute(userId, form)
+action -> db : Load caller roles and course authorship
+db --> action : User, course
+action -> service : assertCanLead(user, course)
+alt not the course's expert author and not an editor
+  service --> action : Forbidden
+  route --> client : 403 problem
+  page --> actor : Show forbidden state
+else may lead
+  action -> service : Validate capacity 2-500 and start before end (L2-063)
+  alt invalid
+    service --> action : Validation errors
+    route --> client : 400 problem with field errors
+    page --> actor : Show invalid state
+  else valid
+    action -> action : Generate join token if Open with link
+    action -> db : Insert cohort and leader membership in one transaction
+    db --> action : Saved
+    action --> route : Cohort
+    route --> client : 201 CohortSettings
+    page --> actor : Show success state with settings and join link
+  end
+end
+@enduml

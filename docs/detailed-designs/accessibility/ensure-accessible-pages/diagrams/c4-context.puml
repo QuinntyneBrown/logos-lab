@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Ensure accessible pages
+
+
+Person(learner, "Learner using assistive technology", "Screen reader, magnifier, voice control or keyboard")
+Person(dev, "Developer", "Changes screens")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ci, "CI pipeline", "Playwright suite with axe-core")
+System_Ext(at, "Assistive technology", "NVDA, VoiceOver, browser zoom")
+
+Rel(learner, at, "Operates")
+Rel(at, ll, "Reads structure, names, roles and states of")
+Rel(dev, ci, "Pushes changes to")
+Rel(ci, ll, "Scans every page and state of")
+@enduml

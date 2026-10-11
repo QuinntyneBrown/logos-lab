@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send email notifications
+Person(member, "Member", "Signed-in user")
+System_Ext(ses, "Amazon SES", "Email sending and feedback")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Account banner and Email and password settings")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Queues email; receives SES feedback")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Email send and digest jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Renders and sends email")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "email_messages, email_suppressions, email_digest_items")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Reads email status", "JSON/HTTPS")
+Rel(api, db, "Writes outbox rows and suppressions", "SQL")
+Rel(api, queue, "Enqueues EmailSendJob", "SQS")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, db, "Claims and records messages", "SQL")
+Rel(worker, ses, "Sends email via", "AWS SDK")
+Rel(ses, api, "Posts bounce and complaint notices to", "SNS over HTTPS")
+@enduml

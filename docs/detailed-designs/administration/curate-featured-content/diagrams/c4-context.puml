@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Curate featured content
+Person(editor, "Editor or Administrator", "Chooses and orders featured items")
+Person(visitor, "Visitor or member", "Opens the home page")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(editor, ll, "Adds, orders and schedules featured items in", "HTTPS")
+Rel(visitor, ll, "Sees featured items on the home page of", "HTTPS")
+Rel(ll, editor, "Notifies about an empty featured slot")
+@enduml

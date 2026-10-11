@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View expert content analytics
+Container_Boundary(web, "Logos Lab Web") {
+  Component(studio, "StudioAnalyticsPage", "Angular page", "Period, headline stats, chart, per-item table")
+  Component(item, "AnalyticsItemPage", "Angular page", "Item figures and per-lesson drop-off chart")
+  Component(range, "DateRangeDialog", "Angular CDK dialog", "Custom period")
+  Component(collector, "AnalyticsEventCollector", "Angular service", "Sends product events only with analytics consent")
+  Component(client, "AnalyticsApi / HttpAnalyticsApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "app/api/v1/studio/analytics route handlers", "Route handlers", "Expert role required")
+  Component(actions, "GetExpertAnalyticsAction, GetItemAnalyticsAction", "Actions", "Owner-scoped queries")
+  Component(query, "AnalyticsQueryService", "Domain service", "Reads rollups for a period")
+  Component(privacy, "AnalyticsPrivacyService", "Domain service", "Suppresses groups under 5 learners; strips identifiers")
+  Component(events, "RecordAnalyticsEventAction", "Action", "Validates and stores sanitized events")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "AnalyticsRollupJob", "Job", "Recomputes rollups hourly and stamps Updated at")
+}
+ComponentDb(db, "Analytics tables", "PostgreSQL", "analytics_item_daily, analytics_lesson_completion, analytics_refreshes")
+Rel(studio, range, "Opens")
+Rel(studio, client, "Calls")
+Rel(item, client, "Calls")
+Rel(collector, client, "Posts events with")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(routes, events, "Invokes")
+Rel(actions, query, "Uses")
+Rel(actions, privacy, "Applies")
+Rel(query, db, "Reads", "SQL")
+Rel(events, db, "Inserts", "SQL")
+Rel(job, db, "Writes rollups", "SQL")
+@enduml

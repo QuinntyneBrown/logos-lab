@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Play a video
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(player, "ll-player", "Shared component", "Frame, overlays, resume prompt, error panel")
+  Component_Ext(tessera, "Tessera video-player", "Angular library t-video-player", "Video element and control bar")
+  Component(settings, "PlayerSettingsDialog", "Angular CDK dialog", "Speed, quality, captions, volume")
+  Component(report, "ReportProblemDialog", "Angular CDK dialog", "Report a problem")
+  Component(tracker, "WatchProgressTracker", "Angular service", "10-second and event-driven progress sends")
+  Component(client, "HttpVideosApi", "VideosApi via VIDEOS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "Progress, playback-error and problem-report route handlers", "app/api/v1/...", "Thin handlers")
+  Component(actions, "RecordWatchProgressAction, GetWatchProgressAction, LogPlaybackErrorAction", "Actions", "Use cases")
+  Component(svc, "WatchProgressService", "Domain service", "Segment merge and resume rule")
+  Component(repo, "WatchProgressRepository", "Repository", "Scoped to the current user")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "watch_progress, watched_segments")
+Container(cdn, "CDN", "Amazon CloudFront", "Signed HLS")
+Rel(player, tessera, "Embeds and listens to stateChange and error")
+Rel(player, settings, "Opens")
+Rel(player, report, "Opens")
+Rel(tessera, cdn, "Fetches HLS", "HTTPS")
+Rel(tracker, player, "Observes time updates")
+Rel(tracker, client, "saveProgress")
+Rel(player, client, "getProgress, logPlaybackError")
+Rel(client, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, svc, "Merges segments, computes resume")
+Rel(actions, repo, "Reads and writes")
+Rel(repo, db, "SQL")
+@enduml

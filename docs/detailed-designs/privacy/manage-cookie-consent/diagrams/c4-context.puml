@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage cookie consent
+
+Person(visitor, "Visitor or member", "Chooses which non-essential cookies to allow")
+System(ll, "Logos Lab", "Learning platform")
+System_Ext(analytics, "Analytics provider", "<TO SUPPLY>; loaded only after consent")
+Rel(visitor, ll, "Accepts, rejects or customizes cookies in")
+Rel(ll, analytics, "Loads analytics script only with consent from")
+@enduml

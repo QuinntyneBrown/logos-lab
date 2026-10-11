@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — View history
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Person with access" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ContentHistoryPage" as page
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/history route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetContentHistoryAction" as action
+  participant "ContentAccessPolicy" as policy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "WorkflowTransitionRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /studio/{type}/{id}/history
+page -> client : getHistory(id)
+client -> route : GET /api/v1/studio/items/{id}/history
+route -> action : execute(currentUser, id)
+action -> policy : Owner, attributed expert or editor
+alt No access
+  policy --> action : Refused
+  action --> route : Not found
+  route --> client : 404 problem response
+  client --> page : Error state
+else Access
+  policy --> action : Allowed
+  action -> repo : listForItem(id)
+  repo -> db : SELECT workflow_transitions ORDER BY at
+  db --> repo : Rows
+  repo --> action : WorkflowTransition[]
+  action --> route : Every transition in order (L2-076)
+  route --> client : 200 JSON
+  client --> page : Transitions
+  page --> actor : ll-timeline with actor, time, state and comment
+end
+@enduml

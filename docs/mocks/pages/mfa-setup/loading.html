@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up two-step verification · loading — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="mfa-setup">
+<meta name="mock:state" content="loading">
+<meta name="mock:requirements" content="L2-014 L2-020">
+<meta name="description" content="The setup key is being made: skeletons hold the QR code's place and the code field waits.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="../../pages/home/default.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <div class="header__actions">
+      <a class="btn btn--text btn--sm" href="../../pages/settings-security/default.html">Cancel setup</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap auth">
+    <div class="auth__card">
+      <div>
+        <p class="eyebrow">Security</p>
+        <h1 class="auth__title" style="margin-top: var(--space-4)">Set up two-step verification</h1>
+        <p class="auth__sub">Each time you sign in, you'll also enter a code from an authenticator app on your phone, such as Google Authenticator, 1Password or Authy.</p>
+      </div>
+      <form class="form" action="success.html" novalidate>
+        <fieldset class="form-section">
+          <legend class="form-section__title">1. Scan the code</legend>
+          <div class="stack" aria-busy="true">
+            <span class="skeleton skeleton--block" aria-hidden="true"></span>
+            <span class="skeleton skeleton--text is-short" aria-hidden="true"></span>
+            <p class="vh">Making your key…</p>
+          </div>
+        </fieldset>
+        <fieldset class="form-section">
+          <legend class="form-section__title">2. Enter the code from your app</legend>
+          <div class="field">
+            <label class="field__label" for="code">6-digit code</label>
+            <p class="field__help" id="code-help">It changes every 30 seconds; use the newest one.</p>
+            <input class="input otp" id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required aria-describedby="code-help" disabled>
+          </div>
+        </fieldset>
+        <button class="btn btn--primary btn--lg btn--block" type="submit" disabled>Verify and turn on</button>
+      </form>
+      <p class="auth__alt"><a href="../../pages/settings-security/default.html">Back to Security settings</a></p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab · your data is stored in Canada</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Set up two-step verification</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="mandatory.html">mandatory</a></li>
+    <li><a href="loading.html" aria-current="page">loading</a></li>
+    <li><a href="submitting.html">submitting</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="success.html">success</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Send direct messages
+
+Person(member, "Member", "Sender or recipient")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "MessagesPage, ConversationPage, header unread count")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Messaging actions, event stream endpoint")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "conversations, conversation_participants, messages, privacy_settings")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate counters and delivery channel")
+}
+System_Ext(kms, "AWS KMS", "Key management")
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls and holds event stream", "JSON/HTTPS, SSE")
+Rel(api, db, "Reads and writes ciphertext", "SQL")
+Rel(api, cache, "Counts sends, publishes and subscribes", "RESP")
+Rel(api, kms, "Generates and decrypts data keys", "HTTPS API")
+@enduml

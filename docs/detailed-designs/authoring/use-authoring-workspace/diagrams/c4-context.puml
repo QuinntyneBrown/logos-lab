@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Use the authoring workspace
+
+Person(expert, "Expert", "Writes courses, modules, videos, articles, collections and events")
+Person(editor, "Editor", "Logos Lab staff who review, attribute and publish content")
+Person(member, "Learner or Moderator", "Signed-in member without authoring rights")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+
+Rel(expert, logoslab, "Opens Studio and creates drafts in", "HTTPS")
+Rel(editor, logoslab, "Opens Studio, the review queue and attribution in", "HTTPS")
+Rel(member, logoslab, "Is refused Studio by", "HTTPS")
+@enduml

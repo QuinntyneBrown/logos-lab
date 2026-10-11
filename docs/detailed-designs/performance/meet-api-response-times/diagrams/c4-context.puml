@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Meet API response times
+
+
+Person(learner, "Learner", "Browses, watches and studies")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(cw, "Amazon CloudWatch", "Latency metrics, alarms, CDN hit ratio")
+System_Ext(load, "Load-test runner", "Tool <TO SUPPLY>")
+System_Ext(oncall, "On-call channel", "<TO SUPPLY>")
+
+Rel(learner, ll, "Uses", "HTTPS")
+Rel(load, ll, "Drives peak and surge load against")
+Rel(ll, cw, "Publishes latency metrics to")
+Rel(cw, oncall, "Alarms on budget breaches")
+@enduml

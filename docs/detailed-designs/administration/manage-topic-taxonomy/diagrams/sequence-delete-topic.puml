@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Delete a topic
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "DeleteTopicDialog" as dialog
+  participant "MergeTopicDialog" as merge
+  participant "TopicsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "DELETE /api/v1/admin/topics/{id}" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DeleteTopicAction" as action
+  participant "TopicService" as service
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Confirm Delete
+dialog -> client : delete(id)
+client -> route : HTTPS DELETE with CSRF token
+route -> action : execute(actor, id)
+action -> service : assertDeletable(topic)
+service -> db : Count content tagged with topic
+db --> service : Count
+alt topic still assigned to content
+  service --> action : Refused, in use
+  action --> route : 409 problem with item count
+  route --> client : Problem
+  dialog --> actor : "can't be deleted" with Merge instead (L2-096)
+  actor -> dialog : Merge instead
+  dialog -> merge : Open merge dialog
+else unused
+  action -> db : Delete topic
+  action -> audit : record("Topic deleted", before, after none)
+  action -> db : Commit
+  action --> route : 204
+  dialog --> actor : Deleted and recorded in the audit log
+end
+@enduml

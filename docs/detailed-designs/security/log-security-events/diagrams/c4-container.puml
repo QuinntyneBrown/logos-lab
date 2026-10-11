@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Log security events
+
+Person(oncall, "On-call engineer", "Responds to alerts")
+System_Boundary(ll, "Logos Lab") {
+  Container(api, "Logos Lab API", "Next.js route handlers", "Emits security events from middleware and actions")
+  Container(worker, "Logos Lab Worker", "Node.js", "Emits security events from jobs")
+  ContainerDb(archive, "Security log archive", "Amazon S3 with Object Lock, Canada (Central)", "Tamper-evident copy kept for 1 year")
+}
+System_Ext(cw, "Amazon CloudWatch", "security log group, Contributor Insights, alarms")
+System_Ext(sns, "Amazon SNS", "Alert topic")
+System_Ext(channel, "On-call channel", "<TO SUPPLY>")
+Rel(api, cw, "Writes security events", "JSON logs")
+Rel(worker, cw, "Writes security events", "JSON logs")
+Rel(cw, archive, "Exports through a subscription and Amazon Data Firehose")
+Rel(cw, sns, "Publishes alarms to")
+Rel(sns, channel, "Delivers to")
+Rel(channel, oncall, "Notifies")
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Preview content
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "PreviewPage", "Angular standalone page", "Frame sized to XS, MD or XL; light or dark")
+  Component(banner, "Preview banner", "ll-alert banner with ll-button-group", "Preview - not published; width, theme, Back to editor")
+  Component(public, "Public page components", "ll-prose, ll-page-header and type layouts", "Same layout as the published page")
+  Component(ssr, "SSR response headers", "Angular SSR", "noindex meta, X-Robots-Tag, Cache-Control private")
+  Component(client, "HttpStudioApi", "StudioApi via STUDIO_API", "getPreview(id)")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "studio/items/{id}/preview", "Next.js route handler", "Maps result or 404")
+  Component(action, "GetPreviewAction", "Action", "Loads the working revision")
+  Component(policy, "ContentAccessPolicy", "Domain service", "Author, attributed expert or editor")
+  Component(mapper, "PublicContentMapper", "Domain service", "Revision to public view model")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_items, content_revisions")
+
+Rel(page, banner, "Shows")
+Rel(page, public, "Renders content with")
+Rel(page, ssr, "Sets headers through")
+Rel(page, client, "Loads preview through")
+Rel(client, route, "GET", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, policy, "Checks access with")
+Rel(action, mapper, "Shapes result with")
+Rel(action, db, "Reads", "SQL")
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send direct messages
+
+Person(learner, "Learner", "Messages members who share a cohort")
+Person(staff, "Staff", "Expert, Editor, Moderator or Administrator")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(kms, "AWS KMS", "Protects message data keys")
+
+Rel(learner, ll, "Sends and reads messages using")
+Rel(staff, ll, "Messages any member using")
+Rel(ll, kms, "Generates and decrypts data keys via", "HTTPS API")
+@enduml

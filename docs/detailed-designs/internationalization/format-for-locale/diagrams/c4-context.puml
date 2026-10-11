@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Format for locale
+
+
+Person(learner, "Learner", "Reads dates, times and numbers")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ci, "CI pipeline", "LocaleFormattingSuite with fr-CA")
+System_Ext(ses, "Amazon SES", "Email delivery")
+
+Rel(learner, ll, "Reads locale-formatted values in")
+Rel(ci, ll, "Builds and checks the fr-CA locale of")
+Rel(ll, ses, "Sends locale-formatted email through")
+@enduml

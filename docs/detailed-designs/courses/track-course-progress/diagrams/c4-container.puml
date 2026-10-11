@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Track course progress
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+Person(expert, "Expert or Editor", "Authors courses and modules in Studio")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Carries job messages from the API to the Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+
+Rel(learner, web, "Views overview, lesson player and dashboard", "HTTPS")
+Rel(expert, web, "Publishes course revisions", "HTTPS")
+Rel(web, api, "Reads progress, records completions", "JSON/HTTPS")
+Rel(api, db, "Writes completions and progress in one transaction", "SQL")
+Rel(api, queue, "Enqueues CourseProgressRecalculateJob", "SQS")
+Rel(worker, queue, "Receives jobs from", "SQS")
+Rel(worker, db, "Recalculates enrolments of a course", "SQL")
+@enduml

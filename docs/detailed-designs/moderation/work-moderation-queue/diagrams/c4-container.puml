@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Work the moderation queue
+
+Person(moderator, "Moderator", "Works the queue")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "ModerationQueuePage, ReportDetailPage")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "/api/v1/moderation/reports")
+  Container(worker, "Logos Lab Worker", "Node.js", "OverdueReportNotifyJob, EmailSendJob")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "Job messages")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "moderation_cases, reports, notifications")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(moderator, web, "Uses", "HTTPS")
+Rel(web, api, "Calls ModerationApi", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(worker, db, "Finds overdue cases in", "SQL")
+Rel(worker, sqs, "Enqueues and consumes jobs on", "SQS")
+Rel(worker, ses, "Sends email through", "HTTPS API")
+@enduml

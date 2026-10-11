@@ -1,0 +1,132 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View a course overview
+
+enum LessonType {
+  Video
+  Article
+  LearningModule
+  Text
+}
+enum CourseState {
+  Published
+  Archived
+}
+enum NavigationMode {
+  Free
+  Sequential
+}
+enum EnrolmentStatus {
+  Active
+  Left
+  Completed
+}
+enum LessonAccess {
+  Done
+  Open
+  Locked
+}
+class CourseOverview {
+  +id: string
+  +slug: string
+  +title: string
+  +summary: string
+  +coverImageUrl: string
+  +contributors: Contributor[]
+  +level: string
+  +estimatedMinutes: number
+  +outcomes: string[]
+  +topics: TopicRef[]
+  +navigation: NavigationMode
+  +state: CourseState
+  +enrolledCount: number
+  +sections: SyllabusSection[]
+}
+class SyllabusSection {
+  +id: string
+  +position: number
+  +title: string
+  +lessons: SyllabusLesson[]
+}
+class SyllabusLesson {
+  +id: string
+  +position: number
+  +title: string
+  +type: LessonType
+  +durationMinutes: number
+  +required: boolean
+}
+class MyCourseState {
+  +status: EnrolmentStatus
+  +progressPercent: number
+  +continueLessonId: string
+  +lessons: LessonStateEntry[]
+  +cohortUrl: string
+  +certificateCode: string
+}
+class LessonStateEntry {
+  +lessonId: string
+  +access: LessonAccess
+  +lockReason: string
+}
+interface CoursesApi {
+  +getCourse(slug: string): Observable<CourseOverview>
+  +getMyCourseState(slug: string): Observable<MyCourseState>
+}
+class HttpCoursesApi
+class CourseOverviewPage {
+  -api: CoursesApi
+  +course: Signal<CourseOverview>
+  +me: Signal<MyCourseState>
+  +ngOnInit(): void
+}
+class GetCourseOverviewAction {
+  +execute(slug: string, viewerId: string): Promise<CourseOverview>
+}
+class GetMyCourseStateAction {
+  +execute(slug: string, userId: string): Promise<MyCourseState>
+}
+class CourseCatalogueService {
+  +assertVisible(course: Course, enrolment: Enrolment): void
+}
+class ProgressService {
+  +getState(enrolment: Enrolment, course: Course): MyCourseState
+}
+class CourseRepository {
+  +findBySlug(slug: string): Promise<Course>
+  +countActiveEnrolments(courseId: string): Promise<number>
+}
+class EnrolmentRepository {
+  +findForUser(userId: string, courseId: string): Promise<Enrolment>
+}
+class Course
+class Enrolment
+CourseOverview "1" *-- "1..20" SyllabusSection
+SyllabusSection "1" *-- "1..30" SyllabusLesson
+SyllabusLesson --> LessonType
+CourseOverview --> NavigationMode
+CourseOverview --> CourseState
+MyCourseState --> EnrolmentStatus
+MyCourseState "1" *-- "*" LessonStateEntry
+LessonStateEntry --> LessonAccess
+HttpCoursesApi ..|> CoursesApi
+CourseOverviewPage ..> CoursesApi : injects COURSES_API
+GetCourseOverviewAction ..> CourseCatalogueService
+GetCourseOverviewAction ..> CourseRepository
+GetMyCourseStateAction ..> CourseCatalogueService
+GetMyCourseStateAction ..> EnrolmentRepository
+GetMyCourseStateAction ..> ProgressService
+CourseRepository ..> Course : loads
+EnrolmentRepository ..> Enrolment : loads
+@enduml

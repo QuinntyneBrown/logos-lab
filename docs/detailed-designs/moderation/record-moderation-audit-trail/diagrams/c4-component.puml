@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record the moderation audit trail
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "ModerationAuditPage", "Angular standalone page", "Filters, table, Export CSV")
+  Component(client, "HttpModerationApi", "ModerationApi via MODERATION_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "moderation/audit routes", "Next.js route handlers", "GET list and GET export only")
+  Component(list, "ListModerationAuditAction", "Action", "Filtered page of entries")
+  Component(export, "ExportModerationAuditAction", "Action", "Streams CSV")
+  Component(actions, "Moderation actions", "Actions", "TakeModerationActionAction, DecideAppealAction, AutoHideService")
+  Component(audit, "ModerationAuditService", "Domain service", "Sole writer, appends in the caller's transaction")
+  Component(repo, "ModerationAuditRepository", "Repository", "Insert, query, stream")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "moderation_audit_entries with no-change trigger")
+
+Rel(page, client, "Lists and exports through")
+Rel(client, route, "GET", "HTTPS")
+Rel(route, list, "Calls")
+Rel(route, export, "Calls")
+Rel(actions, audit, "Append entries with")
+Rel(audit, repo, "Inserts through")
+Rel(list, repo, "Queries through")
+Rel(export, repo, "Streams through")
+Rel(repo, db, "INSERT and SELECT", "SQL")
+@enduml

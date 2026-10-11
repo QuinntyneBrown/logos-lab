@@ -1,0 +1,88 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Follow a collection
+
+package "Logos Lab Web" {
+  class CollectionPage {
+    +following: Signal<boolean>
+    +toggleFollow(): void
+  }
+  class FollowingPage {
+    +collections: Signal<FollowedCollection[]>
+    +unfollow(collectionId: UUID): void
+  }
+  interface FollowsApi {
+    +followCollection(collectionId: UUID): Observable<FollowState>
+    +unfollowCollection(collectionId: UUID): Observable<FollowState>
+  }
+  class HttpFollowsApi
+  class FOLLOWS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class FollowCollectionAction {
+    +execute(userId: UUID, collectionId: UUID): Promise<FollowState>
+  }
+  class UnfollowCollectionAction {
+    +execute(userId: UUID, collectionId: UUID): Promise<FollowState>
+  }
+  class FollowService {
+    +follow(userId: UUID, target: FollowTarget): Promise<number>
+    +unfollow(userId: UUID, target: FollowTarget): Promise<number>
+  }
+  class FollowRepository {
+    +followersOf(target: FollowTarget): Promise<UUID[]>
+  }
+  class CollectionRevisionPublishedHandler {
+    +handle(event: RevisionPublished): Promise<void>
+    +addedItems(previous: UUID[], current: UUID[]): UUID[]
+  }
+  class CollectionItemsAdded {
+    +collectionId: UUID
+    +revisionId: UUID
+    +addedContentIds: UUID[]
+  }
+  class CollectionFollowerNotificationJob {
+    +run(message: CollectionItemsAdded): Promise<void>
+  }
+  class Follow {
+    +followerId: UUID
+    +targetType: FollowTargetType
+    +targetId: UUID
+    +createdAt: Date
+  }
+  enum FollowTargetType {
+    Expert
+    Collection
+  }
+  class Notification {
+    +id: UUID
+    +userId: UUID
+    +type: string
+    +dedupeKey: string
+    +payload: json
+    +readAt: Date
+  }
+}
+CollectionPage ..> FollowsApi
+FollowingPage ..> FollowsApi
+HttpFollowsApi ..|> FollowsApi
+FOLLOWS_API ..> FollowsApi : provides
+FollowCollectionAction --> FollowService
+UnfollowCollectionAction --> FollowService
+FollowService --> FollowRepository
+FollowRepository ..> Follow
+Follow --> FollowTargetType
+CollectionRevisionPublishedHandler ..> CollectionItemsAdded : enqueues
+CollectionFollowerNotificationJob ..> CollectionItemsAdded : consumes
+CollectionFollowerNotificationJob --> FollowRepository
+CollectionFollowerNotificationJob ..> Notification : creates one per follower
+@enduml

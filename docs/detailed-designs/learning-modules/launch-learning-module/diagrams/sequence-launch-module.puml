@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Launch a learning module
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModulePlayerPage" as page
+  participant "ll-player" as player
+  participant "Tessera scorm-player" as tess
+  participant "SCORM content (iframe, content origin)" as content
+  participant "HttpModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "modules/[slug]/launches route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "LaunchModuleAction" as action
+  participant "LaunchEligibilityService" as elig
+  participant "ModuleAttemptService" as att
+  participant "ScormLaunchUrlSigner" as signer
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  entity "SCORM content origin" as origin
+end box
+actor -> page : Press Start on module page
+page -> client : launch(slug, options)
+client -> route : POST /api/v1/modules/{slug}/launches
+route -> route : Authenticate session (signed-in only, L2-034)
+route -> action : execute(slug, options, user)
+action -> db : Load module, Ready package, enrolment if course lesson
+db --> action : Rows
+action -> elig : Apply L2-034 eligibility
+alt not eligible
+  elig --> action : Refused
+  action --> route : Forbidden
+  route --> client : 403 problem response
+  client --> page : Refused
+  page --> actor : Show reason
+else eligible
+  action -> att : openOrCreate (first attempt on Start, L2-035)
+  att -> db : Insert or reuse attempt; set last_accessed_at
+  db --> att : Attempt with runtime snapshot
+  action -> signer : Sign path token, expiry 4 hours
+  signer --> action : launchUrl on content origin
+  action --> route : ModuleLaunch
+  route --> client : 201 ModuleLaunch
+  client --> page : Launch
+  page -> player : Render (embedded at LG/XL, full viewport at XS-MD)
+  player -> tess : Init with launchUrl, allowedOrigin, version
+  tess -> content : Create iframe sandbox=allow-scripts allow-forms allow-same-origin, allow=fullscreen
+  content -> origin : GET launch file with signed path
+  origin --> content : Package HTML and assets
+  content -> tess : Bridge handshake via postMessage
+  tess -> tess : Accept only from content origin (L2-034)
+  tess --> player : Loaded
+  player --> actor : Module running with Exit and Full screen
+end
+@enduml

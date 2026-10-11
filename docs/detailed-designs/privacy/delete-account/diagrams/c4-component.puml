@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Delete an account
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(rDel, "deletion route handlers", "app/api/v1/me/deletion", "GET eligibility, POST delete")
+  Component(rRes, "restore route handlers", "app/api/v1/account/restore", "Anonymous GET link status, POST restore")
+  Component(aElig, "GetDeletionEligibilityAction", "Action", "Lists blockers")
+  Component(aDel, "DeleteAccountAction", "Action", "Deactivates, ends sessions, schedules purge")
+  Component(aRes, "RestoreAccountAction", "Action", "Signs in and restores to Active")
+  Component(svc, "AccountDeletionService", "Domain service", "Blocker rules, 30-day window, restore token")
+  Component(sess, "SessionService", "Domain service", "Revokes and creates sessions")
+  Component(pwd, "PasswordVerifier", "Domain service", "Checks the re-entered password")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(purge, "AccountPurgeJob", "Job", "Purges one due account")
+  Component(eraser, "PersonalDataEraser", "Domain service", "Deletes, anonymizes and reattributes")
+  Component(ledger, "PurgeLedger", "Infrastructure service", "Append-only purge record outside the database")
+  Component(replay, "PurgeLedgerReplayJob", "Job", "Re-applies purges after a backup restore")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "Account and personal data")
+ComponentDb(s3, "Media storage", "Amazon S3, versioned", "purge-ledger/ prefix")
+Rel(rDel, aElig, "Calls")
+Rel(rDel, aDel, "Calls")
+Rel(rRes, aRes, "Calls")
+Rel(aElig, svc, "Uses")
+Rel(aDel, pwd, "Verifies with")
+Rel(aDel, svc, "Schedules purge with")
+Rel(aDel, sess, "Revokes all sessions with")
+Rel(aRes, svc, "Validates token with")
+Rel(aRes, sess, "Creates session with")
+Rel(svc, db, "Reads and writes", "SQL")
+Rel(purge, eraser, "Erases with")
+Rel(purge, ledger, "Records purge in")
+Rel(eraser, db, "Deletes and anonymizes", "SQL")
+Rel(ledger, s3, "Appends entry", "S3 API")
+Rel(replay, ledger, "Reads entries from")
+Rel(replay, eraser, "Re-applies with")
+@enduml

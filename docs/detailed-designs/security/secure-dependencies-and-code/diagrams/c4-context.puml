@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Secure dependencies and code
+
+Person(dev, "Developer", "Opens pull requests")
+Person(owner, "Security owner", "Triages findings and tracks remediation deadlines")
+Person_Ext(tester, "External penetration tester", "Tests production before launch and annually")
+System(ci, "Logos Lab delivery pipeline", "CI and release pipeline, platform <TO SUPPLY>")
+System(ll, "Logos Lab", "Production platform")
+System_Ext(advisories, "Vulnerability advisory feeds", "Public disclosures for dependencies")
+Rel(dev, ci, "Pushes pull requests to")
+Rel(ci, ll, "Deploys releases with SBOM to")
+Rel(advisories, owner, "Alerts on new critical or high vulnerabilities")
+Rel(owner, ci, "Ships patches through")
+Rel(tester, ll, "Tests")
+Rel(tester, owner, "Reports findings to")
+@enduml

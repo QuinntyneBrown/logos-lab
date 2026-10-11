@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Leave with unsaved changes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Angular Router" as router
+  participant "UnsavedChangesGuard" as guard
+  participant "AutosaveService" as autosave
+  participant "UnsavedChangesDialog" as dialog
+end box
+actor -> router : Navigate away from the editor
+router -> guard : canDeactivate()
+guard -> autosave : hasUnsavedChanges()
+alt No unsaved changes
+  autosave --> guard : false
+  guard --> router : true
+  router --> actor : Next page
+else Unsaved changes
+  autosave --> guard : true
+  guard -> dialog : Open; focus on Stay on this page
+  dialog --> actor : Leave without saving? (L2-084)
+  alt Stay, or Escape
+    actor -> dialog : Stay on this page
+    dialog --> guard : false
+    guard --> router : false
+    router --> actor : Remain in the editor
+  else Leave
+    actor -> dialog : Leave without saving
+    dialog --> guard : true
+    guard --> router : true
+    router --> actor : Next page
+  end
+end
+note over router, dialog : Closing or reloading the tab triggers the browser's beforeunload prompt instead
+@enduml

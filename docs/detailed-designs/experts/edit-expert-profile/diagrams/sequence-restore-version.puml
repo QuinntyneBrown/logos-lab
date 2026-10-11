@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Restore a profile version
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExpertProfileHistoryPage" as ExpertProfileHistoryPage
+  participant "RestoreProfileVersionDialog" as RestoreProfileVersionDialog
+  participant "StudioProfileApi" as StudioProfileApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST .../profile-history/versionId/restore" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RestoreProfileVersionAction" as RestoreProfileVersionAction
+  participant "ProfileVersionService" as ProfileVersionService
+  participant "NotificationService" as NotificationService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ExpertProfileHistoryPage : Press Restore this version
+ExpertProfileHistoryPage -> RestoreProfileVersionDialog : Open with CDK Dialog
+actor -> RestoreProfileVersionDialog : Confirm
+RestoreProfileVersionDialog -> StudioProfileApi : restoreVersion(expertId, versionId)
+StudioProfileApi -> route : HTTPS POST
+route -> route : Authenticate; require Editor
+route -> RestoreProfileVersionAction : execute(editorId, expertId, versionId)
+RestoreProfileVersionAction -> db : Begin; load version snapshot and live profile
+db --> RestoreProfileVersionAction : Snapshot and profile
+RestoreProfileVersionAction -> db : Update expert_profiles from snapshot (L2-023)
+RestoreProfileVersionAction -> ProfileVersionService : record(profile, changes, Restore, editorId)
+ProfileVersionService -> db : Insert new version at top of history
+RestoreProfileVersionAction -> db : Insert audit entry
+RestoreProfileVersionAction -> NotificationService : notifyUser(expert, ProfileRestored) (L2-023)
+NotificationService -> db : Insert in-app notification for the expert
+RestoreProfileVersionAction -> db : Commit
+alt commit succeeds
+  RestoreProfileVersionAction --> route : Done
+  route --> StudioProfileApi : 204
+  StudioProfileApi --> RestoreProfileVersionDialog : Restored
+  RestoreProfileVersionDialog --> actor : Dialog closes; new entry tops history; toast says the expert was notified
+else failure
+  route --> StudioProfileApi : Problem response
+  StudioProfileApi --> RestoreProfileVersionDialog : Failed
+  RestoreProfileVersionDialog --> actor : Error says nothing changed; Try again
+end
+@enduml

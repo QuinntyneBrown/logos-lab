@@ -1,0 +1,146 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage users
+package "Logos Lab Web" {
+  class AdminUsersPage {
+    -query: FormControl<string>
+    -stateFilter: AccountState
+    -page: number
+    +search(): void
+    +clearFilters(): void
+  }
+  class AdminUserPage {
+    -user: AdminUserDetail
+    +openAction(kind: AccountActionKind): void
+  }
+  class UserActionDialog {
+    -kind: AccountActionKind
+    -form: FormGroup
+    +confirm(): void
+  }
+  interface AdminUsersApi {
+    +search(q: string, state: AccountState, page: number): Observable<Page<AdminUserRow>>
+    +get(id: string): Observable<AdminUserDetail>
+    +act(id: string, action: AccountActionRequest): Observable<AdminUserDetail>
+  }
+  class HttpAdminUsersApi
+  class "ADMIN_USERS_API" as Token <<InjectionToken>>
+  class AdminUserRow {
+    +id: string
+    +name: string
+    +email: string
+    +roles: Role[]
+    +state: AccountState
+    +createdAt: string
+    +lastSignInAt: string
+  }
+  class AdminUserDetail {
+    +id: string
+    +name: string
+    +email: string
+    +roles: Role[]
+    +state: AccountState
+    +suspendedUntil: string
+    +mfaEnabled: boolean
+    +consentRecords: ConsentRecordView[]
+    +moderationHistory: ModerationEntryView[]
+  }
+}
+package "Logos Lab API" {
+  class SearchUsersAction {
+    +execute(actor: Actor, q: string, state: AccountState, page: number): Page<AdminUserRow>
+  }
+  class GetUserDetailAction {
+    +execute(actor: Actor, userId: uuid): AdminUserDetail
+  }
+  class SuspendUserAction {
+    +execute(actor: Actor, userId: uuid, until: Date, reason: string): AdminUserDetail
+  }
+  class "ResendVerificationAction\nForcePasswordResetAction\nRevokeAllSessionsAction\nReactivateUserAction\nDeactivateUserAction" as OtherActions {
+    +execute(actor: Actor, userId: uuid): AdminUserDetail
+  }
+  class AccountStateService {
+    +suspend(user: User, until: Date): void
+    +reactivate(user: User): void
+    +deactivate(user: User): void
+    +assertNotLastAdministrator(user: User): void
+  }
+  class SessionService {
+    +revokeAll(userId: uuid): number
+  }
+  class AuditLogService {
+    +record(entry: AuditEntryInput): void
+  }
+  class UserRepository {
+    +search(q: string, state: AccountState, offset: number, limit: number): AdminUserRow[]
+    +findAdminDetail(id: uuid): AdminUserDetail
+    +findForUpdate(id: uuid): User
+    +save(user: User): void
+  }
+  class User {
+    +id: uuid
+    +displayName: string
+    +email: string
+    +roles: Role[]
+    +state: AccountState
+    +suspendedUntil: timestamptz
+    +createdAt: timestamptz
+    +lastSignInAt: timestamptz
+    -passwordHash: string
+    -mfaSecret: string
+  }
+  enum AccountState {
+    Unverified
+    Active
+    Suspended
+    Banned
+    Deactivated
+  }
+  enum Role {
+    Learner
+    Expert
+    Editor
+    Moderator
+    Administrator
+  }
+  enum AccountActionKind {
+    ResendVerification
+    ForcePasswordReset
+    RevokeAllSessions
+    Suspend
+    Reactivate
+    Deactivate
+  }
+}
+HttpAdminUsersApi ..|> AdminUsersApi
+Token ..> AdminUsersApi : provides
+AdminUsersPage ..> AdminUsersApi : depends on
+AdminUserPage ..> AdminUsersApi : depends on
+UserActionDialog ..> AdminUsersApi : depends on
+AdminUserPage ..> UserActionDialog : opens
+AdminUserPage --> AdminUserDetail
+SearchUsersAction --> UserRepository
+GetUserDetailAction --> UserRepository
+SuspendUserAction --> AccountStateService
+SuspendUserAction --> SessionService
+SuspendUserAction --> AuditLogService
+OtherActions --> AccountStateService
+OtherActions --> SessionService
+OtherActions --> AuditLogService
+AccountStateService --> User
+UserRepository ..> User : persists
+User --> AccountState
+User --> "1..*" Role
+UserActionDialog --> AccountActionKind
+@enduml

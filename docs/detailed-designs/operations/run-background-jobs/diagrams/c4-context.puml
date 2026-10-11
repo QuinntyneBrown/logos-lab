@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Run background jobs
+
+Person(member, "Member", "Triggers work such as uploads and exports")
+System(ll, "Logos Lab", "Runs background jobs")
+System_Ext(ses, "Amazon SES", "Email")
+System_Ext(mc, "AWS Elemental MediaConvert", "Video transcoding")
+System_Ext(oncall, "On-call channel", "TO SUPPLY")
+
+Rel(member, ll, "Uses", "HTTPS")
+Rel(ll, ses, "Sends email via")
+Rel(ll, mc, "Transcodes video via")
+Rel(ll, oncall, "Alerts on dead-lettered jobs", "Amazon SNS")
+@enduml

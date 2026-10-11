@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View following
+
+Person(member, "Member", "Signed-in learner")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "FollowingPage and UnfollowDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "Follow actions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "follows, experts, collections")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

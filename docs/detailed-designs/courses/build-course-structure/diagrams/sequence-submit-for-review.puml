@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Submit a course with an empty section
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseBuilderPage" as page
+  participant "HttpStudioCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/courses/[id]/submission route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitForReviewAction" as action
+  participant "CourseStructureService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Submit for review
+page -> client : submitForReview(id)
+client -> route : POST /api/v1/studio/courses/{id}/submission
+route -> route : Authenticate and apply author policy
+route -> action : execute(courseId, userId)
+action -> db : Load course with sections and lessons
+db --> action : Course
+action -> svc : validateForSubmission (L2-026 empty-section rule)
+alt no sections, or one or more sections with no lessons
+  svc --> action : Violations naming each empty section
+  action --> route : Refused
+  route --> client : 422 problem response listing sections
+  client --> page : Violations
+  page --> actor : Error summary names each empty section, flagged in place
+else every section has a lesson
+  svc --> action : No violations
+  action -> db : Move workflow state to In review (L2-077)
+  db --> action : Commit
+  action --> route : Submitted
+  route --> client : 202 Accepted
+  client --> page : Submitted
+  page --> actor : Show In review
+end
+@enduml

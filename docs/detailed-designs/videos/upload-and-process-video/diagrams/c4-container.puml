@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Upload and process a video
+
+Person(author, "Author", "Expert or editor")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Studio Media tab and the resumable uploader")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Upload sessions, media state, retry")
+  Container(worker, "Logos Lab Worker", "Node.js", "Scan, transcode and status jobs")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Job messages and MediaConvert status events")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Videos, uploads, renditions, processing")
+  ContainerDb(s3, "Media storage", "Amazon S3, private", "Source files, HLS renditions, posters")
+}
+System_Ext(mc, "AWS Elemental MediaConvert", "HLS transcoding")
+System_Ext(eb, "Amazon EventBridge", "Routes MediaConvert status events")
+System_Ext(scan, "Malware scanner", "<TO SUPPLY>")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(author, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(web, s3, "Uploads parts to presigned URLs", "HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, s3, "Opens and completes multipart uploads", "AWS SDK")
+Rel(api, queue, "Enqueues VideoScanJob", "AWS SDK")
+Rel(worker, queue, "Consumes jobs", "AWS SDK")
+Rel(worker, scan, "Scans source file")
+Rel(worker, mc, "Creates transcoding job", "AWS SDK")
+Rel(mc, s3, "Reads source, writes renditions and poster")
+Rel(mc, eb, "Emits status events")
+Rel(eb, queue, "Delivers status events")
+Rel(worker, db, "Updates processing state", "SQL")
+Rel(worker, ses, "Sends ready email", "AWS SDK")
+@enduml

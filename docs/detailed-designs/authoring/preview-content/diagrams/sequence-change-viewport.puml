@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Change preview width and theme
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Author or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Preview banner" as banner
+  participant "PreviewPage" as page
+  participant "Preview frame" as frame
+end box
+actor -> banner : Choose XS, MD or XL
+banner -> page : setWidth(width)
+page -> frame : Set width to 375px, 768px or 1280px (L2-078)
+frame --> actor : Layout reflows at that width
+actor -> banner : Toggle theme
+banner -> page : setTheme(Light or Dark)
+page -> frame : Set data-theme on the frame document (L2-078)
+frame --> actor : Preview in the chosen theme
+note over page : Width and theme change in the browser only; the API is not called
+actor -> banner : Back to editor
+banner -> page : backToEditor()
+page --> actor : Navigate to /studio/{type}/{id}
+@enduml

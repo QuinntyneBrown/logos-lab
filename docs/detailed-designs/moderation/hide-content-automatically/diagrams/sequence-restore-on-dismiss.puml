@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Restore auto-hidden content on dismissal
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationActionDialog" as dialog
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "report actions route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "TakeModerationActionAction" as action
+  participant "ContentVisibilityService" as visibility
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Choose Dismiss the reports on an auto-hidden case
+dialog -> client : takeAction(reportId, Dismiss)
+client -> route : POST /api/v1/moderation/reports/{id}/actions
+route -> action : execute(currentUser, Dismiss)
+action -> db : Load case FOR UPDATE
+db --> action : Case with auto_hidden true
+action -> visibility : restore(target) (L2-088)
+visibility -> db : Set target visible
+action -> db : Resolve case; INSERT action and audit entry; COMMIT
+action --> route : ActionResult
+route --> client : 200 JSON
+client --> dialog : Restored
+dialog --> actor : The content is restored and the reports close
+@enduml

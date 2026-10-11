@@ -1,0 +1,136 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Home page
+
+package "Logos Lab Web" {
+  class HomePage {
+    -homeApi: HomeApi
+    +home: Signal<HomePageView>
+    +continueLearning: Signal<ContinueLearningItem[]>
+    +ngOnInit(): void
+    +retrySection(section: string): void
+  }
+  interface HomeApi {
+    +getHome(): Observable<HomePageView>
+    +getContinueLearning(): Observable<ContinueLearningItem[]>
+  }
+  class HttpHomeApi {
+    -http: HttpClient
+    +getHome(): Observable<HomePageView>
+    +getContinueLearning(): Observable<ContinueLearningItem[]>
+  }
+  class HOME_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class HomeRouteHandler <<route: GET /api/v1/home>> {
+    +GET(request: Request): Promise<Response>
+  }
+  class ContinueLearningRouteHandler <<route: GET /api/v1/me/continue-learning>> {
+    +GET(request: Request): Promise<Response>
+  }
+  class GetHomePageAction {
+    +execute(now: Date): Promise<HomePageView>
+  }
+  class GetContinueLearningAction {
+    +execute(userId: UUID): Promise<ContinueLearningItem[]>
+  }
+  class FeaturedContentService {
+    +getActiveFeatured(now: Date): Promise<ContentSummary[]>
+  }
+  class ContentCatalogueService {
+    +getLatest(limit: number): Promise<ContentSummary[]>
+  }
+  class EventScheduleService {
+    +getUpcoming(now: Date, limit: number): Promise<EventSummary[]>
+  }
+  class ExpertDirectoryService {
+    +getFeaturedExperts(): Promise<ExpertSummary[]>
+  }
+  class LearningProgressService {
+    +getInProgress(userId: UUID, limit: number): Promise<ContinueLearningItem[]>
+  }
+  class PublishedContentPolicy {
+    +isVisible(item: ContentItem, now: Date): boolean
+  }
+  class HomePageView {
+    +featured: Section<ContentSummary>
+    +latest: Section<ContentSummary>
+    +upcomingEvents: Section<EventSummary>
+    +featuredExperts: Section<ExpertSummary>
+  }
+  class "Section<T>" as Section {
+    +status: SectionStatus
+    +items: T[]
+  }
+  enum SectionStatus {
+    Ok
+    Empty
+    Unavailable
+  }
+  class FeaturedSlot {
+    +id: UUID
+    +contentId: UUID
+    +position: number
+    +startsAt: Date
+    +endsAt: Date
+  }
+  class ContentItem {
+    +id: UUID
+    +type: ContentType
+    +slug: string
+    +title: string
+    +workflowState: WorkflowState
+    +publishedAt: Date
+  }
+  enum ContentType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+  }
+  enum WorkflowState {
+    Draft
+    InReview
+    Scheduled
+    Published
+    Archived
+  }
+  class ContinueLearningItem {
+    +contentId: UUID
+    +title: string
+    +percentComplete: number
+    +lastAccessedAt: Date
+  }
+}
+HomePage ..> HomeApi : depends on
+HttpHomeApi ..|> HomeApi
+HOME_API ..> HomeApi : provides
+HomeRouteHandler ..> GetHomePageAction : invokes
+ContinueLearningRouteHandler ..> GetContinueLearningAction : invokes
+GetHomePageAction --> FeaturedContentService
+GetHomePageAction --> ContentCatalogueService
+GetHomePageAction --> EventScheduleService
+GetHomePageAction --> ExpertDirectoryService
+GetHomePageAction ..> HomePageView : returns
+GetContinueLearningAction --> LearningProgressService
+HomePageView *-- "4" Section
+Section --> SectionStatus
+FeaturedContentService ..> FeaturedSlot : reads
+FeaturedContentService ..> PublishedContentPolicy : applies
+ContentCatalogueService ..> PublishedContentPolicy : applies
+EventScheduleService ..> PublishedContentPolicy : applies
+FeaturedSlot "*" --> "1" ContentItem
+ContentItem --> ContentType
+ContentItem --> WorkflowState
+@enduml

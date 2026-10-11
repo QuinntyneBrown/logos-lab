@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Log and trace
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(interceptor, "CorrelationIdInterceptor", "Angular HttpInterceptor", "Adds X-Correlation-Id")
+  Component(errpage, "ServerErrorPage", "Angular page", "Shows the reference")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(reqlog, "RequestLoggingMiddleware", "Middleware 1", "Assigns ID, writes request log entry")
+  Component(exc, "ExceptionHandlingMiddleware", "Middleware 2", "Logs stack, returns generic 500")
+  Component(ctx, "RequestContext", "AsyncLocalStorage", "correlationId and userId")
+  Component(pub, "JobPublisher", "Module", "Adds correlationId attribute")
+  Component(logger, "Logger", "JSON logger", "Writes to stdout")
+  Component(redactor, "LogRedactor", "Module", "Removes secrets, masks emails")
+}
+System_Ext(logs, "Amazon CloudWatch Logs", "")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "")
+Rel(interceptor, reqlog, "Sends X-Correlation-Id", "HTTPS")
+Rel(reqlog, ctx, "Initialises")
+Rel(reqlog, exc, "Wraps")
+Rel(exc, logger, "Logs stack trace through")
+Rel(reqlog, logger, "Writes request log entry through")
+Rel(logger, redactor, "Passes each entry through")
+Rel(logger, ctx, "Reads correlationId from")
+Rel(logger, logs, "Ships to")
+Rel(pub, queue, "Enqueues")
+Rel(pub, ctx, "Reads correlationId from")
+Rel(exc, errpage, "Returns 500 problem with correlationId to")
+@enduml

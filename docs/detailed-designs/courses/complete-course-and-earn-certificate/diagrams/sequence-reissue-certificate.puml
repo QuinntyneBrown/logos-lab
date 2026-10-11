@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Reissue a certificate with the current name
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CertificatePage" as page
+  participant "ReissueCertificateDialog" as dialog
+  participant "HttpCertificatesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me/certificates/[code]/reissue route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ReissueCertificateAction" as action
+  participant "CertificateService" as cs
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open certificate after a name change
+page --> actor : Notice: certificate keeps the issued name
+actor -> page : Reissue with current name
+page -> dialog : Open (code and date stay the same)
+actor -> dialog : Confirm
+dialog -> client : reissue(code)
+client -> route : POST /api/v1/me/certificates/{code}/reissue
+route -> route : Authenticate, CSRF check
+route -> action : execute(code, userId)
+action -> db : Load certificate owned by userId and current display name
+db --> action : Certificate, user
+action -> cs : reissue(certificate, user) (L2-031)
+cs --> action : issuedName replaced, version + 1
+action -> db : Save certificate
+alt saved
+  db --> action : Commit
+  action --> route : CertificateView
+  route --> client : 200 CertificateView
+  client --> dialog : Reissued
+  dialog --> actor : Says what changed, offers download
+else failed
+  db --> action : Error
+  action --> route : Failure
+  route --> client : 500 problem response
+  client --> dialog : Failed
+  dialog --> actor : Certificate unchanged; Try again
+end
+@enduml

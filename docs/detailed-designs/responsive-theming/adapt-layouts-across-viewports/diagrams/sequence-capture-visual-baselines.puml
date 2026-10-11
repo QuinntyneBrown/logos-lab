@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Capture visual baselines
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer" as actor
+box "Delivery — CI pipeline" #F2F4F7
+  participant "ResponsiveVisualSuite" as suite
+  participant "<Name>PageObject" as po
+  participant "TargetSizeCheck" as tsc
+end box
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web under test" as web
+end box
+actor -> suite : Push change
+loop Each page in the suite
+  loop Widths 375, 768, 1024 and 1440px (L2-130 AC4)
+    suite -> po : Open screen at width
+    po -> web : Navigate
+    web --> po : Rendered page
+    po -> po : Assert no page-level horizontal scroll
+    po -> tsc : assertTargets(page, viewport class)
+    alt Target under 24 px, or primary action under 44 px at XS to MD (L2-132 AC1)
+      tsc --> po : Fail
+    else Sizes pass
+      tsc --> po : Pass
+    end
+    po -> suite : Screenshot compared with the baseline
+  end
+end
+suite --> actor : Differences for review against the mocks
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Change password and email
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(member, lab, "Changes password and email", "HTTPS")
+Rel(lab, ses, "Sends verification, notice and report email via")
+Rel(ses, member, "Delivers to new and old addresses")
+@enduml

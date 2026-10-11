@@ -1,0 +1,131 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Delete an account
+
+enum AccountState {
+  Unverified
+  Active
+  Suspended
+  Banned
+  Deactivated
+}
+enum DeletionStatus {
+  Pending
+  Cancelled
+  Purged
+}
+enum DeletionBlocker {
+  SoleAdministrator
+  PublishedContent
+}
+class User {
+  +id: string
+  +state: AccountState
+  +deactivatedAt: Date | null
+  +deactivate(now: Date): void
+  +reactivate(): void
+}
+class AccountDeletionRequest {
+  +id: string
+  +userId: string
+  +requestedAt: Date
+  +purgeAfter: Date
+  +restoreTokenHash: string
+  +status: DeletionStatus
+  +canRestore(now: Date): boolean
+}
+class DeletionEligibility {
+  +blockers: DeletionBlocker[]
+  +publishedItems: ContentRef[]
+  +isEligible(): boolean
+}
+class AccountDeletionService {
+  +restoreWindowDays: 30
+  +eligibility(userId: string): DeletionEligibility
+  +schedule(user: User, now: Date): RestoreToken
+  +findByToken(token: string): AccountDeletionRequest | null
+}
+class GetDeletionEligibilityAction {
+  +execute(userId: string): Result<DeletionEligibility>
+}
+class DeleteAccountAction {
+  +execute(userId: string, password: string): Result<DeletionScheduled>
+}
+class RestoreAccountAction {
+  +execute(token: string, email: string, password: string): Result<Session>
+}
+class SessionService {
+  +revokeAll(userId: string): void
+  +create(userId: string): Session
+}
+class AccountPurgeJob {
+  +run(deletionRequestId: string): Promise<void>
+}
+class PersonalDataEraser {
+  +erase(userId: string): PurgeCounts
+}
+class PurgeLedger {
+  +append(entry: PurgeLedgerEntry): void
+  +entriesSince(at: Date): PurgeLedgerEntry[]
+}
+class PurgeLedgerEntry {
+  +userId: string
+  +purgedAt: Date
+}
+class PurgeLedgerReplayJob {
+  +run(restoredAt: Date): Promise<void>
+}
+class AccountDeletionRequestRepository {
+  +insert(request: AccountDeletionRequest): void
+  +findDue(now: Date): AccountDeletionRequest[]
+  +update(request: AccountDeletionRequest): void
+}
+class SettingsDataPage
+class DeleteAccountDialog {
+  +password: FormControl<string>
+  +eligibility: Signal<DeletionEligibility>
+  +confirm(): void
+}
+class AccountDeletedPage
+class RestoreAccountPage {
+  +restore(): void
+}
+interface PersonalDataApi {
+  +getDeletionEligibility(): Observable<DeletionEligibility>
+  +deleteAccount(password: string): Observable<DeletionScheduled>
+  +getRestoreLink(token: string): Observable<RestoreLinkView>
+  +restoreAccount(token: string, email: string, password: string): Observable<void>
+}
+class HttpPersonalDataApi
+User --> AccountState : has
+AccountDeletionRequest --> DeletionStatus : has
+AccountDeletionRequest "0..1" --> "1" User : schedules purge of
+DeletionEligibility --> DeletionBlocker : lists
+DeleteAccountAction ..> AccountDeletionService : uses
+DeleteAccountAction ..> SessionService : revokes
+GetDeletionEligibilityAction ..> AccountDeletionService : uses
+RestoreAccountAction ..> AccountDeletionService : uses
+RestoreAccountAction ..> SessionService : creates
+AccountDeletionService ..> AccountDeletionRequestRepository : uses
+AccountPurgeJob ..> PersonalDataEraser : uses
+AccountPurgeJob ..> PurgeLedger : appends
+PurgeLedger *-- PurgeLedgerEntry : holds
+PurgeLedgerReplayJob ..> PurgeLedger : reads
+PurgeLedgerReplayJob ..> PersonalDataEraser : re-applies
+HttpPersonalDataApi ..|> PersonalDataApi
+SettingsDataPage ..> DeleteAccountDialog : opens
+DeleteAccountDialog ..> PersonalDataApi : depends on
+RestoreAccountPage ..> PersonalDataApi : depends on
+DeleteAccountDialog ..> AccountDeletedPage : navigates to
+@enduml

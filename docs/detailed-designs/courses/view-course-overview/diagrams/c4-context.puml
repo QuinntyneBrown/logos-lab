@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View a course overview
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+
+Rel(visitor, logos, "Reads course overviews in", "HTTPS")
+Rel(learner, logos, "Reads course overviews and continues courses in", "HTTPS")
+@enduml

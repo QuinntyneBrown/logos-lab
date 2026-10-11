@@ -1,0 +1,101 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Show error pages
+
+package "Logos Lab Web" {
+  abstract class ErrorPageBase {
+    +{abstract} status: number
+    +ngOnInit(): void
+  }
+  class NotFoundPage {
+    +status: number = 404
+  }
+  class ForbiddenPage {
+    +status: number = 403
+  }
+  class GonePage {
+    +status: number = 410
+    +suggestions: Signal<ContentSummary[]>
+  }
+  class TooManyRequestsPage {
+    +status: number = 429
+    +retryAfterSeconds: Signal<number>
+  }
+  class ServerErrorPage {
+    +status: number = 500
+    +reference: Signal<string>
+  }
+  class OfflinePage {
+    +RETRY_INTERVAL_SECONDS: number = 15
+    +retry(): void
+  }
+  class ResponseStatusService {
+    +setStatus(status: number): void
+  }
+  class ErrorPageResolver {
+    +pageFor(problem: ProblemDetails): Type<ErrorPageBase>
+  }
+  class ConnectivityService {
+    +online: Signal<boolean>
+    +retryPending(): void
+  }
+  class OfflineInterceptor {
+    +intercept(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>>
+  }
+  interface SearchApi {
+    +search(query: SearchQuery): Observable<SearchResultPage>
+  }
+}
+
+package "Logos Lab API" {
+  class SearchContentAction {
+    +execute(query: SearchQuery): Promise<SearchResultPage>
+  }
+  class DependencyGuard {
+    +call(dependency: string, fn: () => Promise<T>): Promise<T>
+  }
+  enum CircuitState {
+    Closed
+    Open
+    HalfOpen
+  }
+  class CatalogueRepository {
+    +matchTitles(text: string, page: PageRequest): Promise<ContentSummary[]>
+  }
+  class SearchResultPage {
+    +items: ContentSummary[]
+    +total: number
+    +degraded: SearchDegradation
+  }
+  enum SearchDegradation {
+    None
+    TitlesOnly
+  }
+}
+
+NotFoundPage --|> ErrorPageBase
+ForbiddenPage --|> ErrorPageBase
+GonePage --|> ErrorPageBase
+TooManyRequestsPage --|> ErrorPageBase
+ServerErrorPage --|> ErrorPageBase
+ErrorPageBase ..> ResponseStatusService : sets status
+ErrorPageResolver ..> ErrorPageBase : selects
+OfflineInterceptor --> ConnectivityService : reports to
+OfflinePage ..> ConnectivityService : reads
+SearchApi ..> SearchResultPage : returns
+SearchContentAction --> DependencyGuard : uses
+SearchContentAction --> CatalogueRepository : falls back to
+DependencyGuard --> CircuitState : tracks
+SearchResultPage --> SearchDegradation : has
+@enduml

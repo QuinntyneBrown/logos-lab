@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View a module page
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System_Boundary(logos, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application and public responses")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+
+Rel(visitor, cdn, "Requests /modules/{slug}", "HTTPS")
+Rel(learner, cdn, "Requests /modules/{slug}", "HTTPS")
+Rel(cdn, web, "Forwards page requests for SSR", "HTTPS")
+Rel(web, api, "GET /api/v1/modules/{slug} and /me", "JSON/HTTPS")
+Rel(api, db, "Reads modules, courses and attempts", "SQL")
+@enduml

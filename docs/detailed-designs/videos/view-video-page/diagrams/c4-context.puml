@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View a video page
+
+Person(member, "Member", "Signed-in learner")
+Person(visitor, "Visitor", "Not signed in")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+Rel(member, ll, "Watches and reads video pages on", "HTTPS")
+Rel(visitor, ll, "Reads video pages and previews on", "HTTPS")
+@enduml

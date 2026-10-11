@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Apply the theme before first paint
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+  participant "ThemeBootScript" as boot
+  participant "AppShell server render" as ssr
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/me" as me
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN" as cdn
+  database "Logos Lab database" as db
+end box
+actor -> browser : Open a page
+browser -> cdn : GET page
+alt Member (session cookie)
+  cdn -> ssr : Forward with session
+  ssr -> me : Current member with preferences
+  me -> db : Read member and member_preferences
+  db --> me : theme = dark
+  me --> ssr : Member
+  ssr --> cdn : html data-theme="dark", private, no-store
+  cdn --> browser : HTML
+  browser -> browser : First paint in the stored theme (L2-133 AC3)
+else Visitor
+  cdn --> browser : Cached HTML without data-theme
+  browser -> boot : Run blocking inline script before style sheets
+  boot -> boot : Read ll-theme from local storage
+  alt light or dark stored
+    boot -> browser : Set html data-theme (L2-133 AC3)
+  else Nothing stored, or system
+    boot -> browser : Leave attribute unset
+  end
+  browser -> browser : prefers-color-scheme resolves unset theme (L2-133 AC1)
+  browser -> browser : First paint in the correct theme
+end
+browser --> actor : Page with no flash of the wrong theme
+@enduml

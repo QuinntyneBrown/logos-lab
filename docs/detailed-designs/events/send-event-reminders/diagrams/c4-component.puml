@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send event reminders
+
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(sweep, "EventReminderSweepJob", "Scheduled job", "Finds due reminders")
+  Component(job, "EventReminderJob", "Job", "Claims and sends one reminder")
+  Component(svc, "EventReminderService", "Domain service", "Kinds that apply, 24-hour skip")
+  Component(pref, "NotificationPreferenceService", "Domain service", "Event reminders channel switches")
+  Component(notif, "NotificationService", "Domain service", "In-app notifications")
+  Component(repo, "EventRegistrationRepository, EventReminderDeliveryRepository", "Repositories", "PostgreSQL")
+}
+ContainerQueue(queue, "Job queue", "Amazon SQS", "Reminder jobs")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "event_reminder_deliveries")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(sweep, svc, "Asks which reminders are due")
+Rel(sweep, repo, "Reads registrations")
+Rel(sweep, queue, "Enqueues EventReminderJob")
+Rel(queue, job, "Delivers")
+Rel(job, repo, "Claims delivery row")
+Rel(job, pref, "Reads preferences")
+Rel(job, notif, "Creates in-app reminder")
+Rel(job, ses, "Sends email")
+Rel(repo, db, "SQL")
+@enduml

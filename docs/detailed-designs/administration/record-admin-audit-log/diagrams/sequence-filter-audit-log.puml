@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Filter the audit log
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminAuditPage" as page
+  participant "AuditLogApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/admin/audit" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListAuditEntriesAction" as action
+  participant "AuditEntryRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Choose actor, action type, target, from and to; Apply filters
+page --> actor : Loading: filters stay, skeleton rows
+page -> client : list(filter, page)
+client -> route : HTTPS GET with query
+route -> route : Authenticate and require Administrator role
+route -> action : execute(actor, filter, page)
+action -> repo : search(filter, offset, 50)
+repo -> db : Select matching entries ORDER BY occurred_at DESC (L2-099)
+db --> repo : Rows
+repo --> action : Entries and total
+action --> route : Page of AuditEntryView
+route --> client : 200 JSON
+alt no matches
+  page --> actor : No-results state naming the filters, with Clear filters
+else matches
+  page --> actor : Entries newest first with pager
+end
+@enduml

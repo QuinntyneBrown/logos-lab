@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Provide captions and transcripts
+
+Person(author, "Author", "Expert or editor who owns the video")
+Person(learner, "Learner", "Watches videos and reads transcripts")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(stt, "Speech-to-text service", "<TO SUPPLY>")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(author, ll, "Adds and reviews caption tracks using", "HTTPS")
+Rel(learner, ll, "Uses captions and transcripts in", "HTTPS")
+Rel(ll, stt, "Requests automatic English captions from")
+Rel(ll, ses, "Notifies the author through")
+@enduml

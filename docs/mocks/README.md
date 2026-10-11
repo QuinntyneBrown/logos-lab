@@ -42,6 +42,7 @@ add them here first.
 | **Priya Raman** | Learner (no photo, initials PR, sage tile) | none | In the autumn cohort. |
 | **Samuel Okafor** | Learner (no photo, initials SO, clay tile) | none | Posted the comment that was reported. |
 | **Ethan Wu** | Learner (no photo, initials EW, fjord tile) | none | New account. His comment with a link is held for review. |
+| **Peter Lindqvist** | Learner (no photo, initials PL, oat tile) | none | Deleted his account on 5 Oct 2026. It is deactivated and will be purged on 4 Nov 2026. |
 
 Logos Lab itself appears as an author ("Logos Lab"), shown with the brand mark on an oat tile.
 
@@ -71,7 +72,7 @@ Published: **24 courses, 11 learning modules, 86 videos, 64 articles, 18 collect
 
 | Course | By | Shape | Miriam |
 |---|---|---|---|
-| **Imago Dei in an Age of Machines** (`/courses/imago-dei-in-an-age-of-machines`) | Dr. Abena Mensah | 6 sections, 24 lessons, about 5 h 40 min, sequential | Enrolled 14 Sep 2026. 42% (10 of 24). In the cohort. Current lesson 3.2 "Made, not manufactured". |
+| **Imago Dei in an Age of Machines** (`/courses/imago-dei-in-an-age-of-machines`) | Dr. Abena Mensah | 6 sections, 24 lessons, about 5 h 40 min, sequential | Enrolled 14 Sep 2026. 42% (10 of 24). In the cohort. Current lesson 3.2 "Representing, not resembling". |
 | **Christian Ethics for AI Builders** | Rev. Dr. Thomas Hale | 5 sections, 18 lessons, about 4 h 10 min, free order | Completed 2 Sep 2026. Certificate `LL-7K4Q-29XM`. |
 | **Faith, Work and Automation** | Logos Lab | 4 sections, 14 lessons, about 3 h | Enrolled 6 Oct 2026. 7% (1 of 14). |
 | **How Language Models Work: A Primer for Pastors** | Dr. Joel Santos | 7 sections, 21 lessons, about 4 h 30 min | Not enrolled. Saved. |
@@ -85,6 +86,15 @@ Sections of *Imago Dei in an Age of Machines*:
 4. Minds and machines
 5. Vocation and dominion
 6. Hope and limits
+
+Lessons in section 3, "Image and likeness":
+- 3.1 "Tselem and demuth: the words in Genesis" (12 min, done)
+- 3.2 "Representing, not resembling" (14 min, current)
+- 3.3 "The image restored in Christ" (18 min, video)
+- 3.4 "Practice: Bias in the Training Data" (20 min, module)
+- 3.5 "Discussion: what would a machine image be?" (cohort discussion)
+
+The course is sequential, so lessons after the current one are locked. Sections 1 and 2 are complete (4 and 5 lessons).
 
 ### Learning modules (SCORM)
 
@@ -153,6 +163,15 @@ All times are Eastern.
 - **Moderation queue:** 7 open reports, 1 overdue (more than 24 h).
 - **Pending expert invitations:** 3.
 - **Users:** 4,812 accounts, of which 38 are experts, 4 editors, 2 moderators and 2 administrators.
+
+### Analytics numbers
+
+- ***Imago Dei in an Age of Machines*:** 212 enrolled.
+  - Weekly completions, 24 Aug to 12 Oct: 18, 22, 27, 35, 52, 47 and 41, then 12 so far this week.
+  - Learners who reached each section: 100%, 82%, 62%, 45%, 29% and 21%.
+- ***Can a Machine Pray?*:** 640 viewers. The share still watching at each quarter mark is 88%, 64%,
+  47% and 39%.
+- **Two-step setup sample:** the secret key is `K7QM 4XTB 9RHD 2WPL`.
 
 ## Open questions
 

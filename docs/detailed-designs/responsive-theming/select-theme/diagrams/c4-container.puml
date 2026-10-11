@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Select theme
+
+
+Person(person, "Visitor or member", "Browser with local storage")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches visitor pages")
+  Container(web, "Logos Lab Web", "Angular SSR", "Applies data-theme; theme control")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Stores member preference")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "member_preferences")
+}
+
+Rel(person, cdn, "Requests pages", "HTTPS")
+Rel(cdn, web, "Forwards to")
+Rel(web, api, "Reads and updates preference", "JSON/HTTPS")
+Rel(api, db, "Reads and writes")
+@enduml

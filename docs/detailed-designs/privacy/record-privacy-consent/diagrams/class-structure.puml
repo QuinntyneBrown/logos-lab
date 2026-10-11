@@ -1,0 +1,121 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Record privacy consent
+
+enum PolicyType {
+  TermsOfService
+  PrivacyPolicy
+  CommunityGuidelines
+}
+enum ConsentDecision {
+  Accepted
+  Declined
+}
+enum ConsentSource {
+  Registration
+  Reconsent
+}
+class PolicyVersion {
+  +id: string
+  +type: PolicyType
+  +version: number
+  +effectiveAt: Date
+  +materialChange: boolean
+  +changeSummary: string
+  +body: string
+  +publishedBy: string
+  +publishedAt: Date
+}
+class PolicyAcceptance {
+  +id: string
+  +userId: string
+  +policyVersionId: string
+  +decision: ConsentDecision
+  +source: ConsentSource
+  +decidedAt: Date
+}
+class PolicyService {
+  +current(type: PolicyType, at: Date): PolicyVersion
+  +createVersion(input: NewPolicyVersion, now: Date): PolicyVersion
+}
+class ConsentService {
+  +recordAcceptances(userId: string, versionIds: string[], source: ConsentSource): void
+  +recordDecline(userId: string, versionIds: string[]): void
+  +pendingMaterialVersions(userId: string, at: Date): PolicyVersion[]
+}
+class ReconsentGate {
+  +allowList: string[]
+  +check(context: RequestContext): GateResult
+}
+class PublishPolicyVersionAction {
+  +execute(actor: Actor, input: NewPolicyVersion): Result<PolicyVersion>
+}
+class AcceptPolicyVersionsAction {
+  +execute(userId: string, versionIds: string[]): Result<void>
+}
+class DeclinePolicyVersionsAction {
+  +execute(userId: string, versionIds: string[]): Result<DeclineOptions>
+}
+class PolicyChangeNoticeJob {
+  +run(policyVersionId: string): Promise<void>
+}
+class PolicyVersionRepository {
+  +findCurrent(type: PolicyType, at: Date): PolicyVersion
+  +insert(version: PolicyVersion): void
+}
+class PolicyAcceptanceRepository {
+  +insert(acceptance: PolicyAcceptance): void
+  +findLatestByUser(userId: string): PolicyAcceptance[]
+}
+class RegisterPage
+class PolicyPage
+class PolicyReconsentPage {
+  +accept(): void
+  +decline(): void
+}
+class PolicyEditorPage {
+  +publish(): void
+}
+class ReconsentGuard <<CanActivateFn>>
+interface ConsentApi {
+  +getPending(): Observable<PolicyVersionView[]>
+  +accept(versionIds: string[]): Observable<void>
+  +decline(versionIds: string[]): Observable<DeclineOptions>
+}
+interface PoliciesApi {
+  +getPolicy(type: PolicyType, version?: number): Observable<PolicyVersionView>
+  +createVersion(type: PolicyType, input: NewPolicyVersion): Observable<PolicyVersionView>
+}
+class HttpConsentApi
+class HttpPoliciesApi
+PolicyVersion --> PolicyType : has
+PolicyAcceptance --> ConsentDecision : has
+PolicyAcceptance --> ConsentSource : has
+PolicyAcceptance "*" --> "1" PolicyVersion : records decision on
+PublishPolicyVersionAction ..> PolicyService : uses
+PublishPolicyVersionAction ..> PolicyChangeNoticeJob : enqueues
+AcceptPolicyVersionsAction ..> ConsentService : uses
+DeclinePolicyVersionsAction ..> ConsentService : uses
+ReconsentGate ..> ConsentService : asks
+PolicyService ..> PolicyVersionRepository : uses
+ConsentService ..> PolicyAcceptanceRepository : uses
+ConsentService ..> PolicyVersionRepository : uses
+HttpConsentApi ..|> ConsentApi
+HttpPoliciesApi ..|> PoliciesApi
+PolicyReconsentPage ..> ConsentApi : depends on
+PolicyEditorPage ..> PoliciesApi : depends on
+PolicyPage ..> PoliciesApi : depends on
+RegisterPage ..> PoliciesApi : reads current versions
+ReconsentGuard ..> ConsentApi : checks pending
+@enduml

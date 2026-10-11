@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Read an article
+
+Container(web, "Logos Lab Web", "Angular", "ArticlePage, ArticleEditorPage, ImageUploadDialog")
+Container_Boundary(api, "Logos Lab API") {
+  Component(r1, "GET /api/v1/articles/slug", "Route handler", "Anonymous read")
+  Component(r2, "PUT /api/v1/studio/articles/articleId/body", "Route handler", "Owner-scoped save")
+  Component(r3, "POST /api/v1/studio/articles/articleId/submit", "Route handler", "Owner-scoped submit")
+  Component(a1, "GetArticleAction", "Action", "Published article")
+  Component(a2, "SaveArticleBodyAction", "Action", "Sanitize and store")
+  Component(a3, "SubmitArticleAction", "Action", "Validate and hand to workflow")
+  Component(san, "ArticleBodySanitizer", "Domain service", "Allow-list sanitization")
+  Component(scr, "ScriptureReferenceParser", "Domain service", "References with translation")
+  Component(rt, "ReadingTimeCalculator", "Domain service", "ceil(words / 230), min 1")
+  Component(val, "ArticleSubmissionValidator", "Domain service", "Alt text and heading order")
+  Component(svc, "ArticleService", "Domain service", "Article rules")
+  Component(repo, "ArticleRepository", "Repository", "articles")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "articles, content_contributors, content_topics")
+Rel(web, r1, "Calls", "JSON/HTTPS")
+Rel(web, r2, "Calls", "JSON/HTTPS")
+Rel(web, r3, "Calls", "JSON/HTTPS")
+Rel(r1, a1, "Invokes")
+Rel(r2, a2, "Invokes")
+Rel(r3, a3, "Invokes")
+Rel(a1, svc, "Loads")
+Rel(a2, san, "Sanitizes")
+Rel(a2, scr, "Tags references")
+Rel(a2, rt, "Calculates")
+Rel(a2, svc, "Stores")
+Rel(a3, val, "Validates")
+Rel(svc, repo, "Persists")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

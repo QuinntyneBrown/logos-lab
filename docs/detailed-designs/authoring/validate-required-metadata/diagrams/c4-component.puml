@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Validate required metadata
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(schemas, "Request schemas", "Route handler validation", "Types and maximum lengths; 400 with field errors")
+  Component(routes, "items/{id}, readiness, submit", "Next.js route handlers", "PATCH, GET, POST")
+  Component(save, "SaveDraftAction", "Action", "Saves without submission rules")
+  Component(submit, "SubmitForReviewAction", "Action", "Refuses on failing rules")
+  Component(validation, "ContentValidationService", "Domain service", "Runs common and type rules")
+  Component(common, "Common rules", "SubmissionRule", "Title, summary, topics, level, cover alt text")
+  Component(typed, "Type rules", "SubmissionRule", "Video captions, course lessons, article image alt text")
+  Component(repo, "ContentRevisionRepository", "Repository", "PostgreSQL access")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_revisions, image_assets, captions, lessons")
+
+Rel(routes, schemas, "Validates body with")
+Rel(routes, save, "Calls")
+Rel(routes, submit, "Calls")
+Rel(routes, validation, "Gets readiness from")
+Rel(submit, validation, "Validates with")
+Rel(validation, common, "Runs")
+Rel(validation, typed, "Runs")
+Rel(save, repo, "Writes through")
+Rel(validation, repo, "Reads through")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

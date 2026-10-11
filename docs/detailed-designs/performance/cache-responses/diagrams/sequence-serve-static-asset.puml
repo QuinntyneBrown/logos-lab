@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Serve a static asset
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN static asset behaviour" as cdn
+  database "Static asset origin (S3)" as s3
+end box
+actor -> browser : Load any page
+browser -> cdn : GET /main-<hash>.js
+alt Edge cache hit
+  cdn --> browser : 200 with Cache-Control: public, max-age=31536000, immutable (L2-124)
+else Edge cache miss
+  cdn -> s3 : GET object
+  s3 --> cdn : Object
+  cdn -> cdn : Store at edge
+  cdn --> browser : 200 with Cache-Control: public, max-age=31536000, immutable (L2-124)
+end
+browser -> browser : Keep in HTTP cache for 1 year
+opt Next visit, same build
+  browser -> browser : Use cached asset, no request
+end
+opt Next visit, new build
+  browser -> cdn : GET /main-<newhash>.js (new name, no stale copy)
+end
+@enduml

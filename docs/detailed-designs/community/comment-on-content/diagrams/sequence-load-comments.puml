@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Load and sort comments
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Reader" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CommentsSection" as page
+  participant "CommentsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Comments route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListCommentsAction" as action
+  participant "SetCommentSortAction" as sortAction
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open the item page
+page -> client : list(target, savedSort)
+client -> route : GET /api/v1/comments?targetType&targetId&sort
+route -> action : execute(viewerId or null, query)
+action -> db : Read viewer sort preference, blocks and 20 top-level comments with replies
+db --> action : Rows
+action -> action : Hide other members' held comments, collapse blocked authors (L2-067)
+action --> route : CommentPage with nextCursor
+route --> client : 200 CommentPage
+client --> page : CommentPage
+page --> actor : Render thread with relative <time> and absolute title (L2-060)
+opt more than 20 top-level comments
+  actor -> page : Press Show more comments
+  page -> client : list(target, sort, nextCursor)
+  client -> route : GET /api/v1/comments?cursor
+  route -> action : execute(viewerId, query)
+  action -> db : Read next 20
+  db --> action : Rows
+  action --> route : CommentPage
+  route --> client : 200 CommentPage
+  client --> page : Append page
+  page --> actor : Show next 20 comments
+end
+opt member changes sort to Oldest or Newest
+  actor -> page : Choose sort
+  page -> client : setSort(sort)
+  client -> route : PUT /api/v1/me/preferences/comment-sort
+  route -> sortAction : execute(userId, sort)
+  sortAction -> db : Upsert user_preferences.comment_sort
+  db --> sortAction : Saved
+  sortAction --> route : Ok
+  route --> client : 204
+  page -> client : list(target, sort)
+  client --> page : First page in new order
+  page --> actor : Reordered thread
+end
+@enduml

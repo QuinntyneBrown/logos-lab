@@ -1,0 +1,78 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Select theme
+
+
+enum ThemePreference {
+  system
+  light
+  dark
+}
+
+class ThemeService {
+  +preference: Signal<ThemePreference>
+  -api: PreferencesApi
+  +setPreference(value: ThemePreference): void
+  -apply(value: ThemePreference): void
+  -storeLocally(value: ThemePreference): void
+}
+
+class ThemeBootScript {
+  {static} +STORAGE_KEY: string = "ll-theme"
+  +run(): void
+}
+
+interface PreferencesApi {
+  +updateTheme(value: ThemePreference): Observable<void>
+}
+
+class HttpPreferencesApi {
+  +updateTheme(value: ThemePreference): Observable<void>
+}
+
+class ThemeMenuComponent <<ll-menu theme control>> {
+  +selected: ThemePreference
+  +choose(value: ThemePreference): void
+}
+
+class PreferencesRoute <<route handler>> {
+  +path = "/api/v1/me/preferences"
+  +PATCH(request: Request): Response
+}
+
+class UpdateMemberPreferencesAction {
+  +execute(currentUserId: string, theme: ThemePreference): void
+}
+
+class MemberPreferencesRepository {
+  +findByMember(memberId: string): MemberPreferences
+  +updateTheme(memberId: string, theme: ThemePreference): void
+}
+
+class MemberPreferences {
+  +memberId: string
+  +theme: ThemePreference = system
+  +updatedAt: Date
+}
+
+ThemeMenuComponent --> ThemeService : calls
+ThemeService --> PreferencesApi : saves through
+HttpPreferencesApi ..|> PreferencesApi
+ThemeService ..> ThemePreference
+ThemeBootScript ..> ThemePreference : reads
+PreferencesRoute ..> UpdateMemberPreferencesAction : calls
+UpdateMemberPreferencesAction --> MemberPreferencesRepository : updates through
+MemberPreferencesRepository ..> MemberPreferences : persists
+MemberPreferences --> ThemePreference
+@enduml

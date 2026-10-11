@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Register for an event
+
+Person(member, "Verified member", "Registers")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Registration panel and dialogs")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Registration and waitlist actions")
+  Container(worker, "Logos Lab Worker", "Node.js", "Promotion, offer expiry, confirmation email")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Registrations, waitlist, notifications")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Locks event row, writes", "SQL")
+Rel(api, queue, "Enqueues jobs")
+Rel(worker, queue, "Consumes")
+Rel(worker, db, "Promotes, expires offers", "SQL")
+Rel(worker, ses, "Sends email", "AWS SDK")
+@enduml

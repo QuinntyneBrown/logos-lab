@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Enrol in a course
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Carries job messages from the API to the Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+
+Rel(learner, web, "Presses Enrol or Leave course", "HTTPS")
+Rel(web, api, "POST and DELETE /api/v1/courses/{slug}/enrolment", "JSON/HTTPS")
+Rel(api, db, "Writes enrolments", "SQL")
+Rel(api, queue, "Schedules EnrolmentRetentionJob", "SQS")
+Rel(worker, queue, "Receives jobs from", "SQS")
+Rel(worker, db, "Clears completions of enrolments left over 12 months", "SQL")
+@enduml

@@ -1,0 +1,79 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Adapt layouts across viewports
+
+
+enum ViewportClass {
+  XS
+  SM
+  MD
+  LG
+  XL
+}
+
+class Breakpoints {
+  {static} +SM: string = "<TO SUPPLY>"
+  {static} +MD: string = "<TO SUPPLY>"
+  {static} +LG: string = "<TO SUPPLY>"
+  {static} +XL: string = "<TO SUPPLY>"
+  +current(observer: BreakpointObserver): Observable<ViewportClass>
+}
+
+class CardGridColumns {
+  {static} +XS: number = 1
+  {static} +SM: number = 2
+  {static} +MD: number = 2
+  {static} +LG: number = 3
+  {static} +XL: number = 4
+}
+
+class ContentGridComponent <<content-grid>> {
+  +items: ContentSummary[]
+}
+
+class TableComponent <<ll-table>> {
+  +caption: string
+  +scrollLabel: string
+  +hasOverflow: boolean
+}
+
+class TooltipComponent <<ll-tooltip>> {
+  +text: string
+  +openOnHover(): void
+  +openOnFocus(): void
+  +toggleOnTap(): void
+}
+
+class TargetSize {
+  {static} +MIN_PX: number = 24
+  {static} +PRIMARY_TOUCH_PX: number = 44
+}
+
+class ResponsiveVisualSuite <<Playwright>> {
+  +widths: number[] = [375, 768, 1024, 1440]
+  +capture(pageObject: PageObject): void
+}
+
+class TargetSizeCheck <<Playwright helper>> {
+  +assertTargets(page: Page, viewport: ViewportClass): void
+}
+
+Breakpoints ..> ViewportClass : resolves
+ContentGridComponent ..> CardGridColumns : lays out by
+CardGridColumns ..> ViewportClass
+TableComponent ..> TargetSize
+TooltipComponent ..> TargetSize
+ResponsiveVisualSuite ..> TargetSizeCheck : runs
+TargetSizeCheck ..> TargetSize : asserts
+@enduml

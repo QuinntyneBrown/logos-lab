@@ -1,0 +1,64 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Add an event to a calendar
+
+class AddToCalendarDialog {
+  +links: Signal<CalendarLinks>
+  +download(): void
+}
+class GetEventCalendarFileAction {
+  +execute(eventId: Uuid): Result<IcsFile>
+}
+class IcsCalendarService {
+  +request(e: PublicEventModel, sequence: number): IcsFile
+  +cancel(e: PublicEventModel, sequence: number): IcsFile
+  +uid(eventId: Uuid): string
+}
+class CalendarLinkService {
+  +links(e: PublicEventModel): CalendarLinks
+}
+class IcsFile <<value object>> {
+  +fileName: string
+  +method: IcsMethod
+  +uid: string
+  +sequence: number
+  +content: string
+}
+class CalendarLinks <<value object>> {
+  +googleUrl: string
+  +outlookUrl: string
+  +icsUrl: string
+}
+class PublicEventModel {
+  +id: Uuid
+  +title: string
+  +description: string
+  +startsAt: Instant
+  +endsAt: Instant
+  +timeZone: string
+  +venue: Venue | null
+  +pageUrl: string
+}
+enum IcsMethod {
+  REQUEST
+  CANCEL
+}
+AddToCalendarDialog ..> CalendarLinks : shows
+GetEventCalendarFileAction ..> IcsCalendarService : uses
+IcsCalendarService ..> PublicEventModel : reads
+CalendarLinkService ..> PublicEventModel : reads
+IcsCalendarService ..> IcsFile : creates
+CalendarLinkService ..> CalendarLinks : creates
+IcsFile --> IcsMethod
+@enduml

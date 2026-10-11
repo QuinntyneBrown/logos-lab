@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Open an archived address
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Angular SSR route" as ssr
+  participant "GonePage" as gone
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "content/{type}/{slug} route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetPublicContentAction" as action
+  participant "RelatedContentService" as related
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ssr : GET /articles/{slug} or /courses/{slug}
+ssr -> route : GET /api/v1/content/{type}/{slug}
+route -> action : execute(viewer, type, slug)
+action -> db : Load item by type and slug
+db --> action : Item state Archived
+alt Archived course and the viewer has an enrolment
+  action -> db : Find enrolment for viewer and course
+  db --> action : Enrolment
+  action --> route : Course content with archived flag (L2-025)
+  route --> ssr : 200 JSON, Cache-Control private
+  ssr --> actor : Course overview, archived state
+else Anyone else
+  action -> related : relatedTo(item, 3)
+  related -> db : Published items sharing topics
+  db --> related : Items
+  related --> action : Up to 3 related items
+  action --> route : GoneResponse
+  route --> ssr : 410 problem response with title, archive date and related items (L2-081)
+  ssr -> gone : Render
+  gone --> actor : HTTP 410 page suggesting related content, or catalogue and search when none
+end
+@enduml

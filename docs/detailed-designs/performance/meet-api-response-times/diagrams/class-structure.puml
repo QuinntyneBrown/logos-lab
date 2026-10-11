@@ -1,0 +1,97 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Meet API response times
+
+
+class PageRequest {
+  +limit: number
+  +cursor: string
+  {static} +MAX_LIMIT: number = 100
+  {static} +parse(query: URLSearchParams): PageRequest
+}
+
+class PaginationPolicy {
+  +validate(request: PageRequest): Result<PageRequest, Problem>
+}
+
+class "Page<T>" as Page {
+  +items: T[]
+  +nextCursor: string
+}
+
+enum EndpointClass {
+  read
+  write
+}
+
+class LatencyMetricRecorder {
+  +record(route: string, endpointClass: EndpointClass, durationMs: number, status: number): void
+}
+
+enum OperationStatus {
+  queued
+  running
+  succeeded
+  failed
+}
+
+class BackgroundOperation {
+  +id: string
+  +ownerId: string
+  +kind: string
+  +status: OperationStatus
+  +progressPercent: number
+  +resultLocation: string
+  +createdAt: Date
+  +updatedAt: Date
+}
+
+class BackgroundOperationService {
+  +start(ownerId: string, kind: string, payload: object): BackgroundOperation
+  +reportProgress(id: string, percent: number): void
+  +complete(id: string, resultLocation: string): void
+  +fail(id: string, code: string): void
+}
+
+class BackgroundOperationRepository {
+  +insert(operation: BackgroundOperation): void
+  +findForOwner(id: string, ownerId: string): BackgroundOperation
+  +update(operation: BackgroundOperation): void
+}
+
+class GetOperationStatusAction {
+  +execute(operationId: string, currentUserId: string): BackgroundOperation
+}
+
+interface OperationsApi {
+  +getStatus(operationId: string): Observable<OperationStatusDto>
+}
+
+class HttpOperationsApi {
+  +getStatus(operationId: string): Observable<OperationStatusDto>
+}
+
+interface "<Noun><Verb>Job" as Job {
+  +run(message: JobMessage): Promise<void>
+}
+
+PaginationPolicy ..> PageRequest : validates
+Page ..> PageRequest : answers
+BackgroundOperation --> OperationStatus
+BackgroundOperationService --> BackgroundOperationRepository : persists through
+GetOperationStatusAction --> BackgroundOperationService : reads through
+Job ..> BackgroundOperationService : reports progress
+HttpOperationsApi ..|> OperationsApi
+LatencyMetricRecorder ..> EndpointClass
+@enduml

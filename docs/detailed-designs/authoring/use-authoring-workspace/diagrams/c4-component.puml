@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Use the authoring workspace
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(studio, "StudioPage", "Angular standalone page", "Own or all content grouped by workflow state")
+  Component(queue, "ReviewQueuePage", "Angular standalone page", "Items In review, oldest submission first")
+  Component(newdlg, "NewContentDialog", "Angular CDK dialog", "Type, working title, attribution for editors")
+  Component(client, "HttpStudioApi", "StudioApi via STUDIO_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "Middleware pipeline", "Next.js middleware", "Authentication and authorization policy")
+  Component(routes, "studio/items and studio/review-queue", "Next.js route handlers", "Parse, validate, map results")
+  Component(list, "ListStudioItemsAction, ListReviewQueueAction", "Actions", "Scope and group items")
+  Component(create, "CreateContentItemAction", "Action", "Creates an attributed Draft")
+  Component(policy, "ContentAccessPolicy", "Domain service", "Applies L2-016 authoring rights")
+  Component(repo, "ContentItemRepository", "Repository", "Queries scoped to the current user")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "content_items, content_revisions, content_attributions")
+
+Rel(studio, client, "Lists items through")
+Rel(queue, client, "Lists review queue through")
+Rel(newdlg, client, "Creates item through")
+Rel(client, mw, "Sends requests through", "JSON/HTTPS")
+Rel(mw, routes, "Passes authorized requests to")
+Rel(routes, list, "Calls")
+Rel(routes, create, "Calls")
+Rel(list, policy, "Checks role with")
+Rel(create, policy, "Checks role and attribution with")
+Rel(list, repo, "Reads through")
+Rel(create, repo, "Inserts through")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

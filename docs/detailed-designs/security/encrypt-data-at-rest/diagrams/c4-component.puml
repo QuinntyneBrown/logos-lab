@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Encrypt data at rest
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(send, "SendMessageAction", "Action", "Encrypts the message body before insert")
+  Component(read, "ListConversationMessagesAction", "Action", "Decrypts bodies for participants only")
+  Component(mfa, "EnableMfaAction", "Action", "Encrypts the TOTP secret")
+  Component(fes, "FieldEncryptionService", "Service", "Envelope encryption: AES-256-GCM with a KMS data key per record")
+  Component(repo, "MessageRepository", "Repository", "Stores ciphertext, encrypted data key and key id")
+}
+System_Ext(kms, "AWS KMS", "Key logos-lab-field-key <TO SUPPLY>")
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "direct_messages, mfa_factors")
+Rel(send, fes, "encrypt")
+Rel(read, fes, "decrypt")
+Rel(mfa, fes, "encrypt")
+Rel(fes, kms, "GenerateDataKey and Decrypt with encryption context")
+Rel(send, repo, "Insert")
+Rel(read, repo, "Select")
+Rel(repo, db, "SQL")
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View platform analytics
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "AdminAnalyticsPage", "Angular page", "Stats, charts or tables, comparison switch, top content")
+  Component(range, "DateRangeDialog", "Angular CDK dialog", "Custom date range")
+  Component(client, "PlatformAnalyticsApi / HttpPlatformAnalyticsApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "Authorization policy", "Middleware", "Editor or Administrator only")
+  Component(route, "GET /api/v1/admin/analytics", "Route handler", "Parses range and comparison")
+  Component(action, "GetPlatformAnalyticsAction", "Action", "Builds metrics and comparison")
+  Component(service, "PlatformAnalyticsService", "Domain service", "Active members, registrations, enrolments, completions, events, top content")
+  Component(compare, "PeriodComparison", "Value object", "Absolute and percentage change")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "AnalyticsRollupJob", "Job", "Hourly platform rollups")
+}
+ComponentDb(db, "Platform rollups", "PostgreSQL", "analytics_platform_daily, analytics_active_members")
+Rel(page, range, "Opens")
+Rel(page, client, "Calls")
+Rel(client, mw, "Calls", "JSON/HTTPS")
+Rel(mw, route, "Passes authorized requests to")
+Rel(route, action, "Invokes")
+Rel(action, service, "Uses")
+Rel(action, compare, "Creates")
+Rel(service, db, "Reads", "SQL")
+Rel(job, db, "Writes", "SQL")
+@enduml

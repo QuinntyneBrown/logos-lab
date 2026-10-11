@@ -1,0 +1,135 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Search content
+
+package "Logos Lab Web" {
+  class SiteSearchField {
+    -searchApi: SearchApi
+    +query: FormControl<string>
+    +suggestions: Signal<Suggestion[]>
+    +maxLength: number = 200
+    +debounceMs: number = 250
+    +submit(): void
+  }
+  class SearchResultsPage {
+    -searchApi: SearchApi
+    +results: Signal<SearchResults>
+    +selectType(type: ContentType): void
+    +retry(): void
+  }
+  interface SearchApi {
+    +search(q: string, type?: ContentType, page?: number): Observable<SearchResults>
+    +suggest(q: string): Observable<Suggestion[]>
+  }
+  class HttpSearchApi
+  class SEARCH_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class SearchRouteHandler <<route: GET /api/v1/search>> {
+    +GET(request: Request): Promise<Response>
+  }
+  class SuggestionsRouteHandler <<route: GET /api/v1/search/suggestions>> {
+    +GET(request: Request): Promise<Response>
+  }
+  class SearchQueryValidator {
+    +minLength: number = 2
+    +maxLength: number = 200
+    +validate(raw: string): Result<SearchQuery>
+  }
+  class SearchQuery {
+    +text: string
+    +type: ContentType
+    +page: number
+  }
+  class SearchContentAction {
+    +execute(query: SearchQuery): Promise<SearchResults>
+  }
+  class SuggestSearchTermsAction {
+    +execute(query: SearchQuery): Promise<Suggestion[]>
+  }
+  class SearchService {
+    +search(query: SearchQuery, now: Date): Promise<SearchHit[]>
+    +suggest(text: string, limit: number = 6): Promise<Suggestion[]>
+  }
+  class SpellingCorrectionService {
+    +maxEditDistance: number = 2
+    +correct(text: string): Promise<string>
+  }
+  class SnippetHighlighter {
+    +highlight(text: string, terms: string[]): SnippetSegment[]
+  }
+  class PopularTopicService {
+    +mostPopular(limit: number = 5): Promise<TopicRef[]>
+  }
+  class SearchDocumentRepository {
+    +match(query: SearchQuery, now: Date): Promise<SearchHit[]>
+    +nearestTerm(term: string, maxDistance: number): Promise<string>
+    +upsert(doc: SearchDocument): Promise<void>
+    +remove(contentId: UUID): Promise<void>
+  }
+  class SearchIndexUpdateJob {
+    +run(contentId: UUID): Promise<void>
+  }
+  class SearchDocument {
+    +contentId: UUID
+    +type: ContentType
+    +title: string
+    +summary: string
+    +body: string
+    +transcript: string
+    +topics: string[]
+    +expertNames: string[]
+    +vector: tsvector
+  }
+  class SearchResults {
+    +query: string
+    +correctedTo: string
+    +groups: ResultGroup[]
+    +popularTopics: TopicRef[]
+  }
+  class ResultGroup {
+    +type: ContentType
+    +count: number
+    +hits: SearchHit[]
+  }
+  class SearchHit {
+    +contentId: UUID
+    +title: string
+    +snippet: SnippetSegment[]
+  }
+  class SnippetSegment {
+    +text: string
+    +highlighted: boolean
+  }
+}
+SiteSearchField ..> SearchApi
+SearchResultsPage ..> SearchApi
+HttpSearchApi ..|> SearchApi
+SEARCH_API ..> SearchApi : provides
+SearchRouteHandler ..> SearchQueryValidator
+SuggestionsRouteHandler ..> SearchQueryValidator
+SearchRouteHandler ..> SearchContentAction : invokes
+SuggestionsRouteHandler ..> SuggestSearchTermsAction : invokes
+SearchQueryValidator ..> SearchQuery : creates
+SearchContentAction --> SearchService
+SearchContentAction --> SpellingCorrectionService
+SearchContentAction --> SnippetHighlighter
+SearchContentAction --> PopularTopicService
+SuggestSearchTermsAction --> SearchService
+SearchService --> SearchDocumentRepository
+SpellingCorrectionService --> SearchDocumentRepository
+SearchIndexUpdateJob --> SearchDocumentRepository
+SearchDocumentRepository ..> SearchDocument : reads and writes
+SearchResults *-- ResultGroup
+ResultGroup *-- SearchHit
+SearchHit *-- SnippetSegment
+@enduml

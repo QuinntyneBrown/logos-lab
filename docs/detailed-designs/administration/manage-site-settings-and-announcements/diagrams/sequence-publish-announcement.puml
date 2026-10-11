@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Publish a site announcement
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminAnnouncementsPage" as page
+  participant "AnnouncementEditDialog" as dialog
+  participant "SiteAdminApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/admin/announcements" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveAnnouncementAction" as action
+  participant "AnnouncementService" as service
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : New announcement
+page -> dialog : Open (CDK Dialog)
+actor -> dialog : Message, severity, optional link, start and end; Schedule
+dialog -> client : saveAnnouncement(input)
+client -> route : HTTPS POST with CSRF token
+route -> route : Authenticate and require Administrator role
+route -> action : execute(actor, input)
+action -> service : validate(input)
+alt message over 200 characters, severity not Info or Warning, or end before start (L2-098)
+  service --> action : Errors
+  action --> route : 422 problem
+  dialog --> actor : Invalid state with field errors
+else valid
+  action -> db : Insert announcement
+  action -> audit : record("Announcement published", before, after)
+  action -> db : Commit
+  action --> route : 201 announcement
+  dialog --> actor : Scheduled from start to end
+end
+@enduml

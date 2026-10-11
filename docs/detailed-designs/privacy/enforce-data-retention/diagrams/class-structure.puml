@@ -1,0 +1,93 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Enforce data retention
+
+enum RetentionCategory {
+  UnverifiedAccounts
+  Notifications
+  RequestLogs
+  SecurityLogs
+  AuditLogs
+  DeletedAccounts
+}
+enum RetentionOutcome {
+  Deleted
+  Anonymized
+  Verified
+}
+enum RunStatus {
+  Running
+  Succeeded
+  Failed
+}
+class RetentionPeriod {
+  +category: RetentionCategory
+  +days: number
+  +outcome: RetentionOutcome
+}
+class RetentionSchedule {
+  +periods: RetentionPeriod[]
+  +cutoff(category: RetentionCategory, now: Date): Date
+}
+interface RetentionRule {
+  +category: RetentionCategory
+  +apply(cutoff: Date): Promise<number>
+}
+class UnverifiedAccountRetention
+class NotificationRetention
+class AuditLogRetention
+class DeletedAccountRetention
+class LogRetentionVerifier
+class DataRetentionJob {
+  +run(runDate: Date): Promise<void>
+}
+class RetentionRun {
+  +id: string
+  +runDate: Date
+  +startedAt: Date
+  +finishedAt: Date | null
+  +status: RunStatus
+}
+class RetentionRunItem {
+  +runId: string
+  +category: RetentionCategory
+  +count: number
+  +outcome: RetentionOutcome
+  +error: string | null
+}
+class RetentionRunRepository {
+  +start(runDate: Date): RetentionRun
+  +recordItem(item: RetentionRunItem): void
+  +finish(run: RetentionRun, status: RunStatus): void
+}
+class RetentionMetrics {
+  +publishCount(category: RetentionCategory, count: number): void
+  +publishFailure(): void
+}
+RetentionSchedule *-- "6" RetentionPeriod : holds
+RetentionPeriod --> RetentionCategory : has
+RetentionPeriod --> RetentionOutcome : has
+UnverifiedAccountRetention ..|> RetentionRule
+NotificationRetention ..|> RetentionRule
+AuditLogRetention ..|> RetentionRule
+DeletedAccountRetention ..|> RetentionRule
+LogRetentionVerifier ..|> RetentionRule
+DataRetentionJob ..> RetentionSchedule : reads
+DataRetentionJob o-- RetentionRule : runs
+DataRetentionJob ..> RetentionRunRepository : records
+DataRetentionJob ..> RetentionMetrics : publishes
+RetentionRun *-- RetentionRunItem : contains
+RetentionRun --> RunStatus : has
+RetentionRunRepository --> RetentionRun : stores
+@enduml

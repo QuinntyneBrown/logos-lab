@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send email notifications
+System_Ext(ses, "Amazon SES", "Email sending and feedback")
+Container_Boundary(web, "Logos Lab Web") {
+  Component(banner, "AccountEmailBanner", "Angular component using ll-alert", "Prompts the member to update a bouncing address")
+  Component(client, "EmailStatusApi / HttpEmailStatusApi", "API contract and implementation", "Reads the member's email status")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(statusRoute, "GET /api/v1/me/email-status", "Route handler", "Returns deliverability of the address")
+  Component(feedbackRoute, "POST /api/v1/webhooks/ses-feedback", "Anonymous route handler", "Verifies the SNS signature")
+  Component(feedbackAction, "RecordEmailFeedbackAction", "Action", "Suppresses bounced or complaining addresses")
+  Component(emailService, "EmailService", "Domain service", "Queues email, applies suppression and digest rules")
+  Component(suppression, "EmailSuppressionService", "Domain service", "Answers whether an address is suppressed")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(sendJob, "EmailSendJob", "Job", "Claims, renders and sends one message once")
+  Component(digestJob, "EmailDigestJob", "Job", "Sends one digest for held activity email")
+  Component(renderer, "EmailTemplateRenderer", "Component", "HTML and plain-text bodies, 320px and dark-mode safe")
+}
+ComponentDb(db, "Email tables", "PostgreSQL", "email_messages, email_suppressions, email_digest_items")
+Rel(banner, client, "Calls")
+Rel(client, statusRoute, "Calls", "JSON/HTTPS")
+Rel(statusRoute, suppression, "Reads")
+Rel(ses, feedbackRoute, "Posts notices to", "SNS")
+Rel(feedbackRoute, feedbackAction, "Invokes")
+Rel(feedbackAction, suppression, "Adds suppression through")
+Rel(emailService, suppression, "Checks")
+Rel(emailService, db, "Writes outbox rows", "SQL")
+Rel(sendJob, renderer, "Renders with")
+Rel(sendJob, ses, "Sends via", "AWS SDK")
+Rel(sendJob, db, "Claims and marks sent", "SQL")
+Rel(digestJob, db, "Reads held items", "SQL")
+Rel(digestJob, renderer, "Renders digest with")
+Rel(digestJob, ses, "Sends via", "AWS SDK")
+@enduml

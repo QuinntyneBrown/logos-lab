@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Protect sessions and CSRF
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(xsrf, "HttpClient XSRF configuration", "Angular withXsrfConfiguration", "Copies the CSRF cookie value into the X-CSRF-Token header")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(csrf, "CsrfMiddleware", "Next.js middleware", "Refuses POST, PUT, PATCH, DELETE without a valid token or from a disallowed origin")
+  Component(authn, "SessionMiddleware", "Next.js middleware", "Resolves the session from the __Host- cookie")
+  Component(signin, "SignInAction", "Action", "Verifies credentials and creates the session")
+  Component(roles, "ChangeRolesAction", "Action", "Changes roles and rotates the affected session")
+  Component(svc, "SessionService", "Domain service", "Creates, rotates and revokes sessions; issues CSRF tokens")
+  Component(cookie, "SessionCookieWriter", "Function", "Writes HttpOnly, Secure, SameSite=Lax, __Host- cookies")
+  Component(repo, "SessionRepository", "Repository", "Stores session hashes")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "sessions table")
+Rel(xsrf, csrf, "Sends token header to")
+Rel(csrf, authn, "Passes checked request to")
+Rel(authn, svc, "Resolves session with")
+Rel(signin, svc, "Creates and rotates session with")
+Rel(roles, svc, "Rotates session with")
+Rel(svc, cookie, "Writes cookies with")
+Rel(svc, repo, "Persists through")
+Rel(repo, db, "SQL")
+@enduml

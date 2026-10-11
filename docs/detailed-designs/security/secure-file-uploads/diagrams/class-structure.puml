@@ -1,0 +1,111 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Secure file uploads
+
+enum UploadKind {
+  Avatar
+  Image
+  Video
+  ScormPackage
+}
+enum UploadStatus {
+  Pending
+  Scanning
+  Available
+  Refused
+  Quarantined
+}
+class UploadPolicy {
+  +rules: Map<UploadKind, UploadRule>
+  +checkDeclared(kind: UploadKind, size: number, declaredType: string): PolicyResult
+  +checkDetected(kind: UploadKind, detectedType: string): PolicyResult
+}
+class UploadRule <<value object>> {
+  +allowedTypes: string[]
+  +maxBytes: number
+}
+class Upload {
+  +id: UploadId
+  +ownerId: UserId
+  +kind: UploadKind
+  +originalFileName: string
+  +declaredSize: number
+  +declaredType: string
+  +detectedType: string?
+  +storageKey: string
+  +status: UploadStatus
+  +refusalReason: string?
+  +markScanning(): void
+  +release(detectedType: string): void
+  +refuse(reason: string): void
+  +quarantine(finding: string): void
+}
+class CreateUploadAction {
+  +execute(userId: UserId, req: CreateUploadRequest): Promise<UploadTarget>
+}
+class UploadTarget <<value object>> {
+  +uploadId: UploadId
+  +presignedUrl: string
+  +partSizeBytes: number?
+  +expiresAt: Instant
+}
+class CompleteUploadAction {
+  +execute(userId: UserId, uploadId: UploadId): Promise<Upload>
+}
+class UploadScanJob {
+  +run(message: UploadScanMessage): Promise<void>
+}
+class ContentTypeSniffer {
+  +detect(firstBytes: Uint8Array): string?
+}
+class MalwareScanService {
+  +scan(storageKey: string): Promise<ScanResult>
+}
+class MediaUrlService {
+  +signedUrl(storageKey: string, ttlSeconds: number): string
+}
+class UploadRepository {
+  +insert(upload: Upload): Promise<void>
+  +findOwned(userId: UserId, id: UploadId): Promise<Upload?>
+  +save(upload: Upload): Promise<void>
+}
+interface UploadsApi {
+  +createUpload(req: CreateUploadRequest): Observable<UploadTarget>
+  +completeUpload(id: UploadId): Observable<UploadStatusDto>
+  +getUpload(id: UploadId): Observable<UploadStatusDto>
+}
+class HttpUploadsApi
+class "UPLOADS_API" as UPLOADS_API <<InjectionToken>>
+class AvatarUploadDialog {
+  +state: Signal<DialogState>
+  +choose(file: File): void
+}
+UploadsApi <|.. HttpUploadsApi
+UPLOADS_API ..> UploadsApi : provides
+AvatarUploadDialog ..> UploadsApi : depends on
+HttpUploadsApi ..> CreateUploadAction : HTTPS
+UploadPolicy "1" *-- "4" UploadRule : per kind
+Upload --> UploadKind : has
+Upload --> UploadStatus : has
+CreateUploadAction ..> UploadPolicy : checks
+CreateUploadAction ..> UploadTarget : returns
+CreateUploadAction --> UploadRepository : inserts
+CompleteUploadAction --> UploadRepository : updates
+UploadScanJob ..> ContentTypeSniffer : uses
+UploadScanJob ..> MalwareScanService : uses
+UploadScanJob ..> UploadPolicy : checks
+UploadScanJob --> UploadRepository : updates
+UploadRepository --> Upload : persists
+MediaUrlService ..> Upload : signs URLs for released files
+@enduml

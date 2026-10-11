@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Format for locale
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(loc, "LOCALE_ID and locale data", "Angular token", "en-CA; fr-CA registered")
+  Component(svc, "LocaleFormatService", "Angular service over Intl", "Dates, times, numbers, durations")
+  Component(pipes, "llDate, llTime, llNumber, llPercent, llDuration", "Angular pipes", "Template formatting")
+  Component(cmp, "ll-event-row, ll-content-card, ll-progress-bar, ll-stat, ll-comment", "Shared components", "Show values")
+  Component(page, "EventPage, DashboardPage, CourseOverviewPage", "Pages", "Receive raw values")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(cat, "EmailCatalog", "Service over Intl", "Formats values in email")
+}
+
+Rel(page, cmp, "Passes raw values to")
+Rel(cmp, pipes, "Format through")
+Rel(pipes, svc, "Call")
+Rel(svc, loc, "Reads")
+@enduml

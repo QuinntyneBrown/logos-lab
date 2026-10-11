@@ -1,0 +1,69 @@
+@startuml
+title UML sequence behaviour — View the dashboard overview
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "authGuard" as guard
+  participant "DashboardPage (SSR)" as page
+  participant "DashboardApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Dashboard route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetContinueLearningAction" as cl
+  participant "GetUpcomingEventsAction" as ue
+  participant "GetFollowingFeedAction" as ff
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> guard : Request /dashboard
+alt no session (visitor)
+  guard --> actor : Redirect to /sign-in?returnUrl=/dashboard (L2-069)
+  actor -> guard : Sign in, return to /dashboard
+end
+guard -> page : Activate
+par sections in parallel
+  page -> client : continueLearning()
+  client -> route : GET /api/v1/me/dashboard/continue-learning
+  route -> cl : execute(userId)
+  cl -> db : 3 most recently accessed in-progress items, left courses excluded
+  cl --> route : Items
+  route --> client : 200
+else
+  page -> client : upcomingEvents()
+  client -> route : GET /api/v1/me/dashboard/upcoming-events
+  route -> ue : execute(userId, now)
+  ue -> db : Next 3 Registered or Waitlisted events
+  ue --> route : Events
+  route --> client : 200
+else
+  page -> client : followingFeed()
+  client -> route : GET /api/v1/me/dashboard/following-feed
+  route -> ff : execute(userId, now)
+  ff -> db : Up to 6 items published in last 30 days by followed sources
+  alt query fails
+    route --> client : 5xx problem
+    client --> page : Section Failed
+  else
+    ff --> route : Items
+    route --> client : 200
+  end
+end
+page -> page : Empty section shows next step, failed section shows Try again
+page --> actor : HTML with Cache-Control private, no-store; LCP target 2.5 s p75 4G (L2-069)
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Provision a resource in a Canadian region
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Platform operator" as actor
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Deployment pipeline" as pipe
+  participant "Region guard (service control policy)" as scp
+  participant "AWS resource API" as aws
+  database "Database, storage, backups, logs, search" as store
+end box
+actor -> pipe : Merge infrastructure change
+pipe -> aws : Create or update resource with target region
+aws -> scp : Evaluate request region
+alt Region is ca-central-1 or ca-west-1
+  scp --> aws : Allow
+  aws -> store : Provision with encryption at rest
+  store --> aws : Resource ready
+  aws --> pipe : Success
+  pipe --> actor : Deployment complete (L2-113 locations satisfied)
+else Any other region
+  scp --> aws : Explicit deny
+  aws --> pipe : AccessDenied
+  pipe --> actor : Deployment fails; nothing created outside Canada
+end
+opt A new third-party processor receives personal data
+  actor -> actor : File the data processing agreement (L2-113)
+  actor -> pipe : Publish Privacy Policy version that lists the processor and its location (L2-098)
+end
+@enduml

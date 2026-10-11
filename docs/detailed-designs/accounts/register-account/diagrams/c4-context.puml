@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Register an account
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(breach, "Breached password list", "Known-breached passwords; source <TO SUPPLY>")
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(visitor, lab, "Creates an account using", "HTTPS")
+Rel(lab, breach, "Checks password against")
+Rel(lab, ses, "Sends verification and attempt-notice email via")
+@enduml

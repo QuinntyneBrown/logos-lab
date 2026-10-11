@@ -1,0 +1,39 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Search content
+
+Container(web, "Logos Lab Web", "Angular", "SiteSearchField, SearchResultsPage, SearchApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(rl, "Rate-limiting middleware", "Middleware", "60 search requests per client per minute")
+  Component(route, "GET /api/v1/search", "Route handler", "Anonymous full search")
+  Component(sroute, "GET /api/v1/search/suggestions", "Route handler", "Anonymous suggestions")
+  Component(val, "SearchQueryValidator", "Validator", "Trim, 2 to 200 characters")
+  Component(action, "SearchContentAction", "Action", "Runs one search")
+  Component(saction, "SuggestSearchTermsAction", "Action", "Returns up to 6 suggestions")
+  Component(svc, "SearchService", "Domain service", "Case- and accent-insensitive full-text match")
+  Component(spell, "SpellingCorrectionService", "Domain service", "Edit distance of 2 correction")
+  Component(hl, "SnippetHighlighter", "Domain service", "Typed snippet segments")
+  Component(pop, "PopularTopicService", "Domain service", "5 most popular topics")
+  Component(repo, "SearchDocumentRepository", "Repository", "Parameterised full-text SQL")
+}
+ContainerDb(cache, "Cache", "Redis", "Rate-limit counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "search_documents, topics")
+Rel(web, rl, "Calls", "JSON/HTTPS")
+Rel(rl, cache, "Increments counter", "Redis")
+Rel(rl, route, "Passes when under limit")
+Rel(rl, sroute, "Passes when under limit")
+Rel(route, val, "Validates q")
+Rel(sroute, val, "Validates q")
+Rel(route, action, "Invokes")
+Rel(sroute, saction, "Invokes")
+Rel(action, svc, "Searches")
+Rel(action, spell, "Corrects when no exact match")
+Rel(action, hl, "Builds snippets")
+Rel(action, pop, "Reads topics for no results")
+Rel(saction, svc, "Prefix match")
+Rel(svc, repo, "Queries")
+Rel(spell, repo, "Queries lexicon")
+Rel(repo, db, "Reads", "SQL")
+Rel(pop, db, "Reads", "SQL")
+@enduml

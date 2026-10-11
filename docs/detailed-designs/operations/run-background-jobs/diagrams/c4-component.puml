@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Run background jobs
+
+ContainerQueue(queue, "Job queue", "Amazon SQS", "")
+ContainerQueue(dlq, "Dead-letter queue", "Amazon SQS", "")
+Container_Boundary(api, "Logos Lab API") {
+  Component(action, "Feature action", "VerbNounAction", "Commits, then enqueues")
+  Component(pub, "JobPublisher", "Module", "Sends JobMessage")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(runner, "JobRunner", "Worker loop", "Polls, dispatches, handles shutdown")
+  Component(registry, "JobHandlerRegistry", "Module", "Maps jobType to handler")
+  Component(handler, "JobHandler", "NounVerbJob", "Feature job logic")
+  Component(retry, "RetryPolicy", "Module", "Exponential backoff, 5 retries")
+  Component(repo, "JobExecutionRepository", "Repository", "Idempotency and checkpoints")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "job_executions")
+Rel(action, pub, "Calls")
+Rel(pub, queue, "SendMessage")
+Rel(runner, queue, "ReceiveMessage, DeleteMessage")
+Rel(runner, registry, "Looks up handler in")
+Rel(registry, handler, "Returns")
+Rel(runner, handler, "Runs")
+Rel(runner, retry, "Asks for delay")
+Rel(runner, repo, "Claims key, marks Succeeded")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(queue, dlq, "Redrives")
+@enduml

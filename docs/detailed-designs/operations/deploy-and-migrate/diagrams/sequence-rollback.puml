@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Roll back a failed deployment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "On-call engineer" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web N" as webN
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API N+1" as apiNew
+  participant "Logos Lab API N" as apiOld
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CI/CD pipeline" as ci
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "DeploymentController" as controller
+  participant "Load balancer" as alb
+  participant "CloudWatch alarms" as alarms
+end box
+ci -> controller : Deploy N+1
+controller -> alb : Shift first share of traffic to N+1
+controller -> apiNew : Probe /health/ready
+alt N+1 healthy and Api5xxRateAlarm OK
+  controller -> alb : Shift remaining traffic
+  controller --> ci : Succeeded
+else probes fail or alarm in ALARM
+  apiNew --> controller : 503 or no response
+  alarms --> controller : Alarm state
+  controller -> alb : Return all traffic to N (Apply L2-139 within 10 minutes)
+  alb -> apiOld : Route requests
+  controller -> apiNew : Stop instances
+  controller --> ci : RolledBack
+  ci --> actor : Notify failed release
+end
+@enduml

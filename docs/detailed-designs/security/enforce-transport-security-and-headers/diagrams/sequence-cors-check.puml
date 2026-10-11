@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — Refuse a cross-origin API request from a disallowed origin
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Browser on another origin" as actor
+box "Backend — Logos Lab API" #D1FADF
+  participant "SecurityHeadersMiddleware" as hdr
+  participant "CorsPolicy" as cors
+  participant "Route handler" as route
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN (CloudFront)" as cdn
+end box
+actor -> cdn : OPTIONS /api/v1/me (Origin: https://other.example)
+cdn -> hdr : Forward request
+hdr -> cors : Pass request
+cors -> cors : isAllowed(origin)
+alt Origin on the allow-list
+  cors --> hdr : 204 with Access-Control-Allow-Origin for that origin
+  hdr --> cdn : 204 with security headers
+  cdn --> actor : Preflight passes
+else Origin not on the allow-list (L2-104)
+  cors --> hdr : 204 without CORS headers
+  hdr --> cdn : 204 with security headers only
+  cdn --> actor : No CORS headers, so the browser blocks the call
+end
+@enduml

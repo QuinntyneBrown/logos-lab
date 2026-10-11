@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Enforce transport security and headers
+
+Container(cdn, "CDN", "Amazon CloudFront", "Viewer protocol policy redirect-to-https; minimum protocol TLSv1.2")
+Container_Boundary(web, "Logos Lab Web") {
+  Component(ssr, "SSR server", "Express on Node.js", "Renders Angular pages")
+  Component(webhdr, "SecurityHeadersHandler", "Express middleware", "Generates a per-response CSP nonce and sets HTML headers")
+  Component(csp, "ContentSecurityPolicyBuilder", "TypeScript", "Builds the CSP string from the nonce and allowed sources")
+  Component(nonce, "CSP_NONCE provider", "Angular token", "Passes the nonce to Angular so inline bootstrap scripts carry it")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(apihdr, "SecurityHeadersMiddleware", "Next.js middleware", "Sets HSTS, nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors")
+  Component(cors, "CorsPolicy", "Next.js middleware", "Returns CORS headers only for allow-listed origins")
+  Component(cfg, "SecurityHeadersConfig", "Configuration", "Header values and the CORS origin allow-list")
+}
+Container(scorm, "SCORM content origin", "CloudFront response headers policy", "frame-ancestors limited to the application origin")
+Rel(cdn, ssr, "Forwards HTTPS page requests")
+Rel(ssr, webhdr, "Runs before rendering")
+Rel(webhdr, csp, "Builds policy with nonce")
+Rel(webhdr, nonce, "Provides nonce to")
+Rel(cdn, apihdr, "Forwards HTTPS API requests")
+Rel(apihdr, cfg, "Reads header values")
+Rel(cors, cfg, "Reads origin allow-list")
+Rel(apihdr, cors, "Passes request to")
+Rel(scorm, cfg, "Mirrors applicationOrigin in frame-ancestors from")
+@enduml

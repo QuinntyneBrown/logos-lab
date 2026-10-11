@@ -1,0 +1,70 @@
+@startuml
+title UML sequence behaviour — Archive content
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArchiveContentDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/archive route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ArchiveContentAction" as action
+  participant "WorkflowService" as workflow
+  participant "SearchIndexService" as search
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Choose Archive and confirm
+opt Module used by published courses
+  dialog --> actor : Name each course and ask for deliberate confirmation (L2-026)
+  actor -> dialog : Confirm in use
+end
+dialog -> client : archive(id, confirmInUse, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/archive
+route -> route : Authenticate and require Editor role
+route -> action : execute(editor, id, confirmInUse, rowVersion)
+action -> db : Load item and courses using it FOR UPDATE
+db --> action : Item and usage
+alt In use and confirmInUse is false
+  action --> route : Conflict naming the courses
+  route --> client : 409 problem response
+  client --> dialog : Show in-use state
+else Ready
+  action -> workflow : transition(item, Archived, editor) (L2-076)
+  alt Not Published, or stale rowVersion
+    workflow --> action : Refused with current state
+    action --> route : Conflict
+    route --> client : 409 problem response with current state
+    client --> dialog : Failed state; still published
+  else Allowed
+    workflow --> action : Allowed
+    action -> db : Set state Archived and archived_at; append WorkflowTransition
+    action -> search : remove(item.id)
+    search -> db : Delete search document
+    db --> action : Commit
+    note right of db : Catalogue, topic and collection queries select Published only (L2-081)
+    action -> sqs : Enqueue CdnInvalidateJob for item, catalogue and topic paths
+    action --> route : Item Archived
+    route --> client : 200 JSON
+    client --> dialog : Success
+    dialog --> actor : Archived; address shows a no longer available page
+  end
+end
+@enduml

@@ -1,0 +1,80 @@
+@startuml
+title UML sequence behaviour — Upload and process an image
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ImageUploadDialog" as dialog
+  participant "HttpMediaApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "media/images routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateImageUploadAction" as create
+  participant "CompleteImageUploadAction" as complete
+  participant "ImageProcessJob (Worker)" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Media storage (S3)" as s3
+  queue "Job queue" as sqs
+  participant "Malware scanner" as scanner
+end box
+actor -> dialog : Drop or choose a file
+dialog -> dialog : Check extension, type and 15 MB before sending
+alt SVG, unsupported type or over 15 MB
+  dialog --> actor : Invalid state naming accepted types and limit (L2-083)
+else Looks acceptable
+  dialog -> client : createImageUpload(purpose, mimeType, size)
+  client -> route : POST /api/v1/media/images
+  route -> create : execute(user, request)
+  create -> db : Insert ImageAsset Pending with generated name
+  create --> route : Presigned POST, content-length-range up to 15 MB
+  route --> client : 201 Created
+  client -> s3 : POST file to quarantine prefix
+  s3 --> client : 204, or refusal before the whole body is read (L2-108)
+  client -> route : POST /api/v1/media/images/{id}/complete
+  route -> complete : execute(user, id)
+  complete -> db : Set Processing
+  complete -> sqs : Enqueue ImageProcessJob
+  route --> client : 202 Accepted
+  dialog --> actor : Uploading; checked for malware before use
+  sqs -> job : Deliver
+  job -> s3 : Read original
+  job -> job : Detect type from magic bytes (L2-108)
+  alt Not JPEG, PNG, WebP or AVIF
+    job -> db : Set Rejected with reason
+  else Accepted type
+    job -> scanner : Scan file
+    alt Infected
+      scanner --> job : Threat found
+      job -> s3 : Move to quarantine hold
+      job -> db : Set Quarantined; notify uploader (L2-108)
+    else Clean
+      scanner --> job : Clean
+      job -> job : Remove EXIF metadata (L2-083)
+      job -> s3 : Write 320, 640, 960, 1280, 1920 px in AVIF and WebP, JPEG fallback
+      job -> db : Set Ready with renditions
+    end
+  end
+  loop Until Ready, Rejected or Quarantined
+    dialog -> client : getImage(id)
+    client -> route : GET /api/v1/media/images/{id}
+    route --> client : State
+  end
+  dialog --> actor : Alt text step, or failed state with the reason
+end
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Autosave
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioEditorPage" as page
+  participant "AutosaveService" as autosave
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items/{id} route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveDraftAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Type in a field
+page -> autosave : change(patch)
+autosave -> autosave : Restart 5 second timer (L2-084)
+... 5 seconds without a change ...
+autosave -> page : status Saving...
+autosave -> client : saveDraft(id, patch, rowVersion)
+client -> route : PATCH /api/v1/studio/items/{id} with If-Match
+route -> action : execute(user, id, patch, rowVersion)
+action -> db : UPDATE WHERE id and row_version match; increment row_version
+alt Saved
+  db --> action : 1 row
+  action --> route : New rowVersion and savedAt
+  route --> client : 200 JSON with ETag
+  client --> autosave : Saved
+  autosave -> page : status Saved
+  page --> actor : Saved 10:24 am
+else Network error or 5xx
+  client --> autosave : Failure
+  autosave -> page : status Not saved - retrying
+  page --> actor : Warning; text stays on the page
+  autosave -> autosave : Retry with backoff until saved
+end
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Sign out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AccountMenu" as menu
+  participant "AuthApi" as client
+  participant "Angular Router" as router
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "SessionMiddleware" as mw
+  participant "session route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SignOutAction" as action
+  participant "SessionService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> menu : Choose "Sign out"
+menu -> client : signOut()
+client -> mw : DELETE /api/v1/auth/session
+mw -> route : Authenticated request
+route -> action : execute(currentUser)
+action -> service : revoke(currentSessionId)
+service -> db : Set revokedAt on the session (L2-010)
+db --> service : Updated
+action --> route : Ok
+route --> client : 204, Set-Cookie clears session cookie, no-store
+client --> menu : Signed out
+menu -> router : Clear in-memory member state, navigate to /sign-in
+router --> actor : Sign-in page, signed-out state
+note over actor, router : Back shows no authenticated page: responses were no-store and the next API call answers 401
+@enduml

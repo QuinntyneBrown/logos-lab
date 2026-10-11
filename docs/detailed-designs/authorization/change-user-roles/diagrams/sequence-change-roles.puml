@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Change roles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUserPage" as page
+  participant "EditRolesDialog" as dialog
+  participant "AdminUsersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthorizationMiddleware" as authz
+  participant "roles route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ChangeUserRolesAction" as action
+  participant "RoleService" as roles
+  participant "AuditLogService" as audit
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> page : Press "Edit roles"
+page -> dialog : Open with current roles
+actor -> dialog : Tick or untick roles, press "Save roles"
+dialog -> client : changeRoles(id, roles)
+client -> authz : PUT /api/v1/admin/users/{id}/roles
+authz -> authz : Require Administer (L2-016)
+authz -> route : Permitted request
+route -> action : execute(actor, targetId, roles, ip)
+action -> db : Begin; load target roles
+action -> roles : diff(current, requested)
+roles --> action : RoleDiff
+action -> roles : assertNotLastAdministrator(targetId, diff)
+roles -> db : Count Administrators FOR UPDATE
+alt removal would leave no Administrator (L2-018)
+  roles --> action : LastAdministrator
+  action -> db : Rollback
+  route --> client : 409 "last-administrator" with explanation
+  dialog --> actor : Invalid state: "Grant Administrator to someone else before removing it here."
+else allowed
+  action -> db : Insert and delete user_roles rows
+  loop each granted or removed role
+    action -> audit : append(actor, target, role, old, new, IP, time)
+    audit -> db : Insert audit_entries row
+  end
+  loop each granted role
+    action -> notify : notifyRoleGranted(userId, role)
+    notify -> db : Insert in-app notification naming the role
+    notify -> queue : Enqueue EmailSendJob naming the role
+  end
+  action -> db : Commit
+  action -> cw : Log role change; Administrator changes raise an alert (L2-111)
+  route --> client : 200 new roles
+  dialog --> actor : Success: live from next request, notified, audited
+end
+@enduml

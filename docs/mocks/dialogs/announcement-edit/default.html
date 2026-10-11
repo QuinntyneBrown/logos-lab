@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Announcement · default — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="announcement-edit">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-098">
+<meta name="description" content="A new Info announcement about the live Q&amp;A, with message, severity, optional link and a start and end time.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Isaac Moreau"><img class="avatar" src="../../assets/photos/elijah-brooks.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div>
+    <div class="wrap settings-layout">
+      <nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="../../pages/admin/default.html">Overview</a>
+      <a href="../../pages/admin-users/default.html">Users</a>
+      <a href="../../pages/admin-invitations/default.html">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="../../pages/admin-topics/default.html">Topics</a>
+      <a href="../../pages/admin-featured/default.html">Featured</a>
+      <a href="../../pages/admin-announcements/default.html" aria-current="page">Announcements</a>
+      <a href="../../pages/admin-policies/default.html">Policies</a>
+      <a href="../../pages/admin-settings/default.html">Site settings</a>
+      <a href="../../pages/admin-audit/default.html">Audit log</a>
+      <a href="../../pages/admin-analytics/default.html">Analytics</a>
+    </nav>
+      <div>
+      <div class="page-head page-head--actions" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Admin</p>
+        <p class="page-head__title">Announcements</p>
+        <p class="page-head__sub">A dismissible banner on every page during its window, up to 200 characters. Announce maintenance at least 72 hours ahead.</p>
+        <div class="page-head__actions"><span class="btn btn--primary">New announcement</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="backdrop">
+    <div class="dialog dialog--lg" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <header class="dialog__header">
+        <h1 class="dialog__title" id="dialog-title">New announcement</h1>
+        <a class="icon-btn" href="../../pages/admin-announcements/default.html" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a>
+      </header>
+      <div class="dialog__body">
+        <p id="dialog-desc">Shows as a dismissible banner at the top of every page during its window.</p>
+        <form class="form" id="a-form" action="busy.html">
+          <div class="field">
+            <label class="field__label" for="a-msg">Message</label>
+            <textarea class="textarea" id="a-msg" name="message" rows="3" aria-describedby="a-msg-count">Live Q&amp;A with Dr. Abena Mensah on Tue 27 Oct at 12:00 pm ET. Send your questions about machine personhood ahead of time.</textarea>
+            <p class="field__counter" id="a-msg-count">120 of 200 characters</p>
+          </div>
+          <fieldset class="choices choices--inline">
+            <legend>Severity</legend>
+            <label class="choice"><input type="radio" name="severity" value="info" checked><span class="choice__title">Info</span><span class="choice__text">News and invitations.</span></label>
+            <label class="choice"><input type="radio" name="severity" value="warning"><span class="choice__title">Warning</span><span class="choice__text">Maintenance and disruptions.</span></label>
+          </fieldset>
+          <div class="field">
+            <label class="field__label" for="a-link">Link <span class="field__optional">optional</span></label>
+            <input class="input" id="a-link" name="link" type="url" value="https://www.logoslab.ca/events/live-qa-imago-dei-and-machine-personhood">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="a-start">Starts</label>
+              <input class="input" id="a-start" name="start" type="datetime-local" value="2026-10-19T09:00">
+            </div>
+            <div class="field">
+              <label class="field__label" for="a-end">Ends</label>
+              <input class="input" id="a-end" name="end" type="datetime-local" value="2026-10-27T13:00">
+            </div>
+          </div>
+          <p class="field__help">Times are Eastern. Members who dismiss the banner don't see it again.</p>
+        </form>
+      </div>
+      <footer class="dialog__footer">
+        <a class="btn btn--quiet" href="../../pages/admin-announcements/default.html">Cancel</a><button class="btn btn--primary" type="submit" form="a-form">Schedule announcement</button>
+      </footer>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Announcement</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="failed.html">failed</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

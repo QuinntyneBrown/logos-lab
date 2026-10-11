@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Submit an article
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArticleEditorPage" as ArticleEditorPage
+  participant "StudioArticlesApi" as StudioArticlesApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/studio/articles/articleId/submit" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitArticleAction" as SubmitArticleAction
+  participant "ArticleSubmissionValidator" as ArticleSubmissionValidator
+  participant "EditorialWorkflowService" as EditorialWorkflowService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ArticleEditorPage : Press Submit for review
+ArticleEditorPage -> StudioArticlesApi : submit(articleId)
+StudioArticlesApi -> route : HTTPS POST with session
+route -> SubmitArticleAction : execute(userId, articleId)
+SubmitArticleAction -> db : Load owned draft
+db --> SubmitArticleAction : Body
+SubmitArticleAction -> ArticleSubmissionValidator : validate(body)
+ArticleSubmissionValidator -> ArticleSubmissionValidator : Image without alt text and not decorative; skipped heading level (L2-046)
+alt problems found
+  ArticleSubmissionValidator --> SubmitArticleAction : SubmissionProblem[]
+  SubmitArticleAction --> route : Refused
+  route --> StudioArticlesApi : 422 problem listing each issue and location
+  StudioArticlesApi --> ArticleEditorPage : Problems
+  ArticleEditorPage --> actor : Error summary; both issues flagged in the body
+else no problems
+  SubmitArticleAction -> EditorialWorkflowService : Move to In review (L2-077)
+  EditorialWorkflowService -> db : Update workflow state
+  db --> EditorialWorkflowService : Commit
+  SubmitArticleAction --> route : Submitted
+  route --> StudioArticlesApi : 200 JSON
+  StudioArticlesApi --> ArticleEditorPage : Submitted
+  ArticleEditorPage --> actor : In review
+end
+@enduml

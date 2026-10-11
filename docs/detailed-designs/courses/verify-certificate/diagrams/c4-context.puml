@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Verify a certificate
+
+Person(anyone, "Anyone", "Employer, church or other person checking a certificate")
+Person(admin, "Administrator", "Logos Lab staff who manage users and certificates")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+System_Ext(ses, "Amazon SES", "Sends transactional email")
+
+Rel(anyone, logos, "Verifies certificate codes in", "HTTPS")
+Rel(admin, logos, "Revokes certificates in", "HTTPS")
+Rel(logos, ses, "Sends revocation email via", "AWS SDK")
+@enduml

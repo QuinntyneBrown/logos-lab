@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Sign in
+
+Container(web, "Logos Lab Web", "Angular", "SignInPage, ReturnUrlPolicy, AuthApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "sessions route handler", "app/api/v1/auth/sessions/route.ts", "Sets the session or challenge cookie")
+  Component(action, "SignInAction", "Action", "Password step of sign-in")
+  Component(throttle, "SignInThrottleService", "Domain service", "Account lockout and IP throttle")
+  Component(cred, "CredentialVerifier", "Domain service", "Constant-work password check")
+  Component(state, "AccountStatePolicy", "Domain service", "Refuses Suspended and Deactivated")
+  Component(sessions, "SessionService", "Domain service", "Creates sessions")
+  Component(mfa, "MfaChallengeService", "Domain service", "Second-factor challenge")
+  Component(log, "SecurityEventLogger", "Infrastructure", "Security event log")
+  Component(repo, "UserRepository", "Repository", "Users and roles")
+}
+ContainerDb(cache, "Cache", "Redis", "Failure counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, sessions, mfa_challenges")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+System_Ext(cw, "Amazon CloudWatch", "Security logs")
+Rel(web, route, "POST /api/v1/auth/sessions", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, throttle, "Checks and records failures")
+Rel(throttle, cache, "Reads and writes")
+Rel(action, cred, "Verifies password")
+Rel(cred, repo, "Finds user by email")
+Rel(action, state, "Checks account state")
+Rel(action, sessions, "Creates session")
+Rel(action, mfa, "Starts challenge")
+Rel(action, log, "Logs events")
+Rel(log, cw, "Ships logs")
+Rel(repo, db, "Reads", "SQL")
+Rel(sessions, db, "Writes", "SQL")
+Rel(throttle, queue, "Enqueues failed-attempts email")
+@enduml

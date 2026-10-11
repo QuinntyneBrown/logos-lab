@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage notification preferences
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "SettingsNotificationsPage", "Angular page", "Category table with In Logos Lab and Email checkboxes")
+  Component(client, "NotificationPreferencesApi / HttpNotificationPreferencesApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/notification-preferences", "Route handlers", "GET and PUT")
+  Component(getAction, "GetNotificationPreferencesAction", "Action", "Returns settings and locks")
+  Component(updAction, "UpdateNotificationPreferencesAction", "Action", "Validates and saves settings")
+  Component(prefService, "NotificationPreferenceService", "Domain service", "Defaults, always-on list, channel checks")
+  Component(consent, "ConsentService", "Domain service", "Reports marketing email consent")
+  Component(notify, "NotificationService and EmailService", "Domain services", "Ask whether a channel is on before sending")
+  Component(repo, "NotificationPreferenceRepository", "Repository", "Rows keyed by user and category")
+}
+ComponentDb(db, "notification_preferences", "PostgreSQL table", "One row per member and category")
+Rel(page, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, getAction, "Invokes")
+Rel(route, updAction, "Invokes")
+Rel(getAction, prefService, "Uses")
+Rel(updAction, prefService, "Uses")
+Rel(prefService, consent, "Checks marketing consent with")
+Rel(notify, prefService, "isEnabled(user, category, channel)")
+Rel(prefService, repo, "Uses")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

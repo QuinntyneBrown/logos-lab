@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore · loading — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="explore">
+<meta name="mock:state" content="loading">
+<meta name="mock:requirements" content="L2-002 L2-005 L2-130 L2-141">
+<meta name="description" content="The catalogue while results load: the filters and toolbar stay, and the grid shows six skeleton cards.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html" aria-current="page">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">The catalogue</p>
+      <h1 class="page-head__title">Explore</h1>
+      <p class="page-head__sub">Every published course, module, video, article, collection and event, from 38 experts and the Logos Lab editors.</p>
+    </div>
+    <div class="sidebar-layout">
+      <aside class="filters" id="explore-filters" popover aria-labelledby="filters-title">
+        <div class="filters__head">
+          <h2 class="filters__title" id="filters-title">Filters</h2>
+          
+        </div>
+        <fieldset class="filter">
+          <legend class="filter__legend">Type</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Course</span><span class="check__count">24</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Module</span><span class="check__count">11</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Video</span><span class="check__count">86</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Article</span><span class="check__count">64</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Collection</span><span class="check__count">18</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="type"><span>Event</span><span class="check__count">9</span></label></li></ul>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Topic</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Theology of technology</span><span class="check__count">41</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>AI ethics</span><span class="check__count">37</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Church and ministry</span><span class="check__count">33</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>The image of God and personhood</span><span class="check__count">28</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Formation and education</span><span class="check__count">22</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="topic"><span>Work and vocation</span><span class="check__count">19</span></label></li></ul>
+          <button type="button" class="btn btn--text btn--sm filter__more" aria-expanded="false">Show all 12 topics</button>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Level</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="level"><span>Introductory</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="level"><span>Intermediate</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="level"><span>Advanced</span></label></li></ul>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Contributor</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Logos Lab</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Dr. Abena Mensah</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Rev. Dr. Thomas Hale</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Dr. Joel Santos</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Dr. Lucía Ortega</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="contributor"><span>Prof. Simon Keller</span></label></li></ul>
+          <button type="button" class="btn btn--text btn--sm filter__more" aria-expanded="false">Show all 38 experts</button>
+        </fieldset>
+        <fieldset class="filter">
+          <legend class="filter__legend">Length</legend>
+          <ul class="filter__list"><li><label class="check"><input class="check__box" type="checkbox" name="length"><span>Under 15 min</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="length"><span>15 to 60 min</span></label></li><li><label class="check"><input class="check__box" type="checkbox" name="length"><span>Over 60 min</span></label></li></ul>
+        </fieldset>
+        <a class="btn btn--primary filters__done" href="../../pages/explore/default.html">Show 212 items</a>
+      </aside>
+      <div>
+        <div class="toolbar">
+          <p class="toolbar__count" aria-live="polite">Loading the catalogue…</p>
+          <div class="toolbar__tools">
+            <a class="btn btn--quiet btn--sm filters-btn" href="../../dialogs/explore-filters/default.html" aria-haspopup="dialog"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Filters</a>
+            <label class="select"><span>Sort by</span><span class="select__wrap"><select class="select__control" name="sort" disabled><option selected>Newest</option><option>Most popular</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+          </div>
+        </div>
+        <div class="content-grid" aria-busy="true"><p class="vh" role="status">Loading the catalogue…</p><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div><div class="skeleton-card" aria-hidden="true"><span class="skeleton skeleton--block"></span><span class="skeleton skeleton--text is-short"></span><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Explore</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html" aria-current="page">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="no-results.html">no-results</a></li>
+    <li><a href="selected.html">selected</a></li>
+    <li><a href="partial.html">partial</a></li>
+    <li><a href="long.html">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

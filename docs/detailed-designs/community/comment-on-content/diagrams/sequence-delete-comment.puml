@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Delete a comment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CommentsSection" as page
+  participant "DeleteCommentDialog" as dialog
+  participant "CommentsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Comments route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DeleteCommentAction" as action
+  participant "CommentService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Choose Delete on own comment
+page -> dialog : Open (default or with-replies state)
+actor -> dialog : Confirm Delete comment
+dialog -> client : delete(id)
+client -> route : DELETE /api/v1/comments/{id}
+route -> action : execute(userId, id)
+action -> db : Find comment by id and author id, count replies
+db --> action : Comment and reply count, or none
+alt not found or another member's comment
+  action --> route : NotFound
+  route --> client : 404 problem (L2-061)
+  dialog --> actor : Show failed state
+else no replies
+  action -> service : delete(comment, 0)
+  service --> action : Remove
+  action -> db : Delete row
+  db --> action : Done
+  action --> route : Ok
+  route --> client : 204
+  dialog --> page : Close
+  page --> actor : Comment removed from thread
+else has replies
+  action -> service : delete(comment, n)
+  service --> action : Tombstone
+  action -> db : Set status Deleted, clear body and author display
+  db --> action : Done
+  action --> route : Ok
+  route --> client : 204
+  dialog --> page : Close
+  page --> actor : Show "Comment deleted", replies remain (L2-061)
+end
+@enduml

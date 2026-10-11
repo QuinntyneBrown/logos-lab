@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Submit with failing rules
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert (owner)" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SubmitForReviewDialog" as dialog
+  participant "StudioEditorPage" as page
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/submit route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitForReviewAction" as action
+  participant "ContentValidationService" as validation
+  participant "SubmissionRule (each)" as rule
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Submit for review
+dialog -> client : submit(id, note, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/submit
+route -> action : execute(owner, id, note, rowVersion)
+action -> db : Load revision, cover image, captions, lessons, body images
+db --> action : Revision data
+action -> validation : validateForSubmission(revision)
+loop Common rules, then rules for the content type
+  validation -> rule : check(revision)
+  note right of rule : Title 5-120, summary 50-300, 1 to 5 topics, level, cover alt text; type rules L2-039, L2-026, L2-046
+  rule --> validation : Pass, or RuleFailure with field path
+end
+alt Any rule fails
+  validation --> action : Every RuleFailure
+  action --> route : Submission refused
+  route --> client : 422 problem response listing every failing rule (L2-082)
+  client --> dialog : Failures
+  dialog --> actor : Each failing rule with a link to its field
+  actor -> dialog : Follow a link
+  dialog -> page : focusField(fieldPath)
+  page --> actor : Field focused with its error
+else All rules pass
+  validation --> action : No failures
+  action --> route : Continue to In review (see move-through-editorial-workflow)
+  route --> client : 200 JSON
+  client --> dialog : Success
+end
+@enduml

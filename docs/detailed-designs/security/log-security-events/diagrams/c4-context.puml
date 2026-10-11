@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Log security events
+
+Person(member, "Member", "Signs in, changes credentials or roles")
+Person(oncall, "On-call engineer", "Responds to security alerts")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(cw, "Amazon CloudWatch", "Logs, Contributor Insights and alarms")
+System_Ext(channel, "On-call channel", "<TO SUPPLY>")
+Rel(member, ll, "Triggers security events in")
+Rel(ll, cw, "Writes security events to", "JSON logs")
+Rel(cw, channel, "Sends alarms to", "Amazon SNS")
+Rel(channel, oncall, "Notifies")
+@enduml

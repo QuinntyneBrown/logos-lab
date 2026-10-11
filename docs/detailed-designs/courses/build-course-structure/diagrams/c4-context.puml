@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Build a course structure
+
+Person(expert, "Expert or Editor", "Authors courses and modules in Studio")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+
+Rel(expert, logos, "Builds courses and submits them for review in", "HTTPS")
+@enduml

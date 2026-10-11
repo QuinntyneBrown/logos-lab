@@ -1,0 +1,102 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Save items
+
+package "Logos Lab Web" {
+  class SaveToggle {
+    +item: ContentRef
+    +saved: boolean
+    +toggle(): void
+  }
+  class SavedPage {
+    +filter: ContentType | null
+    +items: SavedItemView[]
+    +counts: Map<ContentType, number>
+    +remove(item: SavedItemView): void
+  }
+  interface SavedItemsApi {
+    +save(type: ContentType, id: string): Observable<void>
+    +unsave(type: ContentType, id: string): Observable<void>
+    +list(type?: ContentType, page?: number): Observable<SavedItemPage>
+  }
+  class HttpSavedItemsApi
+  class SAVED_ITEMS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class SavedItemsRouteHandler {
+    +GET(req: Request): Response
+    +PUT(req: Request): Response
+    +DELETE(req: Request): Response
+  }
+  class SaveItemAction {
+    +execute(userId: string, type: ContentType, id: string): Promise<void>
+  }
+  class UnsaveItemAction {
+    +execute(userId: string, type: ContentType, id: string): Promise<void>
+  }
+  class ListSavedItemsAction {
+    +execute(userId: string, type?: ContentType, page?: number): Promise<SavedItemPage>
+  }
+  class SavedItemService {
+    +LIMIT: number = 1000
+    +save(userId: string, ref: ContentRef): SaveOutcome
+  }
+  class SavedItem {
+    +userId: string
+    +itemType: ContentType
+    +itemId: string
+    +savedAt: Date
+  }
+  class SavedItemView {
+    +ref: ContentRef
+    +title: string
+    +savedAt: Date
+    +available: boolean
+    +archivedAt: Date | null
+  }
+  enum ContentType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+  }
+  enum SaveOutcome {
+    Saved
+    AlreadySaved
+    LimitReached
+  }
+  class SavedItemRepository {
+    +countFor(userId: string): number
+    +insert(item: SavedItem): void
+    +delete(userId: string, ref: ContentRef): void
+    +page(userId: string, type?: ContentType, page?: number): SavedItemView[]
+  }
+}
+SaveToggle ..> SavedItemsApi
+SavedPage ..> SavedItemsApi
+HttpSavedItemsApi ..|> SavedItemsApi
+SAVED_ITEMS_API ..> SavedItemsApi : provides
+SavedItemsRouteHandler ..> SaveItemAction
+SavedItemsRouteHandler ..> UnsaveItemAction
+SavedItemsRouteHandler ..> ListSavedItemsAction
+SaveItemAction ..> SavedItemService
+SavedItemService ..> SavedItemRepository
+UnsaveItemAction ..> SavedItemRepository
+ListSavedItemsAction ..> SavedItemRepository
+SavedItemService --> SaveOutcome : returns
+SavedItemRepository --> SavedItem : persists
+SavedItem --> ContentType
+@enduml

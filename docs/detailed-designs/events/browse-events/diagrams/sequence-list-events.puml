@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — List and filter events
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventsPage" as page
+  participant "EventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "events route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListEventsAction" as action
+  participant "EventListingService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /events, or choose Past, format, topic or host
+page -> page : Write tab and filters to the URL (L2-051)
+page -> client : listEvents(query)
+client -> route : GET /api/v1/events?tab=...&format=...&topic=...&host=...
+route -> route : Validate query parameters
+route -> action : execute(viewer, query)
+action -> svc : list(query, now)
+svc -> db : Select published events matching filters
+db --> svc : Rows with registration counts
+alt Upcoming tab
+  svc -> svc : Order by start ascending, flag Happening now (L2-051)
+else Past tab
+  svc -> svc : Order by start descending, flag Recording available
+end
+svc -> svc : Remaining capacity when capacity is limited
+svc --> action : EventListPage
+route --> client : 200 EventListPage
+client --> page : Items
+alt No items
+  page --> actor : Empty or no-results state with "Clear filters"
+else Items
+  page --> actor : Rows with times in the viewer's zone, zone named
+end
+@enduml

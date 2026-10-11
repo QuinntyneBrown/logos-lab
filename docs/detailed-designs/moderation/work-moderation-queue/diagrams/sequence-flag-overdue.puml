@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Flag overdue reports
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderators" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationQueuePage" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "moderation/reports route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "OverdueReportNotifyJob" as job
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Job scheduler (baseline choice)" as tick
+  participant "ModerationCaseRepository" as repo
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+tick -> sqs : Enqueue OverdueReportNotifyJob (interval <TO SUPPLY>)
+sqs -> job : Deliver job to the Worker
+job -> repo : listOverdueUnnotified(now - 24 hours)
+repo -> db : SELECT open cases opened before cutoff AND overdue_notified_at IS NULL FOR UPDATE SKIP LOCKED
+db --> repo : Overdue cases
+repo --> job : ModerationCase[]
+loop Each overdue case
+  job -> notify : notifyModerators(overdue, caseId)
+  notify -> db : INSERT in-app notification for each moderator
+  notify -> sqs : Enqueue EmailSendJob
+  job -> repo : markOverdueNotified(id, now)
+  repo -> db : UPDATE overdue_notified_at in the same transaction (notified once, L2-086)
+end
+job --> sqs : Acknowledge; retried with backoff on failure (L2-140)
+actor -> page : Open /moderation
+page -> route : GET /api/v1/moderation/reports?view=open
+route -> db : Read open cases
+db --> route : Cases with opened_at
+route --> page : Rows flagged overdue when open more than 24 hours
+page --> actor : Overdue badge on the case and an overdue alert
+@enduml

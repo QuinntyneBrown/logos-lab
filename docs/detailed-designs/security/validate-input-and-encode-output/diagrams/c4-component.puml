@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Validate input and encode output
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(tpl, "Angular templates", "Angular", "Interpolation and property binding encode for HTML, attribute and URL contexts")
+  Component(san, "DomSanitizer", "Angular", "Sanitises bound HTML and URLs; bypassSecurityTrust* is not used")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "Route handler", "Next.js", "Parses body, query and path through validateRequest")
+  Component(val, "validateRequest", "Function", "Applies the RequestSchema, strips unknown keys, builds 400 problem")
+  Component(schema, "RequestSchema", "Schema library <TO SUPPLY>", "Type, length, format, range and enumeration rules per endpoint")
+  Component(action, "UpdateProfileAction", "Action", "Example: maps only allowed DTO fields to the entity")
+  Component(html, "HtmlSanitizer", "Service", "Allow-list sanitiser for rich text before persistence")
+  Component(fetcher, "SafeUrlFetcher", "Service", "Resolves hosts and refuses private, loopback, link-local and metadata addresses")
+  Component(repo, "Repositories", "Query builder <TO SUPPLY>", "Pass user input as bound parameters")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "System of record")
+Rel(tpl, san, "Uses for HTML and URL bindings")
+Rel(route, val, "Validates with")
+Rel(val, schema, "Applies")
+Rel(route, action, "Calls with validated DTO")
+Rel(action, html, "Sanitises rich text with")
+Rel(action, fetcher, "Fetches link previews with")
+Rel(action, repo, "Persists through")
+Rel(repo, db, "Parameterised SQL")
+@enduml

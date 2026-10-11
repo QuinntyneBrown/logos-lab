@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Report field vitals
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "WebVitalsReporter" as rep
+  participant "HttpTelemetryApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/telemetry/web-vitals" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordWebVitalsAction" as act
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "MetricsPublisher" as pub
+  participant "Amazon CloudWatch" as cw
+  participant "On-call channel" as oncall
+end box
+actor -> rep : Use and leave the page
+rep -> rep : Collect final LCP, INP and CLS with device class
+rep -> client : reportWebVitals(sample)
+client -> route : sendBeacon JSON, no user identifier
+route -> route : Log request, rate-limit, allow anonymous
+route -> route : Validate metric name and value range
+alt Sample invalid
+  route --> client : 400 problem response
+else Sample valid
+  route -> act : execute(sample)
+  act -> pub : putMetric(metric, value, deviceClass, route)
+  pub -> cw : Embedded metric format log line
+  act --> route : Done
+  route --> client : 204 No Content
+end
+cw -> cw : p75 per metric and device class over rolling 28 days (L2-120)
+opt LCP > 2.5 s or INP > 200 ms or CLS > 0.1
+  cw -> oncall : WebVitalsAlarm notification
+end
+@enduml

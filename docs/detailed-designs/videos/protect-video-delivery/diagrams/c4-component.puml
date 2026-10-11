@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Protect video delivery
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(player, "ll-player", "Shared component", "Requests and renews grants")
+  Component_Ext(tessera, "Tessera video-player", "Angular library", "Fetches HLS files")
+  Component(client, "HttpVideosApi", "VideosApi via VIDEOS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(mw, "Middleware pipeline", "Next.js middleware", "Rate limit, optional session resolution")
+  Component(route, "playback-sessions route handler", "app/api/v1/videos/[videoId]/playback-sessions/route.ts", "Sets cookies from the grant")
+  Component(action, "IssuePlaybackGrantAction", "Action", "Use case")
+  Component(authz, "PlaybackAuthorizationService", "Domain service", "L2-043 rules")
+  Component(signer, "SignedMediaService", "Domain service", "CloudFront custom policy signing")
+  Component(repo, "VideoRepository", "Repository", "Video state")
+}
+Container(cdn, "CDN", "Amazon CloudFront", "Verifies signature and expiry")
+Rel(player, client, "createPlaybackSession")
+Rel(player, tessera, "Loads manifest path")
+Rel(tessera, cdn, "GET playlists and segments", "HTTPS")
+Rel(client, mw, "POST", "JSON/HTTPS")
+Rel(mw, route, "Passes request")
+Rel(route, action, "Invokes")
+Rel(action, repo, "Loads video")
+Rel(action, authz, "Decides")
+Rel(action, signer, "Signs policy")
+@enduml

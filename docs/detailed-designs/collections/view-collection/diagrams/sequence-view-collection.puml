@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — View a collection
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CollectionPage" as CollectionPage
+  participant "CollectionsApi" as CollectionsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/collections/slug" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCollectionAction" as GetCollectionAction
+  participant "CollectionService" as CollectionService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> CollectionPage : Open /collections/ai-in-the-pulpit
+CollectionPage -> CollectionsApi : getCollection(slug) during server render
+CollectionsApi -> route : HTTPS GET (anonymous)
+route -> GetCollectionAction : execute(slug)
+GetCollectionAction -> CollectionService : getPublished(slug, now)
+CollectionService -> db : Select published collection, items in position order, target state
+alt not published or unknown slug
+  db --> CollectionService : No row
+  CollectionService --> route : Not found
+  route --> CollectionsApi : 404 problem
+  CollectionsApi --> CollectionPage : Not found
+  CollectionPage --> actor : HTTP 404 and not-found page
+else published
+  db --> CollectionService : Collection and items
+  CollectionService -> CollectionService : Omit archived or hidden items; count and sum durations (L2-048)
+  CollectionService --> GetCollectionAction : CollectionView
+  GetCollectionAction --> route : View
+  route --> CollectionsApi : 200 JSON
+  CollectionsApi --> CollectionPage : View
+  alt no visible items
+    CollectionPage --> actor : Empty state; Follow stays available
+  else items visible
+    CollectionPage --> actor : Title, description, cover, curator, item count, duration and items in order
+  end
+end
+@enduml

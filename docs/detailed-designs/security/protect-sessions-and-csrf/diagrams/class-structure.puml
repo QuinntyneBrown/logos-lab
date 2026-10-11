@@ -1,0 +1,71 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Protect sessions and CSRF
+
+class Session {
+  +id: SessionId
+  +idHash: string
+  +userId: UserId
+  +csrfToken: string
+  +createdAt: Instant
+  +lastActivityAt: Instant
+  +revokedAt: Instant?
+  +replacedBy: SessionId?
+}
+class SessionService {
+  +create(userId: UserId, context: ClientContext): Promise<IssuedSession>
+  +rotate(current: SessionId): Promise<IssuedSession>
+  +resolve(rawId: string): Promise<Session?>
+  +revoke(id: SessionId): Promise<void>
+  -newOpaqueId(): string
+}
+class IssuedSession <<value object>> {
+  +rawId: string
+  +csrfToken: string
+}
+class SessionCookieWriter {
+  +sessionCookieName: string = "__Host-<TO SUPPLY>"
+  +csrfCookieName: string = "__Host-<TO SUPPLY>"
+  +write(response: NextResponse, issued: IssuedSession): void
+  +clear(response: NextResponse): void
+}
+class CsrfMiddleware {
+  +stateChangingMethods: string[] = [POST, PUT, PATCH, DELETE]
+  +allowedOrigins: string[]
+  +handle(request: NextRequest, next: Handler): Promise<NextResponse>
+}
+class SessionRepository {
+  +insert(session: Session): Promise<void>
+  +findByHash(idHash: string): Promise<Session?>
+  +markRevoked(id: SessionId): Promise<void>
+}
+class SignInAction {
+  +execute(email: string, password: string, context: ClientContext): Promise<SignInResult>
+}
+class ChangeRolesAction {
+  +execute(actor: UserId, target: UserId, roles: Role[]): Promise<void>
+}
+class XsrfConfiguration <<Angular provider>> {
+  +cookieName: string = "__Host-<TO SUPPLY>"
+  +headerName: string = "X-CSRF-Token"
+}
+XsrfConfiguration ..> CsrfMiddleware : sends header checked by
+SessionService --> SessionRepository : uses
+SessionService ..> IssuedSession : returns
+SessionService ..> SessionCookieWriter : uses
+SessionRepository "1" --> "*" Session : stores
+SignInAction ..> SessionService : create / rotate
+ChangeRolesAction ..> SessionService : rotate
+CsrfMiddleware ..> SessionService : resolve token
+@enduml

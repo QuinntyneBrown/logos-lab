@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Build a large export in the background
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (Amazon SQS)" as queue
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AnalyticsExportJob" as job
+  participant "AnalyticsViewQuery" as query
+  participant "CsvWriter" as csv
+  participant "NotificationService\nEmailService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Amazon S3 exports" as s3
+end box
+queue -> job : Deliver AnalyticsExportJob(exportId)
+job -> db : Claim export: Queued to Building
+alt already Ready
+  job --> queue : Acknowledge (idempotent)
+else claimed
+  job -> query : rows(requester, stored request)
+  query -> db : Same query and suppressions as the view
+  loop streamed rows
+    job -> csv : row(cells) with formula escaping (L2-103)
+    job -> s3 : Multipart upload part to key exports/{exportId}.csv
+  end
+  job -> db : Mark Ready; expiresAt = readyAt + 24 hours (L2-103)
+  job -> notify : notify(requester, "Your export is ready", download link)
+  notify -> db : In-app notification
+  notify -> queue : Enqueue email with the download link
+  job --> queue : Acknowledge
+end
+alt failure
+  queue -> job : Redeliver with backoff, up to 5 times, then dead-letter (L2-140)
+end
+@enduml

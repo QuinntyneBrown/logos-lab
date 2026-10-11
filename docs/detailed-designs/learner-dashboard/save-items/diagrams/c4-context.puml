@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Save items
+
+Person(member, "Member", "Signed-in member")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, ll, "Saves content and reviews saved items using")
+@enduml

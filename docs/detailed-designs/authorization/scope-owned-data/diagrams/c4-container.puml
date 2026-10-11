@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Scope owned data
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System_Boundary(lab, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "/api/v1/me/... and resource endpoints", "JSON/HTTPS")
+Rel(api, db, "Owner-scoped queries", "SQL")
+@enduml

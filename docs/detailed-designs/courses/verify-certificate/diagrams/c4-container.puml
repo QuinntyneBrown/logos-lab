@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Verify a certificate
+
+Person(anyone, "Anyone", "Checks a certificate")
+Person(admin, "Administrator", "Logos Lab staff who manage users and certificates")
+System_Boundary(logos, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront with AWS WAF", "Serves the web application and public responses")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerDb(cache, "Cache", "Amazon ElastiCache for Redis", "Rate-limit counters")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Carries job messages from the API to the Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+System_Ext(ses, "Amazon SES", "Sends transactional email")
+
+Rel(anyone, cdn, "Opens /certificates/{code}", "HTTPS")
+Rel(cdn, web, "Forwards, no caching", "HTTPS")
+Rel(admin, web, "Uses admin user page", "HTTPS")
+Rel(web, api, "GET verification, POST revocation", "JSON/HTTPS")
+Rel(api, cache, "Counts requests per IP", "Redis")
+Rel(api, db, "Reads and updates certificates", "SQL")
+Rel(api, queue, "Enqueues CertificateRevocationNotifyJob", "SQS")
+Rel(worker, queue, "Receives jobs from", "SQS")
+Rel(worker, ses, "Sends email", "AWS SDK")
+@enduml

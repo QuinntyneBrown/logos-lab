@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Edit offline and reconnect
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioEditorPage" as page
+  participant "AutosaveService" as autosave
+  participant "DraftOutbox (IndexedDB)" as outbox
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items/{id} route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveDraftAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+page -> autosave : Browser offline event
+autosave -> page : status Offline
+page --> actor : Offline notice: changes are kept on this device
+loop Each change while offline
+  actor -> page : Keep editing
+  page -> autosave : change(patch)
+  autosave -> outbox : put(itemId, merged patch) (L2-084)
+end
+page -> autosave : Browser online event
+autosave -> outbox : drain(itemId)
+outbox --> autosave : Pending patch
+autosave -> client : saveDraft(id, patch, rowVersion)
+client -> route : PATCH /api/v1/studio/items/{id} with If-Match
+route -> action : execute(user, id, patch, rowVersion)
+action -> db : Conditional update
+alt Saved
+  db --> action : 1 row
+  action --> route : New rowVersion
+  route --> client : 200 JSON
+  client --> autosave : Saved
+  autosave -> outbox : clear(itemId)
+  autosave -> page : status Saved
+  page --> actor : Success notice: connection back and changes saved
+else Stale row version
+  route --> client : 409 with ConflictView
+  client --> autosave : Conflict
+  autosave -> page : Open ConflictDialog (see co-edit sequence)
+end
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Ensure accessible pages
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(shell, "AppShell", "Angular component", "header, nav, main, footer landmarks")
+  Component(title, "LogosLabTitleStrategy", "TitleStrategy", "{Page} - Logos Lab")
+  Component(ann, "Announcer", "Service over CDK LiveAnnouncer", "Polite live region")
+  Component(field, "ll-form-field, ll-form-layout", "Shared components", "Labels, errors, error summary")
+  Component(watch, "SessionExpiryWatcher", "Service", "Opens dialog at 2 minutes")
+  Component(dlg, "SessionTimeoutDialog", "CDK dialog", "Countdown and extend")
+  Component(player, "ll-player", "Shared component", "Tessera players, scoped shortcuts")
+  Component(stmt, "AccessibilityStatementPage", "Page at /accessibility", "Statement and contact")
+  Component(sapi, "HttpSessionApi", "SessionApi implementation", "Extends a session")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "POST /api/v1/session/extend", "Route handler", "Accounts design")
+  Component(act, "ExtendSessionAction", "Action", "Extends the current session")
+}
+
+Rel(shell, title, "Titles routes through")
+Rel(field, ann, "Announces error counts through")
+Rel(watch, dlg, "Opens")
+Rel(dlg, sapi, "Extends through")
+Rel(sapi, route, "POST", "JSON/HTTPS")
+Rel(route, act, "Calls")
+Rel(shell, stmt, "Routes /accessibility to")
+Rel(shell, player, "Hosts")
+@enduml

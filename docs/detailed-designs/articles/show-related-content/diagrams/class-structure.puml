@@ -1,0 +1,68 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Show related content
+
+package "Logos Lab Web" {
+  class ArticlePage {
+    +related: Signal<ContentSummary[]>
+  }
+  class ItemPickerDialog {
+    +selected: ContentSummary[]
+    +confirm(): void
+  }
+  interface RelatedContentApi {
+    +getRelated(contentId: UUID): Observable<ContentSummary[]>
+    +setPins(contentId: UUID, pinnedIds: UUID[]): Observable<void>
+  }
+  class HttpRelatedContentApi
+  class RELATED_CONTENT_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class GetRelatedContentAction {
+    +execute(contentId: UUID): Promise<ContentSummary[]>
+  }
+  class SetRelatedPinsAction {
+    +execute(editorId: UUID, contentId: UUID, pinnedIds: UUID[]): Promise<void>
+  }
+  class RelatedContentService {
+    +limit: number = 4
+    +related(contentId: UUID, now: Date): Promise<ContentSummary[]>
+  }
+  class RelatedPinRepository {
+    +pinsFor(contentId: UUID): Promise<RelatedPin[]>
+    +replace(contentId: UUID, pins: RelatedPin[]): Promise<void>
+  }
+  class ContentRepository {
+    +candidatesBySharedTopics(contentId: UUID, now: Date): Promise<RelatedCandidate[]>
+  }
+  class RelatedPin {
+    +contentId: UUID
+    +pinnedContentId: UUID
+    +position: number
+  }
+  class RelatedCandidate {
+    +contentId: UUID
+    +sharedTopicCount: number
+    +publishedAt: Date
+  }
+}
+ArticlePage ..> RelatedContentApi
+ItemPickerDialog ..> RelatedContentApi
+HttpRelatedContentApi ..|> RelatedContentApi
+RELATED_CONTENT_API ..> RelatedContentApi : provides
+GetRelatedContentAction --> RelatedContentService
+SetRelatedPinsAction --> RelatedPinRepository
+RelatedContentService --> RelatedPinRepository
+RelatedContentService --> ContentRepository
+RelatedPinRepository ..> RelatedPin
+ContentRepository ..> RelatedCandidate
+@enduml

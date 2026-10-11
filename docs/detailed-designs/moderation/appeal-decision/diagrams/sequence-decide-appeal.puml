@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Decide an appeal
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AppealReviewPage" as page
+  participant "AppealDecisionDialog" as dialog
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "moderation/appeals route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DecideAppealAction" as action
+  participant "ModerationActionService" as actions
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> page : Open /moderation/appeals/{id}
+page -> client : getAppeal(id)
+client -> route : GET /api/v1/moderation/appeals/{id}
+route --> client : Appeal, content and original action
+client --> page : Appeal
+alt Caller took the original action or is not the assignee
+  page --> actor : Forbidden state naming the assignee (L2-090)
+else Assigned moderator
+  actor -> page : Decide appeal
+  page -> dialog : Open
+  actor -> dialog : Choose Uphold or Don't uphold; write the note
+  dialog -> dialog : Require a decision and a note
+  dialog -> client : decideAppeal(id, decision, note)
+  client -> route : POST /api/v1/moderation/appeals/{id}/decision
+  route -> action : execute(currentUser, id, decision)
+  action -> db : BEGIN; load appeal and action FOR UPDATE; check assignee
+  alt Upheld
+    action -> actions : reverse(original action) (L2-090)
+    actions -> db : Restore content or lift suspension or ban; set reversed_at
+  else Not upheld
+    action -> db : Keep the original action
+  end
+  action -> db : Update appeal status and decision note
+  action -> db : INSERT audit entry for the decision (L2-089)
+  action -> notify : notifyAppealDecision(appeal)
+  notify -> db : INSERT in-app notice for the member
+  notify -> sqs : Enqueue EmailSendJob with outcome and note
+  action -> db : COMMIT
+  action --> route : Decided
+  route --> client : 200 JSON
+  client --> dialog : Recorded
+  dialog --> actor : Success: outcome applied and member told
+end
+@enduml

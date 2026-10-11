@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Follow an expert
+
+Person(learner, "Learner", "Signed-in member")
+Person(expert, "Expert", "Invited subject-matter expert")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends transactional email")
+Rel(learner, logos, "Follows and unfollows experts in", "HTTPS")
+Rel(expert, logos, "Publishes content and events in", "HTTPS")
+Rel(logos, ses, "Sends follower email via", "SES API")
+Rel(ses, learner, "Delivers notification email to", "Email")
+@enduml

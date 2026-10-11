@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Archive content
+
+package "Logos Lab Web" {
+  class ArchiveContentDialog {
+    +usedBy: CourseRef[]
+    +confirmInUse: boolean
+    +archive(): Promise<void>
+  }
+  class RestoreArchivedDialog {
+    +restore(): Promise<void>
+  }
+  class GonePage {
+    +title: string
+    +archivedOn: Date
+    +related: ContentCardView[]
+    +ngOnInit(): void
+  }
+  interface StudioApi {
+    +archive(id: string, confirmInUse: boolean, rowVersion: number): Observable<StudioItem>
+    +restore(id: string, rowVersion: number): Observable<StudioItem>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class ArchiveContentAction {
+    +execute(editor: CurrentUser, id: uuid, confirmInUse: boolean, rowVersion: int): ContentItem
+  }
+  class RestoreArchivedContentAction {
+    +execute(editor: CurrentUser, id: uuid, rowVersion: int): ContentItem
+  }
+  class GetPublicContentAction {
+    +execute(viewer: Viewer, type: ContentType, slug: string): PublicContentResult
+  }
+  class RelatedContentService {
+    +relatedTo(item: ContentItem, limit: int): ContentCardView[]
+  }
+  class SearchIndexService {
+    +remove(itemId: uuid): void
+    +refresh(item: ContentItem, version: ContentVersion): void
+  }
+  class ContentItem {
+    +id: uuid
+    +type: ContentType
+    +slug: string
+    +state: WorkflowState
+    +archivedAt: timestamptz
+  }
+  class GoneResponse <<value object>> {
+    +status: 410
+    +title: string
+    +archivedAt: timestamptz
+    +related: ContentCardView[]
+  }
+  class Enrolment {
+    +userId: uuid
+    +courseId: uuid
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+ArchiveContentDialog ..> STUDIO_API : injects
+RestoreArchivedDialog ..> STUDIO_API : injects
+ArchiveContentAction ..> SearchIndexService : uses
+RestoreArchivedContentAction ..> SearchIndexService : uses
+ArchiveContentAction --> ContentItem : archives
+RestoreArchivedContentAction --> ContentItem : restores
+GetPublicContentAction ..> RelatedContentService : uses
+GetPublicContentAction ..> Enrolment : checks
+GetPublicContentAction ..> GoneResponse : returns
+GonePage ..> GoneResponse : renders
+@enduml

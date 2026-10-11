@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — Resumable video upload
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Author" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioVideoMediaPage" as page
+  participant "VideoUploader" as uploader
+  participant "StudioVideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "uploads route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateVideoUploadAction" as action
+  participant "VideoUploadService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Media storage (S3)" as s3
+end box
+actor -> page : Drop or choose a video file
+page -> uploader : start(videoId, file)
+uploader -> uploader : Check type and size in the browser
+uploader -> client : createUpload(name, type, size)
+client -> route : POST /api/v1/studio/videos/{videoId}/uploads
+route -> route : Authenticate, CSRF, validate body
+route -> action : execute(userId, videoId, request)
+action -> db : Load video owned by user or editor (L2-017)
+db --> action : Video
+action -> svc : Apply L2-039 type and 10 GB rules
+alt Unsupported type or over 10 GB
+  svc --> action : Refused with rules
+  action --> route : Validation failure
+  route --> client : 422 problem response
+  client --> page : Rules message
+  page --> actor : Show invalid state, nothing transferred
+else Accepted
+  svc --> action : Valid
+  action -> s3 : CreateMultipartUpload (generated key, L2-108)
+  s3 --> action : s3UploadId
+  action -> db : Insert VideoUpload, set Uploading
+  action --> route : UploadSession with 50 MB part URLs
+  route --> client : 201 UploadSession
+  client --> uploader : UploadSession
+  loop Each 50 MB part
+    uploader -> s3 : PUT part to presigned URL
+    s3 --> uploader : ETag
+    uploader --> page : Progress, parts done, time left
+  end
+  opt Connection drops
+    page --> actor : Show interrupted state, Resume upload
+    actor -> page : Resume upload
+    uploader -> client : getUpload(videoId, uploadId)
+    client -> route : GET /api/v1/studio/videos/{videoId}/uploads/{uploadId}
+    route --> client : Completed parts from ListParts
+    uploader -> s3 : PUT next missing part onward
+  end
+  uploader -> client : completeUpload(parts)
+  client -> route : POST .../uploads/{uploadId}/complete
+  route --> client : 202 VideoMedia (Scanning)
+  client --> page : Media state
+  page --> actor : Show processing state
+end
+@enduml

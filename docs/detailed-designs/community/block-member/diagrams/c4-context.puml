@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Block a member
+
+Person(member, "Member", "Blocks and unblocks other members")
+Person(other, "Blocked member", "Is not told about the block")
+Person(staff, "Staff", "Sends moderation and account messages")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, ll, "Blocks and unblocks using")
+Rel(other, ll, "Comments and messages using")
+Rel(staff, ll, "Sends staff notices using")
+@enduml

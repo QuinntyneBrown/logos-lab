@@ -1,0 +1,114 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Appeal a moderation decision
+
+package "Logos Lab Web" {
+  class AccountNoticePage {
+    +notice: Signal<AccountNotice>
+    +explanation: string
+    +submitAppeal(): Promise<void>
+  }
+  class AppealsPage {
+    +filter: AppealFilter
+    +rows: Signal<AppealRow[]>
+  }
+  class AppealReviewPage {
+    +appeal: Signal<AppealDetail>
+    +openDecide(): void
+  }
+  class AppealDecisionDialog {
+    +decision: AppealStatus
+    +note: string
+    +record(): Promise<void>
+  }
+  interface AccountNoticesApi {
+    +getNotice(id: string, token: string): Observable<AccountNotice>
+    +submitAppeal(id: string, token: string, explanation: string): Observable<void>
+  }
+  interface ModerationApi {
+    +listAppeals(filter: AppealFilter): Observable<AppealRow[]>
+    +getAppeal(id: string): Observable<AppealDetail>
+    +decideAppeal(id: string, decision: AppealDecision): Observable<void>
+  }
+  class HttpAccountNoticesApi
+  class HttpModerationApi
+  class ACCOUNT_NOTICES_API <<InjectionToken>>
+  class MODERATION_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class SubmitAppealAction {
+    +execute(noticeId: uuid, token: string, explanation: string): Appeal
+  }
+  class DecideAppealAction {
+    +execute(user: CurrentUser, appealId: uuid, decision: AppealDecision): void
+  }
+  class AppealService {
+    +assertCanAppeal(notice: MemberNotice, now: timestamptz): void
+    +chooseAssignee(action: ModerationAction): uuid
+  }
+  class ModerationActionService {
+    +reverse(action: ModerationAction): void
+  }
+  class NotificationService {
+    +notifyAppealDecision(appeal: Appeal): void
+  }
+  class Appeal {
+    +id: uuid
+    +actionId: uuid <<unique>>
+    +memberId: uuid
+    +explanation: string <<max 2,000>>
+    +assignedModeratorId: uuid
+    +status: AppealStatus
+    +decisionNote: string
+    +submittedAt: timestamptz
+    +decidedAt: timestamptz
+  }
+  class MemberNotice {
+    +id: uuid
+    +actionId: uuid
+    +tokenHash: string
+    +appealDeadline: timestamptz
+  }
+  class ModerationAction {
+    +id: uuid
+    +moderatorId: uuid
+    +type: ModerationActionType
+    +takenAt: timestamptz
+    +reversedAt: timestamptz
+  }
+  enum AppealStatus {
+    Submitted
+    Upheld
+    NotUpheld
+  }
+}
+
+HttpAccountNoticesApi ..|> AccountNoticesApi
+HttpModerationApi ..|> ModerationApi
+ACCOUNT_NOTICES_API ..> AccountNoticesApi : provides
+MODERATION_API ..> ModerationApi : provides
+AccountNoticePage ..> ACCOUNT_NOTICES_API : injects
+AppealsPage ..> MODERATION_API : injects
+AppealReviewPage ..> MODERATION_API : injects
+AppealDecisionDialog ..> MODERATION_API : injects
+AppealReviewPage ..> AppealDecisionDialog : opens
+SubmitAppealAction ..> AppealService : uses
+DecideAppealAction ..> AppealService : uses
+DecideAppealAction ..> ModerationActionService : uses
+DecideAppealAction ..> NotificationService : uses
+ModerationAction "1" --> "0..1" Appeal
+ModerationAction "1" --> "0..1" MemberNotice
+Appeal --> AppealStatus
+@enduml

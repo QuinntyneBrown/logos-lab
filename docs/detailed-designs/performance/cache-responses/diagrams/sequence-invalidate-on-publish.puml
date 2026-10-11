@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Invalidate cached pages after publish
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ReviewItemPage" as page
+  participant "HttpReviewApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Publish route handler" as route
+  participant "CachePolicyMiddleware" as mw
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishContentAction" as act
+  participant "ContentCacheInvalidator" as inv
+  participant "CdnInvalidateJob" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as sqs
+  participant "CloudFront API" as cf
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> page : Publish, revise or archive
+page -> client : Send decision
+client -> route : POST
+route -> act : execute(contentId, editorId)
+act -> db : Begin transaction; change content state
+act -> inv : recordChange(request)
+inv -> db : Insert outbox row for CdnInvalidateJob
+act -> db : Commit
+db --> act : Committed
+act --> route : Result
+route -> mw : Apply response policy
+mw --> client : 200 with Cache-Control: private, no-store (L2-124 AC3)
+client --> page : Published
+db -> sqs : Outbox relay enqueues message
+sqs -> job : Deliver in Logos Lab Worker
+job -> job : affectedPaths: content page and listing pages (set <TO SUPPLY>)
+job -> cf : CreateInvalidation(paths)
+alt Invalidation accepted
+  cf --> job : Invalidation id
+  job -> cw : CdnInvalidationLatency, alarm above 60 s (L2-124 AC2)
+else CloudFront error
+  cf --> job : Error
+  job -> sqs : Retry with backoff (idempotent)
+end
+@enduml

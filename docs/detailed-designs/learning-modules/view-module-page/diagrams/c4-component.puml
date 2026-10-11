@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a module page
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "ModulePage", "Angular SSR page", "Overview, status and action")
+  Component(cards, "ll-content-card / ll-description-list", "Shared components", "Courses and facts")
+  Component(contract, "ModulesApi / MODULES_API", "API contract and token", "getModule, getMyModuleState")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "modules/[slug] route handlers", "Next.js route handlers", "GET overview (anonymous) and GET /me")
+  Component(a1, "GetModulePageAction", "Action", "Builds ModuleOverview")
+  Component(a2, "GetMyModuleStateAction", "Action", "Builds MyModuleState")
+  Component(cat, "ModuleCatalogueService", "Domain service", "Published modules only")
+  Component(best, "BestResultSelector", "Domain service", "Best score")
+  Component(repo, "ModuleRepository / CourseRepository / ModuleAttemptRepository", "Repositories", "SQL access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+
+Rel(page, cards, "Renders with")
+Rel(page, contract, "Depends on")
+Rel(contract, route, "Calls through HttpModulesApi", "JSON/HTTPS")
+Rel(route, a1, "Invokes")
+Rel(route, a2, "Invokes")
+Rel(a1, cat, "Checks visibility with")
+Rel(a1, repo, "Reads module and courses through")
+Rel(a2, repo, "Reads attempts through")
+Rel(a2, best, "Selects best with")
+Rel(repo, db, "Queries", "SQL")
+@enduml

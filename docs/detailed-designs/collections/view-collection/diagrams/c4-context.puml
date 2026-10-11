@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View a collection
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+Person(expert, "Expert", "Invited subject-matter expert")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Views collections in", "HTTPS")
+Rel(learner, logos, "Views collections and progress in", "HTTPS")
+Rel(expert, logos, "Curates collections in", "HTTPS")
+@enduml

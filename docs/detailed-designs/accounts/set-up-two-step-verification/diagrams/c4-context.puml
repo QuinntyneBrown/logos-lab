@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Set up two-step verification
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(authapp, "Authenticator app", "Member's TOTP app (RFC 6238)")
+System_Ext(kms, "AWS KMS", "Encrypts secrets at rest")
+System_Ext(ses, "Amazon SES", "Sends account email")
+
+Rel(member, lab, "Turns on, uses and turns off two-step verification", "HTTPS")
+Rel(member, authapp, "Scans QR code, reads codes from")
+Rel(lab, kms, "Encrypts and decrypts TOTP secrets with")
+Rel(lab, ses, "Sends recovery-code and change notices via")
+@enduml

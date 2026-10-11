@@ -1,0 +1,135 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Send email notifications
+package "Logos Lab Web" {
+  class AccountEmailBanner {
+    -status: EmailStatus
+    +ngOnInit(): void
+  }
+  interface EmailStatusApi {
+    +get(): Observable<EmailStatus>
+  }
+  class HttpEmailStatusApi
+  class "EMAIL_STATUS_API" as Token <<InjectionToken>>
+  class EmailStatus {
+    +address: string
+    +deliverability: EmailDeliverability
+    +since: string
+  }
+}
+package "Logos Lab API" {
+  class EmailService {
+    +queueTransactional(to: uuid, template: EmailTemplate, data: object): EmailMessage
+    +queueActivity(to: uuid, category: NotificationCategory, data: object): EmailMessage
+  }
+  class EmailSuppressionService {
+    +isSuppressed(address: string): boolean
+    +suppress(address: string, reason: SuppressionReason): void
+    +release(address: string): void
+  }
+  class RecordEmailFeedbackAction {
+    +execute(notice: SesFeedbackNotice): void
+  }
+  class GetEmailStatusAction {
+    +execute(userId: uuid): EmailStatus
+  }
+  class EmailMessageRepository {
+    +insert(m: EmailMessage): void
+    +claim(id: uuid): EmailMessage
+    +markSent(id: uuid, providerId: string): void
+    +countActivitySince(userId: uuid, since: Date): number
+  }
+  class EmailSendJob {
+    +run(messageId: uuid): void
+  }
+  class EmailDigestJob {
+    +run(userId: uuid, windowEnd: Date): void
+  }
+  class EmailTemplateRenderer {
+    +render(template: EmailTemplate, data: object): RenderedEmail
+  }
+  class RenderedEmail {
+    +subject: string
+    +html: string
+    +text: string
+    +headers: Map<string, string>
+  }
+  class EmailMessage {
+    +id: uuid
+    +idempotencyKey: string
+    +recipientId: uuid
+    +address: string
+    +kind: EmailKind
+    +template: EmailTemplate
+    +status: EmailStatusValue
+    +attempts: number
+    +providerMessageId: string
+    +createdAt: timestamptz
+    +sentAt: timestamptz
+  }
+  class EmailSuppression {
+    +address: string
+    +reason: SuppressionReason
+    +createdAt: timestamptz
+  }
+  class EmailDigestItem {
+    +id: uuid
+    +recipientId: uuid
+    +notificationId: uuid
+    +heldAt: timestamptz
+    +sentInDigestId: uuid
+  }
+  enum EmailKind {
+    Transactional
+    Activity
+    Marketing
+  }
+  enum EmailStatusValue {
+    Queued
+    Sending
+    Sent
+    Skipped
+    Failed
+  }
+  enum SuppressionReason {
+    PermanentBounce
+    Complaint
+  }
+  enum EmailDeliverability {
+    Deliverable
+    Bouncing
+  }
+}
+HttpEmailStatusApi ..|> EmailStatusApi
+Token ..> EmailStatusApi : provides
+AccountEmailBanner ..> EmailStatusApi : depends on
+EmailStatusApi ..> EmailStatus : returns
+EmailStatus --> EmailDeliverability
+GetEmailStatusAction --> EmailSuppressionService
+RecordEmailFeedbackAction --> EmailSuppressionService
+EmailService --> EmailSuppressionService
+EmailService --> EmailMessageRepository
+EmailService ..> EmailDigestItem : holds activity beyond 5 per hour
+EmailSendJob --> EmailMessageRepository
+EmailSendJob --> EmailTemplateRenderer
+EmailSendJob --> EmailSuppressionService
+EmailDigestJob --> EmailTemplateRenderer
+EmailDigestJob ..> EmailDigestItem : sends
+EmailTemplateRenderer ..> RenderedEmail : creates
+EmailMessageRepository ..> EmailMessage : persists
+EmailMessage --> EmailKind
+EmailMessage --> EmailStatusValue
+EmailSuppression --> SuppressionReason
+EmailSuppressionService ..> EmailSuppression : persists
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Take a moderation action
+
+Person(moderator, "Moderator", "Acts on reports and content")
+Person(member, "Member", "Author of the moderated content")
+Person(editor, "Editor", "Reviews hidden published content")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends email")
+
+Rel(moderator, logoslab, "Takes actions in", "HTTPS")
+Rel(logoslab, ses, "Sends account notices through", "HTTPS API")
+Rel(ses, member, "Delivers notice email to")
+Rel(member, logoslab, "Reads the account notice in", "HTTPS")
+Rel(logoslab, editor, "Notifies about hidden published content")
+@enduml

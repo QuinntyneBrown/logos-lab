@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — End and archive a cohort
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CohortSpacePage" as page
+  participant "CohortsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Cohorts route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CohortArchiveJob" as job
+  participant "CohortService" as service
+  participant "GetCohortSpaceAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+== Scheduled run (schedule to be supplied) ==
+job -> db : Read cohorts with status Active or ReadOnly
+db --> job : Cohorts
+loop each cohort
+  job -> service : statusOn(cohort, today)
+  service --> job : ReadOnly after endsOn, Archived after endsOn + 90 days (L2-063)
+  job -> db : Update status when it changed
+end
+== Member opens the space ==
+actor -> page : Open /cohorts/{id}
+page -> client : getSpace(id)
+client -> route : GET /api/v1/cohorts/{id}
+route -> action : execute(userId, id)
+action -> db : Load cohort and membership
+alt ReadOnly
+  action --> route : Space with readOnly = true
+  route --> client : 200 CohortSpace
+  page --> actor : Show read-only state, composer hidden
+else Archived
+  route --> client : 404 problem
+  page --> actor : Not found page
+end
+@enduml

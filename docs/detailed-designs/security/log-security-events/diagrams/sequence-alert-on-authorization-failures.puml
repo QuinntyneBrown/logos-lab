@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Alert on bursts of authorization failures
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Client" as actor
+actor "On-call engineer" as oncall
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthorizationPolicyMiddleware" as authz
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SecurityEventLogger" as logger
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CloudWatch log group security" as cw
+  participant "Contributor Insights rule" as ci
+  participant "CloudWatch alarm" as alarm
+  participant "Amazon SNS" as sns
+  participant "On-call channel" as channel
+end box
+loop Each forbidden request
+  actor -> authz : Request a resource without permission
+  authz -> logger : record(AuthorizationFailed, ctx, accountId)
+  logger -> cw : JSON line
+  authz --> actor : 403
+end
+cw -> ci : Count AuthorizationFailed by accountId and by ipAddress per 5 minutes
+ci -> alarm : Top contributor count
+alt More than 100 from one account or IP address in 5 minutes (L2-111)
+  alarm -> sns : ALARM
+  sns -> channel : Alert with account or IP address
+  channel -> oncall : Notify within 5 minutes
+end
+@enduml

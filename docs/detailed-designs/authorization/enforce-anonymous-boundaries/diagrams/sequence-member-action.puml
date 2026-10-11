@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Member action by a visitor
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseOverviewPage" as page
+  participant "MemberActionGate" as gate
+  participant "SignInRequiredDialog" as dialog
+  participant "SignInPage" as signin
+  participant "PendingActionResumer" as resumer
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthenticationMiddleware" as authn
+  participant "Enrol route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EnrolInCourseAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open course overview (no sign-in prompt, L2-015)
+actor -> page : Press "Enrol"
+page -> gate : run(Enrol course, perform)
+gate -> gate : No session
+gate -> dialog : Open with PendingAction(Enrol, courseId, returnUrl)
+dialog --> actor : "Sign in to enrol" with Sign in and Create account
+actor -> dialog : Press "Sign in"
+dialog -> signin : Navigate /sign-in?returnUrl=...&intent=enrol
+signin --> actor : Context state names the action
+actor -> signin : Sign in (accounts/sign-in)
+signin -> resumer : resume(intent)
+resumer -> page : Navigate to returnUrl and replay Enrol
+page -> gate : run(Enrol course, perform)
+gate -> authn : POST enrol with session cookie
+authn -> route : Authenticated request
+route -> action : execute
+action -> db : Create enrolment
+route --> page : 201
+page --> actor : Enrolled, same course page (L2-015)
+@enduml

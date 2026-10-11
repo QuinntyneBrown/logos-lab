@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Record a failed sign-in as a security event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SignInPage" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/auth/sign-in" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SignInAction" as action
+  participant "SecurityEventLogger" as logger
+  participant "LogRedactor" as redact
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CloudWatch log group security" as cw
+  database "Security log archive (S3 Object Lock)" as archive
+end box
+actor -> page : Submit email and password
+page -> route : POST with X-Correlation-Id
+route -> action : execute(email, password, ctx)
+action -> action : Credentials do not match
+action -> logger : record(SignInFailed, ctx, accountId if known)
+logger -> logger : Add timestamp, IP address, user agent, correlation ID (L2-111)
+logger -> redact : redact(entry)
+redact --> logger : Entry without password, tokens or codes (L2-111)
+logger -> cw : Write JSON line
+cw -> archive : Export within the delivery interval; Object Lock retains 1 year (L2-111)
+action --> route : Generic failure
+route --> page : 401 generic error
+page --> actor : "Email or password is incorrect" (copy <TO SUPPLY>)
+@enduml

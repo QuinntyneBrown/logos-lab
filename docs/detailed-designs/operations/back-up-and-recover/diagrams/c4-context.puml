@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Back up and recover
+
+Person(ops, "Operations engineer", "Runs the quarterly restore drill")
+System(ll, "Logos Lab", "Production in AWS Canada (Central)")
+System_Ext(central, "AWS backup storage, Canada (Central)", "RDS snapshots and transaction logs")
+System_Ext(west, "AWS Canada West", "Replica buckets")
+System_Ext(kms, "AWS KMS", "Encryption keys")
+System(drill, "Isolated drill environment", "Restored copy of Logos Lab")
+
+Rel(ll, central, "Backs up database to")
+Rel(ll, west, "Replicates objects to", "S3 CRR")
+Rel(ll, kms, "Encrypts backups with")
+Rel(ops, drill, "Restores and verifies")
+Rel(drill, central, "Restores database from")
+Rel(drill, west, "Reads objects from")
+@enduml

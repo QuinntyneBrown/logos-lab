@@ -1,0 +1,159 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage the topic taxonomy
+package "Logos Lab Web" {
+  class AdminTopicsPage {
+    -topics: AdminTopicRow[]
+    +openCreate(): void
+    +openEdit(t: AdminTopicRow): void
+    +openMerge(t: AdminTopicRow): void
+    +openDelete(t: AdminTopicRow): void
+  }
+  class TopicEditDialog {
+    -form: FormGroup
+    +save(): void
+  }
+  class MergeTopicDialog {
+    -targetId: FormControl<string>
+    +merge(): void
+  }
+  class DeleteTopicDialog {
+    -inUseCount: number
+    +delete(): void
+    +mergeInstead(): void
+  }
+  class TopicPage {
+    +resolve(slug: string): void
+  }
+  interface TopicsApi {
+    +listAdmin(): Observable<AdminTopicRow[]>
+    +create(input: TopicInput): Observable<AdminTopicRow>
+    +update(id: string, input: TopicInput): Observable<AdminTopicRow>
+    +merge(sourceId: string, targetId: string): Observable<void>
+    +delete(id: string): Observable<void>
+    +getBySlug(slug: string): Observable<TopicLookup>
+  }
+  class HttpTopicsApi
+  class "TOPICS_API" as Token <<InjectionToken>>
+  class TopicInput {
+    +name: string
+    +description: string
+  }
+  class AdminTopicRow {
+    +id: string
+    +name: string
+    +slug: string
+    +publishedItemCount: number
+  }
+  class TopicLookup {
+    +topic: TopicView
+    +redirectToSlug: string
+  }
+}
+package "Logos Lab API" {
+  class ListAdminTopicsAction {
+    +execute(actor: Actor): AdminTopicRow[]
+  }
+  class CreateTopicAction {
+    +execute(actor: Actor, input: TopicInput): Topic
+  }
+  class UpdateTopicAction {
+    +execute(actor: Actor, id: uuid, input: TopicInput): Topic
+  }
+  class MergeTopicAction {
+    +execute(actor: Actor, sourceId: uuid, targetId: uuid): void
+  }
+  class DeleteTopicAction {
+    +execute(actor: Actor, id: uuid): void
+  }
+  class GetTopicBySlugAction {
+    +execute(slug: string): TopicLookup
+  }
+  class TopicService {
+    +validate(input: TopicInput, excludeId: uuid): void
+    +slugFor(name: string): string
+    +rename(topic: Topic, input: TopicInput): void
+    +merge(source: Topic, target: Topic): void
+    +assertDeletable(topic: Topic): void
+  }
+  class TopicRepository {
+    +findById(id: uuid): Topic
+    +findBySlug(slug: string): Topic
+    +existsByName(name: string, excludeId: uuid): boolean
+    +insert(t: Topic): void
+    +update(t: Topic): void
+    +delete(id: uuid): void
+  }
+  class ContentTopicRepository {
+    +countByTopic(topicId: uuid): number
+    +retag(sourceId: uuid, targetId: uuid): number
+  }
+  class TopicRedirectRepository {
+    +add(oldSlug: string, topicId: uuid): void
+    +repoint(fromTopicId: uuid, toTopicId: uuid): void
+    +find(oldSlug: string): TopicRedirect
+  }
+  class AuditLogService {
+    +record(entry: AuditEntryInput): void
+  }
+  class Topic {
+    +id: uuid
+    +name: string
+    +slug: string
+    +description: string
+    +createdAt: timestamptz
+    +updatedAt: timestamptz
+  }
+  class TopicRedirect {
+    +oldSlug: string
+    +topicId: uuid
+    +createdAt: timestamptz
+  }
+  class ContentTopic {
+    +contentId: uuid
+    +topicId: uuid
+  }
+}
+HttpTopicsApi ..|> TopicsApi
+Token ..> TopicsApi : provides
+AdminTopicsPage ..> TopicsApi : depends on
+TopicEditDialog ..> TopicsApi : depends on
+MergeTopicDialog ..> TopicsApi : depends on
+DeleteTopicDialog ..> TopicsApi : depends on
+TopicPage ..> TopicsApi : depends on
+AdminTopicsPage ..> TopicEditDialog : opens
+AdminTopicsPage ..> MergeTopicDialog : opens
+AdminTopicsPage ..> DeleteTopicDialog : opens
+DeleteTopicDialog ..> MergeTopicDialog : offers
+TopicEditDialog --> TopicInput
+ListAdminTopicsAction --> TopicRepository
+CreateTopicAction --> TopicService
+UpdateTopicAction --> TopicService
+MergeTopicAction --> TopicService
+DeleteTopicAction --> TopicService
+GetTopicBySlugAction --> TopicRepository
+GetTopicBySlugAction --> TopicRedirectRepository
+CreateTopicAction --> AuditLogService
+UpdateTopicAction --> AuditLogService
+MergeTopicAction --> AuditLogService
+DeleteTopicAction --> AuditLogService
+TopicService --> TopicRepository
+TopicService --> ContentTopicRepository
+TopicService --> TopicRedirectRepository
+TopicRepository ..> Topic : persists
+TopicRedirectRepository ..> TopicRedirect : persists
+ContentTopicRepository ..> ContentTopic : persists
+Topic "1" --> "*" TopicRedirect : old slugs
+Topic "1" --> "*" ContentTopic : tags
+@enduml

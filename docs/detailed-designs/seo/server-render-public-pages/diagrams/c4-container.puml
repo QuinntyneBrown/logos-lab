@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Server-render public pages
+
+Person(visitor, "Visitor or member", "Browser")
+System_Ext(crawler, "Search-engine crawler", "No JavaScript")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public HTML only")
+  Container(ssr, "Logos Lab Web — SSR server", "Angular SSR on Node.js", "Renders public pages")
+  Container(spa, "Logos Lab Web — browser application", "Angular", "Hydrates server HTML")
+  Container(api, "Logos Lab API", "Next.js", "Anonymous read endpoints")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Published content")
+}
+Rel(visitor, cdn, "Requests pages", "HTTPS")
+Rel(crawler, cdn, "Requests pages", "HTTPS")
+Rel(cdn, ssr, "Forwards cache misses")
+Rel(ssr, api, "Fetches public content without cookies", "JSON/HTTPS")
+Rel(spa, api, "Fetches member data after hydration", "JSON/HTTPS")
+Rel(api, db, "Reads", "SQL")
+Rel(visitor, spa, "Runs in browser")
+@enduml

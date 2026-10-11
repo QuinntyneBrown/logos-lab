@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Export a CSV
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert, Editor or Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Analytics page" as page
+  participant "AnalyticsExportApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/analytics/exports" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ExportAnalyticsAction" as action
+  participant "AnalyticsViewQuery" as query
+  participant "CsvWriter" as csv
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (Amazon SQS)" as queue
+end box
+actor -> page : Export CSV
+page --> actor : Exporting: busy button and toast
+page -> client : export(view, filters exactly as on screen)
+client -> route : HTTPS POST with CSRF token
+route -> route : Authenticate; authorize as for the view itself
+route -> action : execute(actor, request)
+action -> query : count(actor, request)
+query -> db : Count rows with the view's filters and ownership scope
+db --> query : Row count
+alt 50,000 rows or fewer
+  action -> query : rows(actor, request)
+  query -> db : Same query as the view
+  query --> action : Rows with the view's suppressions applied (L2-102)
+  loop each row
+    action -> csv : row(cells)
+    csv -> csv : Escape cells beginning with = + - or @ (L2-103)
+  end
+  action --> route : CSV stream
+  route --> client : 200 text/csv, Content-Disposition attachment
+  page --> actor : File downloaded: exactly the data on screen (L2-103)
+else more than 50,000 rows
+  action -> db : Insert analytics_exports (Queued)
+  action -> queue : Enqueue AnalyticsExportJob(exportId)
+  action --> route : Queued
+  route --> client : 202 with export id
+  page --> actor : Toast: built in the background, link emailed, valid 24 hours
+end
+@enduml

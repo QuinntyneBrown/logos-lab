@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Restore an earlier version
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ContentHistoryPage" as page
+  participant "RestoreVersionDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "versions/{versionId}/restore route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RestoreVersionAction" as action
+  participant "RevisionService" as revisions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open Version history
+page -> client : listVersions(id)
+client -> route : GET /api/v1/studio/items/{id}/versions
+route -> db : SELECT content_versions ORDER BY number DESC
+db --> route : Versions with date and publisher
+route --> client : 200 JSON
+client --> page : Every published version with date and publisher (L2-080)
+actor -> page : Choose Restore on Version 1
+page -> dialog : Open with restoring and live versions
+actor -> dialog : Restore as a draft
+dialog -> client : restoreVersion(id, versionId)
+client -> route : POST /api/v1/studio/items/{id}/versions/{versionId}/restore
+route -> route : Authenticate and require Editor role
+route -> action : execute(editor, id, versionId)
+action -> db : Load item and version
+db --> action : Item and snapshot
+action -> revisions : fromVersion(item, version, Restore)
+revisions --> action : Draft ContentRevision
+action -> db : Insert revision, set workingRevisionId, append WorkflowTransition
+db --> action : Commit
+action --> route : Revision
+route --> client : 201 Created
+client --> dialog : Success
+dialog --> actor : New draft revision; live version unchanged until it is reviewed and published
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Launch a learning module
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+System_Ext(tesss, "Tessera scorm-player", "SCORM player library embedded in Logos Lab Web; sandboxed iframe and message bridge")
+System_Ext(cw, "Amazon CloudWatch", "Logs, metrics and alarms, including security events")
+
+Rel(learner, logos, "Launches modules in", "HTTPS")
+Rel(logos, tesss, "Embeds to run SCORM content")
+Rel(logos, cw, "Logs launch failures to", "AWS SDK")
+@enduml

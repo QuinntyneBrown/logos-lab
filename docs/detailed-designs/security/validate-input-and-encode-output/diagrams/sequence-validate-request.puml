@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Validate a request and ignore unknown properties
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsProfilePage" as page
+  participant "ProfileApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PATCH /api/v1/me/profile" as route
+  participant "RequestValidator" as val
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateProfileAction" as action
+  participant "Member" as entity
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "MemberRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> page : Save profile
+page -> client : updateProfile({displayName, bio, roles: ["Administrator"]})
+client -> route : PATCH JSON body
+route -> val : validateRequest(request, UpdateProfileSchema)
+alt Value fails type, length, format, range or enumeration (L2-105)
+  val --> route : ValidationProblem with field errors
+  route --> client : 400 problem+json; nothing processed
+  client --> page : Field errors
+  page --> actor : Show errors beside fields
+else Valid
+  val -> val : Strip unknown keys such as roles (L2-105 mass assignment)
+  val --> route : UpdateProfileRequest {displayName, bio}
+  route -> action : execute(currentUserId, dto)
+  action -> repo : findById(currentUserId)
+  repo -> db : SELECT ... WHERE id = $1 (bound parameter)
+  db --> repo : Row
+  repo --> action : Member
+  action -> entity : updateProfile(displayName, bio)
+  action -> repo : save(member)
+  repo -> db : UPDATE ... SET display_name = $1, bio = $2 WHERE id = $3
+  action --> route : Profile (roles unchanged)
+  route --> client : 200 JSON
+  client --> page : Profile
+  page --> actor : Saved; text rendered through Angular encoding
+end
+@enduml

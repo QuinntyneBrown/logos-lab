@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Log security events
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(authz, "AuthorizationPolicyMiddleware", "Next.js middleware", "Emits AuthorizationFailed on 403")
+  Component(rl, "RateLimitMiddleware", "Next.js middleware", "Emits RateLimitBlocked")
+  Component(actions, "SignInAction, ChangeRolesAction, EnableMfaAction, ChangePasswordAction, ChangeEmailAction", "Actions", "Emit account security events")
+  Component(logger, "SecurityEventLogger", "Service", "Builds SecurityEvent with correlation ID and client context")
+  Component(redact, "LogRedactor", "Function", "Drops passwords, tokens, MFA codes, reset tokens and full identifiers")
+  Component(alert, "SecurityAlertPublisher", "Service", "Publishes an immediate alert for Administrator role changes")
+}
+System_Ext(cw, "Amazon CloudWatch", "Log group security, Contributor Insights rule, alarm")
+System_Ext(sns, "Amazon SNS", "Alert topic")
+Rel(authz, logger, "Records with")
+Rel(rl, logger, "Records with")
+Rel(actions, logger, "Records with")
+Rel(actions, alert, "Alerts Administrator role changes with")
+Rel(logger, redact, "Redacts with")
+Rel(logger, cw, "Writes JSON line to", "stdout to awslogs")
+Rel(alert, sns, "Publish")
+Rel(cw, sns, "Alarm action")
+@enduml

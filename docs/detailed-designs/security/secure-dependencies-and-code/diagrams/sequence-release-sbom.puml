@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Produce and store the SBOM for a release
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Release manager" as actor
+box "Backend — Logos Lab API" #D1FADF
+  participant "Production containers" as prod
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Release workflow" as rel
+  participant "SBOM stage" as sbom
+  database "Release artifact store (S3)" as store
+end box
+actor -> rel : Start release <version>
+rel -> rel : Build Web, API and Worker images
+rel -> sbom : Generate SBOM from images and lockfiles (L2-110)
+sbom --> rel : SBOM document
+rel -> store : PUT releases/<version>/sbom
+store --> rel : Stored
+rel -> rel : Run migrations explicitly (L2-139)
+rel -> prod : Deploy images
+prod --> rel : Healthy
+rel --> actor : Release recorded with its SBOM
+@enduml

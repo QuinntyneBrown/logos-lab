@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage site settings and announcements
+Person(admin, "Administrator", "Manages announcements, policies and support details")
+Person(visitor, "Visitor or member", "Sees banners, policies and the footer")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ses, "Amazon SES", "Sends email carrying the support details")
+Rel(admin, ll, "Publishes announcements, policy versions and settings in", "HTTPS")
+Rel(visitor, ll, "Reads banners, policies and footer in", "HTTPS")
+Rel(ll, ses, "Sends email with support details via", "AWS SDK")
+@enduml

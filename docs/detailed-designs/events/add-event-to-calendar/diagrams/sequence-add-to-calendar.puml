@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Add an event to a calendar
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventPage" as page
+  participant "AddToCalendarDialog" as dialog
+  participant "EventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "calendar route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetEventCalendarFileAction" as action
+  participant "IcsCalendarService" as ics
+  participant "CalendarLinkService" as links
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Google Calendar or Outlook.com" as ext
+end box
+actor -> page : Add to calendar
+page -> dialog : Open
+dialog -> client : getCalendarLinks(eventId)
+client -> route : GET /api/v1/events/{eventId}/calendar-links
+route -> links : links(public model)
+links --> route : Google and Outlook.com URLs (no join link)
+route --> client : 200 CalendarLinks
+alt Download .ics
+  actor -> dialog : Download a calendar file
+  dialog -> route : GET /api/v1/events/{eventId}/calendar.ics
+  route -> action : execute(eventId)
+  action -> db : Load published event and icsSequence
+  action -> ics : request(model, sequence)
+  ics --> action : UID, SEQUENCE, TZID times, URL, LOCATION if in person (L2-056)
+  route --> dialog : 200 text/calendar attachment
+  dialog --> actor : "Added to your calendar", file name
+else Open a web calendar
+  actor -> dialog : Open in Google Calendar or Outlook.com
+  dialog -> ext : Open pre-filled link in a new tab
+end
+@enduml

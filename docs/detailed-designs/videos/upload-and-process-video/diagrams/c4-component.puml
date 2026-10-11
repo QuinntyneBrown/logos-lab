@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Upload and process a video
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "StudioVideoMediaPage", "Angular page", "Media tab: dropzone, progress, outputs, failure")
+  Component(uploader, "VideoUploader", "Angular service", "Client checks, part upload, resume")
+  Component(apiClient, "HttpStudioVideosApi", "StudioVideosApi via STUDIO_VIDEOS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "Upload and media route handlers", "app/api/v1/studio/videos/[videoId]/...", "Parse, validate, map results")
+  Component(actions, "CreateVideoUploadAction, CompleteVideoUploadAction, RetryVideoProcessingAction", "Actions", "One use case each")
+  Component(uploadSvc, "VideoUploadService", "Domain service", "Type and 10 GB size rules")
+  Component(procSvc, "VideoProcessingService", "Domain service", "State machine and rendition ladder")
+  Component(repos, "VideoRepository, VideoUploadRepository, VideoRenditionRepository", "Repositories", "PostgreSQL access")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(scanJob, "VideoScanJob", "Job", "Magic bytes and malware scan")
+  Component(tcJob, "VideoTranscodeJob", "Job", "Creates the MediaConvert job")
+  Component(statusJob, "VideoTranscodeStatusJob", "Job", "Applies progress, completion and errors")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Video media state")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "Jobs and status events")
+System_Ext(mc, "AWS Elemental MediaConvert", "HLS transcoding")
+Rel(page, uploader, "Starts, pauses and resumes uploads")
+Rel(uploader, apiClient, "Creates, inspects and completes uploads")
+Rel(page, apiClient, "Polls media state, retries")
+Rel(apiClient, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, uploadSvc, "Validates upload")
+Rel(actions, procSvc, "Starts or restarts processing")
+Rel(actions, repos, "Reads and writes")
+Rel(actions, queue, "Enqueues VideoScanJob")
+Rel(repos, db, "SQL")
+Rel(scanJob, tcJob, "Enqueues on clean result")
+Rel(tcJob, mc, "CreateJob", "AWS SDK")
+Rel(statusJob, procSvc, "Applies status events")
+Rel(scanJob, procSvc, "Records scan result")
+@enduml

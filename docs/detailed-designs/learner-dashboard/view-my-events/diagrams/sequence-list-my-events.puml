@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — List upcoming and past events
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MyEventsPage" as page
+  participant "AddToCalendarDialog" as dialog
+  participant "EventRegistrationsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Event registrations route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListMyEventRegistrationsAction" as action
+  participant "EventRegistrationService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /dashboard/events
+page -> client : listMine(Upcoming)
+client -> route : GET /api/v1/me/event-registrations?when=upcoming
+route -> action : execute(userId, Upcoming, now)
+action -> service : upcoming(userId, now)
+service -> db : Registered or Waitlisted registrations for events ending after now
+service -> db : Rank waitlisted registrations by joinedAt per event
+service --> action : Rows with status and waitlist position
+route --> client : 200 MyEventView list
+page --> actor : Status (Registered, or Waitlisted with position), date and time (L2-072)
+opt Add to calendar
+  actor -> page : Press Add to calendar
+  page -> dialog : Open with event
+  dialog --> actor : Calendar options from the events subsystem (L2-072)
+end
+actor -> page : Select Past tab
+page -> client : listMine(Past)
+client -> route : GET /api/v1/me/event-registrations?when=past
+route -> action : execute(userId, Past, now)
+action -> service : past(userId, now)
+service -> db : Registered registrations for ended events, with recordingVideoId
+service --> action : Rows with recordingUrl where a recording exists
+route --> client : 200
+page --> actor : Past events, Watch link where a recording exists (L2-072)
+@enduml

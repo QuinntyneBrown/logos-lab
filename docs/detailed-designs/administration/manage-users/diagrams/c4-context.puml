@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage users
+Person(admin, "Administrator", "Logos Lab staff who manage member accounts")
+Person(member, "Member", "Account holder affected by an action")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ses, "Amazon SES", "Sends verification, reset and account-state email")
+Rel(admin, ll, "Searches users and applies account actions in", "HTTPS")
+Rel(ll, ses, "Sends account email via", "AWS SDK")
+Rel(ses, member, "Delivers email to", "SMTP")
+@enduml

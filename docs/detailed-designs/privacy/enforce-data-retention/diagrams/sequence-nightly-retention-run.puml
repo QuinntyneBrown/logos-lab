@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Run the nightly retention job
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "On-call engineer" as actor
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DataRetentionJob" as job
+  participant "RetentionSchedule" as schedule
+  participant "RetentionRule (each)" as rule
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Nightly schedule" as sched
+  queue "Job queue (SQS)" as queue
+  database "Logos Lab database" as db
+  participant "Amazon CloudWatch" as cw
+end box
+sched -> queue : Enqueue DataRetentionJob(runDate)
+queue -> job : Deliver
+job -> db : Start retention_runs row; skip if runDate already Succeeded (idempotent, L2-140)
+job -> schedule : Periods (L2-118)
+schedule --> job : Unverified 30 d, notifications 90 d, request logs 90 d, security logs 1 y, audit 7 y, deleted accounts 30 d
+loop Each retention rule
+  job -> rule : apply(cutoff)
+  alt Unverified accounts, notifications, audit entries
+    rule -> db : Delete rows older than cutoff in batches
+  else Deleted accounts
+    rule -> queue : Enqueue AccountPurgeJob per request past purgeAfter
+  else Request and security logs
+    rule -> cw : Confirm log group retention is 90 days and 1 year
+  end
+  rule --> job : Count
+  job -> db : Insert retention_run_items (category, count) (L2-118)
+  job -> cw : Publish count metric
+end
+alt Every rule succeeded
+  job -> db : Run status Succeeded
+else A rule failed
+  job -> db : Run status Failed with error
+  job -> cw : Publish failure metric
+  cw --> actor : Alarm to on-call channel (L2-118)
+  job --> queue : Fail; retried with backoff, then dead-letter alert (L2-140)
+end
+@enduml

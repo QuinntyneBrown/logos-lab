@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage sessions
+
+Person(member, "Member", "Signed-in Learner, Expert or staff member")
+System(lab, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+System_Ext(geoip, "IP location lookup", "Approximate city for an IP address; provider <TO SUPPLY>")
+
+Rel(member, lab, "Lists and ends sessions, signs out", "HTTPS")
+Rel(lab, geoip, "Looks up approximate city")
+@enduml

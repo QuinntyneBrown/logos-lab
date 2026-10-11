@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Change user roles
+
+Container(web, "Logos Lab Web", "Angular", "AdminUserPage, EditRolesDialog, AdminUsersApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(authz, "AuthorizationMiddleware", "Middleware", "Requires Administer")
+  Component(route, "roles route handler", "app/api/v1/admin/users/[id]/roles/route.ts", "Thin handler")
+  Component(action, "ChangeUserRolesAction", "Action", "One transaction")
+  Component(roles, "RoleService", "Domain service", "Diff and last-Administrator rule")
+  Component(audit, "AuditLogService", "Domain service", "Append-only entries")
+  Component(notify, "NotificationService", "Domain service", "In-app and email notices")
+  Component(log, "SecurityEventLogger", "Infrastructure", "Role change events")
+  Component(repo, "UserRoleRepository", "Repository", "user_roles")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "user_roles, audit_entries, notifications")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+Rel(web, authz, "PUT roles", "JSON/HTTPS")
+Rel(authz, route, "Permitted request")
+Rel(route, action, "Calls")
+Rel(action, roles, "Applies rules")
+Rel(action, repo, "Writes roles")
+Rel(action, audit, "Appends entries")
+Rel(action, notify, "Notifies grantee")
+Rel(action, log, "Logs change")
+Rel(repo, db, "SQL")
+Rel(audit, db, "SQL")
+Rel(notify, db, "SQL")
+Rel(notify, queue, "Enqueues email")
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Enforce data retention
+
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "DataRetentionJob", "Job", "Runs every rule and records the result")
+  Component(schedule, "RetentionSchedule", "Domain configuration", "Categories and periods from the Privacy Policy")
+  Component(r1, "UnverifiedAccountRetention", "RetentionRule", "Deletes accounts unverified for 30 days")
+  Component(r2, "NotificationRetention", "RetentionRule", "Deletes notifications older than 90 days")
+  Component(r3, "AuditLogRetention", "RetentionRule", "Deletes audit entries older than 7 years from the archive")
+  Component(r4, "DeletedAccountRetention", "RetentionRule", "Enqueues AccountPurgeJob for accounts deleted 30 days ago")
+  Component(r5, "LogRetentionVerifier", "RetentionRule", "Confirms request logs 90 days, security logs 1 year")
+  Component(repo, "RetentionRunRepository", "Repository", "retention_runs and retention_run_items")
+  Component(metrics, "RetentionMetrics", "Infrastructure service", "Publishes counts and failure metric")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "Personal data and run records")
+System_Ext(cw, "Amazon CloudWatch", "Log groups, metrics and alarms")
+Rel(job, schedule, "Reads rules from")
+Rel(job, r1, "Runs")
+Rel(job, r2, "Runs")
+Rel(job, r3, "Runs")
+Rel(job, r4, "Runs")
+Rel(job, r5, "Runs")
+Rel(r1, db, "Deletes", "SQL")
+Rel(r2, db, "Deletes", "SQL")
+Rel(r4, db, "Reads due deletion requests", "SQL")
+Rel(r5, cw, "Reads log group retention", "CloudWatch API")
+Rel(job, repo, "Records counts per kind")
+Rel(repo, db, "Writes", "SQL")
+Rel(job, metrics, "Publishes")
+Rel(metrics, cw, "PutMetricData")
+@enduml

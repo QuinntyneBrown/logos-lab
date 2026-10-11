@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Describe and insert an image
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ImageUploadDialog" as dialog
+  participant "HttpMediaApi" as client
+  participant "StudioEditorPage or ll-rich-editor" as editor
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "media/images/{id} route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UpdateImageDetailsAction" as action
+  participant "ImageService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Enter alt text, or mark decorative
+opt Cover image
+  actor -> dialog : Drag the focal point or use the sliders
+  dialog --> actor : Card and social crop previews
+end
+actor -> dialog : Insert
+alt No alt text and not decorative
+  dialog --> actor : Error links to the alt text field (L2-083)
+else Alt text or decorative
+  dialog -> client : updateImageDetails(id, altText, decorative, focalPoint)
+  client -> route : PATCH /api/v1/media/images/{id}
+  route -> route : Schema: alt text up to 250 characters
+  alt Over 250 characters
+    route --> client : 400 problem response with field error
+    client --> dialog : Field error
+  else Valid
+    route -> action : execute(user, id, details)
+    action -> db : Load ImageAsset owned by user
+    db --> action : Image Ready
+    action -> service : canInsert(image)
+    service --> action : true
+    action -> db : Save alt text or decorative flag and focal point
+    db --> action : Saved
+    action --> route : ImageView with renditions
+    route --> client : 200 JSON
+    client --> dialog : Image
+    dialog -> editor : Insert image reference
+    editor --> actor : Image in place; crops respect the focal point (L2-083)
+  end
+end
+@enduml

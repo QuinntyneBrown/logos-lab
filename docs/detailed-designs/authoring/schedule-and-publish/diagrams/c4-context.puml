@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Schedule and publish
+
+Person(editor, "Editor", "Publishes approved content now or on a schedule")
+Person(follower, "Follower", "Member following the item's expert or collection")
+Person_Ext(visitor, "Visitor", "Reads the catalogue, search and topic pages")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends email notifications")
+
+Rel(editor, logoslab, "Publishes, schedules and unschedules in", "HTTPS")
+Rel(visitor, logoslab, "Finds newly published content in", "HTTPS")
+Rel(logoslab, ses, "Sends new content email through", "HTTPS API")
+Rel(ses, follower, "Delivers email to", "SMTP")
+Rel(logoslab, follower, "Shows in-app notification to", "HTTPS")
+@enduml

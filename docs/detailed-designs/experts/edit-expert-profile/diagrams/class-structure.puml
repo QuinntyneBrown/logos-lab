@@ -1,0 +1,111 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Edit an expert profile
+
+package "Logos Lab Web" {
+  class StudioProfilePage {
+    +form: FormGroup
+    +save(): void
+  }
+  class ExpertProfileHistoryPage {
+    +versions: Signal<ProfileVersion[]>
+    +openRestore(version: ProfileVersion): void
+  }
+  class RestoreProfileVersionDialog {
+    +version: ProfileVersion
+    +confirm(): void
+  }
+  interface StudioProfileApi {
+    +getMyProfile(): Observable<ExpertProfile>
+    +saveProfile(expertId: UUID, changes: ProfileChanges): Observable<ExpertProfile>
+    +getHistory(expertId: UUID): Observable<ProfileVersion[]>
+    +restoreVersion(expertId: UUID, versionId: UUID): Observable<void>
+  }
+  class HttpStudioProfileApi
+  class STUDIO_PROFILE_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class UpdateExpertProfileAction {
+    +execute(userId: UUID, expertId: UUID, changes: ProfileChanges): Promise<ExpertProfile>
+  }
+  class RestoreProfileVersionAction {
+    +execute(editorId: UUID, expertId: UUID, versionId: UUID): Promise<void>
+  }
+  class ExpertProfileValidator {
+    +bioMin: number = 100
+    +bioMax: number = 2000
+    +maxLinks: number = 5
+    +validate(changes: ProfileChanges): ValidationResult
+  }
+  class ProfileVersionService {
+    +diff(before: ExpertProfile, after: ExpertProfile): FieldChange[]
+    +record(profile: ExpertProfile, changes: FieldChange[], kind: VersionKind, actorId: UUID): ProfileVersion
+  }
+  class AuditService {
+    +record(actorId: UUID, subjectId: UUID, action: string, changes: FieldChange[]): void
+  }
+  class NotificationService {
+    +notifyEditors(type: string, subjectId: UUID): void
+    +notifyUser(userId: UUID, type: string, subjectId: UUID): void
+  }
+  class ExpertProfileRepository {
+    +findOwned(expertId: UUID, userId: UUID): Promise<ExpertProfile>
+    +findById(expertId: UUID): Promise<ExpertProfile>
+    +save(profile: ExpertProfile): Promise<void>
+  }
+  class ExpertProfile {
+    +id: UUID
+    +userId: UUID
+    +photoUrl: string
+    +professionalTitle: string
+    +affiliation: string
+    +bioHtml: string
+    +areas: UUID[]
+    +links: ExternalLink[]
+  }
+  class ProfileVersion {
+    +id: UUID
+    +expertId: UUID
+    +snapshot: json
+    +kind: VersionKind
+    +changedById: UUID
+    +createdAt: Date
+  }
+  class FieldChange {
+    +field: string
+    +oldValue: string
+    +newValue: string
+  }
+  enum VersionKind {
+    Created
+    Edit
+    Restore
+  }
+}
+StudioProfilePage ..> StudioProfileApi
+ExpertProfileHistoryPage ..> StudioProfileApi
+ExpertProfileHistoryPage ..> RestoreProfileVersionDialog : opens
+HttpStudioProfileApi ..|> StudioProfileApi
+STUDIO_PROFILE_API ..> StudioProfileApi : provides
+UpdateExpertProfileAction --> ExpertProfileValidator
+UpdateExpertProfileAction --> ExpertProfileRepository
+UpdateExpertProfileAction --> ProfileVersionService
+UpdateExpertProfileAction --> AuditService
+UpdateExpertProfileAction --> NotificationService
+RestoreProfileVersionAction --> ProfileVersionService
+RestoreProfileVersionAction --> ExpertProfileRepository
+RestoreProfileVersionAction --> AuditService
+RestoreProfileVersionAction --> NotificationService
+ExpertProfile "1" *-- "*" ProfileVersion
+ProfileVersion *-- "*" FieldChange
+ProfileVersion --> VersionKind
+@enduml

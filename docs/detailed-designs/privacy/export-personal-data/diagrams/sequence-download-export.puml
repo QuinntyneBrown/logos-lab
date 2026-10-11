@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Download a ready export
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "DataExportDownloadPage" as page
+  participant "PersonalDataApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "data export route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DownloadDataExportAction" as action
+  participant "DataExportService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Media storage (S3)" as s3
+end box
+actor -> page : Open link /settings/data/exports/{id}
+page -> page : Require sign-in; redirect to /sign-in and back if signed out (L2-116)
+page -> client : getExport(id)
+client -> route : GET /api/v1/me/data-exports/{id}
+route -> db : Find export for the current user only (L2-017)
+alt Not found or another member's export
+  route --> client : 404
+  client --> page : Error state
+else Expired (more than 7 days after ready)
+  route --> client : 410 with expiry date
+  client --> page : Expired state with "Request a new export"
+else Ready
+  route --> client : 200 with file name, size, ready and expiry times
+  client --> page : Default state
+  actor -> page : Choose "Download ZIP"
+  page -> route : GET /api/v1/me/data-exports/{id}/download
+  route -> action : Execute for current user
+  action -> svc : Check owner and expiry
+  svc --> action : Downloadable
+  action -> s3 : Presign GET with Content-Disposition: attachment
+  s3 --> action : Short-lived URL
+  action --> route : URL
+  route --> actor : 302 to the presigned URL
+  actor -> s3 : Download ZIP
+end
+@enduml

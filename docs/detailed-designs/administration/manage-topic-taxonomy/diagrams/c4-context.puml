@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Manage the topic taxonomy
+Person(admin, "Administrator", "Maintains the list of topics")
+Person(visitor, "Visitor or member", "Opens topic pages")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+Rel(admin, ll, "Creates, renames, merges and deletes topics in", "HTTPS")
+Rel(visitor, ll, "Opens /topics/{slug}, following redirects, in", "HTTPS")
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Watch an event recording
+
+Person(host, "Host or editor", "Studio user")
+Person(member, "Registrant or viewer", "Event page")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, embeds Tessera video-player", "Event editor, item picker, event page")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Attach recording, list, playback grant")
+  Container(worker, "Logos Lab Worker", "Node.js", "EventRecordingNotifyJob")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Jobs")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Events, videos, registrations, notifications")
+  Container(cdn, "CDN", "Amazon CloudFront", "Signed HLS")
+}
+System_Ext(ses, "Amazon SES", "Email")
+Rel(host, web, "Uses", "HTTPS")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(web, cdn, "Streams recording", "HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues notice")
+Rel(worker, queue, "Consumes")
+Rel(worker, db, "Writes notifications", "SQL")
+Rel(worker, ses, "Sends email", "AWS SDK")
+@enduml

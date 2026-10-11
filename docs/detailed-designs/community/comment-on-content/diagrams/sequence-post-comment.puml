@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Post a comment
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CommentsSection" as page
+  participant "CommentsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Comments route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PostCommentAction" as action
+  participant "CommentSpamService" as spam
+  participant "CommentFormattingService" as format
+  participant "CommentService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> page : Write 1-5,000 characters and press Post comment
+page -> page : Validate length (L2-060)
+page -> client : post(target, body, parentId)
+client -> route : POST /api/v1/comments
+route -> route : CSRF, authenticate, validate body
+route -> action : execute(userId, request)
+action -> db : Load member, target status and comments setting
+db --> action : Member, target
+alt member not verified
+  action --> route : EmailUnverified
+  route --> client : 403 problem
+  client --> page : Unverified
+  page --> actor : Open VerifyEmailPromptDialog
+else comments closed or target not published
+  action --> route : CommentsClosed
+  route --> client : 409 problem
+  page --> actor : Show "Comments are closed" (L2-060)
+else open to comments
+  action -> action : Apply L2-068 guidelines gate
+  action -> spam : check(userId, body, accountCreatedAt)
+  spam -> cache : Increment minute and hour counters
+  cache --> spam : Counts
+  spam -> db : Last comment by member
+  db --> spam : Previous body and time
+  alt more than 5 per minute or 50 per hour
+    spam --> action : RateLimited(retryAt)
+    action --> route : RateLimited
+    route --> client : 429 with Retry-After (L2-062)
+    page --> actor : Keep draft, show when posting reopens
+  else same body within 10 minutes
+    spam --> action : Duplicate
+    route --> client : 409 duplicate problem (L2-062)
+    page --> actor : Show duplicate message
+  else accepted or held
+    spam --> action : Accept, or Hold for account under 24 h with a link
+    action -> format : sanitize(body)
+    format --> action : Allow-listed HTML with rel="nofollow ugc noopener noreferrer"
+    action -> service : threadFor(parent)
+    service --> action : rootId and inReplyToId (one nesting level)
+    action -> db : Insert comment as Visible or Held
+    db --> action : Saved comment
+    action --> route : Comment
+    route --> client : 201 CommentView
+    client --> page : CommentView
+    page --> actor : Show at top of Newest, or "Your comment is awaiting review"
+  end
+end
+@enduml

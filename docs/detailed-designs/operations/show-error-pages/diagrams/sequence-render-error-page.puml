@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Render an error page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or crawler" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SSR server" as ssr
+  participant "Route resolver" as resolverR
+  participant "ErrorPageResolver" as resolver
+  participant "ResponseStatusService" as status
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Content route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Get-content action" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ssr : GET /articles/{slug}
+ssr -> resolverR : Resolve page data
+resolverR -> route : GET /api/v1/articles/{slug}
+route -> action : execute
+action -> db : Load item
+db --> action : Row, archived row or none
+alt item published and allowed
+  action --> route : Item
+  route --> resolverR : 200 JSON
+  resolverR --> ssr : Page data
+  ssr --> actor : 200 with page
+else item not found
+  route --> resolverR : 404 problem
+  resolverR -> resolver : pageFor(404)
+  resolver --> ssr : NotFoundPage
+  ssr -> status : setStatus(404) (Apply L2-141 correct status)
+  ssr --> actor : 404 with branded page, search and catalogue links
+else item archived
+  route --> resolverR : 410 problem with suggestions
+  resolverR -> resolver : pageFor(410)
+  resolver --> ssr : GonePage
+  ssr -> status : setStatus(410)
+  ssr --> actor : 410 with "Read these instead"
+else member lacks access
+  route --> resolverR : 403 problem
+  resolverR -> resolver : pageFor(403)
+  resolver --> ssr : ForbiddenPage
+  ssr -> status : setStatus(403)
+  ssr --> actor : 403 with next step
+end
+@enduml

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module package · failed — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="studio-module-package">
+<meta name="mock:state" content="failed">
+<meta name="mock:requirements" content="L2-033 L2-108">
+<meta name="description" content="Validation failed: the package was refused and each failed rule is listed, including paths that leave the package.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="workflow">
+  <div class="wrap workflow__inner">
+    <div class="workflow__title">
+      <p class="workflow__name">Image and Likeness: A Guided Reading</p>
+      <div class="workflow__meta">
+        <span class="badge">Draft</span>
+        <span class="inline-status" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Saved 10:24 am</span>
+        <ol class="workflow__steps" aria-label="Workflow">
+          <li aria-current="step">Draft</li><li>In review</li><li>Approved</li><li>Published</li>
+        </ol>
+      </div>
+    </div>
+    <div class="workflow__actions">
+      <a class="btn btn--quiet btn--sm" href="../../pages/preview/default.html">Preview</a>
+      <a class="btn btn--quiet btn--sm" href="../../pages/content-history/default.html">History</a>
+      <a class="btn btn--primary btn--sm" href="../../dialogs/submit-for-review/default.html">Submit for review</a>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/studio/default.html">Studio</a></li><li><a href="../../pages/studio/default.html">Modules</a></li><li><span aria-current="page">Image and Likeness: A Guided Reading</span></li></ol></nav>
+    <h1 class="vh">Module package: Image and Likeness: A Guided Reading</h1>
+    <div class="two-col" style="padding-block: var(--space-8) var(--space-16)">
+      <form class="form" action="uploading.html" novalidate>
+        <div class="stack">
+          <h2 class="section__title">Package</h2>
+          <p class="muted">Fix these in your authoring tool, export again, and upload the new zip.</p>
+        </div>
+        <ol class="stepper" aria-label="Package processing"><li class="stepper__step is-done"><span>Step 1 of 4<span class="vh">, done</span></span><span>Upload</span></li><li class="stepper__step is-invalid" aria-current="step"><span>Step 2 of 4<span class="vh">, failed</span></span><span>Validate</span></li><li class="stepper__step"><span>Step 3 of 4</span><span>Scan</span></li><li class="stepper__step"><span>Step 4 of 4</span><span>Ready</span></li></ol>
+        <div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><p class="alert__title">We couldn’t use image-and-likeness-v1.zip</p><div class="alert__body"><p>It failed 3 checks, so the whole package was refused and nothing from it was kept:</p><ul class="list list--plain"><li>imsmanifest.xml is inside a folder (image-and-likeness/imsmanifest.xml). It must be at the top level of the zip.</li><li>2 files have paths that point outside the package (../shared/player.js, ../shared/styles.css). For safety we refuse these and have logged it.</li><li>The launch file named in the manifest, index_lms.html, isn’t in the zip.</li></ul></div></div><label class="field__label" for="package">Upload a corrected package</label><div class="dropzone"><span class="dropzone__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg></span><p class="dropzone__title">Drag a SCORM package here, or choose one</p><input type="file" id="package" name="package" accept=".zip,application/zip" aria-describedby="package-help"><p class="field__help" id="package-help">A .zip of up to 500 MB with imsmanifest.xml at the top level.</p></div>
+      </form>
+      <aside class="stack" aria-label="About this package">
+        <section class="aside-card" aria-labelledby="rules-title">
+          <h2 class="aside-card__title" id="rules-title">What a package needs</h2>
+          <ul class="list list--plain">
+            <li>A .zip file of 500 MB or less</li>
+            <li>imsmanifest.xml at the top level of the zip</li>
+            <li>SCORM 1.2, or SCORM 2004 3rd or 4th edition</li>
+            <li>Under 2 GB once unzipped, and no more than 10,000 files</li>
+            <li>No paths that point outside the package</li>
+          </ul>
+          <p class="field__help">Every file is scanned for malware before the package can be used. It runs isolated from the rest of Logos Lab.</p>
+        </section>
+        <section class="aside-card" aria-labelledby="facts-title"><h2 class="aside-card__title" id="facts-title">Details</h2><dl class="facts facts--inline"><div><dt>Type</dt><dd>Learning module</dd></div><div><dt>Author</dt><dd>Dr. Abena Mensah</dd></div><div><dt>Created</dt><dd>Thu 8 Oct 2026</dd></div><div><dt>Address</dt><dd>/modules/image-and-likeness</dd></div></dl></section>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Module package</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="uploading.html">uploading</a></li>
+    <li><a href="validating.html">validating</a></li>
+    <li><a href="failed.html" aria-current="page">failed</a></li>
+    <li><a href="quarantined.html">quarantined</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

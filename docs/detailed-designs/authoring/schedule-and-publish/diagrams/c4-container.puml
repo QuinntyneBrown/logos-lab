@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Schedule and publish
+
+Person(editor, "Editor", "Publishes content")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "PublishScheduleDialog, UnscheduleDialog")
+  Container(api, "Logos Lab API", "Next.js route handlers", "publish, schedule, unschedule")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS with dead-letter queue", "Publish, invalidation and notification jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "ScheduledContentPublishJob, CdnInvalidateJob, FollowerNotifyJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Items, versions, transitions, search documents")
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public catalogue, topic and content pages")
+}
+System_Ext(scheduler, "Amazon EventBridge Scheduler", "Fires every minute (baseline choice)")
+System_Ext(ses, "Amazon SES", "Email delivery")
+Rel(editor, web, "Uses", "HTTPS")
+Rel(web, api, "Calls StudioApi", "JSON/HTTPS")
+Rel(api, db, "Publishes and schedules in", "SQL")
+Rel(api, sqs, "Enqueues follow-up jobs", "SQS")
+Rel(scheduler, sqs, "Sends ScheduledContentPublishJob each minute", "SQS")
+Rel(worker, sqs, "Consumes", "SQS")
+Rel(worker, db, "Publishes due items in", "SQL")
+Rel(worker, cdn, "Invalidates paths in", "CloudFront API")
+Rel(worker, ses, "Sends follower email through", "HTTPS API")
+@enduml

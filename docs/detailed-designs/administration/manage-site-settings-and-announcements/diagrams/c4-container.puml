@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage site settings and announcements
+Person(admin, "Administrator", "Logos Lab staff")
+Person(visitor, "Visitor or member", "Reader")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public policy pages and settings")
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Admin pages, banner, footer, policy pages")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Announcement, policy and settings endpoints")
+  Container(worker, "Logos Lab Worker", "Node.js", "Adds support details to every email")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "announcements, announcement_dismissals, policy_versions, site_settings")
+}
+Rel(admin, web, "Uses", "HTTPS")
+Rel(visitor, cdn, "Requests pages from", "HTTPS")
+Rel(cdn, web, "Forwards cache misses to", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(worker, db, "Reads site settings", "SQL")
+@enduml

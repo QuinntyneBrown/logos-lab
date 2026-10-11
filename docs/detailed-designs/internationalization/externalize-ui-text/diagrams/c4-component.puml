@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Externalize UI text
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(res, "messages.<locale>.xlf", "Translation resource files", "Message IDs, ICU messages")
+  Component(tpl, "Pages and ll-* components", "Angular templates", "i18n-marked text")
+  Component(map, "ErrorMessageMapper", "Angular service", "Error code to message")
+  Component(editor, "ll-rich-editor", "Shared component", "Language mark")
+  Component(prose, "ll-prose", "Shared component", "Renders lang attributes")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(prob, "Problem response mapper", "Route handler helper", "RFC 9457 with code")
+  Component(save, "SaveArticleDraftAction", "Action (authoring)", "Saves draft")
+  Component(pol, "LanguageTagPolicy", "Domain rule", "Validates BCP 47 tags")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(email, "EmailSendJob", "Job", "Renders templates")
+  Component(cat, "EmailCatalog", "Service", "email-messages.<locale>.json")
+}
+
+Rel(tpl, res, "Read text from")
+Rel(map, res, "Looks up messages in")
+Rel(map, prob, "Translates codes from")
+Rel(editor, save, "Saves marked passages through")
+Rel(save, pol, "Validates with")
+Rel(prose, editor, "Renders documents written by")
+Rel(email, cat, "Reads copy from")
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Hide on the third eligible report
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ReportContentDialog" as dialog
+  participant "HttpReportsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "reports route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitReportAction" as submit
+  participant "AutoHideService" as autohide
+  participant "ContentVisibilityService" as visibility
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "ReportRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Send report on a comment
+dialog -> client : submitReport(target, reason, note)
+client -> route : POST /api/v1/reports
+route -> submit : execute(currentUser, request)
+submit -> db : INSERT report with reporter account age; lock case FOR UPDATE
+submit -> autohide : evaluate(caseId)
+alt Target is a member profile or published content
+  autohide --> submit : Not eligible for automatic hiding
+else Comment, cohort post or message
+  autohide -> repo : countDistinctEligibleReporters(caseId, 24 hours)
+  repo -> db : COUNT DISTINCT reporter_id WHERE account age >= 24 hours
+  db --> repo : Count
+  repo --> autohide : Count
+  alt Count reaches 3 and case not yet auto-hidden
+    autohide -> visibility : hide(target, AutoHidden) (L2-088)
+    visibility -> db : Set target hidden
+    autohide -> db : Set auto_hidden and top priority on the case
+    autohide -> db : INSERT audit entry with system actor and report references
+    autohide --> submit : Hidden
+  else Fewer than 3 eligible reporters
+    autohide --> submit : No change; reports from accounts under 24 hours not counted
+  end
+end
+submit -> db : COMMIT
+submit --> route : ReportReceipt
+route --> client : 201 Created
+client --> dialog : Receipt
+dialog --> actor : Report confirmation
+@enduml

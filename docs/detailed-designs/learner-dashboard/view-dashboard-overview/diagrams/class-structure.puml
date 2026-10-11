@@ -1,0 +1,92 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View the dashboard overview
+
+package "Logos Lab Web" {
+  class DashboardPage {
+    +continueLearning: SectionState<LearningItemView[]>
+    +upcomingEvents: SectionState<EventRegistrationView[]>
+    +followingFeed: SectionState<ContentCardView[]>
+    +summary: SectionState<LearningSummary>
+    +retry(section: DashboardSection): void
+  }
+  class "SectionState<T>" as SectionState {
+    +status: LoadStatus
+    +data: T | null
+  }
+  enum LoadStatus {
+    Loading
+    Loaded
+    Empty
+    Failed
+  }
+  interface DashboardApi {
+    +continueLearning(): Observable<LearningItemView[]>
+    +upcomingEvents(): Observable<EventRegistrationView[]>
+    +followingFeed(): Observable<ContentCardView[]>
+    +summary(): Observable<LearningSummary>
+  }
+  class HttpDashboardApi
+  class DASHBOARD_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class DashboardRouteHandlers {
+    +GET(req: Request): Response
+  }
+  class GetContinueLearningAction {
+    +LIMIT: number = 3
+    +execute(userId: string): Promise<LearningItemView[]>
+  }
+  class GetUpcomingEventsAction {
+    +LIMIT: number = 3
+    +execute(userId: string, now: Date): Promise<EventRegistrationView[]>
+  }
+  class GetFollowingFeedAction {
+    +LIMIT: number = 6
+    +WINDOW_DAYS: number = 30
+    +execute(userId: string, now: Date): Promise<ContentCardView[]>
+  }
+  class GetLearningSummaryAction {
+    +execute(userId: string): Promise<LearningSummary>
+  }
+  class LearningActivityService {
+    +inProgress(userId: string, sort: LearningSort, limit?: number): LearningItemView[]
+  }
+  class EventRegistrationService {
+    +upcoming(userId: string, now: Date, limit?: number): EventRegistrationView[]
+  }
+  class FollowFeedService {
+    +recent(userId: string, since: Date, limit: number): ContentCardView[]
+  }
+  class LearningSummary {
+    +inProgress: number
+    +completed: number
+    +certificates: number
+    +saved: number
+  }
+}
+DashboardPage ..> DashboardApi
+DashboardPage *-- SectionState
+SectionState --> LoadStatus
+HttpDashboardApi ..|> DashboardApi
+DASHBOARD_API ..> DashboardApi : provides
+DashboardRouteHandlers ..> GetContinueLearningAction
+DashboardRouteHandlers ..> GetUpcomingEventsAction
+DashboardRouteHandlers ..> GetFollowingFeedAction
+DashboardRouteHandlers ..> GetLearningSummaryAction
+GetContinueLearningAction ..> LearningActivityService
+GetUpcomingEventsAction ..> EventRegistrationService
+GetFollowingFeedAction ..> FollowFeedService
+GetLearningSummaryAction --> LearningSummary : returns
+@enduml

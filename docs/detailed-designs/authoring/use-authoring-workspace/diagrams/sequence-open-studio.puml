@@ -1,0 +1,79 @@
+@startuml
+title UML sequence behaviour — Open Studio
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioPage" as page
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListStudioItemsAction" as action
+  participant "ContentAccessPolicy" as policy
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "ContentItemRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /studio
+page -> client : listItems()
+client -> route : GET /api/v1/studio/items
+route -> route : Authenticate session and apply endpoint policy
+route -> action : execute(currentUser)
+action -> policy : canAuthor(currentUser)
+alt Learner or Moderator without authoring rights
+  policy --> action : false
+  action --> route : Forbidden
+  route --> client : 403 problem response
+  client --> page : Forbidden result
+  page --> actor : Show no-access state (L2-016, L2-075)
+else Expert
+  policy --> action : true, not an editor
+  action -> repo : listVisibleTo(currentUser.id)
+  repo -> db : SELECT items owned by or attributed to the current user
+  db --> repo : Own items
+  repo --> action : ContentItem[]
+  action -> action : Group by workflow state (L2-075)
+  action --> route : StudioGroup[] and creatable types
+  route --> client : 200 JSON
+  client --> page : Groups
+  page --> actor : Own items with type, title, last edited and New actions
+else Editor
+  policy --> action : true, editor
+  action -> repo : listAll()
+  repo -> db : SELECT all items
+  db --> repo : All items
+  repo --> action : ContentItem[]
+  action --> route : StudioGroup[] and review queue count
+  route --> client : 200 JSON
+  client --> page : Groups
+  page --> actor : All content with a Review queue tab
+  opt Editor opens the review queue
+    actor -> page : Select Review queue (/studio/review)
+    page -> client : listReviewQueue()
+    client -> route : GET /api/v1/studio/review-queue
+    route -> repo : listInReviewOldestFirst() through ListReviewQueueAction
+    repo -> db : SELECT state InReview ORDER BY submitted_at ASC
+    db --> repo : Items in review
+    repo --> route : ReviewQueueItem[]
+    route --> client : 200 JSON
+    client --> page : Queue
+    page --> actor : In review items, oldest submission first (L2-075)
+  end
+end
+@enduml

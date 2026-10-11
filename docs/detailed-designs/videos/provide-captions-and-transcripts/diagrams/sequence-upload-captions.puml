@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Upload a caption track
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Author" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioVideoCaptionsPage" as page
+  participant "StudioVideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "captions route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AddCaptionTrackAction" as action
+  participant "CaptionService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Media storage (S3)" as s3
+end box
+actor -> page : Choose language and a WebVTT or SRT file, Add track
+page -> client : addCaptionTrack(videoId, language, file)
+client -> route : POST /api/v1/studio/videos/{videoId}/captions
+route -> route : Authenticate, CSRF, size limit before body read (L2-108)
+route -> action : execute(userId, videoId, language, file)
+action -> db : Load video owned by user or editor (L2-017)
+action -> svc : parse(file)
+alt Missing language or unreadable cue
+  svc --> action : Faults with line numbers
+  action --> route : Validation failure
+  route --> client : 422 problem with field errors
+  client --> page : Faults
+  page --> actor : Error summary, "Line 214 has a time ..."
+else Valid
+  svc --> action : Parsed cues
+  action -> svc : toWebVtt(parsed) when SRT (L2-041)
+  action -> s3 : Store WebVTT under a generated key
+  action -> db : Insert CaptionTrack (Uploaded, Reviewed, language tag)
+  route --> client : 201 CaptionTrackView
+  client --> page : Track
+  page --> actor : Track listed with its language
+end
+@enduml

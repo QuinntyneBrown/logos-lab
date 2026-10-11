@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Raise an alert on a high 5xx rate
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "On-call engineer" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Request logging middleware" as mw
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "MetricsEmitter" as emitter
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Amazon CloudWatch" as cw
+  participant "Api5xxRateAlarm" as alarm
+  participant "SNS logos-lab-on-call" as sns
+  participant "On-call channel" as channel
+end box
+loop each request
+  web -> mw : API request
+  mw -> emitter : count RequestCount, Error5xxCount, timing Latency
+  emitter -> cw : EMF record in structured log
+end
+cw -> alarm : Evaluate Error5xxCount / RequestCount each minute
+alt rate above 1% for 5 minutes
+  alarm -> sns : State OK -> ALARM (Apply L2-136)
+  sns -> channel : Notify
+  channel --> actor : Alert with alarm name and dashboard link
+else rate back under threshold
+  alarm -> sns : State ALARM -> OK
+  sns -> channel : Notify recovery
+end
+@enduml

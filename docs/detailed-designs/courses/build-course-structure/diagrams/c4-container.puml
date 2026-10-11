@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Build a course structure
+
+Person(expert, "Expert or Editor", "Authors courses and modules in Studio")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Single web application for every role")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with domain services and actions")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+}
+
+Rel(expert, web, "Uses Studio course builder", "HTTPS")
+Rel(web, api, "Calls /api/v1/studio/courses", "JSON/HTTPS")
+Rel(api, db, "Reads and writes courses, sections and lessons", "SQL")
+@enduml

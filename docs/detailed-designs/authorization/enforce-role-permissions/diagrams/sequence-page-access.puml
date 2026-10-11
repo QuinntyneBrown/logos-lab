@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Page access and navigation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "App shell" as shell
+  participant "NavigationService" as nav
+  participant "CapabilityService" as caps
+  participant "capabilityGuard" as guard
+  participant "ForbiddenPage" as forbidden
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me route handler" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PermissionService" as perm
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> shell : Open Logos Lab
+shell -> caps : load()
+caps -> api : GET /api/v1/me
+api -> db : Load roles
+api -> perm : capabilitiesFor(roles)
+perm --> api : Capabilities
+api --> caps : CurrentMember
+shell -> nav : links(header, account menu, drawer)
+nav -> caps : can(capability) per link
+nav --> shell : Permitted links only (L2-016)
+shell --> actor : Navigation without staff links
+actor -> shell : Type /admin or follow an old Studio link
+shell -> guard : canActivate(route requires Administer)
+guard -> caps : can(Administer)
+caps --> guard : false
+guard -> forbidden : Render in place
+forbidden --> actor : "You don't have access to this page", link to dashboard
+note over actor, forbidden : Data calls from the page would still answer 403 on the server
+@enduml

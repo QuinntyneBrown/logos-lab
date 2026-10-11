@@ -1,0 +1,39 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Home page
+
+Container(web, "Logos Lab Web", "Angular", "HomePage with HomeApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(home, "GET /api/v1/home", "Route handler", "Anonymous; returns public sections")
+  Component(cont, "GET /api/v1/me/continue-learning", "Route handler", "Authenticated; current user only")
+  Component(action, "GetHomePageAction", "Action", "Composes the home sections")
+  Component(cl, "GetContinueLearningAction", "Action", "Returns up to 3 in-progress items")
+  Component(featured, "FeaturedContentService", "Domain service", "Featured slots in editor order")
+  Component(catalogue, "ContentCatalogueService", "Domain service", "Latest 8 published items")
+  Component(events, "EventScheduleService", "Domain service", "Next 3 published events")
+  Component(experts, "ExpertDirectoryService", "Domain service", "Featured experts")
+  Component(progress, "LearningProgressService", "Domain service", "In-progress items by last access")
+  Component(policy, "PublishedContentPolicy", "Domain rule", "Published state and publish time passed")
+  Component(repos, "Repositories", "FeaturedSlot, Content, Event, ExpertProfile, LearningProgress", "SQL access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "featured_slots, content_items, events, expert_profiles, learning_progress")
+Rel(web, home, "Calls", "JSON/HTTPS")
+Rel(web, cont, "Calls when signed in", "JSON/HTTPS")
+Rel(home, action, "Invokes")
+Rel(cont, cl, "Invokes with current user id")
+Rel(action, featured, "Reads featured section")
+Rel(action, catalogue, "Reads latest section")
+Rel(action, events, "Reads events section")
+Rel(action, experts, "Reads experts section")
+Rel(cl, progress, "Reads in-progress items")
+Rel(featured, policy, "Applies")
+Rel(catalogue, policy, "Applies")
+Rel(events, policy, "Applies")
+Rel(featured, repos, "Queries")
+Rel(catalogue, repos, "Queries")
+Rel(events, repos, "Queries")
+Rel(experts, repos, "Queries")
+Rel(progress, repos, "Queries")
+Rel(repos, db, "Reads", "SQL")
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Revise published content
+
+Person(author, "Expert or Editor", "Revises content")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "StudioEditorPage, ContentHistoryPage, correction and restore dialogs")
+  Container(api, "Logos Lab API", "Next.js route handlers", "revisions, versions, corrections, publish")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Items, revisions, versions, transitions, progress")
+  ContainerQueue(sqs, "Job queue", "Amazon SQS", "CdnInvalidateJob")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs CdnInvalidateJob")
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches public content pages")
+}
+Rel(author, web, "Uses", "HTTPS")
+Rel(web, api, "Calls StudioApi", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, sqs, "Enqueues invalidation", "SQS")
+Rel(worker, sqs, "Consumes", "SQS")
+Rel(worker, cdn, "Invalidates the item's public path", "CloudFront API")
+@enduml

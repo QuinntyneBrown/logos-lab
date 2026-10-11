@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Measure monthly availability
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operations engineer" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "AvailabilityReport" as report
+  participant "MaintenanceWindowRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CloudWatch Synthetics" as canary
+  database "Amazon CloudWatch" as cw
+  database "Logos Lab database" as db
+end box
+loop every minute
+  canary -> web : GET / (PublicSiteCanary)
+  web --> canary : Status
+  canary -> api : GET /health/ready (ApiReadinessCanary)
+  api --> canary : Status
+  canary -> cw : Record success or failure
+end
+actor -> report : Compute availability for the month
+report -> cw : Read check results
+cw --> report : Check results
+report -> repo : listForMonth(month)
+repo -> db : Select maintenance_windows
+db --> repo : Windows
+repo --> report : Announced windows
+report -> report : Exclude checks inside windows, capped at 4 hours
+report -> report : Compare with 99.9% target (Apply L2-135)
+report --> actor : AvailabilityResult
+@enduml

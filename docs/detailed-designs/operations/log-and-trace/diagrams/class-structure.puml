@@ -1,0 +1,90 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Log and trace
+
+package "Logos Lab Web" {
+  class CorrelationIdInterceptor {
+    +intercept(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>>
+  }
+  class ServerErrorPage {
+    +reference: Signal<string>
+    +retry(): void
+  }
+}
+
+package "Logos Lab API and Worker" {
+  class RequestContext {
+    +correlationId: string
+    +userId: string | null
+    +{static} current(): RequestContext
+    +{static} run(ctx: RequestContext, fn: () => T): T
+  }
+  class RequestLoggingMiddleware {
+    +HEADER: string = "X-Correlation-Id"
+    +handle(req: Request, next: Handler): Promise<Response>
+  }
+  class ExceptionHandlingMiddleware {
+    +handle(req: Request, next: Handler): Promise<Response>
+  }
+  class RequestLogEntry {
+    +timestamp: string
+    +correlationId: string
+    +method: string
+    +route: string
+    +status: number
+    +durationMs: number
+    +userId: string | null
+  }
+  class ProblemResponse {
+    +type: string
+    +title: string
+    +status: number
+    +correlationId: string
+  }
+  class Logger {
+    +info(message: string, fields: object): void
+    +error(message: string, error: Error, fields: object): void
+  }
+  class LogRedactor {
+    +SENSITIVE_KEYS: string[]
+    +redact(entry: object): object
+    +maskEmail(value: string): string
+  }
+  class JobPublisher {
+    +publish(job: JobMessage): Promise<void>
+  }
+  class JobRunner {
+    +run(message: SqsMessage): Promise<void>
+  }
+  class JobMessage {
+    +jobType: string
+    +idempotencyKey: string
+    +correlationId: string
+    +payload: object
+  }
+}
+
+RequestLoggingMiddleware ..> RequestContext : creates
+RequestLoggingMiddleware ..> RequestLogEntry : writes
+RequestLoggingMiddleware --> ExceptionHandlingMiddleware : wraps
+ExceptionHandlingMiddleware ..> ProblemResponse : returns
+Logger --> LogRedactor : uses
+Logger ..> RequestContext : reads
+RequestLoggingMiddleware ..> Logger : uses
+ExceptionHandlingMiddleware ..> Logger : uses
+JobPublisher ..> JobMessage : sends
+JobPublisher ..> RequestContext : reads
+JobRunner ..> RequestContext : restores
+ServerErrorPage ..> ProblemResponse : shows correlationId
+@enduml

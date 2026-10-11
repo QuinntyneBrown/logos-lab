@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Apply preferences when notifying
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "Calling action\n(any feature)" as caller
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "NotificationService" as notif
+  participant "EmailService" as email
+  participant "NotificationPreferenceService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+caller -> notif : notify(recipient, category, content)
+notif -> service : isEnabled(recipient, category, InApp)
+service -> db : Read preference row
+db --> service : Row
+alt in-app on
+  notif -> db : Insert notification
+else in-app off
+  notif -> notif : Store nothing (L2-093)
+end
+caller -> email : queueActivity(recipient, category, data)
+alt category is always-on (verification, password reset, sign-in alert, moderation notice, event cancellation)
+  email -> email : Queue regardless of preferences (L2-093)
+else member-controlled category
+  email -> service : isEnabled(recipient, category, Email)
+  service --> email : Result
+  alt email off for category
+    email --> caller : Not sent; in-app follows its own setting (L2-093)
+  else email on
+    email -> db : Insert outbox row and enqueue send
+  end
+end
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Encrypt data at rest
+
+System_Boundary(ll, "Logos Lab") {
+  Container(api, "Logos Lab API", "Next.js", "Encrypts direct messages and MFA secrets at the application level")
+  Container(worker, "Logos Lab Worker", "Node.js", "Decrypts messages for exports")
+  ContainerDb(db, "Logos Lab database", "Amazon RDS PostgreSQL", "Storage and snapshots encrypted with a KMS key")
+  ContainerDb(s3, "Media storage", "Amazon S3", "SSE-KMS default bucket encryption")
+  ContainerDb(cache, "Cache", "ElastiCache for Redis", "Encryption at rest enabled")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "SSE-KMS")
+}
+System_Ext(kms, "AWS KMS", "Customer managed keys")
+System_Ext(cw, "Amazon CloudWatch Logs", "Log groups encrypted with a KMS key")
+System_Ext(trail, "AWS CloudTrail", "Key use log")
+Rel(api, db, "Stores ciphertext fields", "SQL over TLS")
+Rel(worker, db, "Reads ciphertext fields", "SQL over TLS")
+Rel(api, kms, "GenerateDataKey and Decrypt", "API task role")
+Rel(worker, kms, "Decrypt", "Worker task role")
+Rel(db, kms, "Encrypts storage and backups with")
+Rel(s3, kms, "Encrypts objects with")
+Rel(cache, kms, "Encrypts snapshots with")
+Rel(queue, kms, "Encrypts messages with")
+Rel(cw, kms, "Encrypts log groups with")
+Rel(kms, trail, "Logs every key use")
+@enduml

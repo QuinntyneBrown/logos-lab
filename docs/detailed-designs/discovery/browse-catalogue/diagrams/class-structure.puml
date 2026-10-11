@@ -1,0 +1,125 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Browse the catalogue
+
+package "Logos Lab Web" {
+  class ExplorePage {
+    -catalogueApi: CatalogueApi
+    -router: Router
+    +state: Signal<CatalogueFilterState>
+    +results: Signal<CataloguePage>
+    +applyFilter(name: string, value: string): void
+    +clearFilters(): void
+    +changeSort(sort: CatalogueSort): void
+    +openFilters(): void
+  }
+  class ExploreFiltersDialog {
+    +state: CatalogueFilterState
+    +resultCount: Signal<number>
+    +done(): void
+  }
+  class CatalogueFilterState {
+    +types: string[]
+    +topics: string[]
+    +levels: string[]
+    +contributors: string[]
+    +durations: string[]
+    +sort: CatalogueSort
+    +page: number
+    +toQueryParams(): Params
+  }
+  interface CatalogueApi {
+    +browse(query: CatalogueFilterState): Observable<CataloguePage>
+  }
+  class HttpCatalogueApi
+  class CATALOGUE_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CatalogueRouteHandler <<route: GET /api/v1/catalogue>> {
+    +GET(request: Request): Promise<Response>
+  }
+  class CatalogueQueryParser {
+    +parse(params: URLSearchParams): CatalogueQuery
+  }
+  class CatalogueQuery {
+    +types: ContentType[]
+    +topicSlugs: string[]
+    +levels: Level[]
+    +contributorIds: string[]
+    +durations: DurationBand[]
+    +sort: CatalogueSort
+    +page: number
+    +pageSize: number = 24
+  }
+  class BrowseCatalogueAction {
+    +execute(query: CatalogueQuery): Promise<CataloguePage>
+  }
+  class CatalogueService {
+    +browse(query: CatalogueQuery, now: Date): Promise<CataloguePage>
+  }
+  class ContentRepository {
+    +findPublished(query: CatalogueQuery, now: Date): Promise<ContentSummary[]>
+    +countPublished(query: CatalogueQuery, now: Date): Promise<number>
+  }
+  class ContentPopularityRefreshJob {
+    +run(windowDays: number = 30): Promise<void>
+  }
+  class CataloguePage {
+    +items: ContentSummary[]
+    +total: number
+    +page: number
+    +facets: FacetCounts
+    +searchLimited: boolean
+  }
+  class ContentSummary {
+    +id: UUID
+    +type: ContentType
+    +slug: string
+    +title: string
+    +contributor: ContributorAttribution
+    +primaryTopic: TopicRef
+    +durationMinutes: number
+    +startsAt: Date
+  }
+  enum CatalogueSort {
+    Newest
+    MostPopular
+  }
+  enum Level {
+    Introductory
+    Intermediate
+    Advanced
+  }
+  enum DurationBand {
+    Under15
+    From15To60
+    Over60
+  }
+}
+ExplorePage --> CatalogueFilterState
+ExploreFiltersDialog --> CatalogueFilterState
+ExplorePage ..> ExploreFiltersDialog : opens with CDK Dialog
+ExplorePage ..> CatalogueApi : depends on
+HttpCatalogueApi ..|> CatalogueApi
+CATALOGUE_API ..> CatalogueApi : provides
+CatalogueRouteHandler ..> CatalogueQueryParser : uses
+CatalogueRouteHandler ..> BrowseCatalogueAction : invokes
+CatalogueQueryParser ..> CatalogueQuery : creates
+BrowseCatalogueAction --> CatalogueService
+CatalogueService --> ContentRepository
+CatalogueService ..> CataloguePage : returns
+CataloguePage *-- "0..24" ContentSummary
+CatalogueQuery --> CatalogueSort
+CatalogueQuery --> Level
+CatalogueQuery --> DurationBand
+ContentPopularityRefreshJob ..> ContentRepository : updates popularity
+@enduml

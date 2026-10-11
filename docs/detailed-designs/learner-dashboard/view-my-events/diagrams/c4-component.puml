@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View my events
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "MyEventsPage", "Angular page", "Upcoming and Past tabs")
+  Component(dialog, "AddToCalendarDialog", "Angular CDK dialog (events)", "Calendar options")
+  Component(client, "EventRegistrationsApi", "Contract + HttpEventRegistrationsApi", "Bound by EVENT_REGISTRATIONS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/event-registrations", "Next.js route handler", "Validate and map")
+  Component(action, "ListMyEventRegistrationsAction", "Action", "One tab")
+  Component(service, "EventRegistrationService", "Domain service", "Tab rules and waitlist position")
+  Component(repos, "EventRegistrationRepository / EventRepository", "Repositories", "User-scoped reads")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "event_registrations, events")
+Rel(page, client, "Calls")
+Rel(page, dialog, "Opens")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, service, "Uses")
+Rel(service, repos, "Reads")
+Rel(repos, db, "Reads", "SQL")
+@enduml

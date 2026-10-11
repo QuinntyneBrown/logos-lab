@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Provide captions and transcripts
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "StudioVideoCaptionsPage", "Angular page", "Track list, upload form, generate")
+  Component(dialog, "ConfirmCaptionsDialog", "Angular CDK dialog", "Confirms review")
+  Component(transcript, "ll-transcript", "Shared component", "Search, highlight, seek")
+  Component(clients, "HttpStudioVideosApi, HttpVideosApi", "API library", "Typed HTTP clients")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(routes, "Captions, transcript and preference route handlers", "app/api/v1/...", "Thin handlers")
+  Component(actions, "AddCaptionTrackAction, GenerateCaptionsAction, ConfirmCaptionReviewAction, GetTranscriptAction", "Actions", "Use cases")
+  Component(svc, "CaptionService", "Domain service", "Validate, convert SRT to WebVTT")
+  Component(rule, "VideoSubmissionRule", "Domain rule", "English track reviewed before submission")
+  Component(repo, "CaptionTrackRepository, PlayerPreferenceRepository", "Repositories", "PostgreSQL access")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "CaptionGenerateJob", "Job", "Creates the machine-generated track")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "caption_tracks, player_preferences")
+Rel(page, clients, "Lists, adds, generates")
+Rel(dialog, clients, "Confirms review")
+Rel(transcript, clients, "Loads transcript")
+Rel(clients, routes, "Calls", "JSON/HTTPS")
+Rel(routes, actions, "Invokes")
+Rel(actions, svc, "Validates and converts")
+Rel(actions, repo, "Reads and writes")
+Rel(rule, repo, "Reads tracks")
+Rel(job, svc, "Normalises generated cues")
+Rel(job, repo, "Saves draft track")
+Rel(repo, db, "SQL")
+@enduml

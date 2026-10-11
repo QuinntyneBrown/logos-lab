@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Work the moderation queue
+
+Person(moderator, "Moderator", "Logos Lab staff who review reports")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(ses, "Amazon SES", "Sends email")
+
+Rel(moderator, logoslab, "Reviews and claims reports in", "HTTPS")
+Rel(logoslab, ses, "Sends overdue notices through", "HTTPS API")
+Rel(ses, moderator, "Delivers email to")
+@enduml

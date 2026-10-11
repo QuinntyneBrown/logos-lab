@@ -1,0 +1,83 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Validate input and encode output
+
+class "RequestSchema<T>" as RequestSchema {
+  +body: Schema
+  +query: Schema
+  +params: Schema
+  +parse(input: unknown): ParseResult<T>
+}
+class ValidationProblem <<RFC 9457>> {
+  +type: string
+  +title: string
+  +status: number = 400
+  +errors: Map<string, string[]>
+}
+class RequestValidator {
+  +validateRequest(request: NextRequest, schema: RequestSchema): Result<T, ValidationProblem>
+  -stripUnknownKeys(input: object): object
+}
+class UpdateProfileRequest <<DTO>> {
+  +displayName: string [2..50]
+  +bio: string [0..500]
+}
+class UpdateProfileAction {
+  +execute(userId: UserId, dto: UpdateProfileRequest): Promise<Profile>
+}
+class Member {
+  +id: UserId
+  +displayName: string
+  +bio: string
+  +roles: Role[]
+  +updateProfile(displayName: string, bio: string): void
+}
+class HtmlSanitizer {
+  +allowedTags: string[]
+  +sanitize(html: string): string
+}
+class SafeUrlFetcher {
+  +fetch(url: URL): Promise<FetchResult>
+  -resolve(host: string): IpAddress[]
+  -isForbidden(ip: IpAddress): boolean
+}
+enum ForbiddenAddressRange {
+  Private
+  Loopback
+  LinkLocal
+  CloudMetadata
+}
+class MemberRepository {
+  +findById(userId: UserId): Promise<Member>
+  +save(member: Member): Promise<void>
+}
+class SettingsProfilePage <<Angular page>> {
+  +form: FormGroup
+  +save(): void
+}
+interface ProfileApi {
+  +updateProfile(dto: UpdateProfileRequest): Observable<Profile>
+}
+class "PROFILE_API" as PROFILE_API <<InjectionToken>>
+SettingsProfilePage ..> ProfileApi : depends on
+PROFILE_API ..> ProfileApi : provides
+ProfileApi ..> RequestValidator : HTTPS
+RequestValidator ..> RequestSchema : applies
+RequestValidator ..> ValidationProblem : returns on failure
+UpdateProfileAction ..> UpdateProfileRequest : consumes
+UpdateProfileAction --> MemberRepository : uses
+UpdateProfileAction ..> HtmlSanitizer : uses
+MemberRepository --> Member : loads / saves
+SafeUrlFetcher --> ForbiddenAddressRange : refuses
+@enduml

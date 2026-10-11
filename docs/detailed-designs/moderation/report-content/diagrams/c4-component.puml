@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Report content
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(dialog, "ReportContentDialog", "Angular CDK dialog", "Reason and optional note")
+  Component(client, "HttpReportsApi", "ReportsApi via REPORTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "reports route", "Next.js route handler", "POST /api/v1/reports")
+  Component(action, "SubmitReportAction", "Action", "Rate limit, duplicate check, store, file into case")
+  Component(rate, "RateLimitService", "Domain service", "10 reports per hour per member")
+  Component(reports, "ReportService", "Domain service", "Validates reason and note, resolves target")
+  Component(queue, "ModerationQueueService", "Domain service", "Opens case and sets priority")
+  Component(autohide, "AutoHideService", "Domain service", "Counts the L2-088 threshold")
+  Component(repo, "ReportRepository", "Repository", "reports and moderation_cases")
+}
+ComponentDb(cache, "Cache", "Redis", "Counters")
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "reports, moderation_cases")
+
+Rel(dialog, client, "Submits report through")
+Rel(client, route, "POST", "JSON/HTTPS")
+Rel(route, action, "Calls")
+Rel(action, rate, "Checks limit with")
+Rel(action, reports, "Validates with")
+Rel(action, queue, "Files report with")
+Rel(action, autohide, "Evaluates threshold with")
+Rel(action, repo, "Stores through")
+Rel(rate, cache, "Increments", "Redis")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

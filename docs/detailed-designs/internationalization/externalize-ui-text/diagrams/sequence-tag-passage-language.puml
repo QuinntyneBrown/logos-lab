@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Tag a passage's language
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArticleEditorPage" as page
+  participant "ll-rich-editor" as editor
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/studio/articles/{articleId}" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveArticleDraftAction" as act
+  participant "LanguageTagPolicy" as pol
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> editor : Select a Hebrew word; choose Language, Hebrew
+editor -> editor : Add LanguageMark(lang = "he")
+editor -> page : Document changed
+page -> client : saveArticleDraft(articleId, document)
+client -> route : PUT
+route -> act : execute(articleId, document, currentUserId)
+act -> pol : Validate each tag and the article language (default en)
+alt Malformed tag
+  pol --> act : Invalid
+  act --> route : Error
+  route --> client : 400 problem, code content.language_invalid
+  client --> page : Field error
+else Valid
+  pol --> act : Valid
+  act -> db : Save draft with marks and language (L2-149 AC2)
+  db --> act : Saved
+  act --> route : Done
+  route --> client : 200
+  client --> page : Saved
+end
+note over page : On publish, ll-prose renders the passage as an element with lang="he" inside an html lang="en-CA" page (L2-149)
+@enduml

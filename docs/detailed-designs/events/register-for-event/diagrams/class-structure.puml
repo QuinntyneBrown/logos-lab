@@ -1,0 +1,110 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Register for an event
+
+package "Logos Lab Web" {
+  class EventFullDialog {
+    +eventId: string
+    +joinWaitlist(): void
+  }
+  class LeaveWaitlistDialog {
+    +position: number
+    +leave(): void
+  }
+  class WaitlistOfferDialog {
+    +holdUntil: Instant
+    +accept(): void
+    +decline(): void
+  }
+  interface EventsApi {
+    +register(eventId: string): Observable<EventViewerState>
+    +joinWaitlist(eventId: string): Observable<EventViewerState>
+    +leaveWaitlist(eventId: string): Observable<void>
+    +acceptOffer(eventId: string): Observable<EventViewerState>
+    +declineOffer(eventId: string): Observable<void>
+  }
+}
+package "Logos Lab API" {
+  class RegisterForEventAction {
+    +execute(userId: Uuid, eventId: Uuid): Result<EventRegistration>
+  }
+  class JoinWaitlistAction {
+    +execute(userId: Uuid, eventId: Uuid): Result<WaitlistPosition>
+  }
+  class RegistrationService {
+    +checkCutoff(e: Event, now: Instant): RuleResult
+    +hasPlace(e: Event, registered: number): boolean
+  }
+  class WaitlistService {
+    +promotionWindow: Duration = 2 h
+    +offerHold: Duration = 30 min
+    +position(entry: WaitlistEntry): number
+    +onPlaceFreed(e: Event, now: Instant): PromotionOutcome
+  }
+  class Event {
+    +id: Uuid
+    +startsAt: Instant
+    +capacity: number | null
+    +registrationClosesAt: Instant | null
+  }
+  class EventRegistration {
+    +id: Uuid
+    +eventId: Uuid
+    +userId: Uuid
+    +status: RegistrationStatus
+    +createdAt: Instant
+  }
+  class WaitlistEntry {
+    +id: Uuid
+    +eventId: Uuid
+    +userId: Uuid
+    +status: WaitlistStatus
+    +joinedAt: Instant
+    +offerExpiresAt: Instant | null
+  }
+  enum RegistrationStatus {
+    Registered
+    Cancelled
+  }
+  enum WaitlistStatus {
+    Waiting
+    Offered
+    Promoted
+    Declined
+    Expired
+    Left
+  }
+  enum PromotionOutcome {
+    AutoRegistered
+    Offered
+    NoneWaiting
+  }
+  class WaitlistPromotionJob
+  class WaitlistOfferExpiryJob
+  class RegistrationConfirmationJob
+}
+EventFullDialog ..> EventsApi : uses
+LeaveWaitlistDialog ..> EventsApi : uses
+WaitlistOfferDialog ..> EventsApi : uses
+RegisterForEventAction ..> RegistrationService : applies
+JoinWaitlistAction ..> WaitlistService : applies
+WaitlistPromotionJob ..> WaitlistService : onPlaceFreed
+WaitlistOfferExpiryJob ..> WaitlistService : passes offer on
+RegisterForEventAction ..> RegistrationConfirmationJob : enqueues
+Event "1" *-- "0..*" EventRegistration
+Event "1" *-- "0..*" WaitlistEntry
+EventRegistration --> RegistrationStatus
+WaitlistEntry --> WaitlistStatus
+WaitlistService --> PromotionOutcome
+@enduml

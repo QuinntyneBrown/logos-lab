@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Preview content
+
+Person(author, "Author or Editor", "Checks how unpublished content will look")
+Person_Ext(other, "Anyone else", "Visitor or member without access to the item")
+System(logoslab, "Logos Lab", "Learning platform at the intersection of Christianity and AI")
+System_Ext(crawler, "Search engine crawler", "Indexes public pages")
+
+Rel(author, logoslab, "Previews drafts in", "HTTPS")
+Rel(other, logoslab, "Receives 404 for preview URLs from", "HTTPS")
+Rel(crawler, logoslab, "Is told noindex for preview pages by", "HTTPS")
+@enduml

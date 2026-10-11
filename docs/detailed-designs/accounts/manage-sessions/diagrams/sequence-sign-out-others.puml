@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Sign out of all other sessions
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsSessionsPage" as page
+  participant "SignOutOthersDialog" as dialog
+  participant "AccountApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me/sessions route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListSessionsAction" as list
+  participant "SignOutOtherSessionsAction" as action
+  participant "SessionService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /settings/sessions
+page -> client : listSessions()
+client -> route : GET /api/v1/me/sessions
+route -> list : execute(currentUser)
+list -> db : Select active sessions where userId = caller
+db --> list : Sessions
+list --> route : SessionSummary[] with current flag
+route --> client : 200
+client --> page : Sessions
+page --> actor : Table: device, browser, city, last activity, "This device"
+actor -> page : Press "Sign out of all other sessions"
+page -> dialog : Open
+actor -> dialog : Confirm
+dialog -> client : signOutOtherSessions()
+client -> route : DELETE /api/v1/me/sessions/others
+route -> action : execute(currentUser)
+action -> service : revokeAllExcept(userId, currentSessionId)
+service -> db : Set revokedAt on every other active session
+db --> service : Count
+note right of service : Other devices fail on their next request; effective within 5 seconds (L2-010)
+service --> action : Count
+action --> route : Ok
+alt success
+  route --> client : 204
+  client --> dialog : Done
+  dialog --> actor : Success state
+  page --> actor : Table lists only this device
+else failure
+  route --> client : 5xx problem
+  dialog --> actor : Failed state, other sessions still signed in, Try again
+end
+@enduml

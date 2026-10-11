@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Navigate globally
+
+
+Person(visitor, "Visitor", "Not signed in")
+Person(member, "Member", "Learner, expert or staff")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+
+Rel(visitor, ll, "Navigates through the global header of", "HTTPS")
+Rel(member, ll, "Navigates through the global header of", "HTTPS")
+@enduml

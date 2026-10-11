@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Meet Core Web Vitals
+
+
+Person(visitor, "Visitor or learner", "Browser on a phone or desktop")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves hashed assets, fonts and image renditions")
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "Renders pages, reserves media boxes, reports vitals")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Receives web-vitals samples")
+  ContainerDb(s3, "Media storage", "Amazon S3", "Image renditions")
+}
+System_Ext(cw, "Amazon CloudWatch", "Metrics and alarms")
+System_Ext(ci, "CI pipeline", "BundleBudgetCheck and LighthouseGate")
+
+Rel(visitor, cdn, "Requests pages and assets", "HTTPS")
+Rel(cdn, web, "Forwards page requests to", "HTTPS")
+Rel(cdn, s3, "Reads renditions from")
+Rel(visitor, api, "Sends web-vitals beacons to", "JSON/HTTPS")
+Rel(api, cw, "Publishes metrics to", "Embedded metric format")
+Rel(ci, web, "Builds and audits")
+@enduml

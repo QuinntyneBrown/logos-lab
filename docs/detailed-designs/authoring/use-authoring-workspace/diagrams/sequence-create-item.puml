@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Create a content item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "NewContentDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateContentItemAction" as action
+  participant "ContentAccessPolicy" as policy
+  participant "ContentItem" as entity
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "ContentItemRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Choose type and working title; an editor also chooses attribution
+dialog -> dialog : Check a type is chosen and the title has 5 to 120 characters
+alt Field errors
+  dialog --> actor : Error summary with a link to each field
+else Valid input
+  dialog -> client : createItem(type, title, attribution)
+  client -> route : POST /api/v1/studio/items
+  route -> route : Authenticate, authorize and validate schema
+  route -> action : execute(currentUser, request)
+  action -> policy : creatableTypes(currentUser)
+  policy --> action : Allowed types
+  alt Expert
+    action -> entity : Create Draft owned by and attributed to the expert (L2-075)
+  else Editor
+    action -> entity : Create Draft attributed to Logos Lab or chosen experts (L2-075)
+  end
+  entity --> action : ContentItem in Draft
+  action -> repo : insert(item, attribution, first revision, transition)
+  repo -> db : INSERT in one transaction
+  db --> repo : Committed
+  repo --> action : Saved item
+  action --> route : StudioItem
+  route --> client : 201 Created with Location
+  client --> dialog : Created item
+  dialog --> actor : Close dialog and open StudioEditorPage
+end
+@enduml

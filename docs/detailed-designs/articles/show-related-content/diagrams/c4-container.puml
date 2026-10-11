@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Show related content
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(editor, "Editor", "Logos Lab staff who review and curate")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+}
+Rel(visitor, web, "Opens a content page", "HTTPS")
+Rel(editor, web, "Pins items in Studio", "HTTPS")
+Rel(web, api, "GET related; PUT related-pins", "JSON/HTTPS")
+Rel(api, db, "Reads related_pins and content_topics; writes pins", "SQL")
+@enduml

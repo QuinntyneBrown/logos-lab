@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Record consent at registration
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "RegisterPage" as page
+  participant "IdentityApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "register route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RegisterMemberAction" as action
+  participant "PolicyService" as pol
+  participant "ConsentService" as consent
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /register
+page --> actor : Form with purpose text next to each field, links to Terms and Privacy Policy (L2-114)
+actor -> page : Tick "I accept the Terms of Use and the Privacy Policy" and submit
+page -> client : register(name, email, password, acceptedVersionIds, marketingOptIn)
+client -> route : POST /api/v1/auth/register
+route -> route : Validate schema; unchecked acceptance is a field error (L2-006)
+route -> action : Execute
+action -> pol : Current Terms and Privacy Policy versions
+pol -> db : Select current versions
+db --> pol : Versions
+alt Submitted version ids are not the current ones
+  action --> route : Stale versions
+  route --> client : 409 problem response
+  client --> page : Ask the visitor to reload the policies
+else Current versions accepted
+  action -> db : Insert account (L2-006)
+  action -> consent : Record acceptances, source Registration
+  consent -> db : Insert policy_acceptances with versions and timestamp (L2-114)
+  db --> consent : Committed in the same transaction
+  action --> route : Account created
+  route --> client : 201
+  client --> page : Success
+  page --> actor : Show verify-email step
+end
+@enduml

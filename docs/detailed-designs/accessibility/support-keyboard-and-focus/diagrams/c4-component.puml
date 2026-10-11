@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Support keyboard and focus
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(shell, "AppShell", "Angular component", "Hosts skip link and main#main")
+  Component(skip, "ll-skip-link", "Shared component", "First focusable element")
+  Component(rfs, "RouteFocusService", "Angular service", "Focuses h1 after NavigationEnd")
+  Component(title, "LogosLabTitleStrategy", "TitleStrategy", "Updates document title")
+  Component(dl, "DialogLauncher", "Angular service over CDK Dialog", "Focus trap and restoration")
+  Component(sort, "ll-sortable", "Shared component", "Move up and Move down controls")
+  Component(builder, "CourseBuilderPage", "Page", "Persists lesson order")
+  Component(sapi, "HttpStudioApi", "StudioApi implementation", "reorderLessons")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "PUT /api/v1/studio/courses/{courseId}/lessons/order", "Route handler", "Authoring design")
+  Component(act, "ReorderLessonsAction", "Action", "Saves the new order")
+}
+
+Rel(shell, skip, "Renders first")
+Rel(shell, rfs, "Starts")
+Rel(rfs, title, "Runs alongside")
+Rel(builder, sort, "Renders lessons in")
+Rel(builder, dl, "Opens dialogs through")
+Rel(builder, sapi, "Saves order through")
+Rel(sapi, route, "PUT", "JSON/HTTPS")
+Rel(route, act, "Calls")
+@enduml

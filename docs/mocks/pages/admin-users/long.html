@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Users · long — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="admin-users">
+<meta name="mock:state" content="long">
+<meta name="mock:requirements" content="L2-095">
+<meta name="description" content="Page 2 of the user list with long names, long email addresses and long state labels wrapping inside the table.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><label class="vh" for="site-search">Search Logos Lab</label><input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off"></form>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 1 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">1</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Isaac Moreau" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/elijah-brooks.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="../../pages/admin/default.html">Overview</a>
+      <a href="../../pages/admin-users/default.html" aria-current="page">Users</a>
+      <a href="../../pages/admin-invitations/default.html">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="../../pages/admin-topics/default.html">Topics</a>
+      <a href="../../pages/admin-featured/default.html">Featured</a>
+      <a href="../../pages/admin-announcements/default.html">Announcements</a>
+      <a href="../../pages/admin-policies/default.html">Policies</a>
+      <a href="../../pages/admin-settings/default.html">Site settings</a>
+      <a href="../../pages/admin-audit/default.html">Audit log</a>
+      <a href="../../pages/admin-analytics/default.html">Analytics</a>
+    </nav>
+
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Admin</p>
+        <h1 class="page-head__title">Users</h1>
+        <p class="page-head__sub">4,812 accounts: 38 experts, 4 editors, 2 moderators and 2 administrators.</p>
+      </div>
+
+      <div class="toolbar">
+        <form class="search" role="search" action="../../pages/admin-users/default.html" style="flex: 1 1 var(--layout-card-min)">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <label class="vh" for="user-search">Search users by name or email</label>
+          <input class="search__input" id="user-search" name="q" type="search" placeholder="Name or email, at least 2 characters">
+          <button class="btn btn--quiet btn--sm" type="submit">Search</button>
+        </form>
+        <div class="toolbar__tools">
+          <label class="select"><span>Role</span><span class="select__wrap"><select class="select__control"><option>Any role</option><option>Learner</option><option>Expert</option><option>Editor</option><option>Moderator</option><option>Administrator</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+          <label class="select"><span>State</span><span class="select__wrap"><select class="select__control"><option>Any state</option><option>Active</option><option>Unverified</option><option>Suspended</option><option>Deactivated</option></select><svg class="select__chev icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></label>
+        </div>
+      </div>
+
+      <p class="toolbar__count" style="margin-bottom: var(--space-4)">Showing <strong>51–100</strong> of <strong>4,812</strong>, newest first</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <caption class="vh">Users, page 2 of 97</caption>
+          <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Roles</th><th scope="col">State</th><th scope="col">Created</th><th scope="col">Last sign-in</th></tr></thead>
+          <tbody>
+            <tr><td><a href="../../pages/admin-user/default.html">The Very Reverend Dr. Bartholomew Adebayo-Kristiansen</a></td><td>bartholomew.adebayo-kristiansen@stmichaelsandallangels-cathedral.example.ca</td><td>Learner, Expert, Editor</td><td><span class="badge badge--success">Active</span></td><td class="num">28 Jun 2026</td><td>11 Oct 2026</td></tr>
+            <tr><td><a href="../../pages/admin-user/default.html">Anne-Marie Thérèse Gagnon-Beauchemin</a></td><td>annemarie.gagnon-beauchemin@paroisse-sainte-famille.example.ca</td><td>Learner</td><td><span class="badge badge--success">Active</span></td><td class="num">27 Jun 2026</td><td>Today, 7:58 am</td></tr>
+            <tr><td><a href="../../pages/admin-user/unverified.html">Oluwaseun Chukwuemeka Babatunde-Okonkwo</a></td><td>oluwaseun.babatunde-okonkwo@example.ca</td><td>Learner</td><td><span class="badge badge--warning">Unverified</span></td><td class="num">27 Jun 2026</td><td>Never</td></tr>
+            <tr><td><a href="../../pages/admin-user/default.html">Sr. Maria Guadalupe Fernández de la Cruz</a></td><td>mg.fernandezdelacruz@hermanas-del-buen-pastor.example.ca</td><td>Learner, Moderator</td><td><span class="badge badge--success">Active</span></td><td class="num">26 Jun 2026</td><td>Yesterday</td></tr>
+            <tr><td><a href="../../pages/admin-user/suspended.html">Kristoffer Haldorsen-Vanderwoude</a></td><td>k.haldorsen-vanderwoude@example.ca</td><td>Learner</td><td><span class="badge badge--danger">Suspended until Mon 2 Nov 2026</span></td><td class="num">25 Jun 2026</td><td>9 Oct 2026</td></tr>
+            <tr><td><a href="../../pages/admin-user/default.html">Dr. Nkechi Adaeze Oyelaran-Whitfield</a></td><td>nkechi.oyelaran-whitfield@theological-seminary-research.example.ca</td><td>Learner, Expert</td><td><span class="badge badge--success">Active</span></td><td class="num">25 Jun 2026</td><td>Today, 9:31 am</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <nav class="pager" aria-label="Pages of users">
+        <div class="pager__meter" aria-hidden="true"><span style="--ll-pager-progress: 2%"></span></div>
+        <p class="pager__text">Page 2 of 97</p>
+        <div class="pager__pages"><a class="btn btn--quiet btn--sm" href="../../pages/admin-users/default.html">Previous page</a><a class="btn btn--quiet btn--sm" href="../../pages/admin-users/default.html">1</a><a class="btn btn--sm" href="../../pages/admin-users/long.html" aria-current="page">2</a><a class="btn btn--quiet btn--sm" href="../../pages/admin-users/long.html">3</a><span aria-hidden="true">…</span><a class="btn btn--quiet btn--sm" href="../../pages/admin-users/long.html">97</a><a class="btn btn--quiet btn--sm" href="../../pages/admin-users/long.html">Next page</a></div>
+      </nav>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__made">Logos Lab admin · actions here are recorded in the audit log</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Users</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="no-results.html">no-results</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="long.html" aria-current="page">long</a></li>
+    <li><a href="forbidden.html">forbidden</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

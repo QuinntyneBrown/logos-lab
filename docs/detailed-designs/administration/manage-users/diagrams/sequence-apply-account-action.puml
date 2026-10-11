@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Apply an account action
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminUserPage" as page
+  participant "UserActionDialog" as dialog
+  participant "AdminUsersApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST /api/v1/admin/users/{id}/suspend" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SuspendUserAction" as action
+  participant "AccountStateService" as state
+  participant "SessionService" as sessions
+  participant "AuditLogService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Activate Suspend
+page -> dialog : Open (CDK Dialog)
+actor -> dialog : Choose end date, give reason, confirm
+dialog -> client : act(id, Suspend, until, reason)
+client -> route : HTTPS POST with CSRF token
+route -> route : Authenticate and require Administrator role
+route -> action : execute(actor, id, until, reason)
+action -> db : Begin; load user for update
+alt end date in the past or reason missing
+  action --> route : 422 validation problem
+  route --> client : Problem
+  dialog --> actor : Invalid state: errors under the fields
+else target is the last Administrator
+  action -> state : assertNotLastAdministrator(user)
+  state --> action : Refused (L2-018)
+  action --> route : 409 problem with explanation
+  dialog --> actor : Action blocked with the reason
+else valid
+  action -> state : suspend(user, until) (L2-019)
+  action -> sessions : revokeAll(userId)
+  sessions -> db : Delete sessions
+  action -> audit : record(actor, "Account suspended", user, before, after, IP) (L2-099)
+  audit -> db : Insert audit_entries row
+  action -> db : Commit
+  action -> queue : Enqueue account-state email to the member
+  action --> route : AdminUserDetail
+  route --> client : 200 JSON
+  dialog --> actor : Success: sessions ended, emailed, recorded in the audit log (L2-095)
+end
+note over route, action : The other actions (resend verification, force password reset, revoke all sessions, reactivate, deactivate) follow the same path with their own endpoint
+@enduml

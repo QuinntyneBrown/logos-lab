@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Preview content
+
+package "Logos Lab Web" {
+  class PreviewPage {
+    +preview: Signal<PublicContentView>
+    +width: PreviewWidth
+    +theme: Theme
+    +setWidth(width: PreviewWidth): void
+    +setTheme(theme: Theme): void
+    +backToEditor(): void
+  }
+  enum PreviewWidth {
+    XS_375
+    MD_768
+    XL_1280
+  }
+  enum Theme {
+    Light
+    Dark
+  }
+  interface StudioApi {
+    +getPreview(id: string): Observable<PublicContentView>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+  class PublicContentView {
+    +type: ContentType
+    +title: string
+    +summary: string
+    +authors: AuthorView[]
+    +body: SafeHtml
+    +coverImage: ImageView
+    +published: boolean
+  }
+}
+
+package "Logos Lab API" {
+  class PreviewRoute <<route handler>> {
+    +GET(request: Request): Response
+  }
+  class GetPreviewAction {
+    +execute(user: CurrentUser, id: uuid): PublicContentView
+  }
+  class ContentAccessPolicy {
+    +canPreview(user: CurrentUser, item: ContentItem): boolean
+  }
+  class PublicContentMapper {
+    +fromRevision(item: ContentItem, revision: ContentRevision): PublicContentView
+  }
+  class ContentItem {
+    +id: uuid
+    +state: WorkflowState
+    +ownerId: uuid
+    +workingRevisionId: uuid
+  }
+  class ContentRevision {
+    +id: uuid
+    +fields: jsonb
+    +body: jsonb
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+PreviewPage ..> STUDIO_API : injects
+PreviewPage --> PreviewWidth
+PreviewPage --> Theme
+PreviewPage ..> PublicContentView : renders
+PreviewRoute ..> GetPreviewAction : calls
+GetPreviewAction ..> ContentAccessPolicy : uses
+GetPreviewAction ..> PublicContentMapper : uses
+PublicContentMapper ..> ContentRevision : reads
+ContentItem "1" *-- "1..*" ContentRevision
+@enduml

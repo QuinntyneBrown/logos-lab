@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Secure file uploads
+
+Person(member, "Member or expert", "Uploads avatars, images, videos and SCORM packages")
+System(ll, "Logos Lab", "Expert-curated learning platform on faith and AI")
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(member, ll, "Uploads files to", "HTTPS")
+Rel(ll, scanner, "Scans every stored file with")
+Rel(ll, ses, "Notifies uploaders of quarantined files through")
+@enduml

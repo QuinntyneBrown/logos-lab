@@ -1,0 +1,43 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Take part in a cohort
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "CohortSpacePage", "Angular page", "Announcements, discussion, members, schedule")
+  Component(dialog, "CohortAnnouncementDialog", "Angular CDK dialog", "Leader posts an announcement")
+  Component(comments, "CommentsSection", "Angular component", "Discussion feed")
+  Component(client, "CohortsApi / CommentsApi", "Contracts + HTTP implementations", "Bound by COHORTS_API and COMMENTS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/cohorts/[id]", "Next.js route handlers", "Validate and map")
+  Component(actions, "Cohort space actions", "GetCohortSpaceAction, ListCohortMembersAction, PostCohortAnnouncementAction", "One use case each")
+  Component(post, "PostCommentAction", "Action", "Discussion posts under L2-060 to L2-062")
+  Component(access, "CohortAccessService", "Domain service", "Membership check, 404 for outsiders")
+  Component(progress, "ProgressService", "Domain service (courses)", "Course progress percentages")
+  Component(repos, "Repositories", "CohortAnnouncementRepository, CohortMembershipRepository, CommentRepository", "Table access")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "CohortAnnouncementNotifyJob", "Job", "One notification per member")
+  Component(notify, "NotificationService", "Domain service", "Applies member preferences")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "Cohort, comment and notification tables")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "Job messages")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(page, client, "Calls")
+Rel(dialog, client, "Calls")
+Rel(comments, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(route, post, "Invokes")
+Rel(actions, access, "Checks membership")
+Rel(post, access, "Checks membership")
+Rel(actions, progress, "Reads progress for leader")
+Rel(actions, repos, "Loads and saves")
+Rel(actions, queue, "Enqueues notify job")
+Rel(repos, db, "Reads and writes", "SQL")
+Rel(job, queue, "Consumes")
+Rel(job, notify, "Calls")
+Rel(notify, db, "Writes notifications", "SQL")
+Rel(notify, ses, "Sends email", "HTTPS API")
+@enduml

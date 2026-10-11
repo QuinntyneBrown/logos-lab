@@ -1,0 +1,107 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Export personal data
+
+enum DataExportStatus {
+  Requested
+  Building
+  Ready
+  Failed
+  Expired
+}
+class DataExport {
+  +id: string
+  +userId: string
+  +status: DataExportStatus
+  +requestedAt: Date
+  +readyAt: Date | null
+  +expiresAt: Date | null
+  +objectKey: string | null
+  +sizeBytes: number | null
+  +isDownloadable(now: Date): boolean
+}
+class DataExportService {
+  +minIntervalHours: 24
+  +linkLifetimeDays: 7
+  +nextAllowedAt(userId: string): Date | null
+  +markReady(export: DataExport, key: string, size: number, now: Date): void
+}
+class RequestDataExportAction {
+  +execute(userId: string, password: string): Result<DataExport>
+}
+class GetDataExportAction {
+  +execute(userId: string, exportId: string): Result<DataExport>
+}
+class DownloadDataExportAction {
+  +execute(userId: string, exportId: string): Result<DownloadUrl>
+}
+class PasswordVerifier {
+  +verify(userId: string, password: string): boolean
+}
+class DataExportRepository {
+  +insert(export: DataExport): void
+  +findForUser(userId: string, exportId: string): DataExport | null
+  +latestForUser(userId: string): DataExport | null
+  +update(export: DataExport): void
+}
+class DataExportBuildJob {
+  +run(exportId: string): Promise<void>
+}
+class PersonalDataCollector {
+  +collect(userId: string): PersonalDataSet
+}
+interface PersonalDataSection {
+  +name: string
+  +collect(userId: string): Promise<object>
+}
+class ExportArchiveWriter {
+  +write(set: PersonalDataSet, key: string): Promise<number>
+}
+class SettingsDataPage {
+  +status: Signal<DataStatusView>
+  +openExportDialog(): void
+}
+class DataExportDialog {
+  +password: FormControl<string>
+  +submit(): void
+}
+class DataExportDownloadPage {
+  +export: Signal<DataExportView>
+}
+interface PersonalDataApi {
+  +getDataStatus(): Observable<DataStatusView>
+  +requestExport(password: string): Observable<DataExportView>
+  +getExport(id: string): Observable<DataExportView>
+  +downloadUrl(id: string): string
+}
+class HttpPersonalDataApi
+class "PERSONAL_DATA_API" as PERSONAL_DATA_API <<InjectionToken>>
+DataExport --> DataExportStatus : has
+RequestDataExportAction ..> PasswordVerifier : uses
+RequestDataExportAction ..> DataExportService : uses
+RequestDataExportAction ..> DataExportBuildJob : enqueues
+DownloadDataExportAction ..> DataExportService : uses
+GetDataExportAction ..> DataExportRepository : uses
+DataExportService ..> DataExportRepository : uses
+DataExportRepository --> DataExport : stores
+DataExportBuildJob ..> PersonalDataCollector : uses
+DataExportBuildJob ..> ExportArchiveWriter : uses
+PersonalDataCollector o-- "13" PersonalDataSection : runs
+HttpPersonalDataApi ..|> PersonalDataApi
+PERSONAL_DATA_API ..> PersonalDataApi : provides
+SettingsDataPage ..> PERSONAL_DATA_API : injects
+DataExportDialog ..> PERSONAL_DATA_API : injects
+DataExportDownloadPage ..> PERSONAL_DATA_API : injects
+SettingsDataPage ..> DataExportDialog : opens
+@enduml

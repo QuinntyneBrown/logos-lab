@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Launch a learning module
+
+Container_Boundary(webb, "Logos Lab Web") {
+  Component(page, "ModulePlayerPage / LessonPlayerPage", "Angular pages", "Host the module")
+  Component(player, "ll-player (SCORM variant)", "Shared component", "Toolbar, full screen, timeout")
+  Component(tess, "Tessera scorm-player", "External library component", "Sandboxed iframe, SCORM API, message bridge")
+  Component(contract, "ModulesApi / MODULES_API", "API contract and token", "launch, reportLaunchFailure")
+}
+Container_Boundary(apib, "Logos Lab API") {
+  Component(route, "modules/[slug]/launches route", "Next.js route handler", "Launch and failure endpoints")
+  Component(launch, "LaunchModuleAction", "Action", "Builds ModuleLaunch")
+  Component(elig, "LaunchEligibilityService", "Domain service", "Who may launch")
+  Component(att, "ModuleAttemptService", "Domain service", "Open or create attempt")
+  Component(signer, "ScormLaunchUrlSigner", "Infrastructure adapter", "4-hour HMAC path token")
+  Component(fail, "LogLaunchFailureAction", "Action", "Logs failure with package id")
+}
+Container_Boundary(originb, "SCORM content origin") {
+  Component(edge, "Launch token edge function", "CloudFront Function", "Validates token and expiry per request")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+ContainerDb(s3, "Media storage", "Amazon S3", "Private buckets for SCORM packages and generated files")
+
+Rel(page, player, "Renders")
+Rel(player, tess, "Hosts")
+Rel(page, contract, "Depends on")
+Rel(contract, route, "Calls through HttpModulesApi", "JSON/HTTPS")
+Rel(route, launch, "Invokes")
+Rel(route, fail, "Invokes")
+Rel(launch, elig, "Checks with")
+Rel(launch, att, "Opens attempt with")
+Rel(launch, signer, "Signs URL with")
+Rel(att, db, "Writes module_attempts", "SQL")
+Rel(tess, edge, "Requests content", "HTTPS")
+Rel(edge, s3, "Forwards valid requests", "HTTPS")
+@enduml

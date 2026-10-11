@@ -1,0 +1,109 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View an event
+
+package "Logos Lab Web" {
+  class EventPage {
+    -api: EventsApi
+    +event: Signal<PublicEventModel>
+    +viewer: Signal<EventViewerState | null>
+    +zoneMode: Signal<ZoneMode>
+    +showMap(): void
+  }
+  interface EventsApi {
+    +getEvent(slug: string): Observable<PublicEventModel>
+    +getMyEventState(eventId: string): Observable<EventViewerState>
+  }
+  enum ZoneMode {
+    Viewer
+    Event
+  }
+}
+package "Logos Lab API" {
+  class GetEventAction {
+    +execute(slug: string): Result<PublicEventModel>
+  }
+  class EventViewService {
+    +toPublic(e: Event, registered: number, now: Instant): PublicEventModel
+    +capacityState(e: Event, registered: number, now: Instant): CapacityState
+  }
+  class PublicEventModel {
+    +id: Uuid
+    +slug: string
+    +title: string
+    +description: string
+    +format: EventFormat
+    +startsAt: Instant
+    +endsAt: Instant
+    +timeZone: string
+    +agenda: AgendaItem[]
+    +venue: Venue | null
+    +capacityState: CapacityState
+    +registered: number
+    +capacity: number | null
+    +cancellation: Cancellation | null
+    +recordingVideoSlug: string | null
+  }
+  class EventViewerState {
+    +registration: RegistrationStatus | null
+    +waitlistPosition: number | null
+    +join: JoinInfo | null
+  }
+  class Event {
+    +id: Uuid
+    +slug: string
+    +format: EventFormat
+    +startsAt: Instant
+    +endsAt: Instant
+    +timeZone: string
+    +capacity: number | null
+    +registrationClosesAt: Instant | null
+    +joinUrl: string
+    +status: EventStatus
+    +cancellationReason: string
+  }
+  class Venue <<value object>> {
+    +name: string
+    +address: string
+  }
+  class AgendaItem {
+    +startsAt: LocalTime
+    +title: string
+  }
+  enum CapacityState {
+    PlacesLeft
+    Unlimited
+    FullWaitlistOpen
+    RegistrationClosed
+    Cancelled
+    Ended
+  }
+  enum EventStatus {
+    Draft
+    Published
+    Cancelled
+    Archived
+  }
+}
+EventPage ..> EventsApi : uses
+EventPage --> ZoneMode
+GetEventAction ..> EventViewService : maps with
+EventViewService ..> Event : reads
+EventViewService ..> PublicEventModel : creates
+PublicEventModel *-- "0..*" AgendaItem
+PublicEventModel *-- "0..1" Venue
+PublicEventModel --> CapacityState
+Event --> EventStatus
+Event "1" *-- "0..*" AgendaItem
+@enduml

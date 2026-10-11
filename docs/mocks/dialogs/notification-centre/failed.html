@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications · failed — Logos Lab</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="notification-centre">
+<meta name="mock:state" content="failed">
+<meta name="mock:requirements" content="L2-091">
+<meta name="description" content="The notifications could not load; the head and the settings link stay, with Try again.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="header"><div class="wrap header__inner"><a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a><div class="header__actions"><a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread" aria-expanded="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a><a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a></div></div></header>
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Tuesday 13 October</p>
+      <p class="page-head__title">Good morning, Miriam</p>
+      <p class="page-head__sub">3 courses in progress, 2 events coming up and 5 new pieces from people you follow.</p>
+    </div>
+    <div class="panel panel--compact grain"><div class="panel__grid"><div><p class="eyebrow">Continue learning</p><p class="panel__title">Representing, not resembling</p><p class="panel__text">Lesson 3.2 of Imago Dei in an Age of Machines, with Dr. Abena Mensah.</p><div class="panel__actions"><span class="btn btn--primary">Continue the lesson</span></div></div></div></div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="notice-panel" id="notice-panel" role="dialog" aria-labelledby="panel-title">
+    <div class="notice-panel__head">
+      <h1 class="notice-panel__title" id="panel-title">Notifications</h1>
+      <div class="cluster"><a class="icon-btn" href="../../pages/dashboard/default.html" aria-label="Close notifications"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></a></div>
+    </div>
+    <div class="notice-panel__body">
+        <div class="stack" style="padding: var(--space-4)">
+          <p class="inline-status inline-status--danger" role="alert"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>We couldn't load your notifications.</p>
+          <div><a class="btn btn--quiet btn--sm" href="default.html">Try again</a></div>
+        </div>
+    </div>
+    <div class="notice-panel__foot">
+      <a href="../../pages/settings-notifications/default.html">Notification settings</a>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Notifications</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="failed.html" aria-current="page">failed</a></li>
+    <li><a href="long.html">long</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

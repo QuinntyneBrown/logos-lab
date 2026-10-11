@@ -1,0 +1,123 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage sessions
+
+package "Logos Lab Web" {
+  class SettingsSessionsPage {
+    -api: AccountApi
+    +sessions: SessionSummary[]
+    +state: SessionsState
+    +openSignOutOthers(): void
+  }
+  class SignOutOthersDialog {
+    -api: AccountApi
+    +state: DialogState
+    +confirm(): void
+  }
+  class SessionTimeoutDialog {
+    -api: AuthApi
+    +secondsRemaining: number
+    +staySignedIn(): void
+  }
+  class SessionActivityService {
+    +idleTimeout: Duration
+    +onIdleWarning(): void
+  }
+  interface AccountApi {
+    +listSessions(): Observable<SessionSummary[]>
+    +signOutOtherSessions(): Observable<void>
+  }
+  interface AuthApi {
+    +signOut(): Observable<void>
+    +extendSession(): Observable<void>
+  }
+  class SessionSummary {
+    +id: Uuid
+    +deviceType: string
+    +browser: string
+    +city: string | null
+    +lastActivityAt: Instant
+    +current: boolean
+  }
+}
+package "Logos Lab API" {
+  class SessionMiddleware {
+    +handle(req: Request, next: Handler): Promise<Response>
+  }
+  class SessionService {
+    +create(user: User, ctx: RequestContext): Promise<IssuedSession>
+    +resolve(token: string, now: Instant): Promise<ResolvedSession | null>
+    +touch(sessionId: Uuid, now: Instant): Promise<void>
+    +revoke(sessionId: Uuid): Promise<void>
+    +revokeAllExcept(userId: Uuid, keep: Uuid): Promise<number>
+    +revokeAll(userId: Uuid): Promise<number>
+  }
+  class SessionPolicy {
+    +limitsFor(roles: Role[]): SessionLimits
+  }
+  class SessionLimits {
+    +idleTimeout: Duration
+    +absoluteLifetime: Duration
+  }
+  class Session {
+    +id: Uuid
+    +userId: Uuid
+    +tokenHash: string
+    +createdAt: Instant
+    +lastActivityAt: Instant
+    +deviceType: string
+    +browser: string
+    +city: string | null
+    +ipAddress: string
+    +revokedAt: Instant | null
+    +isExpired(limits: SessionLimits, now: Instant): boolean
+  }
+  class SessionRepository {
+    +findByTokenHash(hash: string): Promise<Session | null>
+    +listActive(userId: Uuid): Promise<Session[]>
+    +revokeWhere(userId: Uuid, exceptId: Uuid | null): Promise<number>
+  }
+  class SignOutOtherSessionsAction {
+    +execute(user: CurrentUser): Promise<number>
+  }
+  class SignOutAction {
+    +execute(user: CurrentUser): Promise<void>
+  }
+  class ListSessionsAction {
+    +execute(user: CurrentUser): Promise<SessionSummary[]>
+  }
+  enum Role {
+    Learner
+    Expert
+    Editor
+    Moderator
+    Administrator
+  }
+}
+SettingsSessionsPage ..> AccountApi
+SettingsSessionsPage ..> SignOutOthersDialog : opens
+SignOutOthersDialog ..> AccountApi
+SessionTimeoutDialog ..> AuthApi
+SessionActivityService ..> SessionTimeoutDialog : opens
+AccountApi ..> SessionSummary
+SessionMiddleware ..> SessionService
+SessionService ..> SessionPolicy
+SessionService ..> SessionRepository
+SessionPolicy ..> Role
+SessionPolicy ..> SessionLimits
+SessionRepository ..> Session
+SignOutOtherSessionsAction ..> SessionService
+SignOutAction ..> SessionService
+ListSessionsAction ..> SessionRepository
+@enduml

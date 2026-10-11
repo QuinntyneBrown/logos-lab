@@ -1,0 +1,114 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Sign in
+
+package "Logos Lab Web" {
+  class SignInPage {
+    -api: AuthApi
+    -returnUrls: ReturnUrlPolicy
+    +returnUrl: string | null
+    +state: SignInState
+    +submit(): void
+  }
+  class ReturnUrlPolicy {
+    +resolve(candidate: string | null): string
+  }
+  interface AuthApi {
+    +signIn(request: SignInRequest): Observable<SignInResult>
+  }
+  class HttpAuthApi
+  class SignInRequest {
+    +email: string
+    +password: string
+    +returnUrl: string | null
+  }
+  class SignInResult {
+    +status: SignInStatus
+    +mfaEnrolmentRequired: boolean
+  }
+  enum SignInStatus {
+    SignedIn
+    SecondFactorRequired
+  }
+}
+package "Logos Lab API" {
+  class SignInAction {
+    +execute(input: SignInInput, ctx: RequestContext): Promise<Result<SignInOutcome, SignInProblem>>
+  }
+  class CredentialVerifier {
+    -dummyHash: string
+    +verify(email: string, password: string): Promise<User | null>
+  }
+  class SignInThrottleService {
+    +accountLimit: number = 5
+    +ipLimit: number = 20
+    +window: Duration = 15 min
+    +lockout: Duration = 15 min
+    +check(accountKey: string, ip: string): Promise<ThrottleDecision>
+    +recordFailure(accountKey: string, ip: string): Promise<ThrottleDecision>
+    +reset(accountKey: string): Promise<void>
+  }
+  class AccountStatePolicy {
+    +assertCanSignIn(user: User): void
+  }
+  class SessionService {
+    +create(user: User, ctx: RequestContext): Promise<IssuedSession>
+  }
+  class MfaChallengeService {
+    +start(user: User): Promise<IssuedChallenge>
+  }
+  class SecurityEventLogger {
+    +log(event: SecurityEvent): void
+  }
+  class SecurityEvent {
+    +type: SecurityEventType
+    +accountId: Uuid | null
+    +ip: string
+    +userAgent: string
+    +correlationId: string
+    +at: Instant
+  }
+  class User {
+    +id: Uuid
+    +emailNormalized: string
+    +passwordHash: string
+    +state: AccountState
+    +suspendedUntil: Instant | null
+    +mfaEnabled: boolean
+  }
+  class Session {
+    +id: Uuid
+    +userId: Uuid
+    +tokenHash: string
+    +createdAt: Instant
+    +lastActivityAt: Instant
+  }
+}
+SignInPage ..> AuthApi
+SignInPage ..> ReturnUrlPolicy
+HttpAuthApi ..|> AuthApi
+AuthApi ..> SignInRequest
+AuthApi ..> SignInResult
+SignInResult --> SignInStatus
+SignInAction ..> SignInThrottleService
+SignInAction ..> CredentialVerifier
+SignInAction ..> AccountStatePolicy
+SignInAction ..> SessionService
+SignInAction ..> MfaChallengeService
+SignInAction ..> SecurityEventLogger
+SecurityEventLogger ..> SecurityEvent
+CredentialVerifier ..> User
+SessionService ..> Session : creates
+User "1" --> "*" Session
+@enduml

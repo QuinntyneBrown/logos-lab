@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Stay available
+
+Person(member, "Member or visitor", "Uses the public site and learning features")
+Person(admin, "Administrator", "Schedules and announces maintenance")
+System(ll, "Logos Lab", "Learning platform on AWS Canada (Central)")
+System_Ext(synthetics, "CloudWatch Synthetics", "Runs one-minute external checks")
+System_Ext(cloudwatch, "Amazon CloudWatch", "Stores check results and metrics")
+
+Rel(member, ll, "Uses", "HTTPS")
+Rel(admin, ll, "Schedules maintenance in", "HTTPS")
+Rel(synthetics, ll, "Checks / and /health/ready every minute", "HTTPS")
+Rel(synthetics, cloudwatch, "Records results in")
+@enduml

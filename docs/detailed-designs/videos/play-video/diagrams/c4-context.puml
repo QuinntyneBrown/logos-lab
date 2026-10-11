@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Play a video
+
+Person(learner, "Learner", "Signed-in member, or a visitor on a public preview")
+System(ll, "Logos Lab", "Christianity and AI learning platform")
+System_Ext(cw, "Amazon CloudWatch", "Logs, metrics and alarms")
+Rel(learner, ll, "Watches videos using", "HTTPS")
+Rel(ll, cw, "Writes playback error logs to")
+@enduml

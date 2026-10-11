@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Server-render public pages
+
+Person(visitor, "Visitor or member", "Reads public pages")
+System_Ext(crawler, "Search-engine crawler", "Reads HTML without running JavaScript")
+System(ll, "Logos Lab", "Serves server-rendered public pages")
+
+Rel(visitor, ll, "Reads pages", "HTTPS")
+Rel(crawler, ll, "Fetches HTML", "HTTPS")
+@enduml

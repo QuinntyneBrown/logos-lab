@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Trace across a job and an external service
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "RequestLoggingMiddleware" as reqlog
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Action" as action
+  participant "JobPublisher" as pub
+  participant "JobRunner (Worker)" as runner
+  participant "EmailSendJob" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue (SQS)" as queue
+  participant "Amazon SES" as ses
+  database "CloudWatch Logs" as logs
+end box
+actor -> web : Submit form
+web -> reqlog : POST with X-Correlation-Id c-123
+reqlog -> action : execute in RequestContext c-123
+action -> pub : publish(EmailSendJob)
+pub -> queue : SendMessage with attribute correlationId=c-123
+action --> reqlog : Result
+reqlog -> logs : Request log entry with c-123
+reqlog --> web : Response with X-Correlation-Id c-123
+queue -> runner : Receive message
+runner -> runner : Restore RequestContext c-123 (Apply L2-137)
+runner -> job : run(payload)
+job -> ses : SendEmail with message tag correlationId=c-123
+ses --> job : Message id
+job -> logs : Job log entry with c-123
+runner -> queue : Delete message
+@enduml

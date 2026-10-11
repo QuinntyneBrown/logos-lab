@@ -1,0 +1,102 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Record SCORM runtime data
+
+enum ScormVersion {
+  Scorm12
+  Scorm2004Edition3
+  Scorm2004Edition4
+}
+enum AttemptOutcome {
+  InProgress
+  Completed
+  Passed
+  Failed
+}
+class ModuleAttempt {
+  +id: string
+  +userId: string
+  +moduleId: string
+  +number: number
+  +outcome: AttemptOutcome
+  +score: number
+  +lastSequence: number
+  +lastAccessedAt: Date
+  +completedAt: Date
+  +accept(batch: RuntimeBatch): boolean
+}
+class RuntimeValue {
+  +attemptId: string
+  +element: string
+  +value: string
+  +updatedAt: Date
+}
+class RuntimeBatch {
+  +sequence: number
+  +values: Map<string, string>
+}
+class SuspendDataLimits {
+  +SCORM_12: number = 4096
+  +SCORM_2004_4TH: number = 64000
+  +SCORM_2004_3RD: number = TO SUPPLY
+}
+class TesseraScormPlayer <<external library>> {
+  +getValue(element: string): string
+  +setValue(element: string, value: string): string
+  +commit(): string
+  +lastError(): string
+}
+class ScormRuntimePersistence {
+  +onCommit(changes: Map<string, string>): void
+}
+class RuntimeCommitQueue {
+  -pending: RuntimeBatch[]
+  -nextSequence: number
+  +AUTO_COMMIT_MS: number = 30000
+  +enqueue(values: Map<string, string>): void
+  +flush(keepalive: boolean): Promise<void>
+  +onOnline(): void
+}
+interface ModulesApi {
+  +commitRuntime(attemptId: string, batch: RuntimeBatch): Observable<AttemptOutcome>
+}
+class CommitScormRuntimeAction {
+  +execute(attemptId: string, batch: RuntimeBatch, userId: string): Promise<AttemptOutcome>
+}
+class ScormRuntimeValidator {
+  +validate(version: ScormVersion, element: string, value: string): boolean
+}
+class ModuleAttemptService {
+  +applyReportedStatus(attempt: ModuleAttempt, values: Map<string, string>): Promise<AttemptOutcome>
+  +openOrCreate(userId: string, moduleId: string, newAttempt: boolean): Promise<ModuleAttempt>
+}
+class BestResultSelector {
+  +select(attempts: ModuleAttempt[]): ModuleAttempt
+}
+class LessonCompletionService {
+  +completeModuleLessons(userId: string, moduleId: string): Promise<void>
+}
+ModuleAttempt "1" *-- "*" RuntimeValue
+ModuleAttempt --> AttemptOutcome
+TesseraScormPlayer ..> ScormRuntimePersistence : commit hook
+ScormRuntimePersistence ..> RuntimeCommitQueue
+RuntimeCommitQueue ..> ModulesApi
+RuntimeCommitQueue ..> RuntimeBatch : creates
+CommitScormRuntimeAction ..> ScormRuntimeValidator
+CommitScormRuntimeAction ..> ModuleAttemptService
+ScormRuntimeValidator ..> SuspendDataLimits
+ScormRuntimeValidator --> ScormVersion
+ModuleAttemptService ..> BestResultSelector
+ModuleAttemptService ..> LessonCompletionService
+@enduml

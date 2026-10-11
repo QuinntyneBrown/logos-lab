@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Gate a pull request on security scans
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer" as actor
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Pull request workflow" as ci
+  participant "Dependency scanner" as dep
+  participant "SAST scanner" as sast
+  participant "Secret scanner" as sec
+  participant "Security gate" as gate
+end box
+actor -> ci : Open or update pull request
+par Run the three scans (L2-110)
+  ci -> dep : Scan dependencies
+  dep --> ci : Findings by severity
+else
+  ci -> sast : Scan source
+  sast --> ci : Findings by severity
+else
+  ci -> sec : Scan for secrets
+  sec --> ci : Detected secrets
+end
+ci -> gate : evaluate(findings)
+alt Any critical or high finding, or a secret
+  gate --> ci : Fail
+  ci --> actor : Build failed; merge blocked
+else None
+  gate --> ci : Pass
+  ci --> actor : Checks green; merge allowed after review
+end
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Monitor and alert
+
+Person(ops, "Operations engineer", "Watches dashboards and responds to alerts")
+System(ll, "Logos Lab", "Learning platform")
+System_Ext(cloudwatch, "Amazon CloudWatch", "Metrics, dashboards and alarms")
+System_Ext(oncall, "On-call channel", "TO SUPPLY")
+
+Rel(ll, cloudwatch, "Publishes metrics and logs to")
+Rel(cloudwatch, oncall, "Sends alarm notifications to", "Amazon SNS")
+Rel(ops, cloudwatch, "Reads dashboard in")
+Rel(oncall, ops, "Alerts")
+@enduml

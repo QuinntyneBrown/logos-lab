@@ -1,0 +1,93 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View a module page
+
+enum ModuleStatus {
+  NotStarted
+  InProgress
+  Completed
+  Passed
+  NotPassed
+}
+class ModuleOverview {
+  +id: string
+  +slug: string
+  +title: string
+  +summary: string
+  +contributor: Contributor
+  +estimatedMinutes: number
+  +topics: TopicRef[]
+  +level: string
+  +scored: boolean
+  +passMarkPercent: number
+  +partOfCourses: CourseUsage[]
+}
+class CourseUsage {
+  +courseSlug: string
+  +courseTitle: string
+  +lessonNumber: string
+  +authorName: string
+}
+class MyModuleState {
+  +status: ModuleStatus
+  +bestScore: number
+  +lastAccessedAt: Date
+  +attempts: AttemptSummary[]
+}
+class AttemptSummary {
+  +number: number
+  +startedAt: Date
+  +minutes: number
+  +score: number
+  +outcome: string
+}
+interface ModulesApi {
+  +getModule(slug: string): Observable<ModuleOverview>
+  +getMyModuleState(slug: string): Observable<MyModuleState>
+}
+class HttpModulesApi
+class ModulePage {
+  -api: ModulesApi
+  +module: Signal<ModuleOverview>
+  +me: Signal<MyModuleState>
+  +primaryAction(): string
+}
+class GetModulePageAction {
+  +execute(slug: string): Promise<ModuleOverview>
+}
+class GetMyModuleStateAction {
+  +execute(slug: string, userId: string): Promise<MyModuleState>
+}
+class ModuleCatalogueService {
+  +assertPublished(module: Module): void
+}
+class BestResultSelector {
+  +select(attempts: ModuleAttempt[]): ModuleAttempt
+}
+class CourseRepository {
+  +findPublishedCoursesUsingModule(moduleId: string): Promise<CourseUsage[]>
+}
+class ModuleAttemptRepository {
+  +listForUser(userId: string, moduleId: string): Promise<ModuleAttempt[]>
+}
+ModuleOverview "1" *-- "*" CourseUsage
+MyModuleState "1" *-- "*" AttemptSummary
+MyModuleState --> ModuleStatus
+HttpModulesApi ..|> ModulesApi
+ModulePage ..> ModulesApi : injects MODULES_API
+GetModulePageAction ..> ModuleCatalogueService
+GetModulePageAction ..> CourseRepository
+GetMyModuleStateAction ..> ModuleAttemptRepository
+GetMyModuleStateAction ..> BestResultSelector
+@enduml

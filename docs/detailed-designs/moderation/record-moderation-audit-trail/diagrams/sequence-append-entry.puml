@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Append an audit entry and refuse changes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderator or Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationActionDialog" as dialog
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "moderation routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "TakeModerationActionAction" as action
+  participant "ModerationAuditService" as audit
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "ModerationAuditRepository" as repo
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Confirm a moderation action
+dialog -> client : takeAction(reportId, request)
+client -> route : POST /api/v1/moderation/reports/{id}/actions
+route -> action : execute(currentUser, request)
+action -> db : BEGIN; apply the action
+action -> audit : append(moderator, action, target, reason, report refs, timestamp) (L2-089)
+audit -> repo : insert(entry)
+repo -> db : INSERT INTO moderation_audit_entries
+db --> repo : Inserted
+action -> db : COMMIT action and entry together
+action --> route : ActionResult
+route --> client : 200 JSON
+client --> dialog : Done
+dialog --> actor : Action taken and recorded
+opt Anyone attempts to change an entry
+  actor -> route : PATCH or DELETE /api/v1/moderation/audit/{id}
+  route --> actor : 405 problem response; no change route exists (L2-089)
+  note over db
+    Direct SQL UPDATE or DELETE fails:
+    the API role lacks the grant, and the
+    BEFORE UPDATE OR DELETE trigger raises
+    for every role, including administrators.
+  end note
+end
+@enduml

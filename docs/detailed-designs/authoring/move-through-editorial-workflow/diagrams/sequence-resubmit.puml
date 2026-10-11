@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Resubmit and review the changes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert (owner)" as owner
+actor "Editor" as editor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioEditorPage" as epage
+  participant "ReviewItemPage" as rpage
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items/{id} routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ResolveReviewCommentAction" as resolve
+  participant "SubmitForReviewAction" as submit
+  participant "RevisionService" as diffsvc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+owner -> epage : Edit fields and mark each comment resolved
+epage -> client : resolveReviewComment(id, commentId)
+client -> route : PATCH /api/v1/studio/items/{id}/review-comments/{commentId}
+route -> resolve : execute(owner, id, commentId)
+resolve -> db : Set resolvedAt and resolvedBy
+db --> resolve : Saved
+resolve --> route : Resolved
+route --> client : 204 No Content
+owner -> epage : Submit for review again
+epage -> client : submit(id, note, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/submit
+route -> submit : execute(owner, id, note, rowVersion)
+submit -> db : Validate (L2-082), Changes requested to In review (L2-076), keep previous snapshot
+db --> submit : Commit
+submit --> route : Item In review
+route --> client : 200 JSON
+client --> epage : Read-only, waiting for an editor
+editor -> rpage : Open /studio/review/{id}
+rpage -> client : getItem(id) and getDiff(id)
+client -> route : GET /api/v1/studio/items/{id}/diff?since=last-submission
+route -> diffsvc : diff(previous submission snapshot, current revision)
+diffsvc -> db : Load both snapshots and comments
+db --> diffsvc : Snapshots and resolved comments
+diffsvc --> route : FieldDiff[] and resolved comment ids (L2-077)
+route --> client : 200 JSON
+client --> rpage : Diff and comments
+rpage --> editor : Resolved comments marked; ll-diff of changes since last submission
+@enduml

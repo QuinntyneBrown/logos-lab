@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Read an article
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ArticlePage" as ArticlePage
+  participant "ArticlesApi" as ArticlesApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/articles/slug" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetArticleAction" as GetArticleAction
+  participant "ArticleRepository" as ArticleRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ArticlePage : Open /articles/what-augustine-might-say
+ArticlePage -> ArticlesApi : getArticle(slug) during server render
+ArticlesApi -> route : HTTPS GET (anonymous)
+route -> GetArticleAction : execute(slug)
+GetArticleAction -> ArticleRepository : findPublishedBySlug(slug, now)
+ArticleRepository -> db : Select published article with contributors and topics
+alt not published or unknown slug
+  db --> ArticleRepository : No row
+  ArticleRepository --> GetArticleAction : None
+  GetArticleAction --> route : Not found
+  route --> ArticlesApi : 404 problem
+  ArticlesApi --> ArticlePage : Not found
+  ArticlePage --> actor : HTTP 404 and not-found page
+else published
+  db --> ArticleRepository : Article with stored reading time
+  ArticleRepository --> GetArticleAction : Article
+  GetArticleAction --> route : ArticleView
+  route --> ArticlesApi : 200 JSON
+  ArticlesApi --> ArticlePage : ArticleView
+  ArticlePage --> actor : Title, subtitle, cover with alt, contributors, dates, reading time, body at 75ch or less, topics, comments (L2-045)
+end
+@enduml

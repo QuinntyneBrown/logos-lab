@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Save an incomplete draft
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioEditorPage" as page
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items/{id} route" as route
+  participant "DraftPatchSchema" as schema
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SaveDraftAction" as action
+  participant "ContentValidationService" as validation
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Edit fields; summary still empty, no cover image
+page -> client : saveDraft(id, patch, rowVersion)
+client -> route : PATCH /api/v1/studio/items/{id}
+route -> schema : Validate types and maximum lengths
+alt Value too long or wrong type
+  schema --> route : Field errors
+  route --> client : 400 problem response with field-level errors (L2-082)
+  client --> page : Field errors
+  page --> actor : Error beside each field
+else Schema valid
+  schema --> route : Valid
+  route -> action : execute(currentUser, id, patch, rowVersion)
+  action -> db : Update revision; submission rules not run (L2-082)
+  db --> action : Saved
+  action --> route : Revision
+  route --> client : 200 JSON
+  client --> page : Saved
+  page -> client : getReadiness(id)
+  client -> route : GET /api/v1/studio/items/{id}/readiness
+  route -> validation : readiness(revision)
+  validation --> route : RuleState[]
+  route --> client : 200 JSON
+  client --> page : Checklist
+  page --> actor : Saved; checklist shows what submission still needs
+end
+@enduml

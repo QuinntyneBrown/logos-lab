@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Show suggestions while typing
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SiteSearchField" as SiteSearchField
+  participant "SearchApi" as SearchApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Rate-limiting middleware" as rl
+  participant "GET /api/v1/search/suggestions" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SuggestSearchTermsAction" as SuggestSearchTermsAction
+  participant "SearchService" as SearchService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> SiteSearchField : Type "imag" (input stops at 200 characters)
+SiteSearchField -> SiteSearchField : Wait 250 ms without a keystroke (L2-004)
+opt trimmed query has at least 2 characters
+  SiteSearchField --> actor : Busy state "Searching"
+  SiteSearchField -> SearchApi : suggest("imag")
+  SearchApi -> rl : HTTPS GET /api/v1/search/suggestions?q=imag
+  rl -> cache : Increment client counter
+  cache --> rl : Under 60 this minute
+  rl -> route : Forward
+  route -> SuggestSearchTermsAction : execute(query)
+  SuggestSearchTermsAction -> SearchService : suggest("imag", 6)
+  SearchService -> db : Prefix match over titles, topics and expert names
+  db --> SearchService : Matches
+  SearchService --> SuggestSearchTermsAction : Up to 6 suggestions
+  SuggestSearchTermsAction --> route : Suggestion[]
+  route --> SearchApi : 200 JSON
+  SearchApi --> SiteSearchField : Suggestion[]
+  alt suggestions found
+    SiteSearchField --> actor : Listbox of up to 6 options, typed letters in bold
+  else none or request failed
+    SiteSearchField --> actor : Plain message; Enter still runs the full search
+  end
+end
+@enduml

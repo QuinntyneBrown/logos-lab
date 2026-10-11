@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Support keyboard and focus
+
+
+Person(learner, "Keyboard or switch user", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR", "Skip link, focus ring, focus trap, route focus")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Persists reordered lessons")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Lesson order")
+}
+
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Saves order through", "JSON/HTTPS")
+Rel(api, db, "Writes")
+@enduml

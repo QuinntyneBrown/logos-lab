@@ -1,0 +1,87 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Control indexing
+
+package "Logos Lab Worker and API" {
+  class SitemapGenerateJob {
+    +run(payload: object, ctx: JobContext): Promise<void>
+  }
+  class SitemapService {
+    +MAX_URLS_PER_FILE: number = 50000
+    +build(): Promise<SitemapIndex>
+  }
+  class PublicUrlRepository {
+    +listPublished(type: ContentType, after: string | null, limit: number): Promise<PublishedItemRef[]>
+  }
+  class PublishedItemRef {
+    +type: ContentType
+    +slug: string
+    +lastPublishedAt: Date
+  }
+  class PublicUrlBuilder {
+    +ORIGIN: string = "https://www.logoslab.ca"
+    +build(type: ContentType, slug: string): string
+  }
+  class SitemapEntry {
+    +loc: string
+    +lastmod: Date
+  }
+  class SitemapFile {
+    +path: string
+    +entries: SitemapEntry[]
+    +toXml(): string
+  }
+  class SitemapIndex {
+    +path: string = "sitemap.xml"
+    +files: SitemapFile[]
+    +toXml(): string
+  }
+  enum ContentType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+    Expert
+    Topic
+  }
+}
+
+package "Logos Lab Web" {
+  class RobotsTxtHandler {
+    +handle(req: Request, res: Response): void
+  }
+  class RobotsPolicy {
+    +disallow: string[]
+    +sitemapUrl: string | null
+    +{static} forEnvironment(env: DeploymentEnvironment): RobotsPolicy
+  }
+  enum DeploymentEnvironment {
+    Production
+    NonProduction
+  }
+}
+
+SitemapGenerateJob ..> SitemapService : calls
+SitemapService ..> PublicUrlRepository : reads
+SitemapService ..> PublicUrlBuilder : uses
+PublicUrlRepository ..> PublishedItemRef : returns
+PublishedItemRef --> ContentType : has
+SitemapIndex "1" *-- "*" SitemapFile : references
+SitemapFile "1" *-- "1..50000" SitemapEntry : lists
+SitemapService ..> SitemapIndex : produces
+RobotsTxtHandler ..> RobotsPolicy : renders
+RobotsPolicy ..> DeploymentEnvironment : selected by
+@enduml

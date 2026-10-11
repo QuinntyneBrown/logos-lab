@@ -1,0 +1,92 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View my events
+
+package "Logos Lab Web" {
+  class MyEventsPage {
+    +tab: EventWhen
+    +rows: MyEventView[]
+    +addToCalendar(row: MyEventView): void
+  }
+  interface EventRegistrationsApi {
+    +listMine(when: EventWhen): Observable<MyEventView[]>
+  }
+  class HttpEventRegistrationsApi
+  class EVENT_REGISTRATIONS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class EventRegistrationsRouteHandler {
+    +GET(req: Request): Response
+  }
+  class ListMyEventRegistrationsAction {
+    +execute(userId: string, when: EventWhen, now: Date): Promise<MyEventView[]>
+  }
+  class EventRegistrationService {
+    +upcoming(userId: string, now: Date): MyEventView[]
+    +past(userId: string, now: Date): MyEventView[]
+    +waitlistPosition(reg: EventRegistration): number
+  }
+  class EventRegistration {
+    +eventId: string
+    +userId: string
+    +status: RegistrationStatus
+    +joinedAt: Date
+  }
+  class Event {
+    +id: string
+    +title: string
+    +startsAt: Date
+    +endsAt: Date
+    +format: EventFormat
+    +location: string | null
+    +recordingVideoId: string | null
+  }
+  class MyEventView {
+    +eventId: string
+    +title: string
+    +startsAt: Date
+    +endsAt: Date
+    +status: RegistrationStatus
+    +waitlistPosition: number | null
+    +recordingUrl: string | null
+  }
+  enum RegistrationStatus {
+    Registered
+    Waitlisted
+    Cancelled
+  }
+  enum EventWhen {
+    Upcoming
+    Past
+  }
+  enum EventFormat {
+    Online
+    InPerson
+    Hybrid
+  }
+  class EventRegistrationRepository
+  class EventRepository
+}
+MyEventsPage ..> EventRegistrationsApi
+HttpEventRegistrationsApi ..|> EventRegistrationsApi
+EVENT_REGISTRATIONS_API ..> EventRegistrationsApi : provides
+EventRegistrationsRouteHandler ..> ListMyEventRegistrationsAction
+ListMyEventRegistrationsAction ..> EventRegistrationService
+EventRegistrationService ..> EventRegistrationRepository
+EventRegistrationService ..> EventRepository
+EventRegistrationService --> MyEventView : builds
+EventRegistration "0..*" --> "1" Event
+EventRegistration --> RegistrationStatus
+Event --> EventFormat
+@enduml

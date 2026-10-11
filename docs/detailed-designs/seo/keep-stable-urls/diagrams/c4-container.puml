@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Keep stable URLs
+
+Person(visitor, "Visitor or crawler", "")
+System_Boundary(ll, "Logos Lab") {
+  Container(cdn, "CDN", "Amazon CloudFront", "Caches 301 responses")
+  Container(ssr, "Logos Lab Web — SSR server", "Angular SSR", "Normalises paths, sends 301")
+  Container(api, "Logos Lab API", "Next.js", "Content and slug-redirect endpoints")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "Items and slug_history")
+}
+Rel(visitor, cdn, "Requests", "HTTPS")
+Rel(cdn, ssr, "Forwards")
+Rel(ssr, api, "GET content and slug redirects", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

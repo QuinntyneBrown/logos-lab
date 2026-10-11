@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Effects of a block
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Blocked member" as actor
+actor "Blocker" as blocker
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ConversationPage" as page
+  participant "MessagesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Messages route handler" as route
+  participant "Comments route handler" as croute
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SendMessageAction" as send
+  participant "ListCommentsAction" as list
+  participant "BlockService" as block
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+== Blocked member messages the blocker ==
+actor -> page : Send message to blocker
+page -> client : send(conversationId, body)
+client -> route : POST /api/v1/messages/conversations/{id}/messages
+route -> send : execute(senderId, conversationId, body)
+send -> block : isBlocked(recipientId, senderId)
+block -> db : Find member_blocks row
+block --> send : true
+send -> block : isDeliveryExempt(sender, kind)
+alt staff sending a moderation or account notice
+  block --> send : true
+  send -> db : Save and deliver (L2-067)
+  route --> client : 201
+else member message
+  block --> send : false
+  send --> route : Blocked
+  route --> client : 403 problem
+  page --> actor : "You can't message this member" (L2-067)
+end
+== Blocker views comments ==
+blocker -> croute : GET /api/v1/comments?targetType&targetId
+croute -> list : execute(blockerId, query)
+list -> block : blockedIds(blockerId)
+block --> list : Set of blocked ids
+list -> list : Mark their comments collapsed (L2-067)
+list --> croute : CommentPage
+croute --> blocker : "Comment from a member you blocked" with Show
+@enduml

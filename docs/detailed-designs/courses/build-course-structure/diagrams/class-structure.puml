@@ -1,0 +1,117 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Build a course structure
+
+enum LessonType {
+  Video
+  Article
+  LearningModule
+  Text
+}
+enum NavigationMode {
+  Free
+  Sequential
+}
+class Course {
+  +id: string
+  +slug: string
+  +title: string
+  +summary: string
+  +outcomes: string[]
+  +navigation: NavigationMode
+  +estimatedMinutes: number
+  +sections: Section[]
+}
+class Section {
+  +id: string
+  +position: number
+  +title: string
+  +lessons: Lesson[]
+}
+class Lesson {
+  +id: string
+  +position: number
+  +title: string
+  +type: LessonType
+  +required: boolean
+  +itemType: string
+  +itemId: string
+  +durationMinutes: number
+}
+class CourseStructureInput {
+  +navigation: NavigationMode
+  +sections: SectionInput[]
+}
+class StructureViolation {
+  +code: string
+  +sectionId: string
+  +sectionTitle: string
+}
+class ContentUsage {
+  +courseId: string
+  +courseTitle: string
+  +lessonTitle: string
+}
+interface StudioCoursesApi {
+  +getCourseDraft(id: string): Observable<Course>
+  +saveStructure(id: string, input: CourseStructureInput): Observable<Course>
+  +submitForReview(id: string): Observable<void>
+  +searchLibrary(query: LibraryQuery): Observable<LibraryItem[]>
+  +getUsages(itemType: string, itemId: string): Observable<ContentUsage[]>
+}
+class HttpStudioCoursesApi
+class CourseBuilderPage {
+  -api: StudioCoursesApi
+  +moveUp(lessonId: string): void
+  +moveDown(lessonId: string): void
+  +drop(event: SortableDrop): void
+  +save(): void
+  +submit(): void
+}
+class ItemPickerDialog {
+  +selected: LibraryItem[]
+  +confirm(): void
+}
+class SaveCourseStructureAction {
+  +execute(courseId: string, input: CourseStructureInput, userId: string): Promise<Course>
+}
+class GetContentUsagesAction {
+  +execute(itemType: string, itemId: string): Promise<ContentUsage[]>
+}
+class CourseStructureService {
+  +apply(course: Course, input: CourseStructureInput): Course
+  +validateForSubmission(course: Course): StructureViolation[]
+}
+class CourseDurationCalculator {
+  +estimate(lessons: Lesson[]): number
+}
+class CourseRepository {
+  +findForAuthor(id: string, userId: string): Promise<Course>
+  +saveStructure(course: Course): Promise<void>
+  +findPublishedUsages(itemType: string, itemId: string): Promise<ContentUsage[]>
+}
+Course "1" *-- "1..20" Section
+Section "1" *-- "1..30" Lesson
+Lesson --> LessonType
+Course --> NavigationMode
+HttpStudioCoursesApi ..|> StudioCoursesApi
+CourseBuilderPage ..> StudioCoursesApi : injects STUDIO_COURSES_API
+CourseBuilderPage ..> ItemPickerDialog : opens
+SaveCourseStructureAction ..> CourseStructureService
+SaveCourseStructureAction ..> CourseRepository
+GetContentUsagesAction ..> CourseRepository
+CourseStructureService ..> CourseDurationCalculator
+CourseStructureService ..> StructureViolation : returns
+CourseRepository ..> ContentUsage : returns
+@enduml

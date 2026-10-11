@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Read an article
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+Person(expert, "Expert", "Invited subject-matter expert")
+Person_Ext(crawler, "Search engine crawler", "Fetches public pages")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Reads articles in", "HTTPS")
+Rel(learner, logos, "Reads and saves articles in", "HTTPS")
+Rel(expert, logos, "Writes and submits articles in", "HTTPS")
+Rel(crawler, logos, "Fetches server-rendered articles from", "HTTPS")
+@enduml

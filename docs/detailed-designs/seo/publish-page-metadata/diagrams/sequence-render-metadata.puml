@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Render page metadata
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Crawler or preview bot" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SSR server" as ssr
+  participant "CourseOverviewPage" as page
+  participant "SeoService" as seo
+  participant "StructuredDataService" as sd
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "courses route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCourseAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ssr : GET /courses/{slug}
+ssr -> page : Render
+page -> route : GET /api/v1/courses/{slug}
+route -> action : execute(slug)
+action -> db : Load published course with summary and social_image_key
+db --> action : Course
+action --> route : CourseDetail with socialImageUrl
+route --> page : 200 JSON
+page -> seo : set(PageMetadataFactory.forItem(course))
+seo -> seo : Title of 60 characters or fewer, description of 155 or fewer, canonical URL (Apply L2-143)
+seo -> seo : og:title, og:description, og:image 1200x630, og:url, og:type, twitter:card (Apply L2-143)
+page -> sd : set([course, breadcrumbs])
+sd -> sd : JSON-LD Course and BreadcrumbList (Apply L2-144)
+page --> ssr : Rendered view and head
+ssr --> actor : 200 HTML with head tags and JSON-LD
+@enduml

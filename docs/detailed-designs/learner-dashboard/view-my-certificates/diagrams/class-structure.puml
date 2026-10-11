@@ -1,0 +1,91 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View my certificates
+
+package "Logos Lab Web" {
+  class MyCertificatesPage {
+    +certificates: CertificateView[]
+    +download(c: CertificateView): void
+    +copyLink(c: CertificateView): void
+    +addToLinkedIn(c: CertificateView): void
+  }
+  class CertificateShareDialog {
+    +certificate: CertificateView
+    +copy(): void
+  }
+  interface CertificatesApi {
+    +listMine(): Observable<CertificateView[]>
+    +pdfUrl(id: string): string
+  }
+  class HttpCertificatesApi
+  class CERTIFICATES_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CertificatesRouteHandler {
+    +GET(req: Request): Response
+  }
+  class ListMyCertificatesAction {
+    +execute(userId: string): Promise<CertificateView[]>
+  }
+  class GetCertificatePdfAction {
+    +execute(userId: string, id: string): Promise<SignedUrl>
+  }
+  class CertificateShareService {
+    +verificationUrl(code: string): string
+    +linkedInUrl(c: Certificate, courseTitle: string): string
+  }
+  class Certificate {
+    +id: string
+    +userId: string
+    +courseId: string
+    +code: string
+    +completedOn: Date
+    +issuedAt: Date
+    +status: CertificateStatus
+    +revokedAt: Date | null
+    +revocationReason: string | null
+    +pdfObjectKey: string
+  }
+  class CertificateView {
+    +id: string
+    +courseTitle: string
+    +completedOn: Date
+    +code: string
+    +status: CertificateStatus
+    +shareable: boolean
+    +verificationUrl: string
+    +linkedInUrl: string | null
+  }
+  enum CertificateStatus {
+    Valid
+    Revoked
+  }
+  class CertificateRepository {
+    +listFor(userId: string): Certificate[]
+    +findOwn(id: string, userId: string): Certificate | null
+  }
+}
+MyCertificatesPage ..> CertificatesApi
+MyCertificatesPage ..> CertificateShareDialog : opens
+HttpCertificatesApi ..|> CertificatesApi
+CERTIFICATES_API ..> CertificatesApi : provides
+CertificatesRouteHandler ..> ListMyCertificatesAction
+CertificatesRouteHandler ..> GetCertificatePdfAction
+ListMyCertificatesAction ..> CertificateShareService
+ListMyCertificatesAction ..> CertificateRepository
+GetCertificatePdfAction ..> CertificateRepository
+CertificateRepository --> Certificate
+Certificate --> CertificateStatus
+ListMyCertificatesAction --> CertificateView : returns
+@enduml

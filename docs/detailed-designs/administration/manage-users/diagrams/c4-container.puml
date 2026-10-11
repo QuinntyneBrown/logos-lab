@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Manage users
+Person(admin, "Administrator", "Logos Lab staff")
+System_Ext(ses, "Amazon SES", "Email delivery")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Admin users list, user page and action dialogs")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Admin user endpoints, account-state rules")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Email jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Sends account email")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "users, sessions, consent_records, audit_entries")
+}
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, queue, "Enqueues email jobs", "SQS")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, ses, "Sends via", "AWS SDK")
+@enduml

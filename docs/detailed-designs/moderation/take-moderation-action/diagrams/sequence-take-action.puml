@@ -1,0 +1,75 @@
+@startuml
+title UML sequence behaviour — Take an action on a report
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Moderator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ModerationActionDialog" as dialog
+  participant "HttpModerationApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "report actions route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "TakeModerationActionAction" as action
+  participant "ModerationActionService" as rules
+  participant "ContentVisibilityService" as visibility
+  participant "AccountStateService" as account
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Choose action, guideline and reason; confirm
+dialog -> dialog : Require guideline and reason unless Dismiss
+alt Field errors
+  dialog --> actor : Error summary and an error on each field
+else Valid input
+  dialog -> client : takeAction(reportId, request)
+  client -> route : POST /api/v1/moderation/reports/{id}/actions
+  route -> route : Authenticate, require Moderator, validate schema
+  route -> action : execute(currentUser, request)
+  action -> db : BEGIN; load case FOR UPDATE
+  action -> rules : validate(request, target) (L2-087)
+  alt Not the claimant, or reason missing
+    rules --> action : Refused
+    action --> route : Problem
+    route --> client : 403 or 400 problem response
+    client --> dialog : Failed; nothing changed
+    dialog --> actor : Error with Try again
+  else Valid
+    alt Dismiss
+      action -> visibility : restore(target) if auto-hidden (L2-088)
+    else Hide content or Remove content
+      action -> visibility : hide(target) or remove(target)
+      visibility -> db : Set visibility; others see the removed placeholder, replies remain
+    else Warn, Suspend 1, 7 or 30 days, or Ban
+      action -> account : warn, suspend(days) or ban (L2-019)
+      account -> db : Update account state; revoke sessions for suspend and ban
+      action -> notify : sendMemberNotice(action)
+      notify -> db : INSERT member_notice with appeal deadline and in-app notice
+      notify -> sqs : Enqueue EmailSendJob with reason, guideline and how to appeal
+    end
+    action -> db : INSERT moderation_action; resolve case
+    action -> db : INSERT moderation_audit_entry (L2-089)
+    action -> db : COMMIT
+    action --> route : ActionResult
+    route --> client : 200 JSON
+    client --> dialog : Result
+    dialog --> actor : Success: what changed and who was told
+  end
+end
+@enduml

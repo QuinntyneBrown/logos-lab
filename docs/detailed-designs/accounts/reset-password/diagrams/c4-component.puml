@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Reset password
+
+Container(web, "Logos Lab Web", "Angular", "ForgotPasswordPage, ResetPasswordPage, AuthApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "password-resets route handlers", "app/api/v1/auth/password-resets", "Request, validate, complete")
+  Component(req, "RequestPasswordResetAction", "Action", "Issues a 60-minute link")
+  Component(done, "CompletePasswordResetAction", "Action", "Sets the new password")
+  Component(throttle, "PasswordResetThrottle", "Domain service", "3 requests per email per hour")
+  Component(tokens, "AccountTokenService", "Domain service", "Single-use tokens")
+  Component(pwd, "PasswordPolicyService", "Domain service", "L2-006 password rules")
+  Component(sessions, "SessionService", "Domain service", "Revokes all sessions")
+  Component(repo, "UserRepository", "Repository", "Users")
+}
+ContainerDb(cache, "Cache", "Redis", "Request counters")
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "users, account_tokens, sessions")
+ContainerQueue(queue, "Job queue", "Amazon SQS", "EmailSendJob")
+Rel(web, route, "Calls", "JSON/HTTPS")
+Rel(route, req, "Calls")
+Rel(route, done, "Calls")
+Rel(req, throttle, "Checks")
+Rel(throttle, cache, "Reads and writes")
+Rel(req, tokens, "Invalidates old, issues new")
+Rel(req, repo, "Finds user by email")
+Rel(done, tokens, "Consumes")
+Rel(done, pwd, "Validates")
+Rel(done, sessions, "revokeAll")
+Rel(done, repo, "Updates password hash")
+Rel(tokens, db, "SQL")
+Rel(repo, db, "SQL")
+Rel(req, queue, "Enqueues reset email")
+Rel(done, queue, "Enqueues confirmation email")
+@enduml

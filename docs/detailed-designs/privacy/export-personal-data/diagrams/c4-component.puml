@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Export personal data
+
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "data export route handlers", "app/api/v1/me/data-exports", "POST request, GET status, GET download")
+  Component(req, "RequestDataExportAction", "Action", "Verifies password, applies 24-hour rule, enqueues job")
+  Component(get, "GetDataExportAction", "Action", "Returns the member's latest or given export")
+  Component(dl, "DownloadDataExportAction", "Action", "Checks owner and expiry, issues download URL")
+  Component(pwd, "PasswordVerifier", "Domain service", "Checks the re-entered password")
+  Component(svc, "DataExportService", "Domain service", "Export rules: 1 per 24 hours, link lasts 7 days")
+  Component(repo, "DataExportRepository", "Repository", "data_exports, scoped to the current user")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "DataExportBuildJob", "Job", "Builds and stores the archive, then notifies")
+  Component(col, "PersonalDataCollector", "Domain service", "Runs each PersonalDataSection for the member")
+  Component(sec, "PersonalDataSection providers", "Domain services", "Profile, history, consents, learning, social, messages, preferences")
+  Component(arc, "ExportArchiveWriter", "Infrastructure service", "JSON files plus summary.html in one ZIP")
+  Component(note, "NotificationService", "Domain service", "In-app notification and email (L2-091, L2-092)")
+}
+Rel(route, req, "Calls")
+Rel(route, get, "Calls")
+Rel(route, dl, "Calls")
+Rel(req, pwd, "Verifies with")
+Rel(req, svc, "Applies rules with")
+Rel(svc, repo, "Reads and writes")
+Rel(req, job, "Enqueues", "SQS")
+Rel(job, col, "Collects with")
+Rel(col, sec, "Runs")
+Rel(job, arc, "Writes ZIP with")
+Rel(job, repo, "Marks Ready")
+Rel(job, note, "Notifies with")
+Rel(dl, svc, "Checks expiry with")
+@enduml

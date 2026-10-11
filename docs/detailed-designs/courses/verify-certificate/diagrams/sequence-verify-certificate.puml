@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Verify a certificate
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Anyone" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CertificateVerifyPage (SSR)" as page
+  participant "HttpCertificatesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Rate-limiting middleware" as rl
+  participant "certificates/[code] route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "VerifyCertificateAction" as action
+  participant "CertificateVerificationService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache (Redis)" as cache
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /certificates/{code}
+page -> client : verify(code) with viewer IP forwarded
+client -> rl : GET /api/v1/certificates/{code} (anonymous)
+rl -> cache : Increment counter for viewer IP, 60 s window
+cache --> rl : Count
+alt more than 30 in the minute (L2-032)
+  rl --> client : 429 with Retry-After
+  client --> page : Rate limited
+  page --> actor : HTTP 429, ask to wait
+else allowed
+  rl -> route : Pass request
+  route -> action : execute(code)
+  action -> db : Find certificate by code
+  db --> action : Certificate or none
+  alt unknown code
+    action --> route : NotFound
+    route --> client : 404 problem response
+    client --> page : Not found
+    page --> actor : HTTP 404, Certificate not found
+  else found
+    action -> svc : Apply L2-032 minimal projection
+    svc --> action : Verified, Revoked with date, or Unavailable
+    action --> route : CertificateVerification
+    route --> client : 200 (no-store)
+    client --> page : Result
+    page --> actor : Verified with name as issued, course, date; or revoked notice
+  end
+end
+@enduml

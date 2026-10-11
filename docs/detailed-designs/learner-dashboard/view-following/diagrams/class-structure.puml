@@ -1,0 +1,78 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View following
+
+package "Logos Lab Web" {
+  class FollowingPage {
+    +tab: FollowTargetType
+    +rows: FollowView[]
+    +openUnfollow(row: FollowView): void
+    -removeRowAndMoveFocus(row: FollowView): void
+  }
+  class UnfollowDialog {
+    +target: FollowView
+    +confirm(): void
+  }
+  interface FollowsApi {
+    +list(type: FollowTargetType): Observable<FollowList>
+    +unfollow(type: FollowTargetType, id: string): Observable<void>
+  }
+  class HttpFollowsApi
+  class FOLLOWS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class FollowsRouteHandler {
+    +GET(req: Request): Response
+    +DELETE(req: Request): Response
+  }
+  class ListFollowsAction {
+    +execute(userId: string, type: FollowTargetType): Promise<FollowList>
+  }
+  class UnfollowAction {
+    +execute(userId: string, type: FollowTargetType, id: string): Promise<void>
+  }
+  class Follow {
+    +userId: string
+    +targetType: FollowTargetType
+    +targetId: string
+    +followedAt: Date
+  }
+  class FollowView {
+    +targetType: FollowTargetType
+    +targetId: string
+    +name: string
+    +subtitle: string
+    +itemCount: number
+  }
+  enum FollowTargetType {
+    Expert
+    Collection
+  }
+  class FollowRepository {
+    +listFor(userId: string, type: FollowTargetType): FollowView[]
+    +delete(userId: string, type: FollowTargetType, id: string): void
+  }
+}
+FollowingPage ..> FollowsApi
+FollowingPage ..> UnfollowDialog : opens
+UnfollowDialog ..> FollowsApi
+HttpFollowsApi ..|> FollowsApi
+FOLLOWS_API ..> FollowsApi : provides
+FollowsRouteHandler ..> ListFollowsAction
+FollowsRouteHandler ..> UnfollowAction
+ListFollowsAction ..> FollowRepository
+UnfollowAction ..> FollowRepository
+FollowRepository --> Follow
+Follow --> FollowTargetType
+@enduml

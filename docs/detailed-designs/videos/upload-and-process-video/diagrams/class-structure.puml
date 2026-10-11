@@ -1,0 +1,137 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Upload and process a video
+
+package "Logos Lab Web" {
+  class StudioVideoMediaPage {
+    -api: StudioVideosApi
+    -uploader: VideoUploader
+    +media: Signal<VideoMedia>
+    +onFileChosen(file: File): void
+    +pause(): void
+    +resume(): void
+    +cancel(): void
+    +retryProcessing(): void
+  }
+  class VideoUploader {
+    +maxBytes: number = 10 GB
+    +acceptedTypes: string[]
+    +start(videoId: string, file: File): Observable<UploadProgress>
+    +resume(videoId: string, uploadId: string, file: File): Observable<UploadProgress>
+    +pause(): void
+  }
+  interface StudioVideosApi {
+    +createUpload(videoId: string, req: CreateUploadRequest): Observable<UploadSession>
+    +getUpload(videoId: string, uploadId: string): Observable<UploadSession>
+    +completeUpload(videoId: string, uploadId: string, parts: CompletedPart[]): Observable<VideoMedia>
+    +cancelUpload(videoId: string, uploadId: string): Observable<void>
+    +getMedia(videoId: string): Observable<VideoMedia>
+    +retryProcessing(videoId: string): Observable<VideoMedia>
+  }
+  class HttpStudioVideosApi
+  class "STUDIO_VIDEOS_API" as Token <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CreateVideoUploadAction {
+    +execute(userId: Uuid, videoId: Uuid, req: CreateUploadRequest): Result<UploadSession>
+  }
+  class CompleteVideoUploadAction {
+    +execute(userId: Uuid, videoId: Uuid, uploadId: Uuid, parts: CompletedPart[]): Result<VideoMedia>
+  }
+  class RetryVideoProcessingAction {
+    +execute(userId: Uuid, videoId: Uuid): Result<VideoMedia>
+  }
+  class VideoUploadService {
+    +validate(fileName: string, declaredType: string, sizeBytes: number): ValidationResult
+    +partSizeBytes(): number
+  }
+  class VideoProcessingService {
+    +start(video: Video): void
+    +renditionLadder(sourceHeight: number): RenditionHeight[]
+    +applyStatus(event: TranscodeStatusEvent): void
+  }
+  class Video {
+    +id: Uuid
+    +ownerId: Uuid
+    +title: string
+    +workflowState: WorkflowState
+    +durationSeconds: number
+  }
+  class VideoSourceFile {
+    +storageKey: string
+    +fileName: string
+    +container: VideoContainer
+    +sizeBytes: number
+    +width: number
+    +height: number
+  }
+  class VideoUpload {
+    +id: Uuid
+    +s3UploadId: string
+    +sizeBytes: number
+    +partSizeBytes: number
+    +partCount: number
+    +state: UploadState
+  }
+  class VideoProcessing {
+    +state: ProcessingState
+    +progressPercent: number
+    +mediaConvertJobId: string
+    +failureReason: string
+    +posterKey: string
+  }
+  class VideoRendition {
+    +height: RenditionHeight
+    +playlistKey: string
+    +sizeBytes: number
+    +state: OutputState
+  }
+  enum ProcessingState {
+    Uploading
+    Scanning
+    Transcoding
+    Ready
+    Failed
+  }
+  enum VideoContainer {
+    MP4
+    MOV
+    WebM
+  }
+  enum RenditionHeight {
+    P360
+    P720
+    P1080
+  }
+  class VideoRepository
+  class VideoUploadRepository
+}
+StudioVideoMediaPage ..> StudioVideosApi : uses
+StudioVideoMediaPage ..> VideoUploader : uses
+VideoUploader ..> StudioVideosApi : uses
+HttpStudioVideosApi ..|> StudioVideosApi
+Token ..> StudioVideosApi : provides
+CreateVideoUploadAction ..> VideoUploadService : validates with
+CreateVideoUploadAction ..> VideoUploadRepository : saves
+CompleteVideoUploadAction ..> VideoProcessingService : starts
+RetryVideoProcessingAction ..> VideoProcessingService : restarts
+VideoProcessingService ..> VideoRepository : loads / saves
+Video "1" *-- "0..1" VideoSourceFile
+Video "1" *-- "1" VideoProcessing
+Video "1" *-- "0..3" VideoRendition
+Video "1" --> "0..*" VideoUpload
+VideoSourceFile --> VideoContainer
+VideoProcessing --> ProcessingState
+VideoRendition --> RenditionHeight
+@enduml

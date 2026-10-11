@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Waitlist promotion
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Waitlisted member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "WaitlistOfferDialog" as dialog
+  participant "EventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "offer route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "WaitlistPromotionJob" as job
+  participant "WaitlistService" as svc
+  participant "AcceptWaitlistOfferAction" as accept
+  participant "WaitlistOfferExpiryJob" as expiry
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as q
+  participant "Amazon SES" as ses
+end box
+q -> job : Place freed on event
+job -> svc : onPlaceFreed(event, now)
+svc -> db : Lock event, first Waiting entry by joinedAt
+alt More than 2 hours before start (L2-054)
+  svc -> db : Register member, entry Promoted
+  svc -> ses : Email "You're registered" with .ics
+  svc -> db : In-app notification
+else Less than 2 hours before start
+  svc -> db : Entry Offered, offerExpiresAt = now + 30 min
+  svc -> ses : Email offer
+  svc -> db : In-app notification with action
+  svc -> q : Schedule WaitlistOfferExpiryJob at expiry
+  alt Member accepts in time
+    actor -> dialog : Accept the place
+    dialog -> client : acceptOffer(eventId)
+    client -> route : POST /api/v1/events/{eventId}/waitlist/offer/accept
+    route -> accept : execute(userId, eventId)
+    accept -> db : Check hold open, register, entry Promoted
+    route --> client : 200 Registered
+    dialog --> actor : "The place is yours"
+  else Hold expires
+    q -> expiry : At offerExpiresAt
+    expiry -> db : Entry Expired if still Offered (idempotent)
+    expiry -> svc : onPlaceFreed(event, now) for the next member
+    dialog --> actor : "This offer has expired"
+  end
+end
+@enduml

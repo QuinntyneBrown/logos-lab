@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notification settings · default — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="settings-notifications">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-093 L2-094 L2-057">
+<meta name="description" content="Miriam's notification settings: 7 categories, each with its own In Logos Lab and Email choice, and the always-on security emails folded away.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Settings">
+      <p class="sidebar-nav__group">Settings</p>
+      <a href="../../pages/settings-profile/default.html">Profile</a>
+      <a href="../../pages/settings-account/default.html">Email and password</a>
+      <a href="../../pages/settings-security/default.html">Security</a>
+      <a href="../../pages/settings-sessions/default.html">Sessions</a>
+      <a href="../../pages/settings-notifications/default.html" aria-current="page">Notifications</a>
+      <a href="../../pages/settings-privacy/default.html">Privacy and messaging</a>
+      <a href="../../pages/settings-data/default.html">Your data</a>
+      <a href="../../pages/settings-blocked/default.html">Blocked members</a>
+    </nav>
+
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Settings</p>
+        <h1 class="page-head__title">Notifications</h1>
+        <p class="page-head__sub">Choose what reaches you in Logos Lab and what reaches you by email. You choose each category separately for each.</p>
+      </div>
+
+      <form class="form-card" action="submitting.html">
+        <fieldset class="form-section">
+          <legend class="form-section__title">Categories</legend>
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption class="vh">Notification categories, in Logos Lab and by email</caption>
+            <thead><tr><th scope="col">Category</th><th scope="col">In Logos Lab</th><th scope="col">Email</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><span class="rows__title">New content from people you follow</span><p class="rows__meta">When an expert or collection you follow publishes something new.</p></td>
+              <td><input class="check__box" type="checkbox" name="follow-inapp" aria-label="In Logos Lab: New content from people you follow" checked></td>
+              <td><input class="check__box" type="checkbox" name="follow-email" aria-label="Email: New content from people you follow" checked></td>
+            </tr>
+            <tr>
+              <td><span class="rows__title">Replies to your comments</span><p class="rows__meta">When someone replies to a comment you wrote.</p></td>
+              <td><input class="check__box" type="checkbox" name="replies-inapp" aria-label="In Logos Lab: Replies to your comments" checked></td>
+              <td><input class="check__box" type="checkbox" name="replies-email" aria-label="Email: Replies to your comments" checked></td>
+            </tr>
+            <tr>
+              <td><span class="rows__title">Direct messages</span><p class="rows__meta">When a member sends you a new message.</p></td>
+              <td><input class="check__box" type="checkbox" name="messages-inapp" aria-label="In Logos Lab: Direct messages" checked></td>
+              <td><input class="check__box" type="checkbox" name="messages-email" aria-label="Email: Direct messages" checked></td>
+            </tr>
+            <tr>
+              <td><span class="rows__title">Cohort announcements</span><p class="rows__meta">When your cohort leader posts an announcement.</p></td>
+              <td><input class="check__box" type="checkbox" name="cohort-inapp" aria-label="In Logos Lab: Cohort announcements" checked></td>
+              <td><input class="check__box" type="checkbox" name="cohort-email" aria-label="Email: Cohort announcements" checked></td>
+            </tr>
+            <tr>
+              <td><span class="rows__title">Event reminders</span><p class="rows__meta">24 hours and 1 hour before events you've registered for.</p></td>
+              <td><input class="check__box" type="checkbox" name="reminders-inapp" aria-label="In Logos Lab: Event reminders" checked></td>
+              <td><input class="check__box" type="checkbox" name="reminders-email" aria-label="Email: Event reminders" checked></td>
+            </tr>
+            <tr>
+              <td><span class="rows__title">Event changes</span><p class="rows__meta">When an event you're registered or waitlisted for changes its time, format or venue.</p></td>
+              <td><input class="check__box" type="checkbox" name="changes-inapp" aria-label="In Logos Lab: Event changes" checked></td>
+              <td><input class="check__box" type="checkbox" name="changes-email" aria-label="Email: Event changes" checked></td>
+            </tr>
+            <tr>
+              <td><span class="rows__title">Platform news</span><p class="rows__meta">New courses, events and features from Logos Lab, about once a month.</p></td>
+              <td><input class="check__box" type="checkbox" name="news-inapp" aria-label="In Logos Lab: Platform news" checked></td>
+              <td><input class="check__box" type="checkbox" name="news-email" aria-label="Email: Platform news"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        </fieldset>
+        <section class="form-section" aria-label="Always on">
+        <details class="accordion">
+          <summary><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>Always on: 5 security and account emails</summary>
+          <div class="accordion__body">
+            <p class="muted">These keep your account safe and tell you about things you're signed up for, so they can't be turned off. They still reach you if you block a staff member.</p>
+            <div class="table-wrap" style="margin-top: var(--space-4)">
+              <table class="data-table">
+                <caption class="vh">Emails that are always sent</caption>
+                <thead><tr><th scope="col">Email</th><th scope="col">Status</th></tr></thead>
+                <tbody>
+              <tr><td><span class="rows__title">Email verification</span><p class="rows__meta">Links to confirm a new or changed email address.</p></td><td><span class="badge badge--success">Always on</span></td></tr>
+              <tr><td><span class="rows__title">Password reset</span><p class="rows__meta">Links you ask for when you forget your password.</p></td><td><span class="badge badge--success">Always on</span></td></tr>
+              <tr><td><span class="rows__title">Sign-in alerts</span><p class="rows__meta">When someone signs in to your account from a new device.</p></td><td><span class="badge badge--success">Always on</span></td></tr>
+              <tr><td><span class="rows__title">Moderation notices</span><p class="rows__meta">When a moderator acts on your account or your content.</p></td><td><span class="badge badge--success">Always on</span></td></tr>
+              <tr><td><span class="rows__title">Event cancellations</span><p class="rows__meta">When an event you're registered or waitlisted for is cancelled, with the reason.</p></td><td><span class="badge badge--success">Always on</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+        </section>
+        <div class="form-actions"><button class="btn btn--primary" type="submit">Save notification settings</button></div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Notification settings</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="read-only.html">read-only</a></li>
+    <li><a href="locked.html">locked</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="submitting.html">submitting</a></li>
+    <li><a href="success.html">success</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

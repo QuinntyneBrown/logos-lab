@@ -1,0 +1,81 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — View a video page
+
+package "Logos Lab Web" {
+  class VideoPage {
+    -api: VideosApi
+    +model: Signal<VideoPageModel>
+    +isSignedIn: Signal<boolean>
+  }
+  interface VideosApi {
+    +getVideoPage(slug: string): Observable<VideoPageModel>
+  }
+  class HttpVideosApi
+  class "VIDEOS_API" as Token <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class GetVideoPageAction {
+    +execute(slug: string): Result<VideoPageModel>
+  }
+  class VideoPageService {
+    +build(video: Video): VideoPageModel
+  }
+  class VideoPageModel {
+    +id: Uuid
+    +slug: string
+    +title: string
+    +contributor: ContributorRef
+    +publishedAt: Instant
+    +durationSeconds: number
+    +description: string
+    +topics: TopicRef[]
+    +posterUrl: string
+    +isPublicPreview: boolean
+    +captionLanguages: string[]
+    +commentCount: number
+  }
+  class Membership <<value object>> {
+    +kind: MembershipKind
+    +title: string
+    +url: string
+    +position: string
+  }
+  class RelatedItem <<value object>> {
+    +type: ContentType
+    +title: string
+    +url: string
+  }
+  enum MembershipKind {
+    Collection
+    Course
+  }
+  class RelatedContentService {
+    +related(itemId: Uuid, limit: number): RelatedItem[]
+  }
+  class MembershipQuery {
+    +publishedContainersOf(videoId: Uuid): Membership[]
+  }
+}
+VideoPage ..> VideosApi : uses
+HttpVideosApi ..|> VideosApi
+Token ..> VideosApi : provides
+GetVideoPageAction ..> VideoPageService : uses
+VideoPageService ..> RelatedContentService : uses
+VideoPageService ..> MembershipQuery : uses
+VideoPageService ..> VideoPageModel : builds
+VideoPageModel *-- "0..*" Membership
+VideoPageModel *-- "0..4" RelatedItem
+Membership --> MembershipKind
+@enduml

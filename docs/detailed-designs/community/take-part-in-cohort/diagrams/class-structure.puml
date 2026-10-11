@@ -1,0 +1,111 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Take part in a cohort
+
+package "Logos Lab Web" {
+  class CohortSpacePage {
+    +space: CohortSpace
+    +members: CohortMemberView[]
+    +isLeader: boolean
+    +openAnnouncement(): void
+  }
+  class CohortAnnouncementDialog {
+    +body: string
+    +pinned: boolean
+    +publish(): void
+  }
+  interface CohortsApi {
+    +getSpace(id: string): Observable<CohortSpace>
+    +listMembers(id: string): Observable<CohortMemberView[]>
+    +postAnnouncement(id: string, req: AnnouncementRequest): Observable<AnnouncementView>
+  }
+  class HttpCohortsApi
+  class COHORTS_API <<InjectionToken>>
+}
+package "Logos Lab API" {
+  class CohortSpaceRouteHandler {
+    +GET(req: Request): Response
+    +POST(req: Request): Response
+  }
+  class GetCohortSpaceAction {
+    +execute(userId: string, cohortId: string): Promise<CohortSpace>
+  }
+  class ListCohortMembersAction {
+    +execute(userId: string, cohortId: string): Promise<CohortMemberView[]>
+  }
+  class PostCohortAnnouncementAction {
+    +execute(userId: string, cohortId: string, req: AnnouncementRequest): Promise<CohortAnnouncement>
+  }
+  class PostCommentAction {
+    +execute(userId: string, req: PostCommentRequest): Promise<Comment>
+  }
+  class CohortAccessService {
+    +resolve(userId: string, cohortId: string): CohortAccess
+    +assertMember(userId: string, cohortId: string): CohortAccess
+  }
+  class CohortAccess {
+    +cohort: Cohort
+    +role: CohortRole
+    +readOnly: boolean
+  }
+  class ProgressService {
+    +coursePercent(userId: string, courseId: string): number
+  }
+  class CohortAnnouncement {
+    +id: string
+    +cohortId: string
+    +authorId: string
+    +body: string
+    +pinned: boolean
+    +publishedAt: Date
+  }
+  class CohortMemberView {
+    +userId: string
+    +displayName: string
+    +avatarUrl: string | null
+    +progressPercent: number | null
+  }
+  class Cohort
+  class CohortMembership
+  class Comment
+  class CohortAnnouncementNotifyJob {
+    +run(announcementId: string): Promise<void>
+  }
+  class NotificationService {
+    +notify(userId: string, event: NotificationEvent): Promise<void>
+  }
+  class CohortAnnouncementRepository
+}
+CohortSpacePage ..> CohortsApi
+CohortSpacePage ..> CohortAnnouncementDialog : opens
+CohortAnnouncementDialog ..> CohortsApi
+HttpCohortsApi ..|> CohortsApi
+COHORTS_API ..> CohortsApi : provides
+GetCohortSpaceAction ..> CohortAccessService
+ListCohortMembersAction ..> CohortAccessService
+ListCohortMembersAction ..> ProgressService : leader only
+PostCohortAnnouncementAction ..> CohortAccessService
+PostCohortAnnouncementAction ..> CohortAnnouncementRepository
+PostCohortAnnouncementAction ..> CohortAnnouncementNotifyJob : enqueues
+PostCommentAction ..> CohortAccessService : target Cohort
+CohortAnnouncementNotifyJob ..> NotificationService
+CohortAccessService --> CohortAccess : returns
+Cohort "1" *-- "0..*" CohortAnnouncement
+Cohort "1" *-- "0..*" CohortMembership
+Cohort "1" o-- "0..*" Comment : discussion
+ListCohortMembersAction --> CohortMemberView : returns
+CohortSpaceRouteHandler ..> GetCohortSpaceAction
+CohortSpaceRouteHandler ..> ListCohortMembersAction
+CohortSpaceRouteHandler ..> PostCohortAnnouncementAction
+@enduml

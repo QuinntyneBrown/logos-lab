@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Accept the community guidelines
+
+Person(member, "Member", "Contributes comments, cohort posts and messages")
+Person(admin, "Administrator", "Publishes guideline versions")
+System(ll, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+
+Rel(member, ll, "Accepts guidelines and contributes using")
+Rel(admin, ll, "Publishes guideline versions using")
+@enduml

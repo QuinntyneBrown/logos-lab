@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Upload a SCORM package
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert or editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioModulePackagePage" as page
+  participant "HttpStudioModulesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/modules/[id]/packages routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "StartPackageUploadAction" as start
+  participant "CompletePackageUploadAction" as complete
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  database "Media storage (S3)" as s3
+  queue "Job queue" as q
+end box
+actor -> page : Drop image-and-likeness-v1.zip
+page -> page : Check extension and size in browser
+alt over 500 MB or not .zip (L2-033)
+  page --> actor : Refuse before upload, name the failed rule
+else acceptable
+  page -> client : startPackageUpload(moduleId, file)
+  client -> route : POST /api/v1/studio/modules/{id}/packages
+  route -> route : Authenticate; require module author or editor (L2-016)
+  route -> start : execute(moduleId, name, size, user)
+  start -> start : Re-check size <= 500 MB and .zip
+  start -> db : Insert scorm_package, status Uploading
+  start -> s3 : Create multipart upload, presign parts
+  s3 --> start : Upload id, part URLs
+  start --> route : UploadSession
+  route --> client : 201 UploadSession
+  client --> page : Part URLs
+  loop each part
+    page -> s3 : PUT part (HTTPS)
+    page --> actor : Percent uploaded, size, time left
+  end
+  page -> client : completePackageUpload(moduleId, packageId)
+  client -> route : POST .../packages/{packageId}/upload-completion
+  route -> complete : execute(moduleId, packageId, user)
+  complete -> s3 : Complete multipart upload, read object size
+  s3 --> complete : Size
+  complete -> db : Status Validating
+  complete -> q : Enqueue ScormPackageProcessJob
+  complete --> route : ScormPackage
+  route --> client : 202 Validating
+  client --> page : Validating
+  loop until Ready or Failed
+    page -> client : getPackage(moduleId, packageId)
+    client -> route : GET .../packages/{packageId}
+    route --> client : Status and reasons
+    client --> page : Status
+    page --> actor : Stepper shows Validate, Scan or Ready
+  end
+end
+@enduml

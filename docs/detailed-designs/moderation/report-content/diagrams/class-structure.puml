@@ -1,0 +1,111 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Report content
+
+package "Logos Lab Web" {
+  class ReportContentDialog {
+    +target: ReportTarget
+    +reason: ReportReason
+    +note: string
+    +send(): Promise<void>
+  }
+  interface ReportsApi {
+    +submitReport(request: SubmitReportRequest): Observable<ReportReceipt>
+  }
+  class HttpReportsApi
+  class REPORTS_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class ReportsRoute <<route handler>> {
+    +POST(request: Request): Response
+  }
+  class SubmitReportAction {
+    +execute(user: CurrentUser, request: SubmitReportRequest): ReportReceipt
+  }
+  class RateLimitService {
+    +hit(key: string, limit: number, windowSeconds: number): RateLimitResult
+  }
+  class ReportService {
+    +resolveTarget(type: ReportTargetType, id: uuid): ReportedTarget
+    +validate(reason: ReportReason, note: string): void
+  }
+  class ModerationQueueService {
+    +fileReport(report: Report): ModerationCase
+  }
+  class AutoHideService {
+    +evaluate(caseId: uuid): void
+  }
+  class ReportRepository {
+    +findOpenByReporter(reporterId: uuid, type: ReportTargetType, targetId: uuid): Report
+    +insert(report: Report): void
+  }
+  class Report {
+    +id: uuid
+    +reference: string
+    +reporterId: uuid
+    +targetType: ReportTargetType
+    +targetId: uuid
+    +reportedMemberId: uuid
+    +reason: ReportReason
+    +note: string <<max 1,000>>
+    +caseId: uuid
+    +createdAt: timestamptz
+  }
+  class ModerationCase {
+    +id: uuid
+    +targetType: ReportTargetType
+    +targetId: uuid
+    +status: CaseStatus
+    +priority: int
+    +openedAt: timestamptz
+    +autoHidden: boolean
+  }
+  enum ReportReason {
+    Spam
+    HarassmentOrHate
+    Misinformation
+    InappropriateContent
+    Copyright
+    Other
+  }
+  enum ReportTargetType {
+    Comment
+    CohortPost
+    DirectMessage
+    MemberProfile
+    PublishedContent
+  }
+  enum CaseStatus {
+    Open
+    InReview
+    Resolved
+  }
+}
+
+HttpReportsApi ..|> ReportsApi
+REPORTS_API ..> ReportsApi : provides
+ReportContentDialog ..> REPORTS_API : injects
+ReportsRoute ..> SubmitReportAction : calls
+SubmitReportAction ..> RateLimitService : uses
+SubmitReportAction ..> ReportService : uses
+SubmitReportAction ..> ModerationQueueService : uses
+SubmitReportAction ..> AutoHideService : uses
+SubmitReportAction ..> ReportRepository : uses
+ReportRepository ..> Report : persists
+ModerationCase "1" o-- "1..*" Report
+Report --> ReportReason
+Report --> ReportTargetType
+ModerationCase --> CaseStatus
+@enduml

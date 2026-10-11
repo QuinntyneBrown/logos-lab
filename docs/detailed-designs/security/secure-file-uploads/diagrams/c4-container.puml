@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Secure file uploads
+
+Person(member, "Member or expert", "Browser")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular", "Upload dialogs and Studio media pages")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Checks declared type and size, issues upload targets")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "UploadScanJob messages")
+  Container(worker, "Logos Lab Worker", "Node.js", "Sniffs content type, scans for malware, releases or quarantines")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL", "uploads table")
+  ContainerDb(s3, "Media storage", "Amazon S3, private buckets", "Incoming, released and quarantine prefixes")
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves released files through signed URLs")
+}
+System_Ext(scanner, "Malware scanner", "<TO SUPPLY>")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Requests upload target", "JSON/HTTPS")
+Rel(web, s3, "PUTs bytes to a presigned URL", "HTTPS")
+Rel(api, db, "Records upload", "SQL")
+Rel(api, queue, "Enqueues UploadScanJob")
+Rel(queue, worker, "Delivers job")
+Rel(worker, s3, "Reads, copies and tags objects")
+Rel(worker, scanner, "Scans file")
+Rel(worker, db, "Updates upload status", "SQL")
+Rel(cdn, s3, "Reads released objects through origin access control")
+Rel(member, cdn, "Downloads released files", "HTTPS, signed URL")
+@enduml

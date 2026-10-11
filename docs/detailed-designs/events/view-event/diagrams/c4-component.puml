@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View an event
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "EventPage", "Angular page", "Route /events/:slug")
+  Component(parts, "ll-rsvp-panel, ll-timeline, ll-person-list, ll-button-group, ll-alert", "Shared components", "Panel, agenda, hosts, zone toggle, notices")
+  Component(client, "HttpEventsApi", "EventsApi via EVENTS_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "event by-slug and /me event route handlers", "app/api/v1/...", "Public and authenticated")
+  Component(action, "GetEventAction, GetMyEventStateAction", "Actions", "Use cases")
+  Component(svc, "EventViewService", "Domain service", "Capacity state, public mapping")
+  Component(repo, "EventRepository, EventRegistrationRepository", "Repositories", "Reads")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "events, event_hosts, event_agenda_items")
+Rel(page, parts, "Renders")
+Rel(page, client, "getEvent(slug), getMyEventState(id)")
+Rel(client, route, "GET", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, svc, "Maps")
+Rel(svc, repo, "Reads")
+Rel(repo, db, "SQL")
+@enduml

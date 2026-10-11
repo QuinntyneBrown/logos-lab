@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Record the moderation audit trail
+
+Person(admin, "Administrator", "Reads the trail")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "ModerationAuditPage")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "/api/v1/moderation/audit, ModerationAuditService")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "moderation_audit_entries, append-only")
+}
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "Calls ModerationApi", "JSON and CSV over HTTPS")
+Rel(api, db, "Inserts and selects only", "SQL")
+@enduml

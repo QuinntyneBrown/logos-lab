@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — List own records
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SavedPage" as page
+  participant "Area API client" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "AuthenticationMiddleware" as authn
+  participant "me/saved route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListSavedItemsAction" as action
+  participant "SavedItemRepository" as repo
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open saved items
+page -> client : listSaved(page)
+client -> authn : GET /api/v1/me/saved?page=1
+authn -> route : Request with CurrentUser
+route -> route : Parse query with strict schema
+alt query names another user (for example userId=...)
+  route --> client : 400 problem, unknown parameter refused (L2-017)
+else valid
+  route -> action : execute(CurrentUser, page)
+  action -> repo : listForOwner(CurrentUser.id, page)
+  repo -> db : SELECT ... WHERE owner_id = caller
+  db --> repo : Caller's rows only
+  repo --> action : Page of SavedItem with UUID ids
+  action --> route : Page
+  route --> client : 200
+  page --> actor : Own saved items
+end
+@enduml

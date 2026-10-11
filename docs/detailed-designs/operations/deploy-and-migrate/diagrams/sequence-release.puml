@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Release a change
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer" as actor
+actor "Release approver" as approver
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web N+1" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API N+1" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CI/CD pipeline" as ci
+  participant "MigrationRunner" as migrator
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "Container registry" as ecr
+  participant "DeploymentController" as controller
+  database "Logos Lab database" as db
+end box
+actor -> ci : Merge to main
+ci -> ci : Build images once, tag with commit SHA (Apply L2-139)
+ci -> ecr : Push images
+ci -> ci : Run lint, unit, integration, Playwright and Lighthouse
+ci -> ci : Deploy staging: IaC, migrate, same artifact
+ci -> approver : Request approval
+approver --> ci : Approve
+ci -> ci : Apply infrastructure as code to production
+ci -> migrator : Run migrate task (Apply L2-139 explicit step before traffic)
+migrator -> db : Apply expand-phase migrations
+db --> migrator : Committed
+migrator --> ci : Done
+ci -> controller : Deploy artifact with commit SHA
+controller -> api : Start instances (no migration at boot)
+controller -> web : Start instances
+controller -> api : Probe /health/ready
+api --> controller : 200
+controller -> controller : Shift traffic gradually to N+1
+controller --> ci : Succeeded
+ci --> actor : Release complete
+@enduml

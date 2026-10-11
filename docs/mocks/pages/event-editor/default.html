@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event editor · default — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="event-editor">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-052 L2-053 L2-055 L2-058 L2-059">
+<meta name="description" content="Dr. Abena Mensah editing her online Live Q&A: format, date and time with time zone, capacity with 312 registered, closing time, and a protected join link.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Studio">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/studio/default.html" aria-current="page">Studio</a></li>
+        <li><a class="nav__link" href="../../pages/studio-cohorts/default.html">Cohorts</a></li>
+        <li><a class="nav__link" href="../../pages/studio-analytics/default.html">Analytics</a></li>
+        <li><a class="nav__link" href="../../pages/studio-profile/default.html">Your profile</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/staff.html" aria-label="Your account, Dr. Abena Mensah" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/amara-osei.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="workflow">
+  <div class="wrap workflow__inner">
+    <div class="workflow__title">
+      <p class="workflow__name">Live Q&amp;A: Imago Dei and Machine Personhood</p>
+      <div class="workflow__meta">
+        <span class="badge">Revision draft</span>
+        <span class="inline-status" role="status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Saved 10:24 am</span>
+        <ol class="workflow__steps" aria-label="Workflow">
+          <li aria-current="step">Draft</li><li>In review</li><li>Approved</li><li>Published</li>
+        </ol>
+      </div>
+    </div>
+    <div class="workflow__actions">
+      <a class="btn btn--quiet btn--sm" href="../../pages/preview/default.html">Preview</a>
+      <a class="btn btn--quiet btn--sm" href="../../pages/content-history/default.html">History</a>
+      <a class="btn btn--primary btn--sm" href="../../dialogs/submit-for-review/default.html">Submit changes for review</a>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb" style="padding-top: var(--space-8)"><ol class="breadcrumb"><li><a href="../../pages/studio/default.html">Studio</a></li><li><a href="../../pages/studio/default.html">Events</a></li><li><span aria-current="page">Live Q&amp;A: Imago Dei and Machine Personhood</span></li></ol></nav>
+    <h1 class="vh">Edit event: Live Q&amp;A: Imago Dei and Machine Personhood</h1>
+
+    <div class="two-col" style="padding-block: var(--space-8) var(--space-16)">
+      <form class="form" action="../../pages/event-editor/default.html" novalidate>
+        <div class="field">
+          <label class="field__label" for="title">Title</label>
+          <input class="input" id="title" name="title" value="Live Q&amp;A: Imago Dei and Machine Personhood" aria-describedby="title-count">
+          <p class="field__counter" id="title-count">46 of 120 characters</p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="description">Description</label>
+          <p class="field__help" id="description-help">What it's about, who it's for and what to bring.</p>
+          <textarea class="textarea" id="description" name="description" aria-describedby="description-help">An hour with Dr. Abena Mensah on whether personhood could ever belong to a machine, and why the question matters for the church. Bring your questions; we'll take as many as we can. Open to everyone; the cohort gets the first ten minutes.</textarea>
+        </div>
+        <div class="field">
+          <span class="field__label" id="hosts-label">Hosts</span>
+          <div class="chips" role="group" aria-labelledby="hosts-label"><span class="chip">Dr. Abena Mensah <button type="button" class="chip__remove" aria-label="Remove Dr. Abena Mensah"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><button type="button" class="btn btn--text btn--sm">Add host</button></div>
+        </div>
+        <fieldset class="choices">
+          <legend>Format</legend>
+          <label class="choice"><input type="radio" name="format" value="online" checked><span class="choice__title">Online</span><span class="choice__text">A video call. The join link is shared only with registrants.</span></label><label class="choice"><input type="radio" name="format" value="in-person"><span class="choice__title">In person</span><span class="choice__text">At a venue, with an address and map link.</span></label><label class="choice"><input type="radio" name="format" value="hybrid"><span class="choice__title">Hybrid</span><span class="choice__text">At a venue and online at the same time.</span></label>
+        </fieldset>
+        <fieldset class="form-section" aria-describedby="when-help">
+          <legend class="form-section__title">Date and time</legend>
+          <p class="field__help" id="when-help">Shown to each viewer in their own time zone, with a toggle to the event's zone.</p>
+          <div class="field-row">
+            <div class="field"><label class="field__label" for="date">Date</label><input class="input" id="date" name="date" type="date" value="2026-10-27"></div>
+            <div class="field">
+            <label class="field__label" for="tz">Time zone</label>
+            <span class="select__wrap"><select class="select__control" id="tz" name="tz"><option selected>Eastern Time (ET)</option><option>Atlantic Time (AT)</option><option>Central Time (CT)</option><option>Mountain Time (MT)</option><option>Pacific Time (PT)</option><option>Newfoundland Time (NT)</option></select><svg class="icon icon--sm select__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+          </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label class="field__label" for="start">Starts</label><input class="input" id="start" name="start" type="time" value="12:00"></div>
+            <div class="field"><label class="field__label" for="end">Ends</label><input class="input" id="end" name="end" type="time" value="13:00"></div>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="field__label" for="join">Join link</label>
+          <p class="field__help" id="join-help"><span class="inline-status"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>Protected.</span> Never shown on the public page or in calendar files. Registrants see a Join button from 15 minutes before the start.</p>
+          <input class="input" id="join" name="join" type="url" value="https://meet.logoslab.ca/j/imago-dei-qa" aria-describedby="join-help">
+        </div>
+        <fieldset class="form-section">
+          <legend class="form-section__title">Registration</legend>
+          <div class="field">
+            <label class="field__label" for="capacity">Capacity</label>
+            <p class="field__help" id="capacity-help">312 registered so far. Leave empty for unlimited places; when it's full, members can join a waitlist.</p>
+            <input class="input" id="capacity" name="capacity" type="number" inputmode="numeric" value="500" aria-describedby="capacity-help">
+          </div>
+          <fieldset class="choices choices--inline">
+            <legend>Registration closes</legend>
+            <label class="choice"><input type="radio" name="close" value="start" checked><span class="choice__title">When it starts</span></label>
+            <label class="choice"><input type="radio" name="close" value="custom"><span class="choice__title">At a set time</span></label>
+          </fieldset>
+        </fieldset>
+        
+        <section class="danger-zone" aria-labelledby="dz-title">
+          <h2 class="danger-zone__title" id="dz-title">Cancel this event</h2>
+          <div class="danger-zone__row"><p class="danger-zone__label">Everyone registered and waitlisted is told, with your reason and a calendar cancellation.</p><a class="btn btn--danger btn--sm" href="../../dialogs/cancel-event/default.html">Cancel event</a></div>
+        </section>
+      </form>
+
+      <aside class="stack" aria-label="About this event">
+        <section class="aside-card" aria-labelledby="reg-title">
+          <h2 class="aside-card__title" id="reg-title">Registrations</h2>
+          <dl class="facts facts--inline">
+            <div><dt>Registered</dt><dd>312 of 500</dd></div>
+            <div><dt>Waitlist</dt><dd>None</dd></div>
+            <div><dt>Reminders</dt><dd>24 hours and 1 hour before</dd></div>
+          </dl>
+        </section>
+        <section class="aside-card" aria-labelledby="notify-title">
+          <h2 class="aside-card__title" id="notify-title">Telling people about changes</h2>
+          <p class="field__help">When a change to the time, format or venue is published, all 312 registrants and the waitlist get an email and a notification with an updated calendar file.</p>
+          <a class="btn btn--quiet btn--sm" href="../../dialogs/event-change-notify/default.html">Preview the message</a>
+        </section>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Event editor</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="in-person.html">in-person</a></li>
+    <li><a href="past.html">past</a></li>
+    <li><a href="cancelled.html">cancelled</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

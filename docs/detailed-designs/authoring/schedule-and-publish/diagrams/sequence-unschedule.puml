@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Unschedule
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "UnscheduleDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/unschedule route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UnscheduleContentAction" as action
+  participant "WorkflowService" as workflow
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> dialog : Confirm Unschedule
+dialog -> client : unschedule(id, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/unschedule
+route -> route : Authenticate and require Editor role
+route -> action : execute(editor, id, rowVersion)
+action -> db : Load item FOR UPDATE
+db --> action : Item
+action -> workflow : transition(item, Approved, editor) (L2-076)
+alt Already published or stale
+  workflow --> action : Refused with current state
+  action --> route : Conflict
+  route --> client : 409 problem response with current state
+  client --> dialog : Failed state; schedule unchanged
+else Allowed
+  workflow --> action : Allowed
+  action -> db : Set state Approved, clear scheduled_for, append WorkflowTransition
+  db --> action : Commit
+  action --> route : Item Approved
+  route --> client : 200 JSON
+  client --> dialog : Success
+  dialog --> actor : Back to Approved; it will not publish at the old time
+end
+@enduml

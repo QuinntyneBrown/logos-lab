@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Use touch alternatives
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Touch user" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Browser" as browser
+  participant "ll-tooltip" as tip
+  participant "ll-table" as table
+end box
+browser -> browser : Evaluate (hover: none) and (pointer: coarse)
+actor -> tip : Tap the trigger (44 by 44 px at XS to MD, L2-132 AC1)
+alt Device has no hover capability
+  tip -> tip : toggleOnTap()
+  tip --> actor : Show the same text a hover shows (L2-132 AC2)
+  actor -> tip : Tap again or press Escape
+  tip --> actor : Hide
+else Device hovers
+  tip --> actor : Show on hover and on focus
+end
+actor -> table : Swipe inside a wide table
+table -> table : Scroll .table-wrap only; page does not scroll (L2-130 AC2)
+table --> actor : Edge shadow shows more columns
+opt Keyboard user
+  actor -> table : Tab to the focusable region; press arrow keys
+  table --> actor : Region scrolls horizontally
+end
+opt Swipe gesture offered elsewhere
+  actor -> browser : Tap Previous or Next instead of swiping (L2-132 AC3)
+end
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record the administrative audit log
+Container_Boundary(web, "Logos Lab Web") {
+  Component(page, "AdminAuditPage", "Angular page", "Filters, table and pager")
+  Component(client, "AuditLogApi / HttpAuditLogApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(changeActions, "Administrative and editorial actions", "Actions", "Users, roles, invitations, taxonomy, featured, settings, policies, workflow")
+  Component(service, "AuditLogService", "Domain service", "Builds and appends entries in the caller's transaction")
+  Component(route, "GET /api/v1/admin/audit", "Route handler", "Administrator only")
+  Component(listAction, "ListAuditEntriesAction", "Action", "Filters newest first")
+  Component(repo, "AuditEntryRepository", "Repository", "Insert and select only")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "AuditArchiveJob", "Job", "Moves entries older than 2 years to cold storage")
+}
+ComponentDb(db, "audit_entries", "PostgreSQL table", "Append-only by grants and trigger")
+Rel(page, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, listAction, "Invokes")
+Rel(listAction, repo, "Uses")
+Rel(changeActions, service, "record(entry)")
+Rel(service, repo, "Uses")
+Rel(repo, db, "Inserts and selects", "SQL")
+Rel(job, db, "Exports and removes archived rows", "SQL")
+@enduml

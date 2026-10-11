@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Revoke an expert invitation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminInvitationsPage" as AdminInvitationsPage
+  participant "RevokeInvitationDialog" as RevokeInvitationDialog
+  participant "ExpertInvitationsApi" as ExpertInvitationsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "POST .../invitationId/revoke" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RevokeExpertInvitationAction" as RevokeExpertInvitationAction
+  participant "ExpertInvitationService" as ExpertInvitationService
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> AdminInvitationsPage : Press Revoke on a Pending invitation
+AdminInvitationsPage -> RevokeInvitationDialog : Open with CDK Dialog
+actor -> RevokeInvitationDialog : Confirm
+RevokeInvitationDialog -> ExpertInvitationsApi : revoke(invitationId)
+ExpertInvitationsApi -> route : HTTPS POST
+route -> route : Authenticate; require Administrator
+route -> RevokeExpertInvitationAction : execute(adminId, invitationId)
+RevokeExpertInvitationAction -> db : Load invitation
+db --> RevokeExpertInvitationAction : Invitation
+RevokeExpertInvitationAction -> ExpertInvitationService : revoke(invitation, now)
+alt status is Pending
+  ExpertInvitationService --> RevokeExpertInvitationAction : Revoked with revokedAt
+  RevokeExpertInvitationAction -> db : Update status Revoked
+  db --> RevokeExpertInvitationAction : Commit
+  RevokeExpertInvitationAction --> route : Done
+  route --> ExpertInvitationsApi : 204
+  ExpertInvitationsApi --> RevokeInvitationDialog : Revoked
+  RevokeInvitationDialog --> actor : Success; the link now shows as no longer valid (L2-020)
+else not Pending or request fails
+  RevokeExpertInvitationAction --> route : Conflict
+  route --> ExpertInvitationsApi : 409 problem
+  ExpertInvitationsApi --> RevokeInvitationDialog : Failed
+  RevokeInvitationDialog --> actor : Error; invitation unchanged
+end
+@enduml

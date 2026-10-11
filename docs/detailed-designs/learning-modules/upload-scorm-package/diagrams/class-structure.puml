@@ -1,0 +1,116 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Upload a SCORM package
+
+enum PackageStatus {
+  Uploading
+  Validating
+  Scanning
+  Ready
+  Failed
+}
+enum ScormVersion {
+  Scorm12
+  Scorm2004Edition3
+  Scorm2004Edition4
+}
+enum PackageFailureReason {
+  TooLarge
+  NotZip
+  MissingManifest
+  UnsupportedVersion
+  PathTraversal
+  SuspectedZipBomb
+  MalwareDetected
+}
+class ScormPackage {
+  +id: string
+  +moduleId: string
+  +status: PackageStatus
+  +failureReasons: PackageFailureReason[]
+  +scormVersion: ScormVersion
+  +launchHref: string
+  +fileCount: number
+  +unpackedBytes: number
+  +uploadKey: string
+  +contentPrefix: string
+  +readyAt: Date
+  +fail(reasons: PackageFailureReason[]): void
+  +markReady(at: Date): void
+}
+class PackageLimits {
+  +MAX_UPLOAD_BYTES: number = 500 MB
+  +MAX_UNPACKED_BYTES: number = 2 GB
+  +MAX_ENTRIES: number = 10000
+}
+class ManifestInfo {
+  +version: ScormVersion
+  +launchHref: string
+}
+class UploadSession {
+  +packageId: string
+  +uploadId: string
+  +partUrls: string[]
+}
+interface StudioModulesApi {
+  +startPackageUpload(moduleId: string, file: File): Observable<UploadSession>
+  +completePackageUpload(moduleId: string, packageId: string): Observable<ScormPackage>
+  +getPackage(moduleId: string, packageId: string): Observable<ScormPackage>
+  +cancelPackageUpload(moduleId: string, packageId: string): Observable<void>
+}
+class HttpStudioModulesApi
+class StudioModulePackagePage {
+  -api: StudioModulesApi
+  +percent: Signal<number>
+  +choose(file: File): void
+  +cancel(): void
+}
+class StartPackageUploadAction {
+  +execute(moduleId: string, name: string, size: number, user: SessionUser): Promise<UploadSession>
+}
+class CompletePackageUploadAction {
+  +execute(moduleId: string, packageId: string, user: SessionUser): Promise<ScormPackage>
+}
+class ScormPackageProcessJob {
+  +packageId: string
+  +run(): Promise<void>
+}
+class ScormPackageValidator {
+  +validate(zip: ZipReader): PackageFailureReason[]
+}
+class ScormManifestParser {
+  +parse(xml: string): ManifestInfo
+}
+interface MalwareScanner {
+  +scan(file: Readable, path: string): Promise<boolean>
+}
+class SecurityEventLogger {
+  +log(event: string, packageId: string, detail: string): void
+}
+ScormPackage --> PackageStatus
+ScormPackage --> ScormVersion
+ScormPackage --> PackageFailureReason
+HttpStudioModulesApi ..|> StudioModulesApi
+StudioModulePackagePage ..> StudioModulesApi : injects STUDIO_MODULES_API
+StartPackageUploadAction ..> PackageLimits
+StartPackageUploadAction ..> UploadSession : returns
+CompletePackageUploadAction ..> ScormPackageProcessJob : enqueues
+ScormPackageProcessJob ..> ScormPackageValidator
+ScormPackageProcessJob ..> ScormManifestParser
+ScormPackageProcessJob ..> MalwareScanner
+ScormPackageProcessJob ..> SecurityEventLogger
+ScormPackageValidator ..> PackageLimits
+ScormManifestParser ..> ManifestInfo : returns
+ScormPackageProcessJob --> ScormPackage : updates
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Back up and recover
+
+Person(ops, "Operations engineer", "Starts the drill")
+System_Boundary(prod, "Logos Lab production — Canada (Central)") {
+  ContainerDb(db, "Logos Lab database", "RDS PostgreSQL", "PITR on, 35-day retention")
+  ContainerDb(media, "Media storage", "Amazon S3, versioned", "Media, packages, certificates")
+}
+System_Ext(backup, "RDS backup storage", "Snapshots and transaction logs")
+System_Ext(replica, "Replica buckets — Canada West", "Amazon S3, versioned")
+System_Boundary(iso, "Isolated drill environment") {
+  Container(pipeline, "restore-drill pipeline", "CI/CD job TO SUPPLY", "Automates the runbook")
+  Container(app, "Restored Web, API and Worker", "Same artifact as production", "Verified by probes")
+  ContainerDb(rdb, "Restored database", "RDS PostgreSQL", "PITR restore")
+}
+Rel(db, backup, "Ships logs every 5 minutes and daily snapshots")
+Rel(media, replica, "Replicates", "S3 CRR")
+Rel(ops, pipeline, "Starts quarterly")
+Rel(pipeline, rdb, "Restores from backup storage")
+Rel(pipeline, app, "Deploys and probes")
+Rel(app, rdb, "Reads and writes")
+Rel(app, replica, "Reads objects")
+@enduml

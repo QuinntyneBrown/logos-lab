@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Adapt layouts across viewports
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(tokens, "Layout and target tokens", "CSS custom properties", "Breakpoints, container, measure, targets")
+  Component(layout, "ll-layout", "Shared component", ".wrap, .grid, .two-col, .split")
+  Component(grid, "content-grid", "Shared layout", "1, 2, 2, 3, 4 columns")
+  Component(prose, "ll-prose", "Shared component", "75-character measure")
+  Component(table, "ll-table", "Shared component", "Scrolling .table-wrap region")
+  Component(tip, "ll-tooltip", "Shared component", "Hover, focus or tap")
+  Component(page, "ExplorePage, ExpertsPage, TopicPage, CollectionPage", "Pages", "Card grids")
+  Component(bo, "Breakpoints", "TypeScript constant with CDK BreakpointObserver", "Behaviour that CSS cannot express")
+}
+
+Rel(page, grid, "Lays out cards in")
+Rel(page, layout, "Composes")
+Rel(grid, tokens, "Reads breakpoints from")
+Rel(layout, tokens, "Reads container and gutters from")
+Rel(prose, tokens, "Reads measure from")
+Rel(table, tokens, "Reads target sizes from")
+Rel(tip, tokens, "Reads target sizes from")
+Rel(bo, tokens, "Mirrors values of")
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — Block bad bots and volumetric traffic at the edge
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Abusive client" as actor
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as api
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "CDN (CloudFront)" as cdn
+  participant "AWS WAF web ACL" as waf
+  participant "Amazon CloudWatch" as cw
+end box
+actor -> cdn : Burst of requests
+cdn -> waf : Evaluate rules
+alt Matches a bad-bot signature or volumetric pattern (L2-107)
+  waf -> cw : Count blocked request in WAF metrics and logs
+  waf --> cdn : Block
+  cdn --> actor : 403 from the edge; the API is never reached
+else Allowed
+  waf --> cdn : Allow
+  cdn -> api : Forward request
+  api --> cdn : Response, subject to application limits
+  cdn --> actor : Response
+end
+@enduml

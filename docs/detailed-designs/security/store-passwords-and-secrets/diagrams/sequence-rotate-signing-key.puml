@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Rotate a signing key without signing users out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Scheduler" as actor
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as app
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SigningKeyRotationJob" as job
+  participant "SigningKeyRing" as ring
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  participant "AWS Secrets Manager" as sm
+end box
+actor -> job : Run daily; rotate when the current key is 90 days old (L2-109)
+job -> sm : Read key set
+alt Current key younger than 90 days
+  job --> actor : Nothing to do
+else Rotation due
+  job -> sm : PutSecretValue(new current key; old current becomes previous)
+  sm --> job : Stored
+  job --> actor : Rotated
+  app -> sm : Refresh on schedule
+  sm --> app : New key set
+  app -> ring : Sign with new kid; verify with new and previous kids
+  note right of ring : Sessions and signed URLs issued under the previous key\nstay valid until they expire, so no member is signed out
+end
+@enduml

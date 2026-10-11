@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Co-edit and resolve a conflict
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert (second person)" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioEditorPage" as page
+  participant "ConflictDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "studio/items/{id} routes" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "EditingPresenceService" as presence
+  participant "SaveDraftAction" as save
+  participant "ResolveDraftConflictAction" as resolve
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache (Redis)" as redis
+  database "Logos Lab database" as db
+end box
+actor -> page : Open the draft and start editing
+page -> client : heartbeat(id)
+client -> route : PUT /api/v1/studio/items/{id}/presence
+route -> presence : heartbeat(itemId, userId)
+presence -> redis : SET presence key with time to live; scan other keys
+redis --> presence : Naomi Ellis present
+presence --> route : PresenceView[]
+route --> client : 200 JSON
+client --> page : Others editing
+page --> actor : Alert names Naomi Ellis; avatar in workflow bar (L2-084)
+actor -> page : Change summary and body
+page -> client : saveDraft(id, patch, rowVersion 12)
+client -> route : PATCH /api/v1/studio/items/{id}, If-Match 12
+route -> save : execute(user, id, patch, 12)
+save -> db : UPDATE WHERE row_version = 12
+db --> save : 0 rows; Naomi saved row_version 13
+save -> db : Load current fields and last saver
+db --> save : Theirs
+save --> route : Conflict with ConflictView
+route --> client : 409 problem response with conflicting changes (L2-084)
+client --> page : Conflict
+page -> dialog : Open with both versions side by side
+alt Keep yours or keep theirs
+  actor -> dialog : Choose a version
+  dialog -> client : resolveConflict(id, choice, rowVersion 13)
+  client -> route : POST /api/v1/studio/items/{id}/conflicts
+  route -> resolve : execute(user, id, choice)
+  resolve -> db : Save chosen fields at row_version 13; insert DraftSnapshot of the other
+  db --> resolve : Commit
+  resolve --> route : New rowVersion
+  route --> client : 200 JSON
+  client --> dialog : Success
+  dialog --> actor : Chosen version is the draft; the other stays in history
+else Decide later
+  actor -> dialog : Decide later
+  dialog --> actor : Close; local changes kept, autosave paused for this item
+end
+@enduml

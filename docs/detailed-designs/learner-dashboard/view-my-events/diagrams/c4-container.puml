@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View my events
+
+Person(member, "Member", "Signed-in learner")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "MyEventsPage")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "ListMyEventRegistrationsAction")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "event_registrations, events")
+}
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "SQL")
+@enduml

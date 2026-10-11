@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Unfollow
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "FollowingPage" as page
+  participant "UnfollowDialog" as dialog
+  participant "FollowsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Follows route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "UnfollowAction" as action
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Press Unfollow on a row
+page -> dialog : Open "Unfollow {name}?"
+alt Keep following
+  actor -> dialog : Press Keep following
+  dialog --> page : Close, focus returns to the row's Unfollow
+else Unfollow
+  actor -> dialog : Press Unfollow
+  dialog -> client : unfollow(type, id)
+  client -> route : DELETE /api/v1/me/follows/{type}/{id}
+  route -> action : execute(userId, type, id)
+  action -> db : Delete caller's follow row
+  alt delete fails
+    route --> client : 5xx problem
+    dialog --> actor : Failed state, row kept
+  else deleted
+    route --> client : 204
+    dialog --> page : Close with success
+    page -> page : Remove row without page reload (L2-074)
+    alt rows remain
+      page --> actor : Focus next row's Unfollow (L2-074)
+    else list empty
+      page --> actor : Focus list heading (L2-074)
+    end
+  end
+end
+@enduml

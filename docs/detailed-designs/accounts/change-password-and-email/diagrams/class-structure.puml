@@ -1,0 +1,118 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Change password and email
+
+package "Logos Lab Web" {
+  class SettingsAccountPage {
+    -api: AccountApi
+    +account: AccountDetails
+    +emailState: FormState
+    +passwordState: FormState
+    +changePassword(): void
+    +requestEmailChange(): void
+    +resend(): void
+    +cancel(): void
+  }
+  class EmailChangeConfirmPage {
+    -api: AuthApi
+    +confirm(): void
+  }
+  class ReportChangePage {
+    -api: AuthApi
+    +secure(): void
+  }
+  interface AccountApi {
+    +getAccount(): Observable<AccountDetails>
+    +changePassword(current: string, next: string): Observable<void>
+    +requestEmailChange(newEmail: string, currentPassword: string): Observable<void>
+    +resendEmailChange(): Observable<void>
+    +cancelEmailChange(): Observable<void>
+  }
+  interface AuthApi {
+    +confirmEmailChange(token: string): Observable<void>
+    +reportEmailChange(token: string): Observable<void>
+  }
+  class AccountDetails {
+    +email: string
+    +verifiedAt: Instant
+    +pendingEmail: string | null
+    +pendingExpiresAt: Instant | null
+    +passwordChangedAt: Instant
+  }
+}
+package "Logos Lab API" {
+  class ChangePasswordAction {
+    +execute(user: CurrentUser, current: string, next: string): Promise<Result<void, PasswordProblem>>
+  }
+  class RequestEmailChangeAction {
+    +execute(user: CurrentUser, newEmail: string, current: string): Promise<Result<void, IdentityProblem>>
+  }
+  class ConfirmEmailChangeAction {
+    +execute(token: string): Promise<Result<void, LinkExpired>>
+  }
+  class ReportEmailChangeAction {
+    +execute(token: string): Promise<Result<void, LinkExpired>>
+  }
+  class User {
+    +id: Uuid
+    +email: string
+    +pendingEmail: string | null
+    +pendingEmailRequestedAt: Instant | null
+    +previousEmail: string | null
+    +passwordHash: string
+    +startEmailChange(address: string, at: Instant): void
+    +completeEmailChange(at: Instant): void
+    +revertEmailChange(): void
+  }
+  class AccountTokenService {
+    +issue(userId: Uuid, purpose: TokenPurpose, ttl: Duration): Promise<string>
+    +consume(raw: string, purpose: TokenPurpose): Promise<AccountToken | null>
+  }
+  class SessionService {
+    +revokeAllExcept(userId: Uuid, keep: Uuid): Promise<number>
+    +revokeAll(userId: Uuid): Promise<number>
+  }
+  class PasswordPolicyService {
+    +validate(password: string): Promise<PasswordCheck>
+  }
+  class PasswordHasher {
+    +verify(hash: string, password: string): Promise<boolean>
+    +hash(password: string): Promise<string>
+  }
+  enum TokenPurpose {
+    EmailVerification
+    PasswordReset
+    EmailChange
+    EmailChangeReport
+  }
+}
+SettingsAccountPage ..> AccountApi
+EmailChangeConfirmPage ..> AuthApi
+ReportChangePage ..> AuthApi
+AccountApi ..> AccountDetails
+ChangePasswordAction ..> PasswordHasher
+ChangePasswordAction ..> PasswordPolicyService
+ChangePasswordAction ..> SessionService
+RequestEmailChangeAction ..> PasswordHasher
+RequestEmailChangeAction ..> AccountTokenService
+ConfirmEmailChangeAction ..> AccountTokenService
+ConfirmEmailChangeAction ..> SessionService
+ReportEmailChangeAction ..> AccountTokenService
+ReportEmailChangeAction ..> SessionService
+ChangePasswordAction ..> User
+RequestEmailChangeAction ..> User
+ConfirmEmailChangeAction ..> User
+ReportEmailChangeAction ..> User
+AccountTokenService ..> TokenPurpose
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Show a translated API error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "<Name>Page" as page
+  participant "Http<Area>Api" as client
+  participant "ErrorMessageMapper" as map
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Route handler" as route
+  participant "Exception handling middleware" as ex
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "<Verb><Noun>Action" as act
+end box
+actor -> page : Submit request
+page -> client : Call contract method
+client -> route : HTTPS request
+route -> act : execute(command)
+act --> route : Domain error
+route -> ex : Map to problem response
+ex --> client : RFC 9457 problem with code and English detail (L2-147 AC4)
+client --> page : ProblemResponse
+page -> map : toMessage(problem)
+alt Code has a message ID
+  map --> page : Translated text from the active locale
+else Unknown code
+  map -> map : Log missing mapping
+  map --> page : English detail as fallback
+end
+page --> actor : Show error (ll-inline-message or form errors)
+@enduml

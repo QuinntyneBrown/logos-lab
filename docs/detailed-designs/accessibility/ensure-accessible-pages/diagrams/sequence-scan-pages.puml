@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Scan every page and state
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Developer" as actor
+box "Delivery — CI pipeline" #F2F4F7
+  participant "Playwright suite (Chromium)" as suite
+  participant "<Name>PageObject" as po
+  participant "AccessibilityScan (axe-core)" as axe
+end box
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web under test" as web
+end box
+actor -> suite : Push change
+loop Each screen and each mock state, light and dark
+  suite -> po : Open screen in state
+  po -> web : Navigate and arrange state
+  web --> po : Rendered page
+  po -> axe : scan(page) with WCAG 2.2 A and AA tags
+  axe --> po : Violations
+  alt Any serious or critical violation (L2-125 AC1)
+    po --> suite : Fail with rule, node and page
+  else None
+    po --> suite : Pass
+  end
+end
+suite --> actor : Result
+opt Release with new or changed screens
+  actor -> actor : Manual check: NVDA, VoiceOver and keyboard only (L2-125 AC2)
+end
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Complete a course and earn a certificate
+
+Person(learner, "Learner", "Signed-in member who studies courses and modules")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI (www.logoslab.ca)")
+System_Ext(linkedin, "LinkedIn", "Professional network; receives certificates through its Add to profile link")
+
+Rel(learner, logos, "Completes courses and downloads and shares certificates in", "HTTPS")
+Rel(learner, linkedin, "Adds certificate to profile using", "HTTPS")
+@enduml

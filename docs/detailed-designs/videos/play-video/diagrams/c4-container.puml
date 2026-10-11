@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Play a video
+
+Person(learner, "Learner", "Watches a video")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, embeds Tessera video-player", "Player, settings, progress tracking")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Watch progress, error logging, problem reports")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Watch progress and segments")
+  Container(cdn, "CDN", "Amazon CloudFront", "Serves signed HLS playlists and segments")
+  ContainerDb(s3, "Media storage", "Amazon S3, private", "HLS renditions")
+}
+System_Ext(cw, "Amazon CloudWatch", "Logs")
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(web, cdn, "Fetches playlists and segments", "HLS over HTTPS")
+Rel(cdn, s3, "Reads renditions", "Origin access control")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, cw, "Writes structured logs")
+@enduml

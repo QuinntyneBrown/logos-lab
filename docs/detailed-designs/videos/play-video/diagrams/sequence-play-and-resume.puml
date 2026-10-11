@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Play and resume a video
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-player" as player
+  participant "Tessera video-player" as tessera
+  participant "WatchProgressTracker" as tracker
+  participant "VideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "progress route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "RecordWatchProgressAction" as action
+  participant "WatchProgressService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "CDN" as cdn
+end box
+player -> client : getProgress(videoId)
+client -> route : GET /api/v1/me/videos/{videoId}/progress
+route -> svc : resumeOffer(progress, duration)
+svc -> db : Load progress for current user (L2-017)
+db --> svc : Playhead 12:34
+alt Playhead within the last 5% (L2-042)
+  svc --> route : No offer, start at 0:00
+else Partly watched
+  svc --> route : Offer resume from 12:34
+end
+route --> client : 200 WatchProgressView
+client --> player : Resume offer
+player --> actor : "Resume from 12:34" (default) or "Start over"
+actor -> player : Resume
+player -> tessera : Load HLS source and seek to 12:34
+tessera -> cdn : Fetch playlist and segments (signed)
+cdn --> tessera : Segments
+tessera --> actor : Playback starts (L2-040 2 s p75 target)
+opt Bandwidth drops
+  tessera -> cdn : Switch to a lower rendition without stopping
+end
+loop Every 10 seconds, and on pause, seek or leave (L2-042)
+  tracker -> client : saveProgress(playhead, new segments)
+  client -> route : PUT /api/v1/me/videos/{videoId}/progress
+  route -> action : execute(userId, videoId, update)
+  action -> db : Load progress
+  action -> svc : Merge overlaps, discard segments outside duration
+  svc --> action : Merged segments
+  action -> db : Save playhead and segments
+  route --> client : 204
+end
+@enduml

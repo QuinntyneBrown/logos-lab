@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Work the moderation queue
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(queuepage, "ModerationQueuePage", "Angular standalone page", "Ordered cases with filters")
+  Component(detail, "ReportDetailPage", "Angular standalone page", "Case in context, Claim")
+  Component(client, "HttpModerationApi", "ModerationApi via MODERATION_API", "Typed HTTP client")
+}
+Container_Boundary(api, "Logos Lab API and Worker") {
+  Component(route, "moderation/reports routes", "Next.js route handlers", "List, get and claim")
+  Component(actions, "ListModerationQueueAction, GetReportAction, ClaimReportAction", "Actions", "One use case each")
+  Component(service, "ModerationQueueService", "Domain service", "Orders cases and computes overdue")
+  Component(policy, "ModerationPriorityPolicy", "Domain service", "Harassment or hate first, then age")
+  Component(job, "OverdueReportNotifyJob", "Worker job", "Notifies moderators once per overdue case")
+  Component(notify, "NotificationService", "Domain service", "In-app notice and email job")
+  Component(repo, "ModerationCaseRepository", "Repository", "moderation_cases")
+}
+ComponentDb(db, "Logos Lab database", "PostgreSQL", "moderation_cases, reports")
+
+Rel(queuepage, client, "Lists queue through")
+Rel(detail, client, "Gets and claims through")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Calls")
+Rel(actions, service, "Uses")
+Rel(service, policy, "Orders with")
+Rel(actions, repo, "Reads and updates through")
+Rel(job, repo, "Selects overdue cases through")
+Rel(job, notify, "Notifies moderators with")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

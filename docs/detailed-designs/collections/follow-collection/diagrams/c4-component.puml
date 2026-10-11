@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Follow a collection
+
+Container(web, "Logos Lab Web", "Angular", "CollectionPage, FollowingPage, FollowsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(r, "me/follows/collections routes", "Route handlers", "PUT and DELETE")
+  Component(fa, "FollowCollectionAction", "Action", "Records follow")
+  Component(ua, "UnfollowCollectionAction", "Action", "Removes follow")
+  Component(svc, "FollowService", "Domain service", "Current-user follows")
+  Component(repo, "FollowRepository", "Repository", "follows")
+  Component(h, "CollectionRevisionPublishedHandler", "Domain event handler", "Computes added items")
+  Component(job, "CollectionFollowerNotificationJob", "Job", "One notification per follower")
+  Component(pref, "NotificationPreferenceService", "Domain service", "Channel choices")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "follows, collection_items, notifications")
+ContainerQueue(queue, "Job queue", "SQS", "Job messages")
+System_Ext(ses, "Amazon SES", "Email")
+Rel(web, r, "Calls", "JSON/HTTPS")
+Rel(r, fa, "PUT")
+Rel(r, ua, "DELETE")
+Rel(fa, svc, "Follows")
+Rel(ua, svc, "Unfollows")
+Rel(svc, repo, "Persists")
+Rel(repo, db, "Reads and writes", "SQL")
+Rel(h, db, "Compares item sets", "SQL")
+Rel(h, queue, "Enqueues job", "SQS")
+Rel(queue, job, "Delivers", "SQS")
+Rel(job, repo, "Reads followers")
+Rel(job, pref, "Applies preferences")
+Rel(job, db, "Writes notifications", "SQL")
+Rel(job, ses, "Sends email", "SES API")
+@enduml

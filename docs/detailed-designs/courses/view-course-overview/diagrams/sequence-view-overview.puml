@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — View a course overview
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor or learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseOverviewPage" as page
+  participant "HttpCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "courses/[slug] route handlers" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetCourseOverviewAction" as a1
+  participant "GetMyCourseStateAction" as a2
+  participant "CourseCatalogueService" as cat
+  participant "ProgressService" as prog
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /courses/{slug}
+page -> client : getCourse(slug)
+client -> route : GET /api/v1/courses/{slug} (anonymous)
+route -> a1 : execute(slug)
+a1 -> db : Load course, sections, lessons, contributors
+db --> a1 : Course rows
+a1 -> cat : Apply L2-025 visibility rule
+alt course archived and viewer not enrolled
+  cat --> a1 : Not visible
+  a1 --> route : NotFound
+  route --> client : 404 problem response
+  client --> page : Not found
+  page --> actor : Show not-found page
+else published, or archived with enrolment
+  cat --> a1 : Visible
+  a1 --> route : CourseOverview
+  route --> client : 200 CourseOverview (cacheable)
+  client --> page : Overview
+  page --> actor : Render hero, outcomes, syllabus with locked lessons, facts
+end
+opt viewer has a session
+  page -> client : getMyCourseState(slug)
+  client -> route : GET /api/v1/courses/{slug}/me
+  route -> route : Authenticate session
+  route -> a2 : execute(slug, userId)
+  a2 -> db : Load enrolment and completions for userId (L2-017)
+  db --> a2 : Enrolment or none
+  a2 -> prog : Read progress and lesson access
+  prog --> a2 : Progress, continue lesson, lock state
+  a2 --> route : MyCourseState
+  route --> client : 200 MyCourseState (no-store)
+  client --> page : Learner state
+  alt enrolled
+    page --> actor : Show Continue, progress %, cohort link, archived notice if archived
+  else not enrolled
+    page --> actor : Show Enrol
+  end
+end
+@enduml

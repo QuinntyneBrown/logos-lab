@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Publish now
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "PublishScheduleDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/publish route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "PublishContentAction" as action
+  participant "WorkflowService" as workflow
+  participant "PublishingService" as publishing
+  participant "SlugService" as slug
+  participant "SearchIndexService" as search
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Choose Publish now and confirm
+dialog -> client : publish(id, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/publish
+route -> route : Authenticate and require Editor role
+route -> action : execute(editor, id, rowVersion)
+action -> db : Load item FOR UPDATE
+db --> action : Item
+action -> workflow : transition(item, Published, editor)
+alt Not Approved, or stale rowVersion
+  workflow --> action : Refused with current state
+  action --> route : Conflict
+  route --> client : 409 problem response with current state (L2-076)
+  client --> dialog : Failed state; item still Approved
+else Allowed
+  workflow --> action : Allowed
+  action -> publishing : publish(item, editor)
+  opt First publication
+    publishing -> slug : uniqueSlug(type, title) (L2-079)
+    slug -> db : Check taken slugs for this type
+    db --> slug : Taken slugs
+    slug --> publishing : Lower-case, hyphenated slug with numeric suffix if needed
+  end
+  publishing -> db : Insert ContentVersion, set liveVersionId, publishedAt, state Published
+  publishing -> search : refresh(item, version)
+  search -> db : Update search document in the same transaction
+  publishing -> db : Append WorkflowTransition
+  db --> publishing : Commit
+  publishing -> sqs : Enqueue CdnInvalidateJob for catalogue, topic and item paths
+  publishing -> sqs : Enqueue FollowerNotifyJob (L2-079)
+  publishing --> action : ContentVersion
+  action --> route : Item Published
+  route --> client : 200 JSON
+  client --> dialog : Success
+  dialog --> actor : Published; in catalogue, search and topic pages within 60 seconds
+end
+@enduml

@@ -1,0 +1,95 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Keep stable URLs
+
+package "Logos Lab Web" {
+  class CanonicalUrlMiddleware {
+    +canonicalise(path: string): string
+    +handle(req: Request, res: Response, next: NextFunction): void
+  }
+  class RedirectResponder {
+    +STATUS: number = 301
+    +redirect(target: string): void
+  }
+  class PublicUrls {
+    +forItem(type: ContentType, slug: string): string
+  }
+  interface SlugRedirectsApi {
+    +resolve(type: ContentType, slug: string): Observable<SlugRedirect>
+  }
+  class HttpSlugRedirectsApi {
+    +resolve(type: ContentType, slug: string): Observable<SlugRedirect>
+  }
+  class SlugRedirect {
+    +type: ContentType
+    +currentSlug: string
+    +location: string
+  }
+}
+
+package "Logos Lab API" {
+  class SlugRedirectsRoute {
+    +GET(request: Request): Promise<Response>
+  }
+  class ResolveSlugRedirectAction {
+    +execute(type: ContentType, slug: string): Promise<Result<SlugRedirect>>
+  }
+  class SlugService {
+    +toSlug(title: string): string
+    +changeSlug(item: PublishableItem, newSlug: string, tx: Transaction): Promise<void>
+  }
+  class SlugHistoryRepository {
+    +add(entry: SlugHistoryEntry, tx: Transaction): Promise<void>
+    +findCurrentSlug(type: ContentType, slug: string): Promise<string | null>
+    +isReserved(type: ContentType, slug: string): Promise<boolean>
+  }
+  class SlugHistoryEntry {
+    +contentType: ContentType
+    +slug: string
+    +itemId: string
+    +retiredAt: Date
+  }
+  class PublishableItem {
+    +id: string
+    +type: ContentType
+    +slug: string
+    +title: string
+  }
+  class PublicUrlBuilder {
+    +build(type: ContentType, slug: string): string
+  }
+  enum ContentType {
+    Course
+    Module
+    Video
+    Article
+    Collection
+    Event
+    Expert
+    Topic
+  }
+}
+
+CanonicalUrlMiddleware ..> RedirectResponder : hands canonical path to
+RedirectResponder ..> PublicUrls : uses
+HttpSlugRedirectsApi ..|> SlugRedirectsApi
+SlugRedirectsApi ..> SlugRedirect : returns
+SlugRedirectsRoute ..> ResolveSlugRedirectAction : calls
+ResolveSlugRedirectAction ..> SlugHistoryRepository : reads
+ResolveSlugRedirectAction ..> PublicUrlBuilder : uses
+SlugService ..> SlugHistoryRepository : writes
+SlugHistoryRepository --> SlugHistoryEntry : persists
+SlugHistoryEntry "*" --> "1" PublishableItem : points to item id
+PublishableItem --> ContentType : has
+@enduml

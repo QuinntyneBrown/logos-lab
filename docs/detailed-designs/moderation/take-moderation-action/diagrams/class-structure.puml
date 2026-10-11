@@ -1,0 +1,110 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Take a moderation action
+
+package "Logos Lab Web" {
+  class ModerationActionDialog {
+    +type: ModerationActionType
+    +suspensionDays: number (1, 7 or 30)
+    +guidelineId: string
+    +reason: string
+    +confirm(): Promise<void>
+  }
+  class AccountNoticePage {
+    +notice: Signal<AccountNotice>
+  }
+  interface ModerationApi {
+    +takeAction(reportId: string, request: TakeActionRequest): Observable<ActionResult>
+    +takeProactiveAction(request: ProactiveActionRequest): Observable<ActionResult>
+  }
+  class HttpModerationApi
+  class MODERATION_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class ReportActionsRoute <<route handler>> {
+    +POST(request: Request): Response
+  }
+  class TakeModerationActionAction {
+    +execute(user: CurrentUser, request: TakeActionRequest): ActionResult
+  }
+  class ModerationActionService {
+    +validate(request: TakeActionRequest, target: ReportedTarget): void
+  }
+  class ContentVisibilityService {
+    +hide(target: ReportedTarget): void
+    +remove(target: ReportedTarget): void
+    +restore(target: ReportedTarget): void
+  }
+  class AccountStateService {
+    +warn(memberId: uuid): void
+    +suspend(memberId: uuid, days: int): void
+    +ban(memberId: uuid): void
+  }
+  class ModerationAuditService {
+    +append(entry: ModerationAuditEntry): void
+  }
+  class NotificationService {
+    +sendMemberNotice(action: ModerationAction): MemberNotice
+    +notifyEditors(itemId: uuid): void
+  }
+  class ModerationAction {
+    +id: uuid
+    +caseId: uuid
+    +moderatorId: uuid
+    +type: ModerationActionType
+    +targetType: ReportTargetType
+    +targetId: uuid
+    +memberId: uuid
+    +suspensionDays: int
+    +guidelineId: uuid
+    +reason: string
+    +takenAt: timestamptz
+    +reversedAt: timestamptz
+  }
+  class MemberNotice {
+    +id: uuid
+    +memberId: uuid
+    +actionId: uuid
+    +tokenHash: string
+    +appealDeadline: timestamptz
+  }
+  class ModerationCase {
+    +id: uuid
+    +status: CaseStatus
+    +claimedById: uuid
+  }
+  enum ModerationActionType {
+    Dismiss
+    HideContent
+    RemoveContent
+    WarnMember
+    SuspendMember
+    BanMember
+  }
+}
+
+HttpModerationApi ..|> ModerationApi
+MODERATION_API ..> ModerationApi : provides
+ModerationActionDialog ..> MODERATION_API : injects
+ReportActionsRoute ..> TakeModerationActionAction : calls
+TakeModerationActionAction ..> ModerationActionService : uses
+TakeModerationActionAction ..> ContentVisibilityService : uses
+TakeModerationActionAction ..> AccountStateService : uses
+TakeModerationActionAction ..> ModerationAuditService : uses
+TakeModerationActionAction ..> NotificationService : uses
+ModerationCase "1" o-- "0..*" ModerationAction
+ModerationAction --> ModerationActionType
+ModerationAction "1" --> "0..1" MemberNotice
+@enduml

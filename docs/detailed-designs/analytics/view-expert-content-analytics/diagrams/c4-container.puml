@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View expert content analytics
+Person(expert, "Expert", "Content author")
+Person(learner, "Learner", "Member with analytics cookie consent or not")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR", "Studio analytics pages; consent-gated event collector")
+  Container(api, "Logos Lab API", "Next.js route handlers", "Analytics query and event endpoints")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Hourly rollup jobs")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs AnalyticsRollupJob")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "Learning records, analytics_events, rollup tables")
+}
+Rel(expert, web, "Uses", "HTTPS")
+Rel(learner, web, "Uses", "HTTPS")
+Rel(web, api, "Reads analytics; posts product events with consent", "JSON/HTTPS")
+Rel(api, db, "Reads rollups; inserts events", "SQL")
+Rel(queue, worker, "Delivers job messages to")
+Rel(worker, db, "Builds hourly rollups", "SQL")
+@enduml

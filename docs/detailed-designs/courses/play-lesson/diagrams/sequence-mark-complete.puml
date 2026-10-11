@@ -1,0 +1,79 @@
+@startuml
+title UML sequence behaviour — Mark an Article or Text lesson complete
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "LessonPlayerPage" as page
+  participant "PendingCompletionQueue" as pq
+  participant "HttpCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "lessons/[id]/completion route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "MarkLessonCompleteAction" as action
+  participant "LessonCompletionService" as comp
+  participant "ProgressService" as prog
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Scroll to end of content
+page -> page : End sentinel visible, enable Mark as complete (L2-029)
+actor -> page : Mark as complete
+alt offline
+  page -> pq : Enqueue completion
+  page --> actor : Saved on device, waiting to sync
+  pq -> client : Send when connection returns
+else online
+  page -> client : markComplete(slug, lessonId)
+end
+client -> route : POST /api/v1/courses/{slug}/lessons/{lessonId}/completion
+route -> route : Authenticate, CSRF check
+route -> action : execute(slug, lessonId, userId)
+action -> db : Load enrolment and lesson (L2-017)
+db --> action : Rows
+action -> comp : Apply L2-029 manual rule (Article or Text only)
+alt other lesson type
+  comp --> action : Not allowed
+  action --> route : Refused
+  route --> client : 422 problem response
+else Article or Text
+  comp -> db : Insert lesson_completion if absent
+  comp -> prog : recalculate(enrolmentId) (L2-030)
+  prog -> db : Update enrolments.progress_percent
+  db --> prog : Commit
+  prog --> comp : Progress
+  comp --> action : CompletionResult
+  action --> route : Result
+  route --> client : 200 CompletionResult
+  client --> page : Completed, progress
+  page --> actor : Show Completed, Mark as incomplete, new progress
+end
+opt learner chooses Mark as incomplete
+  actor -> page : Mark as incomplete
+  page -> client : markIncomplete(slug, lessonId)
+  client -> route : DELETE /api/v1/courses/{slug}/lessons/{lessonId}/completion
+  route -> comp : removeManual via MarkLessonIncompleteAction
+  comp -> db : Delete lesson_completion
+  comp -> prog : recalculate(enrolmentId)
+  prog --> comp : Progress
+  comp --> route : CompletionResult
+  route --> client : 200 CompletionResult
+  client --> page : Incomplete, progress
+  page --> actor : Show Mark as complete and recalculated progress
+end
+@enduml

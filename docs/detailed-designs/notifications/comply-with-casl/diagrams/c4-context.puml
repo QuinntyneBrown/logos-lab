@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Comply with CASL
+Person(member, "Member", "Gives, withdraws or uses unsubscribe links")
+Person(admin, "Administrator", "Reviews consent records")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ses, "Amazon SES", "Delivers email")
+Rel(member, ll, "Gives or withdraws consent and unsubscribes in", "HTTPS")
+Rel(admin, ll, "Reads consent records in", "HTTPS")
+Rel(ll, ses, "Sends email with CASL footer and unsubscribe headers via", "AWS SDK")
+Rel(ses, member, "Delivers email to", "SMTP")
+@enduml

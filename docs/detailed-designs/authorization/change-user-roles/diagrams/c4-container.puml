@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Change user roles
+
+Person(admin, "Administrator", "Logos Lab staff who manage users, roles and settings")
+System_Boundary(lab, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Pages, dialogs and API client")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Job messages from API to Worker")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs")
+}
+System_Ext(ses, "Amazon SES", "Sends account email")
+System_Ext(cw, "Amazon CloudWatch", "Security event logs, metrics and alarms")
+
+Rel(admin, web, "Uses Admin > Users", "HTTPS")
+Rel(web, api, "PUT /api/v1/admin/users/{id}/roles", "JSON/HTTPS")
+Rel(api, db, "user_roles, audit_entries, notifications", "SQL")
+Rel(api, queue, "Enqueues EmailSendJob")
+Rel(api, cw, "Writes security events")
+Rel(worker, queue, "Consumes")
+Rel(worker, ses, "Sends email", "SES API")
+@enduml

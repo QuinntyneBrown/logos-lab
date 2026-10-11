@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Open a lesson
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "LessonPlayerPage" as page
+  participant "HttpCoursesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "courses/[slug]/lessons/[id] route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "OpenLessonAction" as action
+  participant "LessonAccessService" as access
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /courses/{slug}/lessons/{lessonId}
+page -> client : getLesson(slug, lessonId)
+client -> route : GET /api/v1/courses/{slug}/lessons/{lessonId}
+route -> route : Authenticate session
+route -> action : execute(slug, lessonId, userId)
+action -> db : Load course, lesson, enrolment and completions (L2-017)
+db --> action : Rows
+action -> access : Check enrolment (L2-028)
+alt not enrolled
+  access --> action : Not enrolled
+  action --> route : Refused
+  route --> client : 403 problem not-enrolled
+  client --> page : Not enrolled
+  page --> actor : Redirect to course overview
+else enrolled
+  action -> access : Apply L2-028 navigation mode
+  alt Sequential and an earlier required lesson is incomplete
+    access --> action : Locked with reason
+    action --> route : Refused
+    route --> client : 403 problem lesson-locked with reason
+    client --> page : Locked
+    page --> actor : Show locked notice with link to the lesson to finish
+  else Free, or no blocking lesson
+    access --> action : Open
+    action --> route : LessonView
+    route --> client : 200 LessonView
+    client --> page : Lesson
+    page --> actor : Show content, outline with state, Previous and Next
+  end
+end
+@enduml

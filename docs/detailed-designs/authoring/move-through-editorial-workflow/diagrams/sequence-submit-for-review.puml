@@ -1,0 +1,70 @@
+@startuml
+title UML sequence behaviour — Submit for review
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert (owner)" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SubmitForReviewDialog" as dialog
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/submit route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SubmitForReviewAction" as action
+  participant "ContentValidationService" as validation
+  participant "WorkflowService" as workflow
+  participant "NotificationService" as notify
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as sqs
+end box
+actor -> dialog : Choose Submit for review, add optional note
+dialog -> client : submit(id, note, rowVersion)
+client -> route : POST /api/v1/studio/items/{id}/submit
+route -> route : Authenticate, authorize, validate schema
+route -> action : execute(currentUser, id, note, rowVersion)
+action -> db : Load item and working revision FOR UPDATE
+db --> action : Item, revision, rowVersion
+alt rowVersion is stale or state is not Draft or Changes requested
+  action --> route : Conflict with current state
+  route --> client : 409 problem response with current state (L2-076)
+  client --> dialog : Conflict
+  dialog --> actor : Item already moved; open the current version
+else Current
+  action -> validation : validateForSubmission(revision) (L2-082)
+  alt Rules fail
+    validation --> action : RuleFailure[]
+    action --> route : Validation failure
+    route --> client : 422 problem response listing every failing rule
+    client --> dialog : Failures
+    dialog --> actor : Each failing rule with a link to its field
+  else All rules pass
+    validation --> action : No failures
+    action -> workflow : transition(revision, InReview, owner) (L2-076)
+    workflow --> action : Allowed
+    action -> db : Set state In review, snapshot submission, append WorkflowTransition
+    action -> notify : notifyEditors(submitted) (L2-077)
+    notify -> db : Insert in-app notifications
+    notify -> sqs : Enqueue EmailSendJob per editor
+    db --> action : Commit
+    action --> route : Item In review, editing locked
+    route --> client : 200 JSON
+    client --> dialog : Success
+    dialog --> actor : In review; fields read-only until editors respond
+  end
+end
+@enduml

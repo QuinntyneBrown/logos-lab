@@ -1,0 +1,105 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Autosave and resolve conflicts
+
+package "Logos Lab Web" {
+  class AutosaveService {
+    +status: Signal<SaveStatus>
+    +debounceMs: 5000
+    +change(patch: DraftPatch): void
+    +flush(): Promise<void>
+    +hasUnsavedChanges(): boolean
+  }
+  class DraftOutbox {
+    +put(itemId: string, patch: DraftPatch): Promise<void>
+    +drain(itemId: string): Promise<DraftPatch>
+    +clear(itemId: string): Promise<void>
+  }
+  class UnsavedChangesGuard {
+    +canDeactivate(): Observable<boolean>
+  }
+  class ConflictDialog {
+    +conflict: ConflictView
+    +keepMine(): Promise<void>
+    +keepTheirs(): Promise<void>
+    +decideLater(): void
+  }
+  class UnsavedChangesDialog {
+    +stay(): void
+    +leave(): void
+  }
+  enum SaveStatus {
+    Saved
+    Saving
+    NotSavedRetrying
+    Offline
+  }
+  interface StudioApi {
+    +saveDraft(id: string, patch: DraftPatch, rowVersion: number): Observable<SaveResult>
+    +heartbeat(id: string): Observable<PresenceView[]>
+    +resolveConflict(id: string, choice: ConflictChoice): Observable<SaveResult>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class SaveDraftAction {
+    +execute(user: CurrentUser, id: uuid, patch: DraftPatch, rowVersion: int): SaveResult
+  }
+  class ResolveDraftConflictAction {
+    +execute(user: CurrentUser, id: uuid, choice: ConflictChoice): SaveResult
+  }
+  class EditingPresenceService {
+    +heartbeat(itemId: uuid, userId: uuid): PresenceView[]
+  }
+  class ContentRevision {
+    +id: uuid
+    +fields: jsonb
+    +rowVersion: int
+    +lastSavedById: uuid
+    +lastSavedAt: timestamptz
+  }
+  class DraftSnapshot {
+    +id: uuid
+    +revisionId: uuid
+    +fields: jsonb
+    +savedById: uuid
+    +at: timestamptz
+    +reason: string
+  }
+  class ConflictView <<value object>> {
+    +theirs: jsonb
+    +savedBy: string
+    +savedAt: timestamptz
+    +currentRowVersion: int
+    +differences: FieldDiff[]
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+AutosaveService ..> STUDIO_API : injects
+AutosaveService --> SaveStatus
+AutosaveService ..> DraftOutbox : uses offline
+AutosaveService ..> ConflictDialog : opens
+UnsavedChangesGuard ..> AutosaveService : asks
+UnsavedChangesGuard ..> UnsavedChangesDialog : opens
+ConflictDialog --> ConflictView
+SaveDraftAction --> ContentRevision : updates
+SaveDraftAction ..> ConflictView : returns on 409
+ResolveDraftConflictAction --> ContentRevision : updates
+ResolveDraftConflictAction --> DraftSnapshot : records
+ContentRevision "1" *-- "*" DraftSnapshot
+@enduml

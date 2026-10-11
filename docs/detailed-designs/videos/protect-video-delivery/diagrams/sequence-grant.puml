@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Issue a playback grant and fetch segments
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Viewer" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-player" as player
+  participant "Tessera video-player" as tessera
+  participant "VideosApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "playback-sessions route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "IssuePlaybackGrantAction" as action
+  participant "PlaybackAuthorizationService" as authz
+  participant "SignedMediaService" as signer
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "AWS Secrets Manager" as sm
+  participant "CDN (CloudFront)" as cdn
+  participant "Media storage (S3)" as s3
+end box
+actor -> player : Play
+player -> client : createPlaybackSession(videoId)
+client -> route : POST /api/v1/videos/{videoId}/playback-sessions
+route -> route : Rate limit, resolve session if present
+route -> action : execute(viewer, videoId)
+action -> db : Load video state, owner, public preview flag
+action -> authz : decide(video, viewer)
+alt Draft or archived and viewer is not author or editor (L2-043)
+  authz --> action : NotFound
+  route --> client : 404 problem
+  player --> actor : Video unavailable
+else Published, not preview, visitor (L2-015)
+  authz --> action : RequireSignIn
+  route --> client : 401
+  player --> actor : Sign-in prompt over the poster
+else Allowed (member, public preview, or author or editor)
+  authz --> action : Allow
+  action -> sm : Private key (cached)
+  action -> signer : sign(videoId, now)
+  signer --> action : Policy for /media/videos/{videoId}/* expiring in 4 hours
+  route --> client : 201 manifest path, Set-Cookie signed cookies
+  player -> tessera : Load manifest
+  loop Playlists and segments
+    tessera -> cdn : GET /media/videos/{videoId}/... with cookies
+    alt Signature valid and not expired
+      cdn -> s3 : Read via origin access control
+      s3 --> cdn : Object
+      cdn --> tessera : 200 segment
+    else Expired or tampered
+      cdn --> tessera : 403 (L2-043)
+      tessera -> player : error
+      player -> client : createPlaybackSession(videoId) again
+    end
+  end
+end
+@enduml

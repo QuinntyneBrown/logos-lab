@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — List topics for the catalogue filter
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ExplorePage" as ExplorePage
+  participant "TopicsApi" as TopicsApi
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/topics" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "TopicService" as TopicService
+  participant "TopicRepository" as TopicRepository
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> ExplorePage : Open /explore
+ExplorePage -> TopicsApi : listTopics(withPublishedContent = true)
+TopicsApi -> route : HTTPS GET ?withPublishedContent=true
+route -> TopicService : topicsWithPublishedContent()
+TopicService -> TopicRepository : findWithPublishedContent(now)
+TopicRepository -> db : Select topics having at least one published item
+db --> TopicRepository : Topics
+TopicRepository --> TopicService : Topic[]
+TopicService --> route : TopicRef[] (empty topics excluded, L2-005)
+route --> TopicsApi : 200 JSON
+TopicsApi --> ExplorePage : Topic options
+ExplorePage --> actor : Topic filter without empty topics
+@enduml

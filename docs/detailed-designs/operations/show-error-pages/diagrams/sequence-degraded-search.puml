@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Search while the index is unavailable
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SearchResultsPage" as page
+  participant "SearchApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "search route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "SearchContentAction" as action
+  participant "DependencyGuard" as guard
+  participant "CatalogueRepository" as catalogue
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+end box
+actor -> page : Search "personhood"
+page -> client : search(query)
+client -> route : GET /api/v1/search?q=personhood
+route -> action : execute(query)
+action -> guard : call("search-index", fullTextQuery)
+guard -> cache : Read circuit state
+cache --> guard : Open
+guard --> action : DependencyUnavailable (fail fast)
+action -> catalogue : matchTitles("personhood") (Apply L2-141 catalogue loads from database)
+catalogue -> db : Title match query
+alt fallback succeeds
+  db --> catalogue : Rows
+  catalogue --> action : Title matches
+  action --> route : SearchResultPage degraded=TitlesOnly
+  route --> client : 200 JSON
+  client --> page : Results
+  page --> actor : Results with "Search is limited right now" notice
+else fallback fails
+  db --> catalogue : Error
+  action --> route : Unavailable
+  route --> client : 503 problem for search only
+  client --> page : Error
+  page --> actor : "Search isn't available right now" with "Browse the catalogue"
+end
+@enduml

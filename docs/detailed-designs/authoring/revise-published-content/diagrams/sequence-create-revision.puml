@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Start a revision
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner or Editor" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "StudioEditorPage" as page
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "items/{id}/revisions route" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "CreateRevisionAction" as action
+  participant "RevisionService" as revisions
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Choose Edit on a Published item
+page -> client : createRevision(id)
+client -> route : POST /api/v1/studio/items/{id}/revisions
+route -> route : Authenticate and check owner or editor
+route -> action : execute(currentUser, id)
+action -> db : Load item and live version FOR UPDATE
+db --> action : Item Published, live version
+alt An open revision already exists
+  action --> route : Existing revision
+  route --> client : 200 JSON with the existing revision
+else No open revision
+  action -> revisions : fromVersion(item, liveVersion, Revision)
+  revisions --> action : Draft ContentRevision
+  action -> db : Insert revision, set workingRevisionId, append WorkflowTransition
+  note right of db : content_items.state stays Published; live_version_id unchanged (L2-080)
+  db --> action : Commit
+  action --> route : Revision
+  route --> client : 201 Created
+end
+client --> page : Revision
+page --> actor : Revision editor; the live version stays up
+@enduml

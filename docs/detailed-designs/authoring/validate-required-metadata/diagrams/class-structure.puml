@@ -1,0 +1,90 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Validate required metadata
+
+package "Logos Lab Web" {
+  class StudioEditorPage {
+    +readiness: Signal<RuleState[]>
+    +fieldErrors: Signal<Map<string, string>>
+    +focusField(path: string): void
+  }
+  interface StudioApi {
+    +getReadiness(id: string): Observable<RuleState[]>
+    +saveDraft(id: string, patch: DraftPatch, rowVersion: number): Observable<SaveResult>
+    +submit(id: string, note: string, rowVersion: number): Observable<StudioItem>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class DraftPatchSchema {
+    +title: string max 120
+    +summary: string max 300
+    +topicIds: uuid[] max 5
+    +level: Level
+  }
+  class SaveDraftAction {
+    +execute(user: CurrentUser, id: uuid, patch: DraftPatch, rowVersion: int): ContentRevision
+  }
+  class SubmitForReviewAction {
+    +execute(user: CurrentUser, id: uuid, note: string, rowVersion: int): ContentItem
+  }
+  class ContentValidationService {
+    +validateForSubmission(revision: ContentRevision): RuleFailure[]
+    +readiness(revision: ContentRevision): RuleState[]
+  }
+  interface SubmissionRule {
+    +id: string
+    +fieldPath: string
+    +appliesTo(type: ContentType): boolean
+    +check(revision: ContentRevision): RuleFailure
+  }
+  class TitleLengthRule
+  class SummaryLengthRule
+  class TopicCountRule
+  class LevelRule
+  class CoverImageAltTextRule
+  class VideoCaptionsRule
+  class CourseHasLessonsRule
+  class ArticleImageAltTextRule
+  class RuleFailure <<value object>> {
+    +ruleId: string
+    +fieldPath: string
+    +message: string
+  }
+  enum Level {
+    Introductory
+    Intermediate
+    Advanced
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+StudioEditorPage ..> STUDIO_API : injects
+SaveDraftAction ..> DraftPatchSchema : validated by
+SubmitForReviewAction ..> ContentValidationService : uses
+ContentValidationService o-- "*" SubmissionRule
+TitleLengthRule ..|> SubmissionRule
+SummaryLengthRule ..|> SubmissionRule
+TopicCountRule ..|> SubmissionRule
+LevelRule ..|> SubmissionRule
+CoverImageAltTextRule ..|> SubmissionRule
+VideoCaptionsRule ..|> SubmissionRule
+CourseHasLessonsRule ..|> SubmissionRule
+ArticleImageAltTextRule ..|> SubmissionRule
+SubmissionRule ..> RuleFailure : returns
+DraftPatchSchema --> Level
+@enduml

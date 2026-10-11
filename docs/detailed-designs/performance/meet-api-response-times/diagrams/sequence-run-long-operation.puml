@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Run a long operation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Requesting page" as page
+  participant "HttpOperationsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Starting route handler" as route
+  participant "GET /api/v1/operations/{operationId}" as status
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "Starting action" as act
+  participant "BackgroundOperationService" as svc
+  participant "<Noun><Verb>Job" as job
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue (SQS)" as sqs
+end box
+actor -> page : Request work that could exceed 30 seconds
+page -> route : POST request
+route -> act : execute(command, currentUserId)
+act -> svc : start(ownerId, kind, payload) (L2-121 30 s rule)
+svc -> db : Insert background_operations row (queued)
+svc -> sqs : Enqueue job message
+svc --> act : BackgroundOperation
+act --> route : Operation id
+route --> page : 202 Accepted, Location: /api/v1/operations/{id}
+sqs -> job : Deliver message to Logos Lab Worker
+job -> svc : reportProgress(id, percent)
+svc -> db : Update status running and progress
+loop Until succeeded or failed
+  page -> client : getStatus(id)
+  client -> status : GET /api/v1/operations/{id}
+  status -> db : Find operation for current user (L2-017)
+  alt Not owned by current user
+    db --> status : No row
+    status --> client : 404 problem response
+  else Owned
+    db --> status : Status and progress
+    status --> client : 200 JSON
+  end
+  client --> page : Progress
+  page --> actor : Update ll-progress-bar
+end
+job -> svc : complete(id, resultLocation)
+svc -> db : Update status succeeded
+page --> actor : Show result
+@enduml

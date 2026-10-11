@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Open and close the navigation drawer
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner on a phone" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "ll-top-bar" as top
+  participant "GlobalNavigationService" as gns
+  participant "CDK Dialog" as cdk
+  participant "NavDrawerDialog" as drawer
+  participant "HttpAccountApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/me" as me
+end box
+top -> client : getCurrentMember()
+client -> me : GET
+alt Signed in
+  me --> client : 200 member with roles
+else Visitor
+  me --> client : 401
+end
+client --> top : Member or none
+actor -> top : Activate Menu (XS to MD, L2-131 AC2)
+top -> gns : openDrawer()
+gns -> cdk : open(NavDrawerDialog, restoreFocus)
+cdk -> drawer : Render full-height drawer with Site nav and theme control
+gns -> top : aria-expanded="true"
+drawer --> actor : Focus on the first control in the drawer
+alt Escape or close control
+  actor -> drawer : Escape or Close
+  drawer -> cdk : Close
+else Activate a link
+  actor -> drawer : Select Courses
+  drawer -> cdk : Close and navigate
+end
+cdk -> top : Restore focus to Menu (L2-131 AC3)
+gns -> top : aria-expanded="false"
+@enduml

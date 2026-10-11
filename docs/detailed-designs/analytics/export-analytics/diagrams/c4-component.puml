@@ -1,0 +1,34 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Export analytics
+Container_Boundary(web, "Logos Lab Web") {
+  Component(pages, "StudioAnalyticsPage, AnalyticsItemPage, AdminAnalyticsPage", "Angular pages", "Export CSV with the on-screen filters")
+  Component(toast, "ll-toast", "Shared component", "Exporting and export-queued messages")
+  Component(client, "AnalyticsExportApi / HttpAnalyticsExportApi", "API contract and implementation", "Typed HTTP calls")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/analytics/exports", "Route handlers", "Create export; download")
+  Component(action, "ExportAnalyticsAction", "Action", "Same query and suppression as the view")
+  Component(dl, "DownloadAnalyticsExportAction", "Action", "Owner and expiry checks")
+  Component(view, "Analytics view queries", "Domain services", "AnalyticsQueryService, PlatformAnalyticsService, AnalyticsPrivacyService")
+  Component(csv, "CsvWriter", "Component", "RFC 4180 output with formula escaping")
+}
+Container_Boundary(worker, "Logos Lab Worker") {
+  Component(job, "AnalyticsExportJob", "Job", "Builds large CSV, stores it, notifies the user")
+  Component(notify, "NotificationService and EmailService", "Domain services", "In-app and email notice with the link")
+}
+ComponentDb(table, "analytics_exports", "PostgreSQL table", "Request, status, file key, expiry")
+Rel(pages, client, "Calls")
+Rel(pages, toast, "Shows")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(route, dl, "Invokes")
+Rel(action, view, "Runs the view query with")
+Rel(action, csv, "Writes with")
+Rel(action, table, "Records large exports in", "SQL")
+Rel(job, view, "Runs the view query with")
+Rel(job, csv, "Writes with")
+Rel(job, notify, "Notifies with")
+Rel(dl, table, "Reads", "SQL")
+@enduml

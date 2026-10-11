@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Decrypt messages for a participant
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Message thread" as page
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/conversations/{id}/messages" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ListConversationMessagesAction" as action
+  participant "FieldEncryptionService" as fes
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "AWS KMS" as kms
+end box
+actor -> page : Open conversation
+page -> route : GET
+route -> action : execute(currentUserId, conversationId)
+action -> db : Select messages WHERE participant = current user (L2-017)
+db --> action : Ciphertext rows
+loop Each message
+  action -> fes : decrypt(field, context)
+  fes -> kms : Decrypt data key; key policy allows only the API and Worker roles (L2-112)
+  kms --> fes : Data key
+  fes --> action : Plain text
+end
+action --> route : Messages
+route --> page : 200 JSON
+page --> actor : Thread shown
+note over db : A database dump alone holds only ciphertext and encrypted data keys
+@enduml

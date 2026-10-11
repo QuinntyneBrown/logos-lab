@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Stay available
+
+Person(member, "Member or visitor", "Uses the platform")
+System_Ext(synthetics, "CloudWatch Synthetics", "One-minute checks")
+System_Boundary(ll, "Logos Lab — AWS Canada (Central)") {
+  Container(cdn, "CDN", "Amazon CloudFront, AWS WAF", "Edge entry point")
+  Container(alb, "Application Load Balancer", "AWS ELB, two zones", "Routes to healthy instances only")
+  Container(web, "Logos Lab Web", "Angular SSR, at least two instances", "Pages and announcement banner")
+  Container(api, "Logos Lab API", "Next.js, at least two instances", "JSON API and health endpoints")
+  Container(worker, "Logos Lab Worker", "Node.js, at least two instances", "Background jobs")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Regional, spans zones")
+  ContainerDb(db, "Logos Lab database", "RDS PostgreSQL Multi-AZ", "Primary and standby in two zones")
+  ContainerDb(cache, "Cache", "ElastiCache Redis", "Primary and replica in two zones")
+}
+Rel(member, cdn, "Uses", "HTTPS")
+Rel(synthetics, cdn, "Checks", "HTTPS")
+Rel(cdn, alb, "Forwards to", "HTTPS")
+Rel(alb, web, "Routes pages to")
+Rel(alb, api, "Routes /api and /health to")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, cache, "Reads and writes", "RESP")
+Rel(api, queue, "Enqueues jobs")
+Rel(worker, queue, "Consumes jobs")
+Rel(worker, db, "Reads and writes", "SQL")
+@enduml

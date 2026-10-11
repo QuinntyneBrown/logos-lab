@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Start a conversation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "MemberProfilePage" as profile
+  participant "ConversationPage" as page
+  participant "MessagesApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Messages route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "StartConversationAction" as action
+  participant "MessagingEligibilityService" as elig
+  participant "BlockService" as block
+  participant "MessageRateLimitService" as rate
+  participant "MessageEncryptionService" as crypto
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Cache" as cache
+  database "Logos Lab database" as db
+  participant "AWS KMS" as kms
+end box
+actor -> profile : Open /members/{id}
+profile -> client : eligibility(memberId)
+client -> route : GET /api/v1/members/{id}/messaging
+route -> elig : canStart(sender, recipient)
+elig -> db : Shared cohort, roles, recipient privacy settings
+elig --> route : Allowed or not
+route --> client : canMessage flag, no reason disclosed
+profile --> actor : Show Message action only when allowed (L2-065)
+actor -> page : Write first message (1-2,000 characters) and send
+page -> client : start(recipientId, body)
+client -> route : POST /api/v1/messages/conversations
+route -> action : execute(senderId, recipientId, body)
+alt sender not verified
+  action --> route : Unverified
+  route --> client : 403 problem
+  page --> actor : Open VerifyEmailPromptDialog (L2-065)
+else verified
+  action -> action : Apply L2-068 guidelines gate
+  action -> elig : canStart(sender, recipient)
+  alt learner without shared cohort, or recipient has messages off
+    elig --> action : NoSharedCohort or RecipientClosed
+    route --> client : 403 problem (L2-065)
+    page --> actor : Show not-eligible state
+  else blocked by recipient
+    action -> block : isBlocked(recipient, sender)
+    route --> client : 403 problem
+    page --> actor : "You can't message this member" (L2-067)
+  else eligible
+    action -> rate : checkStart(senderId)
+    rate -> cache : Increment daily new-conversation counter
+    alt more than 10 new conversations today
+      route --> client : 429 problem (L2-066)
+      page --> actor : Show rate-limited state
+    else within limit
+      action -> crypto : encrypt(body)
+      crypto -> kms : Generate data key
+      kms --> crypto : Plain and encrypted data key
+      crypto --> action : Ciphertext and encrypted key
+      action -> db : Insert conversation, 2 participants, first message
+      route --> client : 201 ConversationSummary
+      page --> actor : Show conversation
+    end
+  end
+end
+@enduml

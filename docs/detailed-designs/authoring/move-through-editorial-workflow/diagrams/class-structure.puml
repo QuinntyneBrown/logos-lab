@@ -1,0 +1,159 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Move through the editorial workflow
+
+package "Logos Lab Web" {
+  class StudioEditorPage {
+    +item: Signal<StudioItem>
+    +openSubmit(): void
+  }
+  class ReviewItemPage {
+    +item: Signal<ReviewItem>
+    +comments: Signal<ReviewCommentView[]>
+    +diff: Signal<FieldDiff[]>
+    +canApprove: boolean
+    +addComment(anchor: Anchor, body: string): void
+    +openRequestChanges(): void
+    +openApprove(): void
+  }
+  class ContentHistoryPage {
+    +transitions: Signal<TransitionView[]>
+  }
+  class SubmitForReviewDialog {
+    +note: string
+    +submit(): Promise<void>
+  }
+  class RequestChangesDialog {
+    +note: string
+    +send(): Promise<void>
+  }
+  class ApproveDialog {
+    +comment: string
+    +approve(): Promise<void>
+  }
+  interface StudioApi {
+    +submit(id: string, note: string, rowVersion: number): Observable<StudioItem>
+    +requestChanges(id: string, note: string, rowVersion: number): Observable<StudioItem>
+    +approve(id: string, comment: string, rowVersion: number): Observable<StudioItem>
+    +addReviewComment(id: string, input: ReviewCommentInput): Observable<ReviewCommentView>
+    +resolveReviewComment(id: string, commentId: string): Observable<void>
+    +getDiff(id: string): Observable<FieldDiff[]>
+    +getHistory(id: string): Observable<TransitionView[]>
+  }
+  class HttpStudioApi
+  class STUDIO_API <<InjectionToken>>
+}
+
+package "Logos Lab API" {
+  class SubmitForReviewAction {
+    +execute(user: CurrentUser, id: uuid, note: string, rowVersion: int): ContentItem
+  }
+  class RequestChangesAction {
+    +execute(user: CurrentUser, id: uuid, note: string, rowVersion: int): ContentItem
+  }
+  class ApproveContentAction {
+    +execute(user: CurrentUser, id: uuid, comment: string, rowVersion: int): ContentItem
+  }
+  class GetContentHistoryAction {
+    +execute(user: CurrentUser, id: uuid): WorkflowTransition[]
+  }
+  class WorkflowService {
+    +transition(item: ContentRevision, to: WorkflowState, actor: CurrentUser): TransitionResult
+    +canApprove(item: ContentItem, actor: CurrentUser): boolean
+  }
+  class ContentValidationService {
+    +validateForSubmission(revision: ContentRevision): RuleFailure[]
+  }
+  class NotificationService {
+    +notifyEditors(event: WorkflowEvent): void
+    +notifyOwners(event: WorkflowEvent): void
+  }
+  class ContentItem {
+    +id: uuid
+    +ownerId: uuid
+    +createdById: uuid
+    +state: WorkflowState
+    +workingRevisionId: uuid
+    +rowVersion: int
+  }
+  class ContentRevision {
+    +id: uuid
+    +itemId: uuid
+    +state: WorkflowState
+    +fields: jsonb
+    +lastSubmittedSnapshot: jsonb
+    +editedByIds: uuid[]
+    +rowVersion: int
+  }
+  class WorkflowTransition {
+    +id: uuid
+    +itemId: uuid
+    +revisionId: uuid
+    +from: WorkflowState
+    +to: WorkflowState
+    +actorId: uuid
+    +at: timestamptz
+    +comment: string
+  }
+  class ReviewComment {
+    +id: uuid
+    +revisionId: uuid
+    +anchor: Anchor
+    +body: string
+    +authorId: uuid
+    +resolvedAt: timestamptz
+  }
+  class Anchor <<value object>> {
+    +field: string
+    +start: int
+    +end: int
+  }
+  class TransitionResult <<value object>> {
+    +allowed: boolean
+    +state: WorkflowState
+  }
+  enum WorkflowState {
+    Draft
+    InReview
+    ChangesRequested
+    Approved
+    Scheduled
+    Published
+    Archived
+  }
+}
+
+HttpStudioApi ..|> StudioApi
+STUDIO_API ..> StudioApi : provides
+StudioEditorPage ..> STUDIO_API : injects
+ReviewItemPage ..> STUDIO_API : injects
+ContentHistoryPage ..> STUDIO_API : injects
+StudioEditorPage ..> SubmitForReviewDialog : opens
+ReviewItemPage ..> RequestChangesDialog : opens
+ReviewItemPage ..> ApproveDialog : opens
+SubmitForReviewAction ..> ContentValidationService : uses
+SubmitForReviewAction ..> WorkflowService : uses
+RequestChangesAction ..> WorkflowService : uses
+ApproveContentAction ..> WorkflowService : uses
+SubmitForReviewAction ..> NotificationService : uses
+RequestChangesAction ..> NotificationService : uses
+ApproveContentAction ..> NotificationService : uses
+WorkflowService ..> TransitionResult : returns
+ContentItem "1" *-- "1..*" ContentRevision
+ContentItem "1" *-- "*" WorkflowTransition
+ContentRevision "1" *-- "*" ReviewComment
+ReviewComment *-- Anchor
+ContentItem --> WorkflowState
+ContentRevision --> WorkflowState
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Log and trace
+
+Person(member, "Member", "Uses the platform")
+System_Ext(logs, "Amazon CloudWatch Logs", "Canada (Central)")
+System_Ext(ses, "Amazon SES", "Email")
+System_Boundary(ll, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular SSR on Node.js", "Assigns IDs to page requests")
+  Container(api, "Logos Lab API", "Next.js", "Accepts or assigns IDs, logs requests")
+  ContainerQueue(queue, "Job queue", "Amazon SQS", "Carries correlationId attribute")
+  Container(worker, "Logos Lab Worker", "Node.js", "Restores ID per job")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls with X-Correlation-Id", "JSON/HTTPS")
+Rel(api, queue, "Enqueues with correlationId attribute")
+Rel(worker, queue, "Consumes")
+Rel(worker, ses, "Sends with correlation tag")
+Rel(web, logs, "Writes JSON logs")
+Rel(api, logs, "Writes JSON logs")
+Rel(worker, logs, "Writes JSON logs")
+@enduml

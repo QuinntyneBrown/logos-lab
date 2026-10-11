@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Browse the catalogue
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+System_Boundary(logos, "Logos Lab") {
+  Container(web, "Logos Lab Web", "Angular, Angular SSR on Node.js", "Server-renders public pages and runs the single-page application")
+  Container(api, "Logos Lab API", "Next.js route handlers, TypeScript", "JSON API under /api/v1 with actions and domain services")
+  Container(worker, "Logos Lab Worker", "Node.js", "Runs background jobs from the job queue")
+  ContainerQueue(queue, "Job queue", "Amazon SQS with dead-letter queue", "Carries job messages to the Worker")
+  ContainerDb(db, "Logos Lab database", "PostgreSQL on Amazon RDS", "System of record and full-text search index")
+}
+Rel(visitor, web, "Opens /explore with filters in the URL", "HTTPS")
+Rel(web, api, "GET /api/v1/catalogue", "JSON/HTTPS")
+Rel(api, db, "Reads published content and popularity", "SQL")
+Rel(api, queue, "Schedules popularity refresh", "SQS")
+Rel(queue, worker, "Delivers ContentPopularityRefreshJob", "SQS")
+Rel(worker, db, "Writes content_popularity", "SQL")
+@enduml

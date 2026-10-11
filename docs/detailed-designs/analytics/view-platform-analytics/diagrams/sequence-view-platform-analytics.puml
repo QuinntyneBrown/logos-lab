@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — View platform analytics
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Editor or Administrator" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "AdminAnalyticsPage" as page
+  participant "PlatformAnalyticsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/admin/analytics" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetPlatformAnalyticsAction" as action
+  participant "PlatformAnalyticsService" as service
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open /admin/analytics
+page --> actor : Loading: busy stats, greyed charts
+page -> client : get(last 30 days, compare off)
+client -> route : HTTPS GET ?from=&to=
+route -> route : Authenticate; require Editor or Administrator
+alt any other role
+  route --> client : 403 problem response
+  page --> actor : Forbidden state; experts get a link to their own analytics
+else authorized
+  route -> action : execute(actor, range, false)
+  action -> service : metrics(range)
+  service -> db : Read platform rollups for the range
+  db --> service : Daily, weekly and monthly active members, registrations, enrolments, completions, event registrations and attendance (L2-101)
+  action -> service : weeklySeries(range) and topContent(range, 5)
+  service --> action : Series and top content
+  action --> route : PlatformAnalytics with updatedAt; counts only, no learner identities (L2-102)
+  route --> client : 200 JSON, no-store
+  alt range before any activity
+    page --> actor : Empty state with a way to choose another range
+  else data
+    page --> actor : Stats, charts each with a data table for assistive technology (L2-101), top content
+  end
+end
+@enduml

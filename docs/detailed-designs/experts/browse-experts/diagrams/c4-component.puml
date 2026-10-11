@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Browse experts
+
+Container(web, "Logos Lab Web", "Angular SSR", "ExpertsPage, ExpertsApi")
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "GET /api/v1/experts", "Route handler", "Anonymous; validates q")
+  Component(action, "ListExpertsAction", "Action", "One directory query")
+  Component(svc, "ExpertDirectoryService", "Domain service", "Completed profiles, filters, surname order")
+  Component(repo, "ExpertProfileRepository", "Repository", "Accent-insensitive name match")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "expert_profiles, expert_expertise_areas, content_topics")
+Rel(web, route, "Calls", "JSON/HTTPS")
+Rel(route, action, "Invokes")
+Rel(action, svc, "Lists")
+Rel(svc, repo, "Queries")
+Rel(repo, db, "Reads", "SQL")
+@enduml

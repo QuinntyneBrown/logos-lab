@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Navigate globally
+
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(shell, "AppShell", "Angular component", "Hosts the header")
+  Component(top, "ll-top-bar", "Shared component", "Inline or collapsed header")
+  Component(gns, "GlobalNavigationService", "Angular service", "Drawer state; LG boundary")
+  Component(bo, "BreakpointObserver", "Angular CDK", "Matches the LG query")
+  Component(drawer, "NavDrawerDialog", "CDK dialog styled by ll-drawer", "Site navigation")
+  Component(menu, "ll-menu account menu", "Shared component", "Account items at LG and XL")
+  Component(acc, "HttpAccountApi", "AccountApi implementation", "getCurrentMember")
+  Component(notif, "HttpNotificationsApi", "NotificationsApi implementation", "getUnreadCount")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(me, "GET /api/v1/me", "Route handler (accounts design)", "Current member")
+  Component(unread, "GET /api/v1/notifications/unread-count", "Route handler (notifications design)", "Badge count")
+}
+
+Rel(shell, top, "Renders")
+Rel(top, gns, "Delegates Menu to")
+Rel(gns, bo, "Observes LG boundary through")
+Rel(gns, drawer, "Opens and closes")
+Rel(top, menu, "Opens at LG and XL")
+Rel(gns, acc, "Loads member through")
+Rel(top, notif, "Loads badge through")
+Rel(acc, me, "GET", "JSON/HTTPS")
+Rel(notif, unread, "GET", "JSON/HTTPS")
+@enduml

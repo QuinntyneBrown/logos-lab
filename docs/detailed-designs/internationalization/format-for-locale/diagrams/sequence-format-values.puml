@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Format values on render
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Learner" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventPage" as page
+  participant "HttpEventsApi" as client
+  participant "ll-event-row" as row
+  participant "llDate / llTime / llNumber" as pipes
+  participant "LocaleFormatService" as svc
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "GET /api/v1/events/{slug}" as route
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> page : Open an event
+page -> client : getEvent(slug)
+client -> route : GET
+route -> db : Read event
+db --> route : Row
+route --> client : startsAt ISO 8601 UTC, attendeeCount number (no formatted strings)
+client --> page : EventDetail
+page -> row : Pass raw values
+row -> pipes : Format startsAt (long), time, attendeeCount
+pipes -> svc : formatDate(startsAt, long)
+svc --> pipes : "October 11, 2026" in en-CA (L2-148 AC1)
+pipes -> svc : formatTime(startsAt)
+svc --> pipes : Locale time in the viewer's zone
+pipes -> svc : formatNumber(attendeeCount)
+svc --> pipes : "1,284" with en-CA grouping (L2-148 AC2)
+pipes --> row : Display text
+row --> actor : Event details in the active locale
+@enduml

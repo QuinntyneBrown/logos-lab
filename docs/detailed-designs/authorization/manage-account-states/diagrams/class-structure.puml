@@ -1,0 +1,95 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage account states
+
+package "Logos Lab Web" {
+  class AdminUserPage {
+    -api: AdminUsersApi
+    +openSuspend(): void
+    +reactivate(): void
+    +deactivate(): void
+  }
+  class UserActionDialog {
+    -api: AdminUsersApi
+    +until: Date
+    +reason: string
+    +confirm(): void
+  }
+  interface AdminUsersApi {
+    +suspend(id: Uuid, until: Instant, reason: string): Observable<void>
+    +reactivate(id: Uuid): Observable<void>
+    +deactivate(id: Uuid): Observable<void>
+  }
+}
+package "Logos Lab API" {
+  enum AccountState {
+    Unverified
+    Active
+    Suspended
+    Banned
+    Deactivated
+  }
+  class User {
+    +id: Uuid
+    +displayName: string
+    +state: AccountState
+    +suspendedUntil: Instant | null
+    +stateChangedAt: Instant
+    +canSignIn(now: Instant): boolean
+    +canContribute(now: Instant): boolean
+  }
+  class AccountStateService {
+    +transition(actor: Actor, user: User, to: AccountState, detail: TransitionDetail): Promise<void>
+  }
+  class TransitionDetail {
+    +until: Instant | null
+    +reason: string | null
+  }
+  class SuspendUserAction {
+    +execute(actor: CurrentUser, id: Uuid, until: Instant, reason: string): Promise<Result<void, ValidationProblem>>
+  }
+  class ReactivateUserAction {
+    +execute(actor: CurrentUser, id: Uuid): Promise<void>
+  }
+  class DeactivateUserAction {
+    +execute(actor: CurrentUser, id: Uuid): Promise<void>
+  }
+  class SuspensionExpiryJob {
+    +run(now: Instant): Promise<number>
+  }
+  class MemberAttributionService {
+    +attributionFor(author: User): Attribution
+  }
+  class Attribution {
+    +name: string
+    +hidden: boolean
+  }
+  class SessionService {
+    +revokeAll(userId: Uuid): Promise<number>
+  }
+}
+AdminUserPage ..> AdminUsersApi
+AdminUserPage ..> UserActionDialog : opens
+UserActionDialog ..> AdminUsersApi
+User --> AccountState
+SuspendUserAction ..> AccountStateService
+ReactivateUserAction ..> AccountStateService
+DeactivateUserAction ..> AccountStateService
+SuspensionExpiryJob ..> AccountStateService
+AccountStateService ..> User : changes state
+AccountStateService ..> TransitionDetail
+AccountStateService ..> SessionService
+MemberAttributionService ..> User
+MemberAttributionService ..> Attribution
+@enduml

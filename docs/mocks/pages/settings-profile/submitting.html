@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile settings · submitting — Logos Lab</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="settings-profile">
+<meta name="mock:state" content="submitting">
+<meta name="mock:requirements" content="L2-013">
+<meta name="description" content="Profile settings while the changes save: the Save button is busy and reads Saving.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand brand--compact" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/explore/default.html">Explore</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Courses</a></li>
+        <li><a class="nav__link" href="../../pages/events/default.html">Events</a></li>
+        <li><a class="nav__link" href="../../pages/experts/default.html">Experts</a></li>
+        <li><a class="nav__link" href="../../pages/explore/selected.html">Collections</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <form class="search header__search--wide" role="search" action="../../pages/search-results/default.html">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <label class="vh" for="site-search">Search Logos Lab</label>
+        <input class="search__input" id="site-search" name="q" type="search" placeholder="Search Logos Lab" autocomplete="off">
+      </form>
+      <a class="icon-btn header__search-btn" href="../../dialogs/search-suggest/default.html" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></a>
+      <a class="icon-btn" href="../../dialogs/notification-centre/default.html" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
+      <a class="avatar-btn" href="../../dialogs/account-menu/default.html" aria-label="Your account, Miriam Clarke" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/hannah-kowalski.jpg" width="40" height="40" alt=""></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-expanded="false" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap settings-layout">
+    <nav class="sidebar-nav settings-nav" aria-label="Settings">
+      <p class="sidebar-nav__group">Settings</p>
+      <a href="../../pages/settings-profile/default.html" aria-current="page">Profile</a>
+      <a href="../../pages/settings-account/default.html">Email and password</a>
+      <a href="../../pages/settings-security/default.html">Security</a>
+      <a href="../../pages/settings-sessions/default.html">Sessions</a>
+      <a href="../../pages/settings-notifications/default.html">Notifications</a>
+      <a href="../../pages/settings-privacy/default.html">Privacy and messaging</a>
+      <a href="../../pages/settings-data/default.html">Your data</a>
+      <a href="../../pages/settings-blocked/default.html">Blocked members</a>
+    </nav>
+
+    <div>
+      <div class="page-head" style="padding-top: var(--space-2)">
+        <p class="eyebrow">Settings</p>
+        <h1 class="page-head__title">Profile</h1>
+        <p class="page-head__sub">How other members see you. Your email address, enrolments and progress are never shown on your profile.</p>
+      </div>
+
+      <form class="form-card" action="submitting.html" novalidate>
+        <fieldset class="form-section">
+          <legend class="form-section__title">About you</legend>
+          <div class="field">
+            <span class="field__label" id="photo-label">Photo</span>
+            <div class="photo-edit" role="group" aria-labelledby="photo-label">
+              <img class="photo-edit__img" src="../../assets/photos/hannah-kowalski.jpg" width="96" height="96" alt="Miriam Clarke's current photo">
+              <div class="photo-edit__text">
+                <a class="btn btn--quiet btn--sm" href="../../dialogs/avatar-upload/default.html">Change photo</a>
+                <p class="field__help">JPEG, PNG or WebP, up to 5 MB and at least 128 × 128 pixels. We crop it to a square and remove location data.</p>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="display-name">Display name</label>
+            <input class="input" id="display-name" name="display-name" type="text" autocomplete="name" required minlength="2" maxlength="50" value="Miriam Clarke" aria-describedby="display-name-help">
+            <p class="field__help" id="display-name-help">2 to 50 characters. Shown with your comments, cohort posts and certificates.</p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="bio">Bio <span class="field__optional">optional</span></label>
+            <textarea class="textarea" id="bio" name="bio" rows="5" aria-describedby="bio-help bio-count">Communications lead at a church in Halifax. I'm learning how to talk about AI with care, from the pulpit notes to the parish newsletter.</textarea>
+            <div class="cluster cluster--between"><p class="field__help" id="bio-help">A few sentences about who you are and what brings you here.</p><p class="field__counter" id="bio-count">136 / 500</p></div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="pronouns">Pronouns <span class="field__optional">optional</span></label>
+            <input class="input" id="pronouns" name="pronouns" type="text" maxlength="30" placeholder="For example, she/her or they/them" aria-describedby="pronouns-help">
+            <p class="field__help" id="pronouns-help">Shown beside your name if you add them.</p>
+          </div>
+        </fieldset>
+        <fieldset class="form-section">
+          <legend class="form-section__title">Visibility</legend>
+          <label class="check"><input class="check__box" type="checkbox" name="public-profile" checked><span class="check__text"><span>Show my profile page to other members</span><span class="check__desc">They see your name, photo, bio and public community activity. When this is off, your name and photo still appear on your comments and posts.</span></span></label>
+        </fieldset>
+        <div class="form-actions"><button class="btn btn--primary" type="button" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Saving…</button><a class="btn btn--quiet" href="../../pages/member-profile/own.html">View your profile</a></div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <a class="brand" href="../../pages/home/signed-in.html" aria-label="Logos Lab home"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="brand__sun" cx="25.5" cy="4.5" r="2.4"/></svg><span>logos lab</span></a>
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/policy/default.html">Privacy</a></li><li><a href="../../pages/policy/default.html">Terms</a></li><li><a href="../../pages/policy/default.html">Community guidelines</a></li><li><a href="../../pages/accessibility-statement/default.html">Accessibility</a></li><li><a href="../../dialogs/cookie-settings/default.html">Cookie settings</a></li><li><a href="mailto:help@logoslab.ca">help@logoslab.ca</a></li></ul></nav>
+    <p class="footer__land">Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. Made in Canada; your data is stored in Canada.</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Profile settings</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="submitting.html" aria-current="page">submitting</a></li>
+    <li><a href="success.html">success</a></li>
+    <li><a href="long.html">long</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

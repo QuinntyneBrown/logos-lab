@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Send email notifications
+Person(member, "Member", "Receives transactional and activity email")
+System(ll, "Logos Lab", "Expert-curated learning platform")
+System_Ext(ses, "Amazon SES", "Sends email and reports bounces and complaints")
+System_Ext(dns, "DNS for the sender domain", "SPF, DKIM and DMARC records (domain TO SUPPLY)")
+Rel(ll, ses, "Sends email through", "AWS SDK")
+Rel(ses, member, "Delivers email to", "SMTP")
+Rel(ses, ll, "Reports bounces and complaints to", "Amazon SNS, HTTPS")
+Rel(ses, dns, "Signs and aligns mail with")
+Rel(member, ll, "Updates a bouncing address in", "HTTPS")
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Search content
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+Person(expert, "Expert", "Invited subject-matter expert")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Searches published content in", "HTTPS")
+Rel(learner, logos, "Searches published content in", "HTTPS")
+Rel(expert, logos, "Publishes content that is indexed by", "HTTPS")
+@enduml

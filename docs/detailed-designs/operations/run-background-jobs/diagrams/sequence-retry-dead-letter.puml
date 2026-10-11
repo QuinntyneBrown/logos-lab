@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Retry and dead-letter a job
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "On-call engineer" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "Logos Lab Web" as web
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "Logos Lab API" as api
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "JobRunner" as runner
+  participant "JobHandler" as handler
+  participant "RetryPolicy" as retry
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  queue "Job queue" as queue
+  queue "Dead-letter queue" as dlq
+  participant "DeadLetterAlarm" as alarm
+  participant "On-call channel" as channel
+end box
+loop receives 1 to 6
+  queue -> runner : Deliver message (attempt n)
+  runner -> handler : run(payload)
+  handler --> runner : Transient failure
+  runner -> retry : delaySeconds(n)
+  retry --> runner : Exponential delay
+  runner -> queue : ChangeMessageVisibility(delay) (Apply L2-140 backoff, up to 5 retries)
+end
+queue -> dlq : Redrive after 6th receive
+dlq -> alarm : Visible messages above 0
+alarm -> channel : Notify (Apply L2-140)
+channel --> actor : Dead-lettered job alert
+@enduml

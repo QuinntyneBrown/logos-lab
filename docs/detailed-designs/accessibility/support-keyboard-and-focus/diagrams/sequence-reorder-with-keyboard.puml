@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Reorder with the keyboard
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Expert" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "CourseBuilderPage" as page
+  participant "ll-sortable" as sort
+  participant "Announcer" as ann
+  participant "HttpStudioApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "PUT /api/v1/studio/courses/{courseId}/lessons/order" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "ReorderLessonsAction" as act
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+end box
+actor -> sort : Tab to "Move up" on lesson 4; press Enter
+sort -> sort : moveUp(3), keyboard alternative to drag (L2-126 AC4)
+sort -> sort : Keep focus on the moved item's control
+sort -> ann : polite("Moved to position 3 of 8")
+sort -> page : reorder(ReorderEvent)
+page -> client : reorderLessons(courseId, orderedIds)
+client -> route : PUT
+route -> act : execute(courseId, lessonIds, currentUserId)
+act -> db : Update lesson positions for an owned course
+alt Saved
+  db --> act : Committed
+  act --> route : Done
+  route --> client : 204
+  client --> page : Saved
+  page -> ann : polite("Order saved")
+else Not owned or invalid order
+  route --> client : Problem response with error code
+  client --> page : Error
+  page -> sort : Restore previous order
+  page -> ann : polite(translated error)
+end
+@enduml

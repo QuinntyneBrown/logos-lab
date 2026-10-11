@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Home page
+
+Person(visitor, "Visitor", "Anyone who is not signed in")
+Person(learner, "Learner", "Signed-in member")
+Person(editor, "Editor", "Logos Lab staff who review and curate")
+System(logos, "Logos Lab", "Expert-curated learning platform on Christianity and AI")
+Rel(visitor, logos, "Opens the home page of", "HTTPS")
+Rel(learner, logos, "Opens the home page and continues learning in", "HTTPS")
+Rel(editor, logos, "Curates featured content in", "HTTPS")
+@enduml

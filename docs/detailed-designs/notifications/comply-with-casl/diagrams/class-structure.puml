@@ -1,0 +1,115 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Comply with CASL
+package "Logos Lab Web" {
+  class UnsubscribePage {
+    -token: string
+    -state: UnsubscribeState
+    +ngOnInit(): void
+    +subscribeAgain(): void
+  }
+  class SettingsPrivacyPage {
+    -marketingEmail: FormControl<boolean>
+    -consentRecord: ConsentSummary
+    +save(): void
+  }
+  interface ConsentApi {
+    +unsubscribe(token: string): Observable<UnsubscribeResult>
+    +resubscribe(token: string): Observable<void>
+    +getMarketingConsent(): Observable<ConsentSummary>
+    +setMarketingConsent(given: boolean): Observable<ConsentSummary>
+  }
+  class HttpConsentApi
+  class "CONSENT_API" as Token <<InjectionToken>>
+  class UnsubscribeResult {
+    +category: string
+    +address: string
+    +outcome: UnsubscribeOutcome
+    +since: string
+  }
+}
+package "Logos Lab API" {
+  class UnsubscribeAction {
+    +execute(token: string): UnsubscribeResult
+  }
+  class ResubscribeAction {
+    +execute(token: string): void
+  }
+  class GetMarketingConsentAction {
+    +execute(userId: uuid): ConsentSummary
+  }
+  class ChangeMarketingConsentAction {
+    +execute(userId: uuid, given: boolean, source: ConsentSource): ConsentSummary
+  }
+  class UnsubscribeTokenService {
+    +sign(userId: uuid, category: NotificationCategory): string
+    +verify(token: string): UnsubscribeClaim
+  }
+  class ConsentService {
+    +record(userId: uuid, type: ConsentType, change: ConsentChange, wordingVersion: string, source: ConsentSource): ConsentRecord
+    +hasMarketingConsent(userId: uuid): boolean
+    +history(userId: uuid): ConsentRecord[]
+  }
+  class CaslFooterBuilder {
+    +build(recipient: uuid, category: NotificationCategory, settings: SiteSettings): FooterParts
+  }
+  class ConsentRecord {
+    +id: uuid
+    +userId: uuid
+    +type: ConsentType
+    +change: ConsentChange
+    +wordingVersion: string
+    +source: ConsentSource
+    +recordedAt: timestamptz
+  }
+  enum ConsentType {
+    MarketingEmail
+    TermsAndPrivacy
+    CommunityGuidelines
+  }
+  enum ConsentChange {
+    Given
+    Withdrawn
+    Accepted
+  }
+  enum ConsentSource {
+    RegistrationForm
+    PrivacySettings
+    NotificationSettings
+    UnsubscribeLink
+    UnsubscribePage
+  }
+  enum UnsubscribeOutcome {
+    Unsubscribed
+    AlreadyOff
+  }
+}
+HttpConsentApi ..|> ConsentApi
+Token ..> ConsentApi : provides
+UnsubscribePage ..> ConsentApi : depends on
+SettingsPrivacyPage ..> ConsentApi : depends on
+ConsentApi ..> UnsubscribeResult : returns
+UnsubscribeResult --> UnsubscribeOutcome
+UnsubscribeAction --> UnsubscribeTokenService
+UnsubscribeAction --> ConsentService
+ResubscribeAction --> UnsubscribeTokenService
+ResubscribeAction --> ConsentService
+GetMarketingConsentAction --> ConsentService
+ChangeMarketingConsentAction --> ConsentService
+CaslFooterBuilder --> UnsubscribeTokenService
+ConsentService ..> ConsentRecord : appends
+ConsentRecord --> ConsentType
+ConsentRecord --> ConsentChange
+ConsentRecord --> ConsentSource
+@enduml

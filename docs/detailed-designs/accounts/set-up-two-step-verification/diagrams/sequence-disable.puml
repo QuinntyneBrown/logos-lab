@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Turn off two-step verification
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "SettingsSecurityPage" as page
+  participant "MfaDisableDialog" as dialog
+  participant "AccountApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me/mfa route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "DisableMfaAction" as action
+  participant "MfaPolicy" as policy
+  participant "TotpService" as totp
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  queue "Job queue" as queue
+end box
+actor -> page : Press "Turn off two-step verification"
+page -> dialog : Open
+actor -> dialog : Enter password and current code, confirm
+dialog -> client : disableMfa(password, code)
+client -> route : DELETE /api/v1/me/mfa
+route -> action : execute(currentUser, password, code)
+action -> policy : isMandatory(roles)
+alt mandatory-MFA role (L2-014)
+  action --> route : Forbidden
+  route --> client : 403 "mfa-mandatory"
+  dialog --> actor : Failed state; the page offers no turn-off for this role
+else optional
+  action -> action : Verify password
+  action -> totp : verify(secret, code)
+  alt password or code wrong
+    route --> client : 422 problems on each field
+    dialog --> actor : Invalid state
+  else both valid
+    action -> db : Delete MfaEnrolment and recovery codes
+    action -> queue : Enqueue EmailSendJob (two-step turned off)
+    route --> client : 204
+    dialog --> actor : Success state
+  end
+end
+@enduml

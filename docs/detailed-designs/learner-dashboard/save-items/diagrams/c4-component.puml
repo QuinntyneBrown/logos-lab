@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Save items
+
+Container_Boundary(web, "Logos Lab Web") {
+  Component(card, "ll-content-card save control", "Shared component", "aria-pressed toggle")
+  Component(page, "SavedPage", "Angular page", "/dashboard/saved")
+  Component(live, "LiveAnnouncer / ll-toast", "Angular CDK a11y, shared component", "Announces Saved")
+  Component(client, "SavedItemsApi", "Contract + HttpSavedItemsApi", "Bound by SAVED_ITEMS_API")
+}
+Container_Boundary(api, "Logos Lab API") {
+  Component(route, "app/api/v1/me/saved-items", "Next.js route handlers", "Validate and map")
+  Component(actions, "Saved item actions", "SaveItemAction, UnsaveItemAction, ListSavedItemsAction", "One use case each")
+  Component(service, "SavedItemService", "Domain service", "1,000-item limit")
+  Component(repo, "SavedItemRepository", "Repository", "User-scoped access")
+}
+ContainerDb(db, "Logos Lab database", "PostgreSQL", "saved_items")
+Rel(card, client, "Calls")
+Rel(card, live, "Announces")
+Rel(page, client, "Calls")
+Rel(client, route, "Calls", "JSON/HTTPS")
+Rel(route, actions, "Invokes")
+Rel(actions, service, "Applies limit")
+Rel(actions, repo, "Loads and saves")
+Rel(repo, db, "Reads and writes", "SQL")
+@enduml

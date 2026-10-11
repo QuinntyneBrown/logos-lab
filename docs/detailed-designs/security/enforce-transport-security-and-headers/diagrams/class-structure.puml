@@ -1,0 +1,64 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Enforce transport security and headers
+
+class SecurityHeadersConfig {
+  +hstsMaxAgeSeconds: number = 31536000
+  +hstsIncludeSubDomains: boolean = true
+  +hstsPreload: boolean = true
+  +referrerPolicy: string = "strict-origin-when-cross-origin"
+  +permissionsPolicy: string
+  +scriptSources: string[]
+  +corsAllowedOrigins: string[]
+  +applicationOrigin: string
+}
+class ContentSecurityPolicyBuilder {
+  +build(nonce: string, config: SecurityHeadersConfig): string
+  -scriptSrc(nonce: string): string
+}
+class SecurityHeadersHandler {
+  +handle(req: Request, res: Response, next: NextFunction): void
+  -createNonce(): string
+}
+class SecurityHeadersMiddleware {
+  +handle(request: NextRequest, next: Handler): Promise<NextResponse>
+}
+class CorsPolicy {
+  +handle(request: NextRequest, next: Handler): Promise<NextResponse>
+  +isAllowed(origin: string): boolean
+}
+class ResponseHeaderSet <<value object>> {
+  +strictTransportSecurity: string
+  +contentSecurityPolicy: string
+  +xContentTypeOptions: string = "nosniff"
+  +referrerPolicy: string
+  +permissionsPolicy: string
+  +frameAncestors: string = "'none'"
+}
+class EdgeTransportPolicy <<infrastructure config>> {
+  +viewerProtocolPolicy: string = "redirect-to-https"
+  +redirectStatus: number = 301
+  +minimumProtocolVersion: string = "TLSv1.2_2021"
+}
+class ScormOriginHeadersPolicy <<infrastructure config>> {
+  +frameAncestors: string = "application origin only"
+}
+SecurityHeadersHandler ..> ContentSecurityPolicyBuilder : uses
+SecurityHeadersHandler ..> SecurityHeadersConfig : reads
+SecurityHeadersHandler ..> ResponseHeaderSet : writes
+SecurityHeadersMiddleware ..> SecurityHeadersConfig : reads
+SecurityHeadersMiddleware ..> ResponseHeaderSet : writes
+CorsPolicy ..> SecurityHeadersConfig : reads allow-list
+ScormOriginHeadersPolicy ..> SecurityHeadersConfig : mirrors applicationOrigin
+@enduml

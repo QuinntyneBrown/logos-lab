@@ -1,0 +1,73 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Store passwords and secrets
+
+class PasswordHasher {
+  +memoryKiB: number >= 19456
+  +iterations: number >= 2
+  +parallelism: number = <TO SUPPLY>
+  +hash(plain: string): Promise<string>
+  +verify(encoded: string, plain: string): Promise<boolean>
+  +needsRehash(encoded: string): boolean
+}
+class Credential {
+  +userId: UserId
+  +passwordHash: string
+  +updatedAt: Instant
+}
+class MfaFactor {
+  +userId: UserId
+  +secretCiphertext: Bytes
+  +encryptedDataKey: Bytes
+  +keyId: string
+}
+class RecoveryCode {
+  +userId: UserId
+  +codeHash: string
+  +usedAt: Instant?
+}
+class FieldEncryptionService {
+  +encrypt(plain: Bytes, context: EncryptionContext): Promise<EncryptedField>
+  +decrypt(field: EncryptedField, context: EncryptionContext): Promise<Bytes>
+}
+class SecretProvider {
+  +get(name: SecretName): Promise<string>
+  +refresh(): Promise<void>
+}
+class SigningKey <<value object>> {
+  +kid: string
+  +material: Bytes
+  +createdAt: Instant
+}
+class SigningKeyRing {
+  +current: SigningKey
+  +previous: SigningKey[]
+  +sign(payload: Bytes): Signature
+  +verify(payload: Bytes, sig: Signature): boolean
+}
+class SigningKeyRotationJob {
+  +rotationDays: number = 90
+  +run(): Promise<void>
+}
+class LogRedactor {
+  +deniedKeys: string[]
+  +redact(entry: LogEntry): LogEntry
+}
+PasswordHasher ..> Credential : produces passwordHash
+PasswordHasher ..> RecoveryCode : produces codeHash
+FieldEncryptionService ..> MfaFactor : produces ciphertext
+SigningKeyRing ..> SecretProvider : loads keys
+SigningKeyRing "1" *-- "1..*" SigningKey : holds
+SigningKeyRotationJob ..> SecretProvider : writes next key through
+@enduml

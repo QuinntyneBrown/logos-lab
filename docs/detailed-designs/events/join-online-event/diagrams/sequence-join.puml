@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Join an online event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Registered member" as actor
+box "Frontend — Logos Lab Web" #E0F2FE
+  participant "EventPage" as page
+  participant "ll-rsvp-panel" as panel
+  participant "EventsApi" as client
+end box
+box "Backend — Logos Lab API" #D1FADF
+  participant "me events route handler" as route
+end box
+box "Backend — Logos Lab Application and Domain" #ECFDF3
+  participant "GetMyEventStateAction" as action
+  participant "JoinLinkService" as svc
+end box
+box "Backend — Logos Lab Infrastructure" #FFF4E5
+  database "Logos Lab database" as db
+  participant "Video-conferencing service" as vc
+end box
+actor -> page : Open event page
+page -> client : getMyEventState(eventId)
+client -> route : GET /api/v1/me/events/{eventId}
+route -> route : Authenticate (visitors get 401, no link)
+route -> action : execute(userId, eventId)
+action -> db : Load event and caller's registration (L2-017)
+action -> svc : joinInfo(event, registration, now)
+alt Not registered
+  svc --> action : null
+  route --> client : 200 state without join (L2-058)
+  panel --> actor : Register; link shown only to registrants
+else Registered, before start - 15 min
+  svc --> action : availableFrom, no url
+  route --> client : 200 no-store
+  panel --> actor : Disabled "Join event" with opening time (L2-058)
+  page -> page : Schedule refresh at availableFrom
+  page -> client : getMyEventState(eventId)
+else Registered, inside the window
+  svc --> action : url, availableUntil = end
+  route --> client : 200 no-store with url
+  panel --> actor : Enabled "Join event (opens in a new tab)"
+  actor -> panel : Join event
+  panel -> vc : Open join link in a new tab (rel=noopener)
+end
+@enduml
