@@ -6,8 +6,16 @@
       Pick up your courses, saved items and conversations where you left them.
     </p>
   </div>
-  <form llForm>
-    <ll-form-field label="Email" i18n-label="@@signIn.email" controlId="email">
+  <form llForm (submit)="$event.preventDefault(); submit()">
+    @if (errors().length) {
+      <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
+    }
+    <ll-form-field
+      label="Email"
+      i18n-label="@@signIn.email"
+      controlId="email"
+      [error]="emailError()"
+    >
       <input
         llInput
         id="email"
@@ -16,9 +24,15 @@
         autocomplete="email"
         inputmode="email"
         required
+        (input)="email.set($any($event.target).value)"
       />
     </ll-form-field>
-    <ll-form-field label="Password" i18n-label="@@signIn.password" controlId="password">
+    <ll-form-field
+      label="Password"
+      i18n-label="@@signIn.password"
+      controlId="password"
+      [error]="passwordError()"
+    >
       <a
         llButton
         variant="text"
@@ -36,6 +50,7 @@
           [type]="passwordShown() ? 'text' : 'password'"
           autocomplete="current-password"
           required
+          (input)="password.set($any($event.target).value)"
         />
         <button
           llButton

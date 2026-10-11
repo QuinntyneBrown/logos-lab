@@ -56,3 +56,56 @@ test.describe('Sign in page', () => {
     await expect(signIn.password).toHaveAttribute('type', 'password');
   });
 });
+
+test.describe('Sign in validation', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-128 AC2 · form-layout AC-1, AC-2, form-field AC-2
+  test('an invalid submit lists each problem, takes focus and marks the fields', async ({
+    page,
+    api,
+  }) => {
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await signIn.signIn('miriam.clarke@example', '');
+
+    await expect(signIn.summary).toBeFocused();
+    await expect(signIn.summary).toHaveAttribute('role', 'alert');
+    await expect(signIn.summary).toContainText('Two things to fix before you can sign in');
+    await expect(signIn.summaryLinks()).toHaveText([
+      'Enter your email in the form name@example.ca',
+      'Enter your password',
+    ]);
+    await expect(signIn.email).toHaveAttribute('aria-invalid', 'true');
+    await expect(signIn.email).toHaveAttribute('aria-describedby', 'email-error');
+    await expect(signIn.password).toHaveAttribute('aria-invalid', 'true');
+    expect(api.requestsTo('POST', '/auth/sessions')).toHaveLength(0);
+  });
+
+  // L2-126 · form-layout AC-3
+  test('following an error moves focus to its field', async ({ page }) => {
+    const signIn = new SignInPage(page);
+    await signIn.open();
+    await signIn.signIn('miriam.clarke@example.ca', '');
+
+    await signIn.summaryLinks().first().click();
+
+    await expect(signIn.password).toBeFocused();
+    await expect(signIn.summary).toContainText('One thing to fix before you can sign in');
+  });
+
+  // L2-128 AC2
+  test('fixing the problems clears the summary on the next submit', async ({ page, api }) => {
+    api.hold('POST', '/auth/sessions', { status: 'SignedIn', mfaEnrolmentRequired: false });
+    const signIn = new SignInPage(page);
+    await signIn.open();
+    await signIn.signIn('', '');
+    await expect(signIn.summaryLinks()).toHaveText(['Enter your email', 'Enter your password']);
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(signIn.summary).toHaveCount(0);
+    await expect(signIn.email).not.toHaveAttribute('aria-invalid', 'true');
+  });
+});
