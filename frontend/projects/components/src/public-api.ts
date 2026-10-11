@@ -52,6 +52,8 @@ export * from './lib/alert/alert';
 export * from './lib/alert/alert-tone';
 export * from './lib/auth-card/auth-card';
 export * from './lib/form-field/form-field';
+export * from './lib/form-field/field-help';
+export * from './lib/checkbox/checkbox';
 export * from './lib/form-layout/form';
 export * from './lib/form-layout/form-error';
 export * from './lib/form-layout/form-summary';

@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `label[llCheck]` |
 | Library path | `frontend/projects/components/src/lib/checkbox/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-114, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`checkbox.html`](../../design-system/components/checkbox.html) |
 | Source mocks | [`pages/register/default`](../../mocks/pages/register/default.html), [`pages/register/invalid`](../../mocks/pages/register/invalid.html), [`pages/settings-privacy/default`](../../mocks/pages/settings-privacy/default.html), [`pages/policy-reconsent/default`](../../mocks/pages/policy-reconsent/default.html), [`pages/explore/default`](../../mocks/pages/explore/default.html), [`dialogs/explore-filters/default`](../../mocks/dialogs/explore-filters/default.html) |

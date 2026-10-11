@@ -1,0 +1,106 @@
+// The checkbox block of docs/design-system/assets/components.css: the row on the host, the
+// projected box, text, description and count beneath it. Group and grid rules live in foundations.
+:host(.check) {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font: var(--text-body-sm);
+}
+:host(.check:hover) {
+  background: var(--color-bg-subtle);
+}
+:host(.check:has(.check__box:disabled)) {
+  color: var(--color-fg-disabled);
+  background: none;
+  cursor: not-allowed;
+}
+:host ::ng-deep {
+  .check__box {
+    appearance: none;
+    margin: 0;
+    width: var(--space-5);
+    height: var(--space-5);
+    border-radius: var(--radius-xs);
+    border: var(--border-width-hairline) solid var(--color-border-strong);
+    background: var(--color-bg-surface);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .check__box::after {
+    content: '';
+    width: var(--space-2);
+    height: var(--space-1);
+    border-left: var(--border-width-thick) solid var(--color-fg-on-accent);
+    border-bottom: var(--border-width-thick) solid var(--color-fg-on-accent);
+    rotate: -45deg;
+    translate: 0 calc(-1 * var(--border-width-hairline));
+    opacity: 0;
+  }
+  .check__box:checked {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .check__box:checked::after {
+    opacity: 1;
+  }
+  .check__box:indeterminate {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .check__box:indeterminate::after {
+    opacity: 1;
+    rotate: none;
+    height: 0;
+    border-left: 0;
+  }
+  .check__box[aria-invalid='true'] {
+    border-color: var(--color-danger-solid);
+  }
+  .check__box:hover:not(:disabled):not(:checked) {
+    border-color: var(--color-fg-muted);
+  }
+  .check__box:disabled {
+    background: var(--color-bg-subtle);
+    border-color: var(--color-border-default);
+    cursor: not-allowed;
+  }
+  .check__box:disabled:checked {
+    background: var(--color-fg-disabled);
+    border-color: var(--color-fg-disabled);
+  }
+  .check__text {
+    display: grid;
+  }
+  .check__desc {
+    color: var(--color-fg-muted);
+  }
+  .check__count {
+    color: var(--color-fg-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .check__box:disabled ~ * .check__desc,
+  .check__box:disabled ~ .check__count {
+    color: var(--color-fg-disabled);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .check__box::after {
+      transition: opacity var(--duration-fast) var(--ease-standard);
+    }
+  }
+  @media (forced-colors: active) {
+    .check__box {
+      appearance: auto;
+    }
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :host(.check) {
+    transition: background-color var(--duration-base) var(--ease-standard);
+  }
+}

@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-form-field` |
 | Library path | `frontend/projects/components/src/lib/form-field/` |
-| Status | built (help placement, rich help and a label-less field planned) |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`form-field.html`](../../design-system/components/form-field.html) |
 | Source mocks | [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/sign-in/invalid`](../../mocks/pages/sign-in/invalid.html), [`pages/register/invalid`](../../mocks/pages/register/invalid.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`pages/studio-editor/default`](../../mocks/pages/studio-editor/default.html), [`dialogs/report-content/default`](../../mocks/dialogs/report-content/default.html) |
@@ -209,6 +209,7 @@ None.
 - **AC-9** Given the registration name field with help placed before the control, when it renders, then the help sits between the label and the input and the input's `aria-describedby` names it. (L2-127)
 - **AC-10** Given the terms field with no label and the error "Accept the Terms of Use and the Privacy Policy to create an account", when it renders, then no field label shows, the checkbox has `aria-invalid="true"` and its `aria-describedby` names the help and the error. (L2-128)
 - **AC-11** Given the terms field with help containing the links "Terms of Use" and "Privacy Policy", when it renders, then the links show inside the help and the checkbox's `aria-describedby` names the help. (L2-127)
+- **AC-12** Given the news checkbox with `aria-describedby="news-desc"` in a field without help or error, when it renders, then its `aria-describedby` is still `news-desc`. (L2-127)
 
 ### Keyboard and focus
 
@@ -234,7 +235,8 @@ None.
 ## Decisions
 
 - **D-1** *Who sets `aria-describedby` and `aria-invalid`?* The field, on the control found by its id, so
-  every page gets the association right without repeating ids.
+  every page gets the association right without repeating ids. The field adds and removes only its own ids;
+  ids the consumer set (a checkbox row's `news-desc`) stay, first.
 - **D-2** *Where do the `.input-group` rules live?* In the form field, the only place a control row
   appears.
 - **D-3** *Where does help go?* Where the page's mock puts it: the design system and most settings mocks

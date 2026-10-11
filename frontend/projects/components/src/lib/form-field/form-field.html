@@ -1,16 +1,21 @@
 <div class="field">
-  <div class="cluster cluster--between field__label-row">
-    <label class="field__label" [for]="controlId()"
-      >{{ label() }}
-      @if (optional(); as optional) {
-        <span class="field__optional">{{ optional }}</span>
-      }
-    </label>
-    <ng-content select="[slot=label-action]" />
-  </div>
+  @if (label(); as label) {
+    <div class="cluster cluster--between field__label-row">
+      <label class="field__label" [for]="controlId()"
+        >{{ label }}
+        @if (optional(); as optional) {
+          <span class="field__optional">{{ optional }}</span>
+        }
+      </label>
+      <ng-content select="[slot=label-action]" />
+    </div>
+  }
+  @if (hasHelp() && helpPlacement() === 'before') {
+    <ng-container *ngTemplateOutlet="helpTemplate" />
+  }
   <ng-content />
-  @if (help(); as help) {
-    <p class="field__help" [id]="helpId()">{{ help }}</p>
+  @if (hasHelp() && helpPlacement() === 'after') {
+    <ng-container *ngTemplateOutlet="helpTemplate" />
   }
   @if (error(); as error) {
     <p class="field__error" [id]="errorId()">
@@ -21,3 +26,6 @@
     <p class="field__counter" [id]="counterId()">{{ counter }}</p>
   }
 </div>
+<ng-template #helpTemplate>
+  <p class="field__help" [id]="helpId()">{{ help() }}<ng-content select="[llFieldHelp]" /></p>
+</ng-template>

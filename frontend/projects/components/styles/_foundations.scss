@@ -362,3 +362,30 @@ a[data-state='hover'] {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
+
+// Checkbox groups (checkbox CRD): containers of label[llCheck] rows.
+.check-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.check-group > legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font: var(--text-label);
+}
+.check-group.check-group--nested {
+  padding-left: var(--space-8);
+}
+.check-grid {
+  display: grid;
+  gap: var(--space-1);
+}
+@media (min-width: 40rem) {
+  .check-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

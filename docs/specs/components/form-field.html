@@ -32,7 +32,7 @@
     </div>
     <h1>Form field</h1>
     <p class="ds-lead">A visible label, the control, help, error and count, tied together. Requirements: <a href="form-field.md">form-field.md</a>. Design system: <a href="../../design-system/components/form-field.html">form-field</a>.</p>
-    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-form-field</code></span><span class="ds-pill">Status: built (help placement, rich help and a label-less field planned)</span><span class="ds-pill">Traces to L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150</span></div>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-form-field</code></span><span class="ds-pill">Status: built</span><span class="ds-pill">Traces to L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150</span></div>
     <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
   </header>
 <section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas"><div class="stack" style="max-width:26rem"><div class="field">
@@ -57,7 +57,9 @@
           <label class="check"><input class="check__box" type="checkbox" name="terms" id="terms" required aria-invalid="true" aria-describedby="terms-help terms-error"><span>I accept the Terms of Use and the Privacy Policy</span></label>
           <p class="field__help" id="terms-help">Read the <a href="#">Terms of Use</a> and the <a href="#">Privacy Policy</a>. We record which versions you accepted and when.</p>
           <p class="field__error" id="terms-error"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Accept the Terms of Use and the Privacy Policy to create an account</p>
-        </div></div></div><div class="ds-example__caption"><span>No label: a checkbox row with rich help and an error. <span class="crd-ac">AC-10, AC-11</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas"><div class="stack" style="max-width:26rem"><div class="field">
+        </div></div></div><div class="ds-example__caption"><span>No label: a checkbox row with rich help and an error. <span class="crd-ac">AC-10, AC-11</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:26rem"><div class="field">
+          <label class="check"><input class="check__box" type="checkbox" name="news" id="news" aria-describedby="news-desc"><span class="check__text"><span>Email me Platform news <span class="field__optional">Optional</span></span><span class="check__desc" id="news-desc">New courses and events, about once a month. Unsubscribe from any email with one click.</span></span></label>
+        </div></div></div><div class="ds-example__caption"><span>No label, no help: the row keeps its own description. <span class="crd-ac">AC-12</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas"><div class="stack" style="max-width:26rem"><div class="field">
           <label class="field__label" for="email">Email</label>
           <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" required value="miriam.clarke@example" aria-invalid="true" aria-describedby="email-error">
           <p class="field__error" id="email-error"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Enter your email in the form name@example.ca</p>

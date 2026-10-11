@@ -14,6 +14,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
   },
   {
+    path: 'register',
+    title: $localize`:@@register.pageTitle:Create account - Logos Lab`,
+    data: { shell: { kind: 'focused', action: 'sign-in' } },
+    loadComponent: () => import('./pages/register/register-page').then((m) => m.RegisterPage),
+  },
+  {
     path: '**',
     title: $localize`:@@notFound.pageTitle:Page not found - Logos Lab`,
     loadComponent: () => import('./pages/not-found/not-found-page').then((m) => m.NotFoundPage),
