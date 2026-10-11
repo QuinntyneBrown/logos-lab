@@ -6,8 +6,13 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@an
   templateUrl: './person-list.html',
   styleUrl: './person-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'people', '[class.people--stacked]': 'stacked()' },
+  host: {
+    class: 'people',
+    '[class.people--stacked]': 'stacked()',
+    '[attr.aria-busy]': "loadingLabel() ? 'true' : null",
+  },
 })
 export class PersonList {
   readonly stacked = input(false, { transform: booleanAttribute });
+  readonly loadingLabel = input<string | null>(null);
 }

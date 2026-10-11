@@ -1,0 +1,42 @@
+// The .skeleton rules of the skeleton block of docs/design-system/assets/components.css.
+:host {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+}
+:host(.skeleton--title) {
+  height: var(--space-8);
+  width: 55%;
+}
+:host(.skeleton--text) {
+  height: var(--size-skeleton-line);
+  width: 100%;
+  margin-top: var(--space-3);
+}
+:host(.skeleton--text.is-short) {
+  width: 60%;
+}
+:host(.skeleton--photo) {
+  width: var(--space-16);
+  height: var(--space-16);
+  border-radius: var(--radius-md);
+}
+:host(.skeleton--circle) {
+  width: var(--space-12);
+  height: var(--space-12);
+  border-radius: var(--radius-full);
+}
+:host(.skeleton--block) {
+  height: var(--space-32);
+  border-radius: var(--radius-lg);
+}
+:host(.skeleton--pill) {
+  height: var(--size-pill);
+  width: var(--space-20);
+  border-radius: var(--radius-full);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    animation: shimmer var(--duration-breath) var(--ease-breath) infinite;
+  }
+}

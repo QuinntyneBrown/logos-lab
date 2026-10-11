@@ -1,0 +1,12 @@
+// The .skeleton-card rules of the skeleton block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.skeleton-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+}

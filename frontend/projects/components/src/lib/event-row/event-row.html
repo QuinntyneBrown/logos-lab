@@ -1,24 +1,31 @@
-<div class="event__date">
-  <time [attr.datetime]="datetime()"
-    ><span class="event__day">{{ day() }}</span
-    ><span class="event__mon">{{ month() }}</span></time
-  >
-</div>
-<div class="event__main">
-  @if (headingLevel() === 2) {
-    <h2 class="event__title">
-      <a [routerLink]="path()">{{ title() }}</a>
-    </h2>
-  } @else {
-    <h3 class="event__title">
-      <a [routerLink]="path()">{{ title() }}</a>
-    </h3>
-  }
-  <p class="event__meta">
-    <span><svg llIcon name="clock" size="sm"></svg>{{ when() }}</span>
-    @if (where(); as where) {
-      <span><svg llIcon [name]="online() ? 'monitor' : 'place'" size="sm"></svg>{{ where }}</span>
+@if (loading()) {
+  <div class="event__date"><span llSkeleton shape="photo"></span></div>
+  <div class="event__main">
+    <span llSkeleton shape="title"></span><span llSkeleton shape="text-short"></span>
+  </div>
+} @else {
+  <div class="event__date">
+    <time [attr.datetime]="datetime()"
+      ><span class="event__day">{{ day() }}</span
+      ><span class="event__mon">{{ month() }}</span></time
+    >
+  </div>
+  <div class="event__main">
+    @if (headingLevel() === 2) {
+      <h2 class="event__title">
+        <a [routerLink]="path()">{{ title() }}</a>
+      </h2>
+    } @else {
+      <h3 class="event__title">
+        <a [routerLink]="path()">{{ title() }}</a>
+      </h3>
     }
-  </p>
-</div>
-<div class="event__side"><ng-content /></div>
+    <p class="event__meta">
+      <span><svg llIcon name="clock" size="sm"></svg>{{ when() }}</span>
+      @if (where(); as where) {
+        <span><svg llIcon [name]="online() ? 'monitor' : 'place'" size="sm"></svg>{{ where }}</span>
+      }
+    </p>
+  </div>
+  <div class="event__side"><ng-content /></div>
+}

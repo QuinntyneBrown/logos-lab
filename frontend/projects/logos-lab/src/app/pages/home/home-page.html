@@ -45,158 +45,275 @@
     </figure>
   </ll-hero>
 
-  <section class="section home__first" aria-labelledby="featured-title">
-    <div class="section__head">
-      <p class="eyebrow" i18n="@@home.featured.eyebrow">Chosen by our editors</p>
-      <h2 class="section__title" id="featured-title" i18n="@@home.featured.title">Featured</h2>
-      <a class="section__more" routerLink="/explore"
-        ><ng-container i18n="@@home.featured.more">Explore everything</ng-container>
-        <svg llIcon name="arrow-right" size="sm"></svg
-      ></a>
-    </div>
-    <div class="content-grid">
-      @for (card of featured(); track card.id) {
-        <ll-content-card
-          [type]="card.type"
-          [typeLabel]="card.typeLabel"
-          [title]="card.title"
-          [path]="card.path"
-          [author]="card.author"
-          [meta]="card.meta"
-          [duration]="card.duration"
-          [coverUrl]="card.coverUrl"
-        />
-      }
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="start-title">
-    <ll-panel>
-      <p class="eyebrow" i18n="@@home.start.eyebrow">New to Logos Lab</p>
-      <h2 class="panel__title" id="start-title" i18n="@@home.start.title">
-        Start with twelve short pieces
-      </h2>
-      <p class="panel__text" i18n="@@home.start.text">
-        Start Here: Faith and AI walks through the questions people ask first, in about three hours,
-        at your own pace.
-      </p>
-      <div class="panel__actions">
-        <a
+  @if (failed()) {
+    <section class="section home__first" aria-labelledby="featured-title">
+      <h2 class="vh" id="featured-title" i18n="@@home.error.region">Featured and latest</h2>
+      <ll-empty-state
+        heading="We couldn't load what's new"
+        i18n-heading="@@home.error.title"
+        [headingLevel]="2"
+        icon="attention"
+        tone="error"
+        ><ng-container i18n="@@home.error.text"
+          >This is on our side. Search and the catalogue still work, and you can try this page again
+          in a moment.</ng-container
+        >
+        <button
           llButton
           variant="primary"
-          routerLink="/collections/start-here-faith-and-ai"
-          i18n="@@home.start.action"
-          >Open the collection</a
+          slot="actions"
+          type="button"
+          (click)="retry()"
+          i18n="@@home.retry"
         >
-      </div>
-      <ul class="panel__list" slot="list">
-        <li class="panel__item">
-          <img src="images/start-here/daniel-reyes.jpg" alt="" width="40" height="40" />
-          <p>
-            <strong>Inside a Neural Network in Ten Minutes</strong
-            ><span class="panel__meta" i18n="@@home.start.item1">Video · 10:12</span>
-          </p>
-          <span class="panel__meta">1</span>
-        </li>
-        <li class="panel__item">
-          <img src="images/start-here/amara-osei.jpg" alt="" width="40" height="40" />
-          <p>
-            <strong>Sabbath for the Always-On Mind</strong
-            ><span class="panel__meta" i18n="@@home.start.item2">Article · 8 min</span>
-          </p>
-          <span class="panel__meta">2</span>
-        </li>
-        <li class="panel__item">
-          <img src="images/start-here/peter-walsh.jpg" alt="" width="40" height="40" />
-          <p>
-            <strong>Case Study: The Chatbot Chaplain</strong
-            ><span class="panel__meta" i18n="@@home.start.item3">Module · 25 min</span>
-          </p>
-          <span class="panel__meta">3</span>
-        </li>
-      </ul>
-    </ll-panel>
-  </section>
+          Try again
+        </button>
+      </ll-empty-state>
+      <p class="home__help" i18n="@@home.error.help">
+        Still not working? Write to <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+      </p>
+    </section>
+  } @else {
+    @if (loading() || featured().length) {
+      <section class="section home__first" aria-labelledby="featured-title">
+        <div class="section__head">
+          <p class="eyebrow" i18n="@@home.featured.eyebrow">Chosen by our editors</p>
+          <h2 class="section__title" id="featured-title" i18n="@@home.featured.title">Featured</h2>
+          <a class="section__more" routerLink="/explore"
+            ><ng-container i18n="@@home.featured.more">Explore everything</ng-container>
+            <svg llIcon name="arrow-right" size="sm"></svg
+          ></a>
+        </div>
+        @if (loading()) {
+          <div class="content-grid" aria-busy="true">
+            <p class="vh" role="status" i18n="@@home.featured.loading">Loading featured content…</p>
+            @for (n of placeholderCards; track n) {
+              <ll-skeleton-card />
+            }
+          </div>
+        } @else {
+          <div class="content-grid">
+            @for (card of featured(); track card.id) {
+              <ll-content-card
+                [type]="card.type"
+                [typeLabel]="card.typeLabel"
+                [title]="card.title"
+                [path]="card.path"
+                [author]="card.author"
+                [meta]="card.meta"
+                [duration]="card.duration"
+                [coverUrl]="card.coverUrl"
+              />
+            }
+          </div>
+        }
+      </section>
+    }
 
-  <section class="section" aria-labelledby="latest-title">
-    <div class="section__head">
-      <p class="eyebrow" i18n="@@home.latest.eyebrow">Newest first</p>
-      <h2 class="section__title" id="latest-title" i18n="@@home.latest.title">Latest</h2>
-      <a class="section__more" routerLink="/explore"
-        ><ng-container i18n="@@home.latest.more">See everything</ng-container>
-        <svg llIcon name="arrow-right" size="sm"></svg
-      ></a>
-    </div>
-    <div class="content-grid">
-      @for (card of latest(); track card.id) {
-        <ll-content-card
-          [type]="card.type"
-          [typeLabel]="card.typeLabel"
-          [title]="card.title"
-          [path]="card.path"
-          [author]="card.author"
-          [meta]="card.meta"
-          [duration]="card.duration"
-          [coverUrl]="card.coverUrl"
-        />
+    <section class="section" aria-labelledby="start-title">
+      <ll-panel>
+        <p class="eyebrow" i18n="@@home.start.eyebrow">New to Logos Lab</p>
+        <h2 class="panel__title" id="start-title" i18n="@@home.start.title">
+          Start with twelve short pieces
+        </h2>
+        <p class="panel__text" i18n="@@home.start.text">
+          Start Here: Faith and AI walks through the questions people ask first, in about three
+          hours, at your own pace.
+        </p>
+        <div class="panel__actions">
+          <a
+            llButton
+            variant="primary"
+            routerLink="/collections/start-here-faith-and-ai"
+            i18n="@@home.start.action"
+            >Open the collection</a
+          >
+        </div>
+        <ul class="panel__list" slot="list">
+          <li class="panel__item">
+            <img src="images/start-here/daniel-reyes.jpg" alt="" width="40" height="40" />
+            <p>
+              <strong>Inside a Neural Network in Ten Minutes</strong
+              ><span class="panel__meta" i18n="@@home.start.item1">Video · 10:12</span>
+            </p>
+            <span class="panel__meta">1</span>
+          </li>
+          <li class="panel__item">
+            <img src="images/start-here/amara-osei.jpg" alt="" width="40" height="40" />
+            <p>
+              <strong>Sabbath for the Always-On Mind</strong
+              ><span class="panel__meta" i18n="@@home.start.item2">Article · 8 min</span>
+            </p>
+            <span class="panel__meta">2</span>
+          </li>
+          <li class="panel__item">
+            <img src="images/start-here/peter-walsh.jpg" alt="" width="40" height="40" />
+            <p>
+              <strong>Case Study: The Chatbot Chaplain</strong
+              ><span class="panel__meta" i18n="@@home.start.item3">Module · 25 min</span>
+            </p>
+            <span class="panel__meta">3</span>
+          </li>
+        </ul>
+      </ll-panel>
+    </section>
+
+    @if (loading() || latest().length) {
+      <section class="section" aria-labelledby="latest-title">
+        <div class="section__head">
+          <p class="eyebrow" i18n="@@home.latest.eyebrow">Newest first</p>
+          <h2 class="section__title" id="latest-title" i18n="@@home.latest.title">Latest</h2>
+          <a class="section__more" routerLink="/explore"
+            ><ng-container i18n="@@home.latest.more">See everything</ng-container>
+            <svg llIcon name="arrow-right" size="sm"></svg
+          ></a>
+        </div>
+        @if (loading()) {
+          <div class="content-grid" aria-busy="true">
+            <p class="vh" role="status" i18n="@@home.latest.loading">Loading the latest content…</p>
+            @for (n of placeholderCards; track n) {
+              <ll-skeleton-card />
+            }
+          </div>
+        } @else {
+          <div class="content-grid">
+            @for (card of latest(); track card.id) {
+              <ll-content-card
+                [type]="card.type"
+                [typeLabel]="card.typeLabel"
+                [title]="card.title"
+                [path]="card.path"
+                [author]="card.author"
+                [meta]="card.meta"
+                [duration]="card.duration"
+                [coverUrl]="card.coverUrl"
+              />
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <div class="two-col section">
+      <section aria-labelledby="events-title">
+        <div class="section__head home__aside-head">
+          @if (eventsStatus() !== 'empty') {
+            <p class="eyebrow" i18n="@@home.events.eyebrow">Next three</p>
+          }
+          <h2 class="section__title" id="events-title" i18n="@@home.events.title">
+            Upcoming events
+          </h2>
+          <a class="section__more" routerLink="/events"
+            ><ng-container i18n="@@home.events.more">All events</ng-container>
+            <svg llIcon name="arrow-right" size="sm"></svg
+          ></a>
+        </div>
+        @switch (eventsStatus()) {
+          @case ('empty') {
+            <ll-empty-state
+              heading="No events are scheduled right now"
+              i18n-heading="@@home.events.empty.title"
+              icon="calendar"
+              ><ng-container i18n="@@home.events.empty.text"
+                >New talks and workshops appear here as soon as they're announced. Meanwhile, past
+                events are worth watching.</ng-container
+              >
+              <a
+                llButton
+                variant="quiet"
+                slot="actions"
+                routerLink="/events"
+                [queryParams]="{ when: 'past' }"
+                i18n="@@home.events.empty.action"
+                >Watch past event recordings</a
+              >
+            </ll-empty-state>
+          }
+          @case ('unavailable') {
+            <ll-empty-state
+              heading="Events didn't load"
+              i18n-heading="@@home.events.failed.title"
+              tone="error"
+              compact
+              ><ng-container i18n="@@home.events.failed.text"
+                >Everything else on this page is up to date. The events list is on its own page
+                too.</ng-container
+              >
+              <button
+                llButton
+                variant="quiet"
+                size="sm"
+                slot="actions"
+                type="button"
+                (click)="retry()"
+                i18n="@@home.retry"
+              >
+                Try again
+              </button>
+            </ll-empty-state>
+          }
+          @default {
+            <ul llEventList [loadingLabel]="loading() ? loadingEventsLabel : null">
+              @if (loading()) {
+                @for (n of placeholderRows; track n) {
+                  <li llEventRow loading></li>
+                }
+              }
+              @for (event of events(); track event.id) {
+                <li
+                  llEventRow
+                  [title]="event.title"
+                  [path]="event.path"
+                  [datetime]="event.datetime"
+                  [day]="event.day"
+                  [month]="event.month"
+                  [when]="event.when"
+                  [where]="event.where"
+                  [online]="event.online"
+                >
+                  @if (event.full) {
+                    <span llBadge tone="warning" i18n="@@event.fullWaitlist"
+                      >Full · waitlist open</span
+                    >
+                  } @else {
+                    <span class="event__going">{{ event.going }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        }
+      </section>
+      @if (expertsStatus() !== 'empty' && expertsStatus() !== 'unavailable') {
+        <aside aria-labelledby="experts-title">
+          <div class="section__head home__aside-head">
+            <p class="eyebrow" i18n="@@home.experts.eyebrow">Who teaches here</p>
+            <h2 class="section__title" id="experts-title" i18n="@@home.experts.title">Experts</h2>
+          </div>
+          <ul llPersonList stacked [loadingLabel]="loading() ? loadingExpertsLabel : null">
+            @if (loading()) {
+              @for (n of placeholderRows; track n) {
+                <li llPerson loading></li>
+              }
+            }
+            @for (expert of experts(); track expert.path) {
+              <li
+                llPerson
+                [name]="expert.name"
+                [path]="expert.path"
+                [photoUrl]="expert.photoUrl"
+                [meta]="expert.meta"
+              ></li>
+            }
+          </ul>
+          <a class="link-standalone home__all-experts" routerLink="/experts"
+            ><ng-container i18n="@@home.experts.all">Meet all our experts</ng-container>
+            <svg llIcon name="arrow-right" class="link__arrow"></svg
+          ></a>
+        </aside>
       }
     </div>
-  </section>
-
-  <div class="two-col section">
-    <section aria-labelledby="events-title">
-      <div class="section__head home__aside-head">
-        <p class="eyebrow" i18n="@@home.events.eyebrow">Next three</p>
-        <h2 class="section__title" id="events-title" i18n="@@home.events.title">Upcoming events</h2>
-        <a class="section__more" routerLink="/events"
-          ><ng-container i18n="@@home.events.more">All events</ng-container>
-          <svg llIcon name="arrow-right" size="sm"></svg
-        ></a>
-      </div>
-      <ul llEventList>
-        @for (event of events(); track event.id) {
-          <li
-            llEventRow
-            [title]="event.title"
-            [path]="event.path"
-            [datetime]="event.datetime"
-            [day]="event.day"
-            [month]="event.month"
-            [when]="event.when"
-            [where]="event.where"
-            [online]="event.online"
-          >
-            @if (event.full) {
-              <span llBadge tone="warning" i18n="@@event.fullWaitlist">Full · waitlist open</span>
-            } @else {
-              <span class="event__going">{{ event.going }}</span>
-            }
-          </li>
-        }
-      </ul>
-    </section>
-    <aside aria-labelledby="experts-title">
-      <div class="section__head home__aside-head">
-        <p class="eyebrow" i18n="@@home.experts.eyebrow">Who teaches here</p>
-        <h2 class="section__title" id="experts-title" i18n="@@home.experts.title">Experts</h2>
-      </div>
-      <ul llPersonList stacked>
-        @for (expert of experts(); track expert.path) {
-          <li
-            llPerson
-            [name]="expert.name"
-            [path]="expert.path"
-            [photoUrl]="expert.photoUrl"
-            [meta]="expert.meta"
-          ></li>
-        }
-      </ul>
-      <a class="link-standalone home__all-experts" routerLink="/experts"
-        ><ng-container i18n="@@home.experts.all">Meet all our experts</ng-container>
-        <svg llIcon name="arrow-right" class="link__arrow"></svg
-      ></a>
-    </aside>
-  </div>
+  }
 
   <ll-verse
     label="Our name"

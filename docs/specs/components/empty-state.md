@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-empty-state` |
 | Library path | `frontend/projects/components/src/lib/empty-state/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 |
 | Design system | [`empty-state.html`](../../design-system/components/empty-state.html) |
 | Source mocks | [`pages/home/empty`](../../mocks/pages/home/empty.html), [`pages/home/partial`](../../mocks/pages/home/partial.html), [`pages/home/error`](../../mocks/pages/home/error.html), [`pages/my-learning/empty`](../../mocks/pages/my-learning/empty.html), [`pages/search-results/no-results`](../../mocks/pages/search-results/no-results.html), [`pages/admin-users/error`](../../mocks/pages/admin-users/error.html), [`dialogs/notification-centre/empty`](../../mocks/dialogs/notification-centre/empty.html) |

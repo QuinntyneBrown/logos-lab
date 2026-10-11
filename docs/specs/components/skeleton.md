@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `span[llSkeleton]`, `ll-skeleton-card` |
 | Library path | `frontend/projects/components/src/lib/skeleton/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-120, L2-127, L2-129, L2-134 |
 | Design system | [`skeleton.html`](../../design-system/components/skeleton.html) |
 | Source mocks | [`pages/home/loading`](../../mocks/pages/home/loading.html), [`pages/explore/loading`](../../mocks/pages/explore/loading.html), [`pages/course-overview/loading`](../../mocks/pages/course-overview/loading.html), [`pages/admin-users/loading`](../../mocks/pages/admin-users/loading.html), [`pages/dashboard/loading`](../../mocks/pages/dashboard/loading.html), [`pages/following/loading`](../../mocks/pages/following/loading.html) |

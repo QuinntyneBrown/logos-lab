@@ -1,11 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  LOCALE_ID,
+  signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { HOME_API } from '@logos-lab/api';
 import {
   Badge,
   Button,
   ContentCard,
+  EmptyState,
   EventList,
   EventRow,
   Hero,
@@ -14,9 +22,10 @@ import {
   Person,
   PersonList,
   Search,
+  SkeletonCard,
   Verse,
 } from '@logos-lab/components';
-import { catchError, map, of, startWith } from 'rxjs';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
 import { toEventRow } from '../../content/event-row-view';
 import { toExpertPerson } from '../../content/expert-person-view';
@@ -31,6 +40,7 @@ import { HomeState } from './home-state';
     Search,
     Button,
     ContentCard,
+    EmptyState,
     Panel,
     Icon,
     EventList,
@@ -39,6 +49,8 @@ import { HomeState } from './home-state';
     PersonList,
     Person,
     Verse,
+    EmptyState,
+    SkeletonCard,
   ],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss',
@@ -47,17 +59,37 @@ import { HomeState } from './home-state';
 export class HomePage {
   protected readonly searchNavigation = inject(SearchNavigation);
   private readonly locale = inject(LOCALE_ID);
+  private readonly homeApi = inject(HOME_API);
+  private readonly attempt = signal(0);
 
   protected readonly state = toSignal(
-    inject(HOME_API)
-      .getHome()
-      .pipe(
-        map((view): HomeState => ({ kind: 'loaded', view })),
-        catchError(() => of<HomeState>({ kind: 'failed' })),
-        startWith<HomeState>({ kind: 'loading' }),
+    toObservable(this.attempt).pipe(
+      switchMap(() =>
+        this.homeApi.getHome().pipe(
+          map((view): HomeState => ({ kind: 'loaded', view })),
+          catchError(() => of<HomeState>({ kind: 'failed' })),
+          startWith<HomeState>({ kind: 'loading' }),
+        ),
       ),
-    { requireSync: true },
+    ),
+    { initialValue: { kind: 'loading' } as HomeState },
   );
+
+  /** Skeleton placeholders while loading: four cards, three rows. */
+  protected readonly placeholderCards = [0, 1, 2, 3];
+  protected readonly placeholderRows = [0, 1, 2];
+
+  protected readonly loadingEventsLabel = $localize`:@@home.events.loading:Loading upcoming events…`;
+  protected readonly loadingExpertsLabel = $localize`:@@home.experts.loading:Loading experts…`;
+
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
+
+  protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+  protected readonly eventsStatus = computed(() => this.view()?.upcomingEvents.status ?? null);
+  protected readonly expertsStatus = computed(() => this.view()?.featuredExperts.status ?? null);
 
   private readonly view = computed(() => {
     const state = this.state();

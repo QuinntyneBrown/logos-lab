@@ -1,0 +1,12 @@
+<div class="empty" [class.empty--error]="tone() === 'error'" [class.empty--compact]="compact()">
+  @if (icon(); as icon) {
+    <span class="empty__icon"><svg llIcon [name]="icon"></svg></span>
+  }
+  @if (headingLevel() === 2) {
+    <h2 class="empty__title">{{ heading() }}</h2>
+  } @else {
+    <h3 class="empty__title">{{ heading() }}</h3>
+  }
+  <p><ng-content /></p>
+  <div class="empty__actions"><ng-content select="[slot=actions]" /></div>
+</div>

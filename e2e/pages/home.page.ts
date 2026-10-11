@@ -27,8 +27,8 @@ export class HomePage {
     this.heroSearchButton = this.hero.getByRole('button', { name: 'Search' });
     this.browseCatalogue = this.hero.getByRole('link', { name: 'Browse the catalogue' });
     this.heroPhoto = this.hero.locator('.photo img');
-    this.featured = page.getByRole('region', { name: 'Featured' });
-    this.latest = page.getByRole('region', { name: 'Latest' });
+    this.featured = page.getByRole('region', { name: 'Featured', exact: true });
+    this.latest = page.getByRole('region', { name: 'Latest', exact: true });
     this.startPanel = page.getByRole('region', { name: 'Start with twelve short pieces' });
     this.events = page.getByRole('region', { name: 'Upcoming events' });
     this.experts = page.getByRole('complementary', { name: 'Experts' });
@@ -38,6 +38,38 @@ export class HomePage {
   async open(): Promise<void> {
     await this.page.goto('/');
     await this.heading.waitFor();
+  }
+
+  async retry(region: Locator): Promise<void> {
+    await this.emptyState(region).action('Try again').click();
+  }
+
+  /** The status message a busy region announces while it loads. */
+  loadingMessage(region: Locator): Locator {
+    return region.locator('[aria-busy="true"] [role="status"]');
+  }
+
+  skeletonCards(region: Locator): Locator {
+    return region.locator('.skeleton-card');
+  }
+
+  skeletonRows(region: Locator): Locator {
+    return region.locator('li[aria-hidden="true"]');
+  }
+
+  emptyState(region: Locator) {
+    const root = region.locator('.empty');
+    return {
+      root,
+      title: root.locator('.empty__title'),
+      action: (name: string) =>
+        root.getByRole('link', { name }).or(root.getByRole('button', { name })),
+    };
+  }
+
+  /** The error that replaces the sections when the whole home request fails. */
+  pageError() {
+    return this.emptyState(this.page.locator('main'));
   }
 
   card(section: Locator, index: number): ContentCard {

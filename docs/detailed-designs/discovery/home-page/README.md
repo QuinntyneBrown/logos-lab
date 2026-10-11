@@ -81,6 +81,9 @@ Logos Lab database.
   hand-written "Tue 27 Oct, 12:00 pm ET".
 - **"See everything" and "Meet all our experts"** — the Latest and Experts sections link to the
   catalogue and the directory without totals, because the home response carries no counts.
+- **Empty and failed sections** — an empty Featured or Latest list hides its section (an editor may
+  feature nothing); empty or unavailable experts hide the Experts column; the events section shows
+  its empty or failed state. "Try again" repeats `GET /api/v1/home`.
 - **Event side** — a full event shows "Full · waitlist open"; otherwise places left, or the number
   registered when places are unlimited. Online and hybrid events show the monitor icon.
 
