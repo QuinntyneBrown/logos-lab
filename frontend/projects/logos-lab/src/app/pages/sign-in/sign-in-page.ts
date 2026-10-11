@@ -21,6 +21,7 @@ import {
   FormSummary,
   Input,
 } from '@logos-lab/components';
+import { countWords } from '../../content/count-words';
 import { plural } from '../../content/plural';
 import { safeReturnUrl } from '../../return-url';
 import { Session } from '../../session';
@@ -67,7 +68,7 @@ export class SignInPage {
   protected readonly summaryHeading = computed(() =>
     plural(this.locale, this.errors().length, {
       one: $localize`:@@signIn.summary.one:One thing to fix before you can sign in`,
-      other: $localize`:@@signIn.summary.other:${this.errorCountWords()}:count: things to fix before you can sign in`,
+      other: $localize`:@@signIn.summary.other:${countWords(this.locale, this.errors().length)}:count: things to fix before you can sign in`,
     }),
   );
 
@@ -164,13 +165,5 @@ export class SignInPage {
 
   private errorFor(controlId: string): string | null {
     return this.errors().find((error) => error.controlId === controlId)?.message ?? null;
-  }
-
-  /** "Two" rather than "2" in the summary title, as the mocks write it. */
-  private errorCountWords(): string {
-    const count = this.errors().length;
-    return count === 2
-      ? $localize`:@@number.two:Two`
-      : new Intl.NumberFormat(this.locale).format(count);
   }
 }

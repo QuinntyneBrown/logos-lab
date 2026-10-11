@@ -6,11 +6,15 @@
       Enrol in courses, save what you want to come back to and join the conversation.
     </p>
   </div>
-  <form llForm (submit)="$event.preventDefault()">
+  <form llForm (submit)="$event.preventDefault(); submit()">
+    @if (errors().length) {
+      <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
+    }
     <ll-form-field
       label="Your name"
       i18n-label="@@register.name"
       controlId="name"
+      [error]="nameError()"
       help="Shown on your comments and certificates. 2 to 50 characters."
       i18n-help="@@register.nameHelp"
       helpPlacement="before"
@@ -30,6 +34,7 @@
       label="Email"
       i18n-label="@@register.email"
       controlId="email"
+      [error]="emailError()"
       help="We use it to sign you in and to send account emails, such as password resets."
       i18n-help="@@register.emailHelp"
       helpPlacement="before"
@@ -49,6 +54,7 @@
       label="Password"
       i18n-label="@@register.password"
       controlId="password"
+      [error]="passwordError()"
       help="12 to 128 characters. A short sentence you'll remember works well."
       i18n-help="@@register.passwordHelp"
       helpPlacement="before"
@@ -78,7 +84,7 @@
         </button>
       </div>
     </ll-form-field>
-    <ll-form-field controlId="terms">
+    <ll-form-field controlId="terms" [error]="termsError()">
       <label llCheck
         ><input
           class="check__box"

@@ -33,6 +33,32 @@ export class RegisterPage {
     this.summary = this.card.locator('.form-summary');
   }
 
+  async fill(details: {
+    name?: string;
+    email?: string;
+    password?: string;
+    terms?: boolean;
+    news?: boolean;
+  }): Promise<void> {
+    if (details.name !== undefined) await this.name.fill(details.name);
+    if (details.email !== undefined) await this.email.fill(details.email);
+    if (details.password !== undefined) await this.password.fill(details.password);
+    if (details.terms) await this.terms.check();
+    if (details.news) await this.news.check();
+  }
+
+  async create(): Promise<void> {
+    await this.submit.click();
+  }
+
+  summaryLinks(): Locator {
+    return this.summary.getByRole('link');
+  }
+
+  errorFor(field: RegisterField): Locator {
+    return this.card.locator(`#${field}-error`);
+  }
+
   async open(): Promise<void> {
     await this.page.goto('/register');
     await this.heading.waitFor();

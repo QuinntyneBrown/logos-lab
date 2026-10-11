@@ -57,3 +57,60 @@ test.describe('Register page', () => {
     await expect(register.terms).not.toBeChecked();
   });
 });
+
+test.describe('Register validation', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-006 AC2, AC5 · form-layout AC-1, AC-2, checkbox AC-4, form-field AC-10
+  test('a short name, a short password and unaccepted terms are listed and marked', async ({
+    page,
+    api,
+  }) => {
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill({ name: 'M', email: 'miriam.clarke@example.ca', password: 'harbour1' });
+
+    await register.create();
+
+    await expect(register.summary).toBeFocused();
+    await expect(register.summary.getByRole('heading')).toHaveText(
+      'Three things to fix before you can create your account',
+    );
+    await expect(register.summaryLinks()).toHaveText([
+      'Enter a name of 2 to 50 characters',
+      'Use at least 12 characters. This one has 8.',
+      'Accept the Terms of Use and the Privacy Policy to create an account',
+    ]);
+    await expect(register.terms).toHaveAttribute('aria-invalid', 'true');
+    expect(await register.describedBy(register.terms)).toBe('terms-help terms-error');
+    await expect(register.errorFor('password')).toHaveText(
+      'Use at least 12 characters. This one has 8.',
+    );
+    await expect(register.email).not.toHaveAttribute('aria-invalid', 'true');
+    expect(api.requestsTo('POST', '/auth/registrations')).toHaveLength(0);
+  });
+
+  // L2-006 AC2, AC6
+  test('an unchecked news box does not block, and fixing the form clears the summary', async ({
+    page,
+  }) => {
+    const register = new RegisterPage(page);
+    await register.open();
+    await register.fill({ name: 'Miriam Clarke', email: 'miriam', password: 'harbour1' });
+    await register.create();
+    await expect(register.summaryLinks()).toHaveText([
+      'Enter your email in the form name@example.ca',
+      'Use at least 12 characters. This one has 8.',
+      'Accept the Terms of Use and the Privacy Policy to create an account',
+    ]);
+
+    await register.fill({
+      email: 'miriam.clarke@example.ca',
+      password: 'quiet-harbour-at-dawn',
+      terms: true,
+    });
+    await register.create();
+
+    await expect(register.summary).toHaveCount(0);
+  });
+});
