@@ -1,0 +1,9 @@
+// The .events rules of the event-row block of docs/design-system/assets/components.css.
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  container-type: inline-size;
+}

@@ -13,6 +13,9 @@ export class HomePage {
   readonly featured: Locator;
   readonly latest: Locator;
   readonly startPanel: Locator;
+  readonly events: Locator;
+  readonly experts: Locator;
+  readonly verse: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -27,6 +30,9 @@ export class HomePage {
     this.featured = page.getByRole('region', { name: 'Featured' });
     this.latest = page.getByRole('region', { name: 'Latest' });
     this.startPanel = page.getByRole('region', { name: 'Start with twelve short pieces' });
+    this.events = page.getByRole('region', { name: 'Upcoming events' });
+    this.experts = page.getByRole('complementary', { name: 'Experts' });
+    this.verse = page.getByRole('region', { name: 'Our name' });
   }
 
   async open(): Promise<void> {
@@ -40,6 +46,28 @@ export class HomePage {
 
   async cardTitles(section: Locator): Promise<string[]> {
     return section.locator('.content-card__title').allInnerTexts();
+  }
+
+  eventRow(index: number) {
+    const row = this.events.locator('li.event').nth(index);
+    return {
+      row,
+      day: row.locator('.event__day'),
+      month: row.locator('.event__mon'),
+      time: row.locator('time'),
+      titleLink: row.locator('.event__title a'),
+      meta: row.locator('.event__meta > span'),
+      side: row.locator('.event__side'),
+    };
+  }
+
+  async eventTitles(): Promise<string[]> {
+    return this.events.locator('.event__title').allInnerTexts();
+  }
+
+  person(index: number) {
+    const row = this.experts.locator('li.person').nth(index);
+    return { row, name: row.locator('.person__name a'), meta: row.locator('.person__meta') };
   }
 
   seeAll(section: Locator): Locator {

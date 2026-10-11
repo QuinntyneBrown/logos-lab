@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ul[llEventList]`, `li[llEventRow]` |
 | Library path | `frontend/projects/components/src/lib/event-row/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-051, L2-126, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`event-row.html`](../../design-system/components/event-row.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/events/default`](../../mocks/pages/events/default.html), [`pages/events/live`](../../mocks/pages/events/live.html), [`pages/events/past`](../../mocks/pages/events/past.html), [`pages/my-events/default`](../../mocks/pages/my-events/default.html), [`pages/dashboard/default`](../../mocks/pages/dashboard/default.html) |

@@ -142,4 +142,68 @@
       }
     </div>
   </section>
+
+  <div class="two-col section">
+    <section aria-labelledby="events-title">
+      <div class="section__head home__aside-head">
+        <p class="eyebrow" i18n="@@home.events.eyebrow">Next three</p>
+        <h2 class="section__title" id="events-title" i18n="@@home.events.title">Upcoming events</h2>
+        <a class="section__more" routerLink="/events"
+          ><ng-container i18n="@@home.events.more">All events</ng-container>
+          <svg llIcon name="arrow-right" size="sm"></svg
+        ></a>
+      </div>
+      <ul llEventList>
+        @for (event of events(); track event.id) {
+          <li
+            llEventRow
+            [title]="event.title"
+            [path]="event.path"
+            [datetime]="event.datetime"
+            [day]="event.day"
+            [month]="event.month"
+            [when]="event.when"
+            [where]="event.where"
+            [online]="event.online"
+          >
+            @if (event.full) {
+              <span llBadge tone="warning" i18n="@@event.fullWaitlist">Full · waitlist open</span>
+            } @else {
+              <span class="event__going">{{ event.going }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+    <aside aria-labelledby="experts-title">
+      <div class="section__head home__aside-head">
+        <p class="eyebrow" i18n="@@home.experts.eyebrow">Who teaches here</p>
+        <h2 class="section__title" id="experts-title" i18n="@@home.experts.title">Experts</h2>
+      </div>
+      <ul llPersonList stacked>
+        @for (expert of experts(); track expert.path) {
+          <li
+            llPerson
+            [name]="expert.name"
+            [path]="expert.path"
+            [photoUrl]="expert.photoUrl"
+            [meta]="expert.meta"
+          ></li>
+        }
+      </ul>
+      <a class="link-standalone home__all-experts" routerLink="/experts"
+        ><ng-container i18n="@@home.experts.all">Meet all our experts</ng-container>
+        <svg llIcon name="arrow-right" class="link__arrow"></svg
+      ></a>
+    </aside>
+  </div>
+
+  <ll-verse
+    label="Our name"
+    i18n-label="@@home.verse.label"
+    reference="John 1:1 · the Logos"
+    i18n-reference="@@home.verse.reference"
+    i18n="@@home.verse.text"
+    >In the beginning was the Word, and the Word was with God, and the Word was God.</ll-verse
+  >
 </div>

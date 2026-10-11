@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ul[llPersonList]`, `li[llPerson]` |
 | Library path | `frontend/projects/components/src/lib/person-list/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-022, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`person-list.html`](../../design-system/components/person-list.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/experts/default`](../../mocks/pages/experts/default.html), [`pages/course-overview/default`](../../mocks/pages/course-overview/default.html), [`pages/event-page/default`](../../mocks/pages/event-page/default.html), [`pages/module-page/default`](../../mocks/pages/module-page/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/topic/default`](../../mocks/pages/topic/default.html) |

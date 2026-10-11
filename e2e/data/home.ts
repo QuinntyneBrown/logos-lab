@@ -1,4 +1,6 @@
 import { content } from './content';
+import { events } from './events';
+import { experts } from './experts';
 
 type Status = 'ok' | 'empty' | 'unavailable';
 
@@ -26,8 +28,8 @@ export function homePage(overrides: Partial<Record<string, unknown>> = {}) {
       content.neuralNetwork,
       content.personhoodReading,
     ]),
-    upcomingEvents: section([]),
-    featuredExperts: section([]),
+    upcomingEvents: section([events.creativityEvening, events.liveQa, events.policyWorkshop]),
+    featuredExperts: section([experts.abena, experts.thomas, experts.joel]),
     ...overrides,
   };
 }

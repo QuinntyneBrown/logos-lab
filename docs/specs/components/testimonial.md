@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-verse` |
 | Library path | `frontend/projects/components/src/lib/testimonial/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-127, L2-129, L2-130, L2-134 |
 | Design system | [`testimonial.html`](../../design-system/components/testimonial.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/home/error`](../../mocks/pages/home/error.html) |

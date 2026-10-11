@@ -32,3 +32,8 @@ export * from './lib/content-card/content-card-status';
 export * from './lib/content-card/content-card-type';
 export * from './lib/panel/panel';
 export * from './lib/progress-bar/progress-bar';
+export * from './lib/event-row/event-list';
+export * from './lib/event-row/event-row';
+export * from './lib/person-list/person';
+export * from './lib/person-list/person-list';
+export * from './lib/testimonial/verse';

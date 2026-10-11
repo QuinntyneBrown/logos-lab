@@ -79,8 +79,10 @@ Logos Lab database.
 - **Dates and times** — formatted with the platform's `Intl` for the active locale in the viewer's time
   zone with the zone named ("Tue, Oct 27, 12:00 PM EDT"), as `L2-148` requires, rather than the mocks'
   hand-written "Tue 27 Oct, 12:00 pm ET".
-- **"See everything"** — the Latest section links to the catalogue without a total, because the home
-  response carries no count.
+- **"See everything" and "Meet all our experts"** — the Latest and Experts sections link to the
+  catalogue and the directory without totals, because the home response carries no counts.
+- **Event side** — a full event shows "Full · waitlist open"; otherwise places left, or the number
+  registered when places are unlimited. Online and hybrid events show the monitor icon.
 
 **Key rules**
 
