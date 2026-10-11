@@ -92,7 +92,7 @@ One zone for every irreversible action on the page, each on its own row, mildest
 ## Sizes
 
 N/A: one size. The zone fills its settings column; the confirmation field is capped at
-`--layout-measure-short` (44ch) so the name stays close to the label.
+the short measure (44 characters) so the name stays close to the label.
 
 ## States
 

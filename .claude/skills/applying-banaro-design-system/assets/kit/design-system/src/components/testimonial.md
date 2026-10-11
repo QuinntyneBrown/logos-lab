@@ -5,6 +5,7 @@ order: 73
 summary: Let a real person speak: a small quote card with a portrait, or one centred line set like a verse between sections.
 selector: .quote, .verse
 states: default
+matrix-variants: quote
 contrast: --color-fg-default|--color-bg-surface|4.5; --color-fg-subtle|--color-bg-surface|4.5; --color-fg-default|--color-bg-canvas|4.5; --color-fg-subtle|--color-bg-canvas|4.5; --color-accent|--color-bg-canvas|3
 ---
 
@@ -60,9 +61,9 @@ One centred line between sections, with the sage rule above and the reference be
 ```
 
 ### quote row
-Three quotes in a responsive [grid](layout.html): one column on phones, three across on wide screens.
+Three quotes in a `.quotes` row: stacked on phones, three across from 1024px, with the portrait above the words.
 ```html
-<div class="grid">
+<div class="quotes">
   <blockquote class="quote">
     <img class="quote__photo" src="../assets/photos/daniel-reyes.jpg" width="56" height="56" alt="">
     <div><p class="quote__text">“I read the Monday digest before my coffee is cold. That's the whole review.”</p><p class="quote__by">Daniel Reyes · Engineer</p></div>
@@ -92,9 +93,8 @@ profile, link their name inside `.quote__by` and it follows the [link](link.html
 
 - **360px:** the quote keeps its portrait beside the words (56px column); long quotes wrap under the
   portrait's height. The verse wraps to four or five short lines and its top padding stays at the section gap.
-- **768px:** a quote row shows one or two cards per line, depending on the container.
-- **1024px and up:** the verse text steps up to 36px; a quote row fits three cards across a full-width
-  container.
+- **768px:** a quote row still stacks, one card per line, each with its portrait beside the words.
+- **1024px and up:** the verse text steps up to 36px; a quote row becomes three equal columns and each card puts its portrait above the words.
 
 ## Theming
 
