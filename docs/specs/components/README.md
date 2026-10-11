@@ -13,6 +13,7 @@ python .claude/skills/writing-component-requirements-documents/scripts/check_crd
 
 | Component | Selector | Status | Traces to | Requirements | Rendering | Design system |
 |---|---|---|---|---|---|---|
+| Alert | `ll-alert` | planned | L2-008, L2-009, L2-010, L2-019, L2-127, L2-129, L2-130, L2-134, L2-150 | [alert.md](alert.md) | [alert.html](alert.html) | [alert](../../design-system/components/alert.html) |
 | Avatar | `ll-avatar` | built | L2-120, L2-127, L2-129, L2-134 | [avatar.md](avatar.md) | [avatar.html](avatar.html) | [avatar](../../design-system/components/avatar.html) |
 | Badge | `span[llBadge]` | built | L2-001, L2-127, L2-129, L2-134, L2-150 | [badge.md](badge.md) | [badge.html](badge.html) | [badge](../../design-system/components/badge.html) |
 | Brand | `ll-brand` | built | L2-127, L2-130, L2-132, L2-134 | [brand.md](brand.md) | [brand.html](brand.html) | [brand](../../design-system/components/brand.html) |
@@ -24,6 +25,8 @@ python .claude/skills/writing-component-requirements-documents/scripts/check_crd
 | Error page | `ll-error-page` | built | L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [error-page.md](error-page.md) | [error-page.html](error-page.html) | [error-page](../../design-system/components/error-page.html) |
 | Event row | `ul[llEventList]`, `li[llEventRow]` | built | L2-001, L2-051, L2-126, L2-127, L2-129, L2-130, L2-134, L2-150 | [event-row.md](event-row.md) | [event-row.html](event-row.html) | [event-row](../../design-system/components/event-row.html) |
 | Footer | `ll-footer` | built | L2-127, L2-130, L2-134, L2-150 | [footer.md](footer.md) | [footer.html](footer.html) | [footer](../../design-system/components/footer.html) |
+| Form field | `ll-form-field` | planned | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [form-field.md](form-field.md) | [form-field.html](form-field.html) | [form-field](../../design-system/components/form-field.html) |
+| Form layout | `form[llForm]`, `ll-form-summary` | planned | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [form-layout.md](form-layout.md) | [form-layout.html](form-layout.html) | [form-layout](../../design-system/components/form-layout.html) |
 | Hero | `ll-hero` | built | L2-001, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 | [hero.md](hero.md) | [hero.html](hero.html) | [hero](../../design-system/components/hero.html) |
 | Icon | `svg[llIcon]` | built | L2-127, L2-129, L2-134 | [icon.md](icon.md) | [icon.html](icon.html) | [iconography](../../design-system/foundations/iconography.html) |
 | Menu | `ll-menu` | built | L2-126, L2-127, L2-129, L2-130, L2-132, L2-133, L2-134, L2-150 | [menu.md](menu.md) | [menu.html](menu.html) | [menu](../../design-system/components/menu.html) |
@@ -31,6 +34,7 @@ python .claude/skills/writing-component-requirements-documents/scripts/check_crd
 | Person list | `ul[llPersonList]`, `li[llPerson]` | built | L2-001, L2-022, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 | [person-list.md](person-list.md) | [person-list.html](person-list.html) | [person-list](../../design-system/components/person-list.html) |
 | Progress bar | `ll-progress-bar` | built | L2-001, L2-030, L2-127, L2-129, L2-134 | [progress-bar.md](progress-bar.md) | [progress-bar.html](progress-bar.html) | [progress-bar](../../design-system/components/progress-bar.html) |
 | Sidebar navigation | `ll-sidebar-nav` | built | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150 | [sidebar-navigation.md](sidebar-navigation.md) | [sidebar-navigation.html](sidebar-navigation.html) | [sidebar-navigation](../../design-system/components/sidebar-navigation.html) |
+| Sign-in card | `ll-auth-card` | planned | L2-008, L2-127, L2-129, L2-130, L2-134, L2-150 | [auth-card.md](auth-card.md) | [auth-card.html](auth-card.html) | [auth-card](../../design-system/components/auth-card.html) |
 | Skeleton | `span[llSkeleton]`, `ll-skeleton-card` | built | L2-120, L2-127, L2-129, L2-134 | [skeleton.md](skeleton.md) | [skeleton.html](skeleton.html) | [skeleton](../../design-system/components/skeleton.html) |
 | Skip link | `ll-skip-link` | built | L2-126, L2-129, L2-134, L2-147 | [skip-link.md](skip-link.md) | [skip-link.html](skip-link.html) | [skip-link](../../design-system/components/skip-link.html) |
 | Testimonial | `ll-verse` | built | L2-127, L2-129, L2-130, L2-134 | [testimonial.md](testimonial.md) | [testimonial.html](testimonial.html) | [testimonial](../../design-system/components/testimonial.html) |

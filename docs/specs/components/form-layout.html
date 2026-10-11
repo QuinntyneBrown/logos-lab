@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form layout — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of form layout, in light and dark, keyed to the acceptance criteria in form-layout.md.">
+<meta name="crd:component" content="form-layout">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Form layout</h1>
+    <p class="ds-lead">Spacing, sections, actions and the error summary that takes focus. Requirements: <a href="form-layout.md">form-layout.md</a>. Design system: <a href="../../design-system/components/form-layout.html">form-layout</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>form[llForm], ll-form-summary</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem"><form class="form"  novalidate>
+        <div class="form-summary" role="alert" tabindex="-1" aria-labelledby="summary-title">
+          <h2 class="form-summary__title" id="summary-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Two things to fix before you can sign in</h2>
+          <ul><li><a href="#email">Enter your email in the form name@example.ca</a></li><li><a href="#password">Enter your password</a></li></ul>
+        </div>
+        <div class="field">
+          <label class="field__label" for="email">Email</label>
+          <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" required value="miriam.clarke@example" aria-invalid="true" aria-describedby="email-error">
+          <p class="field__error" id="email-error"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Enter your email in the form name@example.ca</p>
+        </div>
+        <div class="field">
+          <div class="cluster cluster--between">
+            <label class="field__label" for="password">Password</label>
+            <a class="btn btn--text btn--sm" href="#">Forgot your password?</a>
+          </div>
+          <div class="input-group">
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required aria-invalid="true" aria-describedby="password-error">
+            <button type="button" class="btn btn--quiet" aria-pressed="false" aria-controls="password">Show</button>
+          </div>
+          <p class="field__error" id="password-error"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Enter your password</p>
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" type="submit">Sign in</button>
+      </form></div></div><div class="ds-example__caption"><span>The sign-in form after an invalid submit: summary first. <span class="crd-ac">AC-1, AC-2, AC-3, AC-4</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:30rem"><div class="form-summary" role="alert" tabindex="-1" data-state="focus" aria-labelledby="summary-title">
+          <h2 class="form-summary__title" id="summary-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Two things to fix before you can sign in</h2>
+          <ul><li><a href="#email">Enter your email in the form name@example.ca</a></li><li><a href="#password">Enter your password</a></li></ul>
+        </div></div></div><div class="ds-example__caption"><span>Summary with focus. <span class="crd-ac">AC-2</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div style="max-width:30rem"><div class="form-summary" role="alert" tabindex="-1" aria-labelledby="summary-title">
+          <h2 class="form-summary__title" id="summary-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Two things to fix before you can sign in</h2>
+          <ul><li><a href="#email">Enter your email in the form name@example.ca</a></li><li><a href="#password">Enter your password</a></li></ul>
+        </div></div></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div style="max-width:30rem"><div class="form-summary" role="alert" tabindex="-1" aria-labelledby="summary-title">
+          <h2 class="form-summary__title" id="summary-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg>Two things to fix before you can sign in</h2>
+          <ul><li><a href="#email">Enter your email in the form name@example.ca</a></li><li><a href="#password">Enter your password</a></li></ul>
+        </div></div></div></div><span class="crd-ac">AC-5, AC-6</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-7, AC-8</span><iframe title="320 pixel wide frame, light theme" width="320" height="260" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px&quot;&gt;&lt;div class=&quot;form-summary&quot; role=&quot;alert&quot; tabindex=&quot;-1&quot; aria-labelledby=&quot;summary-title&quot;&gt;
+          &lt;h2 class=&quot;form-summary__title&quot; id=&quot;summary-title&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;8.5&quot;/&gt;&lt;path d=&quot;M12 7.5v5.5M12 16.2v.3&quot;/&gt;&lt;/svg&gt;Two things to fix before you can sign in&lt;/h2&gt;
+          &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#email&quot;&gt;Enter your email in the form name@example.ca&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#password&quot;&gt;Enter your password&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+        &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-7, AC-8</span><iframe title="360 pixel wide frame, dark theme" width="360" height="260" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px&quot;&gt;&lt;div class=&quot;form-summary&quot; role=&quot;alert&quot; tabindex=&quot;-1&quot; aria-labelledby=&quot;summary-title&quot;&gt;
+          &lt;h2 class=&quot;form-summary__title&quot; id=&quot;summary-title&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;8.5&quot;/&gt;&lt;path d=&quot;M12 7.5v5.5M12 16.2v.3&quot;/&gt;&lt;/svg&gt;Two things to fix before you can sign in&lt;/h2&gt;
+          &lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#email&quot;&gt;Enter your email in the form name@example.ca&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#password&quot;&gt;Enter your password&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+        &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Summary</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Summary</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div></div><span class="crd-ac">AC-5, AC-6</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Summary fill</td><td><code>--color-danger-bg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-bg" data-swatch></i><span data-token="--color-danger-bg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-bg" data-swatch></i><span data-token="--color-danger-bg"></span></span></td></tr><tr><td>Summary text</td><td><code>--color-danger-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td></tr><tr><td>Summary border</td><td><code>--color-danger-border</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-border" data-swatch></i><span data-token="--color-danger-border"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-border" data-swatch></i><span data-token="--color-danger-border"></span></span></td></tr><tr><td>Form card</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>
