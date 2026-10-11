@@ -6,6 +6,27 @@
       Pick up your courses, saved items and conversations where you left them.
     </p>
   </div>
+  @switch (notice()) {
+    @case ('signed-out') {
+      <ll-alert tone="success" heading="You're signed out" i18n-heading="@@signIn.signedOut.title">
+        <ng-container i18n="@@signIn.signedOut.body"
+          >Your session has ended on this device. On a shared computer, close the browser as
+          well.</ng-container
+        >
+      </ll-alert>
+    }
+    @case ('session-expired') {
+      <ll-alert
+        heading="You were signed out after 14 days away"
+        i18n-heading="@@signIn.expired.title"
+      >
+        <ng-container i18n="@@signIn.expired.body"
+          >For your security, sessions end after 14 days without activity. Sign in again and we'll
+          take you back to where you were.</ng-container
+        >
+      </ll-alert>
+    }
+  }
   @if (failure(); as failure) {
     @switch (failure.kind) {
       @case ('invalid-credentials') {

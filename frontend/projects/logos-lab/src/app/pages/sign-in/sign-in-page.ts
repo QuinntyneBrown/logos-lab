@@ -46,6 +46,13 @@ export class SignInPage {
 
   protected readonly busy = signal(false);
   protected readonly failure = signal<SignInFailure | null>(null);
+  /** Why the visitor is here, until a refusal takes its place (L2-010). */
+  protected readonly notice = computed(() => {
+    if (this.failure()) return null;
+    if (this.query().get('signedOut') === 'true') return 'signed-out';
+    if (this.query().get('reason') === 'session-expired') return 'session-expired';
+    return null;
+  });
   protected readonly paused = computed(() => this.failure()?.kind === 'paused');
   private resumeTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly summary = viewChild(FormSummary);

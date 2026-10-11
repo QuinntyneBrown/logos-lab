@@ -293,3 +293,38 @@ test.describe('Sign-in failures', () => {
     );
   });
 });
+
+test.describe('Why you are at sign-in', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-010 · alert AC-4
+  test('after signing out, the page confirms it', async ({ page }) => {
+    const signIn = new SignInPage(page);
+    await signIn.open('?signedOut=true');
+
+    await expect(signIn.alert).toHaveAttribute('role', 'status');
+    await expect(signIn.alertTitle()).toHaveText("You're signed out");
+    await expect(signIn.alert).toContainText(
+      'Your session has ended on this device. On a shared computer, close the browser as well.',
+    );
+  });
+
+  // L2-010 AC1
+  test('after a session expires, the page says why', async ({ page }) => {
+    const signIn = new SignInPage(page);
+    await signIn.open('?reason=session-expired&returnUrl=%2Fsaved');
+
+    await expect(signIn.alert).toHaveAttribute('role', 'status');
+    await expect(signIn.alertTitle()).toHaveText('You were signed out after 14 days away');
+    await expect(signIn.alert).toContainText(
+      "Sign in again and we'll take you back to where you were.",
+    );
+  });
+
+  test('a plain visit shows no alert', async ({ page }) => {
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await expect(signIn.alert).toHaveCount(0);
+  });
+});
