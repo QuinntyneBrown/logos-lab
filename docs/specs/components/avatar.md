@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-avatar` |
 | Library path | `frontend/projects/components/src/lib/avatar/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-120, L2-127, L2-129, L2-134 |
 | Design system | [`avatar.html`](../../design-system/components/avatar.html) |
 | Source mocks | [`pages/home/signed-in`](../../mocks/pages/home/signed-in.html), [`pages/comments/default`](../../mocks/pages/comments/default.html), [`dialogs/block-member/default`](../../mocks/dialogs/block-member/default.html), [`pages/course-overview/default`](../../mocks/pages/course-overview/default.html), [`pages/settings-blocked/default`](../../mocks/pages/settings-blocked/default.html), [`dialogs/verify-email-prompt/default`](../../mocks/dialogs/verify-email-prompt/default.html) |

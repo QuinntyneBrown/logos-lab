@@ -9,10 +9,18 @@ import {
   SidebarNavGroup,
   SidebarNavigation,
 } from '@logos-lab/components';
+import {
+  memberPlaces,
+  SIGN_OUT_ID,
+  signOutItem,
+  staffPlaces,
+  toSidebarItems,
+} from '../../member-navigation';
 import { PRIMARY_LINKS } from '../../primary-links';
+import { Session } from '../../session';
 import { Theme } from '../../theme';
 import { themeItems } from '../../theme-options';
-import { ThemePreference } from '../../theme-preference';
+import { ThemePreference } from '@logos-lab/api';
 
 /** The site navigation below LG (mock dialogs/nav-drawer). */
 @Component({
@@ -25,16 +33,39 @@ import { ThemePreference } from '../../theme-preference';
 export class NavDrawerDialog {
   protected readonly dialogRef = inject(DialogRef);
 
-  protected readonly groups: readonly SidebarNavGroup[] = [
-    {
-      label: $localize`:@@drawer.browse:Browse`,
-      items: PRIMARY_LINKS.map((link) => ({
-        id: link.label,
-        label: link.label,
-        path: link.path,
-        queryParams: link.queryParams,
-      })),
-    },
+  private readonly session = inject(Session);
+  protected readonly member = this.session.member;
+
+  private readonly browse: SidebarNavGroup = {
+    label: $localize`:@@drawer.browse:Browse`,
+    items: PRIMARY_LINKS.map((link) => ({
+      id: link.label,
+      label: link.label,
+      path: link.path,
+      queryParams: link.queryParams,
+    })),
+  };
+
+  protected readonly groups = computed<readonly SidebarNavGroup[]>(() => {
+    const member = this.member();
+    if (!member) return [this.browse];
+    const staff = staffPlaces(member);
+    return [
+      this.browse,
+      {
+        label: $localize`:@@drawer.you:You`,
+        items: toSidebarItems(
+          memberPlaces().filter((p) => p.id !== 'my-learning' && p.id !== 'saved'),
+        ),
+      },
+      ...(staff.length
+        ? [{ label: $localize`:@@staff.group:Staff`, items: toSidebarItems(staff) }]
+        : []),
+    ];
+  });
+
+  protected readonly accountGroup: readonly SidebarNavGroup[] = [
+    { label: $localize`:@@drawer.account:Account`, items: toSidebarItems([signOutItem()]) },
   ];
 
   private readonly theme = inject(Theme);
@@ -46,7 +77,12 @@ export class NavDrawerDialog {
   ]);
 
   protected chooseTheme(id: string): void {
-    this.theme.choose(id as ThemePreference);
+    this.theme.choose(id as ThemePreference, !!this.member());
+  }
+
+  protected chooseAccount(id: string): void {
+    this.close();
+    if (id === SIGN_OUT_ID) this.session.signOut();
   }
 
   protected close(): void {

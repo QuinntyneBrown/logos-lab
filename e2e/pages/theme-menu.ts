@@ -7,8 +7,14 @@ export class ThemeMenu {
   constructor(
     private readonly page: Page,
     scope: Locator | Page = page,
+    role: 'menu' | 'group' = 'menu',
   ) {
-    this.menu = scope.getByRole('menu', { name: 'Theme' });
+    this.menu = scope.getByRole(role, { name: 'Theme' });
+  }
+
+  /** The theme choices as a labelled group inside another menu, such as the account menu. */
+  static inGroup(page: Page, scope: Locator): ThemeMenu {
+    return new ThemeMenu(page, scope, 'group');
   }
 
   option(name: 'Match my device' | 'Light' | 'Dark'): Locator {

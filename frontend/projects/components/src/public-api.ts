@@ -41,3 +41,5 @@ export * from './lib/empty-state/empty-state';
 export * from './lib/skeleton/skeleton';
 export * from './lib/skeleton/skeleton-card';
 export * from './lib/skeleton/skeleton-shape';
+export * from './lib/avatar/avatar';
+export * from './lib/avatar/avatar-size';

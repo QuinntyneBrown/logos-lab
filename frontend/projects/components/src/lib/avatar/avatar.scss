@@ -1,0 +1,61 @@
+// The avatar rules of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.avatar {
+  width: var(--space-10);
+  height: var(--space-10);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+.avatar--sm {
+  width: var(--space-8);
+  height: var(--space-8);
+}
+.avatar--md {
+  width: var(--space-12);
+  height: var(--space-12);
+}
+.avatar--lg {
+  width: var(--space-16);
+  height: var(--space-16);
+}
+.avatar-initials {
+  display: grid;
+  place-items: center;
+  width: var(--space-10);
+  height: var(--space-10);
+  flex: none;
+  border-radius: var(--radius-md);
+  font: var(--font-weight-semibold) var(--font-size-sm) / 1 var(--font-family-sans);
+  color: var(--color-tile-fg);
+}
+.avatar-initials.avatar--sm {
+  width: var(--space-8);
+  height: var(--space-8);
+  font-size: var(--font-size-xs);
+}
+.avatar-initials.avatar--lg {
+  width: var(--space-16);
+  height: var(--space-16);
+  font: var(--font-weight-light) var(--font-size-xl) / 1 var(--font-family-display);
+}
+.avatar-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.avatar-initials.avatar--md {
+  width: var(--space-12);
+  height: var(--space-12);
+  font-size: var(--font-size-md);
+}
+.avatar-initials[aria-busy='true'] {
+  background: var(--color-bg-subtle);
+  color: var(--color-transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .avatar-initials[aria-busy='true'] {
+    animation: shimmer var(--duration-breath) var(--ease-breath) infinite;
+  }
+}

@@ -13,6 +13,7 @@ export class AppShell {
   readonly menuButton: Locator;
   readonly searchButton: Locator;
   readonly themeButton: Locator;
+  readonly accountButton: Locator;
 
   constructor(private readonly page: Page) {
     this.skipLink = page.locator('a.skip-link');
@@ -27,6 +28,7 @@ export class AppShell {
     this.menuButton = page.locator('header.header button.menu-btn');
     this.searchButton = this.banner.locator('.header__search-btn');
     this.themeButton = page.locator('header.header .header__lg');
+    this.accountButton = page.locator('header.header .avatar-btn');
   }
 
   async openMenu(): Promise<void> {
@@ -39,6 +41,10 @@ export class AppShell {
 
   async resizeTo(width: number, height = 900): Promise<void> {
     await this.page.setViewportSize({ width, height });
+  }
+
+  async openAccountMenu(): Promise<void> {
+    await this.accountButton.click();
   }
 
   async openThemeMenu(): Promise<void> {

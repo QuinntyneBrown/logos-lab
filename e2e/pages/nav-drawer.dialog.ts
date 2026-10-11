@@ -27,6 +27,16 @@ export class NavDrawerDialog {
     return this.siteNav.getByRole('link').allInnerTexts();
   }
 
+  /** Every row of the drawer's navigation, links and actions, as their visible text. */
+  async rowNames(): Promise<string[]> {
+    const rows = await this.dialog.locator('.sidebar-nav a, .sidebar-nav button').allInnerTexts();
+    return rows.map((row) => row.trim());
+  }
+
+  row(name: string): Locator {
+    return this.dialog.locator('.sidebar-nav').getByRole('button', { name, exact: true });
+  }
+
   async choose(name: string): Promise<void> {
     await this.siteNav.getByRole('link', { name, exact: true }).click();
   }

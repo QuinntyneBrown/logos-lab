@@ -1,5 +1,5 @@
 import { MenuSection } from '@logos-lab/components';
-import { ThemePreference } from './theme-preference';
+import { ThemePreference } from '@logos-lab/api';
 
 const LABELS: Record<ThemePreference, string> = {
   system: $localize`:@@theme.system:Match my device`,

@@ -9,7 +9,7 @@
   <ll-sidebar-nav
     label="Site"
     i18n-label="@@drawer.siteNav"
-    [groups]="groups"
+    [groups]="groups()"
     (itemSelected)="close()"
   />
   <ll-sidebar-nav label="Display" i18n-label="@@drawer.display" [groups]="displayGroup" />
@@ -20,23 +20,32 @@
     [sections]="themeSections()"
     (itemSelected)="chooseTheme($event)"
   />
-  <a
-    llButton
-    variant="primary"
-    class="sheet__done"
-    routerLink="/register"
-    (click)="close()"
-    i18n="@@shell.createAccount"
-    >Create account</a
-  >
-  <a
-    llButton
-    variant="quiet"
-    block
-    class="nav-drawer__sign-in"
-    routerLink="/sign-in"
-    (click)="close()"
-    i18n="@@shell.signIn"
-    >Sign in</a
-  >
+  @if (member()) {
+    <ll-sidebar-nav
+      label="Account"
+      i18n-label="@@drawer.account"
+      [groups]="accountGroup"
+      (itemSelected)="chooseAccount($event)"
+    />
+  } @else {
+    <a
+      llButton
+      variant="primary"
+      class="sheet__done"
+      routerLink="/register"
+      (click)="close()"
+      i18n="@@shell.createAccount"
+      >Create account</a
+    >
+    <a
+      llButton
+      variant="quiet"
+      block
+      class="nav-drawer__sign-in"
+      routerLink="/sign-in"
+      (click)="close()"
+      i18n="@@shell.signIn"
+      >Sign in</a
+    >
+  }
 </ll-drawer>

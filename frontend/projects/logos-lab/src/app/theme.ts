@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
-import { ThemePreference } from './theme-preference';
+import { PREFERENCES_API, ThemePreference } from '@logos-lab/api';
 
 const STORAGE_KEY = 'll-theme';
 
@@ -11,10 +11,18 @@ const STORAGE_KEY = 'll-theme';
 @Injectable({ providedIn: 'root' })
 export class Theme {
   private readonly document = inject(DOCUMENT);
+  private readonly preferencesApi = inject(PREFERENCES_API);
 
   readonly preference = signal<ThemePreference>(this.read());
 
-  choose(preference: ThemePreference): void {
+  /** Applies a choice at once; for a member it is also saved to their account (L2-133 AC2). */
+  choose(preference: ThemePreference, member = false): void {
+    this.adopt(preference);
+    if (member) this.preferencesApi.updateTheme(preference).subscribe({ error: () => undefined });
+  }
+
+  /** Applies a preference that is already stored, such as the member's on arrival. */
+  adopt(preference: ThemePreference): void {
     this.preference.set(preference);
     this.apply(preference);
     this.write(preference);

@@ -10,35 +10,49 @@
   [menuExpanded]="navigation.drawerOpen()"
   (menuOpened)="void navigation.openDrawer()"
 >
-  <button
-    llIconButton
-    type="button"
-    slot="actions"
-    class="header__lg"
-    [cdkMenuTriggerFor]="themeMenu"
-    [attr.aria-label]="themeLabel()"
-  >
-    <svg llIcon [name]="themeIcon()"></svg>
-  </button>
-  <a
-    llButton
-    variant="text"
-    slot="actions"
-    class="header__signin"
-    routerLink="/sign-in"
-    i18n="@@shell.signIn"
-    >Sign in</a
-  >
-  <a
-    llButton
-    variant="primary"
-    size="sm"
-    slot="actions"
-    class="header__cta"
-    routerLink="/register"
-    i18n="@@shell.createAccount"
-    >Create account</a
-  >
+  @if (member(); as member) {
+    <button
+      type="button"
+      slot="actions"
+      class="avatar-btn"
+      [cdkMenuTriggerFor]="accountMenu"
+      [attr.aria-label]="accountLabel()"
+    >
+      <ll-avatar [name]="member.displayName" [photoUrl]="member.avatarUrl" />
+    </button>
+  } @else if (visitor()) {
+    <ng-container ngProjectAs="[slot=actions]">
+      <button
+        llIconButton
+        type="button"
+        slot="actions"
+        class="header__lg"
+        [cdkMenuTriggerFor]="themeMenu"
+        [attr.aria-label]="themeLabel()"
+      >
+        <svg llIcon [name]="themeIcon()"></svg>
+      </button>
+      <a
+        llButton
+        variant="text"
+        slot="actions"
+        class="header__signin"
+        routerLink="/sign-in"
+        i18n="@@shell.signIn"
+        >Sign in</a
+      >
+      <a
+        llButton
+        variant="primary"
+        size="sm"
+        slot="actions"
+        class="header__cta"
+        routerLink="/register"
+        i18n="@@shell.createAccount"
+        >Create account</a
+      >
+    </ng-container>
+  }
 </ll-top-bar>
 <main id="main" tabindex="-1">
   <router-outlet />
@@ -67,4 +81,16 @@
 
 <ng-template #themeMenu>
   <ll-menu [sections]="themeSections()" (itemSelected)="chooseTheme($event)" />
+</ng-template>
+
+<ng-template #accountMenu>
+  @if (member(); as member) {
+    <ll-menu
+      label="Your account"
+      i18n-label="@@shell.accountMenu"
+      [header]="{ title: member.displayName, meta: member.email }"
+      [sections]="accountSections()"
+      (itemSelected)="chooseAccountItem($event)"
+    />
+  }
 </ng-template>
