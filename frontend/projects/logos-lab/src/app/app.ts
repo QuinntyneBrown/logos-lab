@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { Button, Footer, SkipLink, TopBar } from '@logos-lab/components';
 import { PRIMARY_LINKS } from './primary-links';
+import { RouteFocus } from './route-focus';
 
 @Component({
   selector: 'll-root',
@@ -12,4 +13,8 @@ import { PRIMARY_LINKS } from './primary-links';
 })
 export class App {
   protected readonly primaryLinks = PRIMARY_LINKS;
+
+  constructor() {
+    inject(RouteFocus).start();
+  }
 }

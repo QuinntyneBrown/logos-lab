@@ -1,3 +1,7 @@
 main:focus {
   outline: none;
 }
+// The heading that receives focus after navigation is not a control, so it shows no ring.
+main ::ng-deep h1[tabindex='-1']:focus {
+  outline: none;
+}

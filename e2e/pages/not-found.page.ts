@@ -26,6 +26,10 @@ export class NotFoundPage {
     await this.heading.waitFor();
   }
 
+  async goHome(): Promise<void> {
+    await this.homeLink.click();
+  }
+
   async searchFor(query: string): Promise<void> {
     await this.search.fill(query);
     await this.search.press('Enter');
