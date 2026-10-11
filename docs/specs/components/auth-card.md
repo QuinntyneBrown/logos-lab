@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-auth-card` |
 | Library path | `frontend/projects/components/src/lib/auth-card/` |
-| Status | built |
+| Status | built (icon tile planned) |
 | Traces to | L2-008, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`auth-card.html`](../../design-system/components/auth-card.html) |
 | Source mocks | [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/register/default`](../../mocks/pages/register/default.html), [`pages/forgot-password/default`](../../mocks/pages/forgot-password/default.html), [`pages/reset-password/default`](../../mocks/pages/reset-password/default.html), [`pages/verify-email/default`](../../mocks/pages/verify-email/default.html), [`pages/mfa-setup/default`](../../mocks/pages/mfa-setup/default.html), [`pages/account-notice/default`](../../mocks/pages/account-notice/default.html), [`pages/expert-invitation/default`](../../mocks/pages/expert-invitation/default.html) |
@@ -28,7 +28,8 @@ Out of scope:
 | Where | Configuration | Slots / content | States seen | Surface |
 |---|---|---|---|---|
 | `pages/sign-in/*` | eyebrow "Welcome back", title "Sign in to Logos Lab", sub; alert; form; alt "New to Logos Lab? Create a free account" | all sign-in states | default, with alert | canvas |
-| `pages/register/*` | "Create your free account" | form; alt "Already have an account? Sign in" | default, invalid, submitting | canvas |
+| `pages/register/*` | "Create your Logos Lab account" | form; alt "Already have an account? Sign in" | default, invalid, submitting | canvas |
+| `pages/register/success`, `pages/forgot-password/success`, `pages/verify-email/*` | mail icon tile; "Check your email" | list of next steps; alt "Wrong address? Start again" | success | canvas |
 | `pages/forgot-password/*`, `pages/reset-password/*`, `pages/verify-email/*`, `pages/email-change-confirm/*` | short forms or messages | — | default, success, expired | canvas |
 | `pages/mfa-setup/*`, `pages/sign-in-verify/*` | codes and steps | — | default | canvas |
 | `pages/account-notice/*`, `pages/account-deleted/*`, `pages/restore-account/*`, `pages/policy-reconsent/*`, `pages/expert-invitation/*`, `pages/report-change/*` | notice and actions | — | default | canvas |
@@ -38,9 +39,11 @@ Out of scope:
 1. **Area** — `div.wrap.auth`: centres the card with `--space-16` / `--space-24` block padding.
 2. **Card** — `div.auth__card`: surface, hairline, `--radius-xl`, a grid with `--space-8` gaps, at most
    `--size-auth-card` wide.
-3. **Introduction** — projected: `p.eyebrow`, `h1.auth__title`, `p.auth__sub`.
-4. **Body** — projected: an alert, a form, messages.
-5. **Alternative** — projected `p.auth__alt`.
+3. **Icon tile (optional)** — `span.empty__icon` holding an [icon](icon.md), hidden from assistive
+   technology, before the introduction.
+4. **Introduction** — projected: `p.eyebrow`, `h1.auth__title`, `p.auth__sub`.
+5. **Body** — projected: an alert, a form, messages.
+6. **Alternative** — projected `p.auth__alt`.
 
 Host: `ll-auth-card` is `display: contents`; it renders the area and the card and projects the parts.
 
@@ -48,7 +51,9 @@ Host: `ll-auth-card` is `display: contents`; it renders the area and the card an
 
 ### Inputs
 
-None; the card is a frame.
+| Input | Type | Default | Required | Rule |
+|---|---|---|---|---|
+| `icon` | `IconName \| null` | `null` | no | Renders the icon tile (`mail` on "Check your email") before the introduction. |
 
 ### Outputs
 
@@ -67,6 +72,7 @@ None.
 | Variant | Modifier | Use for |
 |---|---|---|
 | Card | — | Every focused task. |
+| With icon | `icon` set | A confirmation or message: "Check your email". |
 
 One size: at most `--size-auth-card` wide; padding `--space-8` `--space-6`, `--space-12` from 40rem.
 
@@ -98,6 +104,8 @@ The card has no states of its own; its alert and form carry them.
 
 ## Design
 
+- Icon tile: `--size-empty-icon` square, `--radius-md`, `--color-accent-subtle` fill, glyph
+  `--size-empty-glyph` in `--color-fg-accent`; the same tile as the [empty state](empty-state.md).
 - Title `--text-h1` at `--font-size-3xl`, `--letter-spacing-tight`, margin-top `--space-4` after the
   eyebrow; sub margin-top `--space-3`, muted; alt `--text-body-sm`, centred, muted.
 
@@ -163,6 +171,7 @@ None.
 
 - **AC-1** Given a visitor opens `/sign-in`, when the page renders, then a centred card shows "Welcome back", the heading "Sign in to Logos Lab", the form and "New to Logos Lab? Create a free account". (L2-008)
 - **AC-2** Given the sign-in page, when it is inspected, then its only `h1` is "Sign in to Logos Lab". (L2-127)
+- **AC-7** Given a visitor whose registration was accepted, when the card shows "Check your email", then a mail icon tile sits above the title and is hidden from assistive technology. (L2-127)
 
 ### Theming
 
@@ -177,9 +186,11 @@ None.
 ## Implementation notes
 
 - Folder `frontend/projects/components/src/lib/auth-card/`: `auth-card.ts` (`AuthCard`), `.html`, `.scss`
-  with the `auth-card` block under `:host ::ng-deep`.
+  with the `auth-card` block and the `.empty__icon` tile rules under `:host ::ng-deep`. Composes `Icon`.
 
 ## Decisions
 
 - **D-1** *Does the card take a title input?* No; the introduction is projected so pages can add a
   `strong` item name ("Sign in and we'll bring you straight back to **Imago Dei…**").
+- **D-2** *Why an `icon` input when the introduction is projected?* The tile is the same on every
+  confirmation card, so the card draws it; pages name only the glyph.

@@ -32,7 +32,7 @@
     </div>
     <h1>Sign-in card</h1>
     <p class="ds-lead">One focused task, centred: sign in, register, reset, verify. Requirements: <a href="auth-card.md">auth-card.md</a>. Design system: <a href="../../design-system/components/auth-card.html">auth-card</a>.</p>
-    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-auth-card</code></span><span class="ds-pill">Status: built</span><span class="ds-pill">Traces to L2-008, L2-127, L2-129, L2-130, L2-134, L2-150</span></div>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-auth-card</code></span><span class="ds-pill">Status: built (icon tile planned)</span><span class="ds-pill">Traces to L2-008, L2-127, L2-129, L2-130, L2-134, L2-150</span></div>
     <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
   </header>
 <section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap auth">
@@ -89,7 +89,20 @@
       <p class="auth__alt">New to Logos Lab? <a href="#">Create a free account</a></p>
       
     </div>
-  </div></div><div class="ds-example__caption"><span>With an alert. <span class="crd-ac">AC-1</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><p class="ds-na">The card has no states of its own; its alert and form carry them.</p></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div class="wrap auth">
+  </div></div><div class="ds-example__caption"><span>With an alert. <span class="crd-ac">AC-1</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap auth">
+    <div class="auth__card">
+      <span class="empty__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span>
+      <div>
+        <h1 class="auth__title">Check your email</h1>
+        <p class="auth__sub">We sent a link to <strong>miriam.clarke@example.ca</strong>. Open it within 24 hours to finish creating your account.</p>
+      </div>
+      <div class="prose"><ul>
+        <li>The email comes from help@logoslab.ca and can take a few minutes.</li>
+        <li>Check your spam or promotions folder if it hasn't arrived.</li>
+        <li>Until you verify, you can browse Logos Lab but not enrol, comment or register for events.</li>
+      </ul></div>
+      <a class="btn btn--quiet btn--block" href="#">Send the email again</a>
+      <p class="auth__alt">Wrong address? <a href="default.html">Start again</a></p></div></div></div><div class="ds-example__caption"><span>With the icon tile: check your email. <span class="crd-ac">AC-7</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><p class="ds-na">The card has no states of its own; its alert and form carry them.</p></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div class="wrap auth">
     <div class="auth__card">
       <div>
         <p class="eyebrow">Welcome back</p>
