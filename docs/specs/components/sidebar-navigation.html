@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidebar navigation — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of sidebar navigation, in light and dark, keyed to the acceptance criteria in sidebar-navigation.md.">
+<meta name="crd:component" content="sidebar-navigation">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+/* Specimen only, not product CSS: sidebar-navigation D-1 */ .sidebar-nav button { display:flex; align-items:center; gap:var(--space-3); min-height:var(--target-comfortable); padding:0 var(--space-3); border:0; background:none; border-radius:var(--radius-md); color:var(--color-fg-muted); font-weight:var(--font-weight-medium); text-align:start; cursor:pointer; }
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Sidebar navigation</h1>
+    <p class="ds-lead">Grouped destinations of one area; the current one carries the accent wash. Requirements: <a href="sidebar-navigation.md">sidebar-navigation.md</a>. Design system: <a href="../../design-system/components/sidebar-navigation.html">sidebar-navigation</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-sidebar-nav</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:20rem"><nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">Display</p>
+        <button type="button">Theme: match my device</button>
+      </nav></div></div><div class="ds-example__caption"><span>Site, visitor: Browse and Display (an action row). <span class="crd-ac">AC-1, AC-4</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:20rem"><nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">You</p>
+        <a href="#">Dashboard</a>
+        <a href="#">Messages</a>
+        <a href="#">Settings</a>
+        <p class="sidebar-nav__group">Staff</p>
+        <a href="#">Studio</a>
+        <a href="#">Review queue <span class="badge badge--count">5<span class="vh"> waiting</span></span></a>
+        <a href="#">Moderation <span class="badge badge--count">7<span class="vh"> open reports</span></span></a>
+        <a href="#" aria-current="page">Admin</a>
+        <p class="sidebar-nav__group">Account</p>
+        <a href="#">Sign out</a>
+      </nav></div></div><div class="ds-example__caption"><span>Site, staff: counts with hidden words, Admin current. <span class="crd-ac">AC-2, AC-3</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><nav class="sidebar-nav settings-nav" aria-label="Settings">
+      <p class="sidebar-nav__group">Settings</p>
+      <a href="#" aria-current="page">Profile</a>
+      <a href="#">Email and password</a>
+      <a href="#">Security</a>
+      <a href="#">Sessions</a>
+      <a href="#">Notifications</a>
+      <a href="#">Privacy and messaging</a>
+      <a href="#">Your data</a>
+      <a href="#">Blocked members</a>
+    </nav></div><div class="ds-example__caption"><span>Settings variant: Profile current. <span class="crd-ac">AC-2</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><nav class="sidebar-nav settings-nav" aria-label="Admin">
+      <p class="sidebar-nav__group">Admin</p>
+      <a href="#" aria-current="page">Overview</a>
+      <a href="#">Users</a>
+      <a href="#">Expert invitations <span class="badge badge--count">3</span></a>
+      <a href="#">Topics</a>
+      <a href="#">Featured</a>
+      <a href="#">Announcements</a>
+      <a href="#">Policies</a>
+      <a href="#">Site settings</a>
+      <a href="#">Audit log</a>
+      <a href="#">Analytics</a>
+    </nav></div><div class="ds-example__caption"><span>Settings variant for Admin with a count. <span class="crd-ac">AC-3</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas"><div style="max-width:20rem"><nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#" data-state="hover">Courses</a>
+        <a href="#" data-state="focus">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">Display</p>
+        <button type="button">Theme: match my device</button>
+      </nav></div></div><div class="ds-example__caption"><span>Hover on "Courses", focus on "Events". <span class="crd-ac">AC-5, AC-9</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div style="max-width:20rem"><nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">You</p>
+        <a href="#">Dashboard</a>
+        <a href="#">Messages</a>
+        <a href="#">Settings</a>
+        <p class="sidebar-nav__group">Staff</p>
+        <a href="#">Studio</a>
+        <a href="#">Review queue <span class="badge badge--count">5<span class="vh"> waiting</span></span></a>
+        <a href="#">Moderation <span class="badge badge--count">7<span class="vh"> open reports</span></span></a>
+        <a href="#" aria-current="page">Admin</a>
+        <p class="sidebar-nav__group">Account</p>
+        <a href="#">Sign out</a>
+      </nav></div></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div style="max-width:20rem"><nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">You</p>
+        <a href="#">Dashboard</a>
+        <a href="#">Messages</a>
+        <a href="#">Settings</a>
+        <p class="sidebar-nav__group">Staff</p>
+        <a href="#">Studio</a>
+        <a href="#">Review queue <span class="badge badge--count">5<span class="vh"> waiting</span></span></a>
+        <a href="#">Moderation <span class="badge badge--count">7<span class="vh"> open reports</span></span></a>
+        <a href="#" aria-current="page">Admin</a>
+        <p class="sidebar-nav__group">Account</p>
+        <a href="#">Sign out</a>
+      </nav></div></div></div><span class="crd-ac">AC-6, AC-7</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-8, AC-10</span><iframe title="320 pixel wide frame, light theme" width="320" height="200" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px&quot;&gt;&lt;nav class=&quot;sidebar-nav settings-nav&quot; aria-label=&quot;Settings&quot;&gt;
+      &lt;p class=&quot;sidebar-nav__group&quot;&gt;Settings&lt;/p&gt;
+      &lt;a href=&quot;#&quot; aria-current=&quot;page&quot;&gt;Profile&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Email and password&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Security&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Sessions&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Notifications&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Privacy and messaging&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Your data&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Blocked members&lt;/a&gt;
+    &lt;/nav&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-8, AC-10</span><iframe title="360 pixel wide frame, dark theme" width="360" height="200" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px&quot;&gt;&lt;nav class=&quot;sidebar-nav settings-nav&quot; aria-label=&quot;Settings&quot;&gt;
+      &lt;p class=&quot;sidebar-nav__group&quot;&gt;Settings&lt;/p&gt;
+      &lt;a href=&quot;#&quot; aria-current=&quot;page&quot;&gt;Profile&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Email and password&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Security&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Sessions&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Notifications&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Privacy and messaging&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Your data&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Blocked members&lt;/a&gt;
+    &lt;/nav&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-8, AC-10</span><iframe title="768 pixel wide frame, light theme" width="768" height="200" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;padding:12px&quot;&gt;&lt;nav class=&quot;sidebar-nav settings-nav&quot; aria-label=&quot;Settings&quot;&gt;
+      &lt;p class=&quot;sidebar-nav__group&quot;&gt;Settings&lt;/p&gt;
+      &lt;a href=&quot;#&quot; aria-current=&quot;page&quot;&gt;Profile&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Email and password&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Security&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Sessions&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Notifications&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Privacy and messaging&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Your data&lt;/a&gt;
+      &lt;a href=&quot;#&quot;&gt;Blocked members&lt;/a&gt;
+    &lt;/nav&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Rows</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Rows</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Current row</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Current row</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Count</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Count</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div></div><span class="crd-ac">AC-7</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Group label</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr><tr><td>Row</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Row hover</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr><tr><td>Current wash</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr><tr><td>Current text</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr><tr><td>Count</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>
