@@ -25,6 +25,7 @@ import {
 import { GlobalNavigation } from './global-navigation';
 import { memberPlaces, SIGN_OUT_ID, signOutItem, staffPlaces } from './member-navigation';
 import { PRIMARY_LINKS } from './primary-links';
+import { CurrentShell } from './current-shell';
 import { RouteFocus } from './route-focus';
 import { Session } from './session';
 import { SiteSearchField } from './site-search/site-search-field';
@@ -58,6 +59,12 @@ export class App {
   protected readonly theme = inject(Theme);
 
   protected readonly member = this.session.member;
+  protected readonly shell = inject(CurrentShell).mode;
+  protected readonly focused = computed(() => this.shell().kind === 'focused');
+  protected readonly focusedAction = computed(() => {
+    const shell = this.shell();
+    return shell.kind === 'focused' ? shell.action : null;
+  });
 
   /** The search row below XL, opened from the search icon. */
   protected readonly searchOpen = signal(false);

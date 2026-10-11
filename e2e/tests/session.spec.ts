@@ -80,7 +80,7 @@ test.describe('Signed-in top bar at LG', () => {
   });
 
   // L2-010
-  test('signing out ends the session and shows the visitor top bar', async ({ page, api }) => {
+  test('signing out ends the session and opens the sign-in page', async ({ page, api }) => {
     api.respond('GET', '/me', members.miriam);
     api.respond('DELETE', '/auth/session', undefined, 204);
     const home = new HomePage(page);
@@ -91,7 +91,8 @@ test.describe('Signed-in top bar at LG', () => {
     await menu.choose('Sign out');
 
     await expect(page).toHaveURL('/sign-in?signedOut=true');
-    await expect(home.shell.signIn).toBeVisible();
+    await expect(home.shell.accountButton).toHaveCount(0);
+    await expect(home.shell.minimalAction()).toHaveText('Create account');
     expect(api.requestsTo('DELETE', '/auth/session')).toHaveLength(1);
   });
 

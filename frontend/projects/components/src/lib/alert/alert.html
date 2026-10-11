@@ -1,0 +1,12 @@
+<div
+  class="alert"
+  [class.alert--success]="tone() === 'success'"
+  [class.alert--warning]="tone() === 'warning'"
+  [class.alert--danger]="tone() === 'danger'"
+  [attr.role]="resolvedRole()"
+>
+  <svg llIcon [name]="iconName()"></svg>
+  <p class="alert__title">{{ heading() }}</p>
+  <p class="alert__body"><ng-content /></p>
+  <div class="alert__actions"><ng-content select="[slot=actions]" /></div>
+</div>

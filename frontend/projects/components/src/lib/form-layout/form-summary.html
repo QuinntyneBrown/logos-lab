@@ -1,0 +1,14 @@
+<div class="form-summary" #panel role="alert" tabindex="-1" [attr.aria-labelledby]="titleId">
+  <h2 class="form-summary__title" [id]="titleId">
+    <svg llIcon name="attention"></svg>{{ heading() }}
+  </h2>
+  <ul>
+    @for (error of errors(); track error.controlId) {
+      <li>
+        <a [attr.href]="'#' + error.controlId" (click)="follow($event, error.controlId)">{{
+          error.message
+        }}</a>
+      </li>
+    }
+  </ul>
+</div>

@@ -82,6 +82,16 @@ export class AppShell {
     return this.primaryNav.locator('.nav__link').allInnerTexts();
   }
 
+  /** The footer's closing line: the land sentence, or the short note of focused pages. */
+  footerNote(): Locator {
+    return this.footer.locator('.footer__land, .footer__made');
+  }
+
+  /** The single action of the minimal top bar on focused pages. */
+  minimalAction(): Locator {
+    return this.banner.locator('.header__actions a');
+  }
+
   async footerLinkNames(): Promise<string[]> {
     return this.footerNav.locator('.footer__links > li').allInnerTexts();
   }

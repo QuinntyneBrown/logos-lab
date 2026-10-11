@@ -1,0 +1,23 @@
+<div class="field">
+  <div class="cluster cluster--between field__label-row">
+    <label class="field__label" [for]="controlId()"
+      >{{ label() }}
+      @if (optional(); as optional) {
+        <span class="field__optional">{{ optional }}</span>
+      }
+    </label>
+    <ng-content select="[slot=label-action]" />
+  </div>
+  <ng-content />
+  @if (help(); as help) {
+    <p class="field__help" [id]="helpId()">{{ help }}</p>
+  }
+  @if (error(); as error) {
+    <p class="field__error" [id]="errorId()">
+      <svg llIcon name="attention" size="sm"></svg>{{ error }}
+    </p>
+  }
+  @if (counter(); as counter) {
+    <p class="field__counter" [id]="counterId()">{{ counter }}</p>
+  }
+</div>

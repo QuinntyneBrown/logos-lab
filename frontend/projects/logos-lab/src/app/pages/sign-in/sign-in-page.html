@@ -1,0 +1,61 @@
+<ll-auth-card>
+  <div slot="intro">
+    <p class="eyebrow" i18n="@@signIn.eyebrow">Welcome back</p>
+    <h1 class="auth__title" i18n="@@signIn.title">Sign in to Logos Lab</h1>
+    <p class="auth__sub" i18n="@@signIn.sub">
+      Pick up your courses, saved items and conversations where you left them.
+    </p>
+  </div>
+  <form llForm>
+    <ll-form-field label="Email" i18n-label="@@signIn.email" controlId="email">
+      <input
+        llInput
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        required
+      />
+    </ll-form-field>
+    <ll-form-field label="Password" i18n-label="@@signIn.password" controlId="password">
+      <a
+        llButton
+        variant="text"
+        size="sm"
+        slot="label-action"
+        routerLink="/forgot-password"
+        i18n="@@signIn.forgot"
+        >Forgot your password?</a
+      >
+      <div class="input-group">
+        <input
+          llInput
+          id="password"
+          name="password"
+          [type]="passwordShown() ? 'text' : 'password'"
+          autocomplete="current-password"
+          required
+        />
+        <button
+          llButton
+          variant="quiet"
+          type="button"
+          aria-controls="password"
+          [pressed]="passwordShown()"
+          (click)="passwordShown.set(!passwordShown())"
+          i18n="@@signIn.show"
+        >
+          Show
+        </button>
+      </div>
+    </ll-form-field>
+    <button llButton variant="primary" size="lg" block type="submit" i18n="@@signIn.submit">
+      Sign in
+    </button>
+  </form>
+  <p class="auth__alt" slot="alt">
+    <ng-container i18n="@@signIn.new">New to Logos Lab?</ng-container>&ngsp;
+    <a routerLink="/register" i18n="@@signIn.register">Create a free account</a>
+  </p>
+</ll-auth-card>
