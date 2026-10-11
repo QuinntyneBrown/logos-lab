@@ -7,7 +7,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AUTH_API } from '@logos-lab/api';
 import {
   AuthCard,
   Button,
@@ -18,6 +20,8 @@ import {
   Input,
 } from '@logos-lab/components';
 import { plural } from '../../content/plural';
+import { safeReturnUrl } from '../../return-url';
+import { Session } from '../../session';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -30,6 +34,13 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 })
 export class SignInPage {
   private readonly locale = inject(LOCALE_ID);
+  private readonly authApi = inject(AUTH_API);
+  private readonly session = inject(Session);
+  private readonly router = inject(Router);
+  private readonly query = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
+  private readonly returnUrl = computed(() => safeReturnUrl(this.query().get('returnUrl')));
+
+  protected readonly busy = signal(false);
   private readonly summary = viewChild(FormSummary);
 
   protected readonly passwordShown = signal(false);
@@ -53,6 +64,21 @@ export class SignInPage {
       this.summary()?.focus();
       return;
     }
+    this.busy.set(true);
+    const returnUrl = this.returnUrl();
+    this.authApi
+      .signIn({ email: this.email().trim(), password: this.password(), returnUrl })
+      .subscribe({
+        next: (result) => {
+          if (result.status === 'SecondFactorRequired') {
+            void this.router.navigate(['/sign-in/verify'], { queryParams: { returnUrl } });
+            return;
+          }
+          this.session.load();
+          void this.router.navigateByUrl(returnUrl);
+        },
+        error: () => this.busy.set(false),
+      });
   }
 
   private validate(): FormError[] {

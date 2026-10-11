@@ -1,4 +1,5 @@
 import { expect, test } from '../fixtures/test';
+import { members } from '../data/members';
 import { SignInPage } from '../pages/sign-in.page';
 
 test.describe('Sign in page', () => {
@@ -107,5 +108,95 @@ test.describe('Sign in validation', () => {
 
     await expect(signIn.summary).toHaveCount(0);
     await expect(signIn.email).not.toHaveAttribute('aria-invalid', 'true');
+  });
+});
+
+test.describe('Signing in', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  const signedIn = { status: 'SignedIn', mfaEnrolmentRequired: false };
+
+  // L2-008 · button AC-4, AC-5
+  test('while signing in the button is busy and a second press sends nothing', async ({
+    page,
+    api,
+  }) => {
+    const release = api.hold('POST', '/auth/sessions', signedIn);
+    const signIn = new SignInPage(page);
+    await signIn.open();
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(signIn.submit).toHaveText('Signing in…');
+    await expect(signIn.submit).toHaveAttribute('aria-busy', 'true');
+    await signIn.submitAgain();
+    expect(api.requestsTo('POST', '/auth/sessions')).toHaveLength(1);
+    expect(api.requestsTo('POST', '/auth/sessions')[0].body).toEqual({
+      email: 'miriam.clarke@example.ca',
+      password: 'quiet-harbour-at-dawn',
+      returnUrl: '/dashboard',
+    });
+    release();
+  });
+
+  // L2-008 AC1
+  test('correct details sign the member in and take them to their dashboard', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', '/auth/sessions', signedIn);
+    const signIn = new SignInPage(page);
+    await signIn.open();
+    api.respond('GET', '/me', members.miriam);
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(page).toHaveURL('/dashboard');
+    await expect(signIn.shell.accountButton).toHaveAccessibleName('Your account, Miriam Clarke');
+  });
+
+  // L2-008 AC1
+  test('a same-site return address brings the member back to where they were', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', '/auth/sessions', signedIn);
+    const signIn = new SignInPage(page);
+    await signIn.open('?returnUrl=%2Fcourses%2Fimago-dei-in-an-age-of-machines');
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(page).toHaveURL('/courses/imago-dei-in-an-age-of-machines');
+  });
+
+  // L2-008 (ReturnUrlPolicy)
+  test('an off-site return address is ignored', async ({ page, api }) => {
+    api.respond('POST', '/auth/sessions', signedIn);
+    const signIn = new SignInPage(page);
+    await signIn.open('?returnUrl=https%3A%2F%2Fevil.example');
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(page).toHaveURL('/dashboard');
+    expect(api.requestsTo('POST', '/auth/sessions')[0].body).toMatchObject({
+      returnUrl: '/dashboard',
+    });
+  });
+
+  // L2-014 (second factor)
+  test('an account with two-step verification continues to the code step', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', '/auth/sessions', {
+      status: 'SecondFactorRequired',
+      mfaEnrolmentRequired: false,
+    });
+    const signIn = new SignInPage(page);
+    await signIn.open('?returnUrl=%2Fsaved');
+
+    await signIn.signIn('miriam.clarke@example.ca', 'quiet-harbour-at-dawn');
+
+    await expect(page).toHaveURL('/sign-in/verify?returnUrl=%2Fsaved');
   });
 });

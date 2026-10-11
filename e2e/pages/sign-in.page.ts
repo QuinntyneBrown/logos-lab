@@ -38,6 +38,11 @@ export class SignInPage {
     await this.submit.click();
   }
 
+  /** Presses the submit button again from the keyboard (a busy button keeps focus). */
+  async submitAgain(): Promise<void> {
+    await this.submit.press('Enter');
+  }
+
   alertTitle(): Locator {
     return this.alert.locator('.alert__title');
   }

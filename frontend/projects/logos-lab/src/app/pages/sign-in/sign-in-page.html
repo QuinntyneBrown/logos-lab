@@ -65,8 +65,12 @@
         </button>
       </div>
     </ll-form-field>
-    <button llButton variant="primary" size="lg" block type="submit" i18n="@@signIn.submit">
-      Sign in
+    <button llButton variant="primary" size="lg" block type="submit" [busy]="busy()">
+      @if (busy()) {
+        <ng-container i18n="@@signIn.submitting">Signing in…</ng-container>
+      } @else {
+        <ng-container i18n="@@signIn.submit">Sign in</ng-container>
+      }
     </button>
   </form>
   <p class="auth__alt" slot="alt">
