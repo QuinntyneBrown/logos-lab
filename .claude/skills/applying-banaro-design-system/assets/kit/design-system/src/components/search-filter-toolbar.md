@@ -112,7 +112,7 @@ as a bottom sheet below 1024px; from 1024px it is a sticky sidebar and the Done 
 
 ## Sizes
 
-N/A: one size. Tools use the `sm` button and the default select so the toolbar stays one line high on
+N/A: one size. Tools use the small button and the default select so the toolbar stays one line high on
 wide screens; facets inherit their controls' sizes.
 
 ## States

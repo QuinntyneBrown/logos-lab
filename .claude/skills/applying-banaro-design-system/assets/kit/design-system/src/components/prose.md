@@ -98,7 +98,7 @@ A short introduction: one heading and two paragraphs.
 
 ## Sizes
 
-N/A: one size. The column caps at `--layout-narrow` (44rem, about 75 characters of 19px text) and
+N/A: one size. The column caps at the narrow layout width (44rem, about 75 characters of 19px text) and
 otherwise fills its container.
 
 ## States

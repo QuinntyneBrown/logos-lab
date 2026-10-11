@@ -81,7 +81,7 @@ Three quotes in a responsive [grid](layout.html): one column on phones, three ac
 ## Sizes
 
 N/A: one content-driven size. The quote card fills its column; the verse is centred and capped at
-`--layout-measure-verse` (30ch), stepping up from 28px to 36px at 1024px.
+the verse measure (30 characters), stepping up from 28px to 36px at 1024px.
 
 ## States
 
