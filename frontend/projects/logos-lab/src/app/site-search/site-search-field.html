@@ -1,5 +1,4 @@
-<form
-  llSearch
+<ll-combobox
   [class.header__search--wide]="variant() === 'wide'"
   [inputId]="variant() === 'wide' ? 'site-search' : 'site-search-row'"
   label="Search Logos Lab"
@@ -7,6 +6,15 @@
   placeholder="Search Logos Lab"
   i18n-placeholder="@@shell.siteSearch"
   [maxlength]="200"
+  [open]="state().open"
+  [listLabel]="listLabel()"
+  [groups]="state().groups"
+  [status]="state().status"
+  [statusText]="state().statusText"
+  [footText]="state().footText"
+  [announcement]="state().announcement"
+  (queryChanged)="typed($event)"
   (searched)="submit($event)"
-  (queryKeydown)="keydown($event)"
-></form>
+  (optionChosen)="chosen()"
+  (dismissed)="variant() === 'row' && dismissed.emit()"
+/>

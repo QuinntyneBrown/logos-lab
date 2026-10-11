@@ -12,6 +12,7 @@ import {
 /** The search pill: magnifier, hidden label, query and an optional projected action. */
 @Component({
   selector: 'form[llSearch], div[llSearch]',
+  exportAs: 'llSearch',
   templateUrl: './search.html',
   styleUrl: './search.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

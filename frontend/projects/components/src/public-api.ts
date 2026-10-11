@@ -43,3 +43,8 @@ export * from './lib/skeleton/skeleton-card';
 export * from './lib/skeleton/skeleton-shape';
 export * from './lib/avatar/avatar';
 export * from './lib/avatar/avatar-size';
+export * from './lib/combobox/combobox';
+export * from './lib/combobox/combobox-group';
+export * from './lib/combobox/combobox-option';
+export * from './lib/combobox/combobox-status';
+export * from './lib/combobox/combobox-text-segment';

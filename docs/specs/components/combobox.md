@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-combobox` |
 | Library path | `frontend/projects/components/src/lib/combobox/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-003, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 |
 | Design system | [`combobox.html`](../../design-system/components/combobox.html) |
 | Source mocks | [`dialogs/search-suggest/default`](../../mocks/dialogs/search-suggest/default.html), [`dialogs/search-suggest/busy`](../../mocks/dialogs/search-suggest/busy.html), [`dialogs/search-suggest/invalid`](../../mocks/dialogs/search-suggest/invalid.html), [`dialogs/search-suggest/empty`](../../mocks/dialogs/search-suggest/empty.html), [`dialogs/search-suggest/failed`](../../mocks/dialogs/search-suggest/failed.html), [`dialogs/search-suggest/long`](../../mocks/dialogs/search-suggest/long.html) |
@@ -254,3 +254,5 @@ None.
   results" and Enter on it searches.
 - **D-2** *Does Escape with the list closed do anything?* It emits `dismissed`, so the search row opened
   from the icon below XL can close and return focus to the icon, as the drawer does for Menu.
+- **D-3** *How does the active foot look?* Like an active option (`--color-accent-subtle`, `--radius-md`),
+  because arrow keys reach it; the design system draws only its resting state.
