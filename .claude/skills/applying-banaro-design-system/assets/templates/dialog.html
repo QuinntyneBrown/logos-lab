@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{Dialog title}} · {{state}} — {{App}}</title>
+<!-- Template: a dialog shown over the page it opens from. Copy to docs/mocks/dialogs/<dialog-id>/<state>.html.
+     The page behind is inert and hidden from assistive tech; paste a trimmed copy of the opener's default state into it. -->
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="{{dialog-id}}">
+<meta name="mock:state" content="{{state}}">
+<meta name="mock:requirements" content="{{L2-IDs separated by spaces}}">
+<meta name="description" content="{{One sentence: the decision this dialog asks for, in this state.}}">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<div class="page-behind" inert aria-hidden="true">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header"><div class="wrap header__inner"><a class="brand" href="../../pages/{{home-screen}}/default.html" aria-label="{{App}} home"><!--BRAND-MARK--><span>{{app}}</span></a></div></header>
+<main id="main"><div class="wrap"><div class="page-head"><h1 class="page-head__title">{{Opener page title}}</h1></div></div></main>
+</div>
+
+<div class="backdrop">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+    <header class="dialog__header">
+      <h2 class="dialog__title" id="dialog-title">{{Dialog title — a question or the action}}</h2>
+      <button type="button" class="icon-btn" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div class="dialog__body">
+      <p id="dialog-desc">{{What will happen, specifically. Name the object.}}</p>
+      <!-- invalid → .form-summary + field errors; failed → .alert.alert--danger; busy → primary aria-busy + .spinner -->
+    </div>
+    <footer class="dialog__footer">
+      <button type="button" class="btn btn--quiet">Cancel</button>
+      <button type="button" class="btn btn--primary">{{Verb + object}}</button>
+    </footer>
+  </div>
+</div>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">{{Dialog title}}</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

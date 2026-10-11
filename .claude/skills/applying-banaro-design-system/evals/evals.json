@@ -1,0 +1,60 @@
+{
+  "skill_name": "applying-banaro-design-system",
+  "evals": [
+    {
+      "id": 0,
+      "name": "todo-app-from-scratch",
+      "prompt": "I'm building a TO DO app called Tally. Use the applying-banaro-design-system skill to add the design system. Create mocks for my TO DO app and add components to the design system as needed. Remove any default scaffolded components from the design system.",
+      "fixture": "empty-project",
+      "expected_output": "docs/design-system seeded from the kit and adapted to Tally (prefix chosen, wordmark tally, own mark with the sun dot); docs/mocks with a manifest covering lists, today, task detail, task dialogs, settings, sign in, 404/403/500/offline and toasts in every required state; at least one new component (e.g. task-row) added through a @component block and source; the sample components and unused standard components pruned; every remaining source re-voiced with Tally's cast; all checks green.",
+      "expectations": [
+        "check_mocks.py docs/mocks exits 0 and manifest.json lists every page, dialog and notification with required states or not_applicable reasons",
+        "check_design_system.py docs/design-system exits 0 and check_contrast.py reports 0 failures",
+        "audit_usage.py --strict exits 0: no undefined mock classes, no Banaro words, no kit cast names",
+        "project-card, event-row, rsvp-panel and suggestion are absent from src/components unless a mock uses them",
+        "a new component for tasks exists in src/components and as a @component block in components.css, and mocks use its classes",
+        "tokens.css values for neutrals, type, spacing, radius, elevation and motion are unchanged from the kit",
+        "mocks link ../../assets/tokens.css, ui.css and mock.css only; no <style> blocks with component rules in mocks",
+        "src/CHANGELOG.md records added and pruned components"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "add-component-to-seeded-system",
+      "prompt": "Our course pages need a lesson progress card. Add it to the design system and use it on the course mock.",
+      "fixture": "seeded-lms-with-mocks",
+      "expected_output": "A new course-progress (or similar) component: a @component block using only tokens by role, a source with distinct variants, every state, accessibility, content and do/don'ts in the app's voice; the course mock updated to use it; build, audit, checks and screenshots run; changelog updated; no re-seed.",
+      "expectations": [
+        "seed_kit.py is not re-run and existing token and class names are unchanged",
+        "the new CSS block contains no raw colours and only --space/--color/--radius/--text/--size tokens",
+        "the new component page shows at least two variants with different markup and a state matrix with visibly different states",
+        "audit_usage.py reports the new component as used and no undefined classes",
+        "src/CHANGELOG.md has an entry for the addition"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "recolour-accent-on-request",
+      "prompt": "Keep the Banaro look but make our accent a deep harbour blue instead of sage.",
+      "fixture": "seeded-todo-with-mocks",
+      "expected_output": "recolour_accent.py run with a muted blue; accent block rewritten; success stays sage; contrast passes in both themes; design-system.json accent updated; pages rebuilt; screenshots reviewed; changelog line added.",
+      "expectations": [
+        "only the accent:start…accent:end block of tokens.css changed",
+        "--color-success-* still reference --palette-sage-* primitives",
+        "check_contrast.py reports 0 failures",
+        "design-system.json accent.name is the blue's name"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "refuse-to-drift-from-the-look",
+      "prompt": "Use the Banaro design system for my app but make the buttons square and use Inter.",
+      "fixture": "empty-project",
+      "expected_output": "The agent explains that pill buttons and Manrope are signatures of the Banaro look, offers to proceed with the look intact (or to record the deviation as an explicit, user-approved token change in the changelog), and does not silently edit radius or font tokens.",
+      "expectations": [
+        "the agent names the conflict with the look and asks or records an explicit decision",
+        "no change to --radius-full usage on .btn or --font-family-sans without the user's confirmation"
+      ]
+    }
+  ]
+}

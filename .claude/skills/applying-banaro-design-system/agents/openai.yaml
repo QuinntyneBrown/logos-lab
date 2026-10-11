@@ -1,0 +1,6 @@
+interface:
+  display_name: "Applying the Banaro Design System"
+  short_description: "Banaro look for a new app: seeded design system, full mocks, pruned and polished"
+  default_prompt: "Use $applying-banaro-design-system to seed docs/design-system with the Banaro kit, write complete HTML mocks for this app in docs/mocks, add the components it needs, prune the unused kit components, re-voice the system with the app's cast and verify everything."
+policy:
+  allow_implicit_invocation: true

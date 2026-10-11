@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{Screen title}} · {{state}} — {{App}}</title>
+<!-- Template: a signed-in page. Copy to docs/mocks/pages/<screen-id>/<state>.html and replace every {{…}}.
+     The mock:* metas must match the path; check_mocks.py verifies them. Use only design-system classes. -->
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="{{screen-id}}">
+<meta name="mock:state" content="{{state}}">
+<meta name="mock:requirements" content="{{L2-IDs separated by spaces}}">
+<meta name="description" content="{{One sentence: what this screen shows in this state.}}">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="brand" href="../../pages/{{home-screen}}/default.html" aria-label="{{App}} home"><!--BRAND-MARK--><span>{{app}}</span></a>
+    <nav class="nav" id="primary-nav" popover aria-label="Primary">
+      <ul class="nav__list">
+        <li><a class="nav__link" href="../../pages/{{screen-id}}/default.html" aria-current="page">{{Section one}}</a></li>
+        <li><a class="nav__link" href="../../pages/{{other-screen}}/default.html">{{Section two}}</a></li>
+      </ul>
+      <button type="button" class="btn btn--quiet nav__close" popovertarget="primary-nav" popovertargetaction="hide">Close menu</button>
+    </nav>
+    <div class="header__actions">
+      <a class="icon-btn" href="../../pages/{{notifications-screen}}/default.html" aria-label="Notifications, 2 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg><span class="icon-btn__count" aria-hidden="true">2</span></a>
+      <a class="avatar-btn" href="../../dialogs/{{account-menu}}/default.html" aria-label="Your account, {{Signed-in person}}" aria-haspopup="menu"><img class="avatar" src="../../assets/photos/{{portrait}}.jpg" width="40" height="40" alt=""><span>{{First name}}</span></a>
+      <button type="button" class="menu-btn" popovertarget="primary-nav" aria-label="Menu"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="menu-btn__label">Menu</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head page-head--actions">
+      <p class="eyebrow">{{Section}}</p>
+      <h1 class="page-head__title">{{Screen title}}</h1>
+      <p class="page-head__sub">{{A specific, numeric summary of what is here.}}</p>
+      <div class="page-head__actions"><button type="button" class="btn btn--primary">{{Primary action}}</button></div>
+    </div>
+
+    <!-- Content: compose design-system components (.card, .rows, .data-table, .panel.grain …).
+         Loading → skeletons with aria-busy; empty → .empty with one next step; error → .alert--danger or .empty--error. -->
+    <section class="page-block" aria-labelledby="block-title">
+      <h2 class="section__title" id="block-title">{{Block title}}</h2>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <nav aria-label="Footer"><ul class="footer__links"><li><a href="../../pages/{{privacy}}/default.html">Privacy</a></li><li><a href="../../pages/{{help}}/default.html">Help</a></li></ul></nav>
+    <p class="footer__made">{{App}} · {{one quiet line}}</p>
+  </div>
+</footer>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">{{Screen title}}</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>
