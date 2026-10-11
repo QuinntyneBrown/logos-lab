@@ -1,1 +1,54 @@
-<router-outlet />
+<ll-skip-link i18n="@@shell.skipLink">Skip to main content</ll-skip-link>
+<ll-top-bar
+  homeLabel="Logos Lab home"
+  i18n-homeLabel="@@shell.homeLabel"
+  navLabel="Primary"
+  i18n-navLabel="@@shell.primaryNav"
+  menuLabel="Menu"
+  i18n-menuLabel="@@shell.menu"
+  [links]="primaryLinks"
+>
+  <a
+    llButton
+    variant="text"
+    slot="actions"
+    class="header__signin"
+    routerLink="/sign-in"
+    i18n="@@shell.signIn"
+    >Sign in</a
+  >
+  <a
+    llButton
+    variant="primary"
+    size="sm"
+    slot="actions"
+    class="header__cta"
+    routerLink="/register"
+    i18n="@@shell.createAccount"
+    >Create account</a
+  >
+</ll-top-bar>
+<main id="main" tabindex="-1">
+  <router-outlet />
+</main>
+<ll-footer
+  navLabel="Footer"
+  i18n-navLabel="@@shell.footerNav"
+  homeLabel="Logos Lab home"
+  i18n-homeLabel="@@shell.homeLabel"
+>
+  <li><a routerLink="/policies/privacy" i18n="@@footer.privacy">Privacy</a></li>
+  <li><a routerLink="/policies/terms" i18n="@@footer.terms">Terms</a></li>
+  <li>
+    <a routerLink="/policies/community-guidelines" i18n="@@footer.guidelines"
+      >Community guidelines</a
+    >
+  </li>
+  <li><a routerLink="/accessibility" i18n="@@footer.accessibility">Accessibility</a></li>
+  <li><button type="button" i18n="@@footer.cookieSettings">Cookie settings</button></li>
+  <li><a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a></li>
+  <span slot="note" i18n="@@footer.land"
+    >Logos Lab is an expert-curated place to learn where Christian faith meets artificial
+    intelligence. Made in Canada; your data is stored in Canada.</span
+  >
+</ll-footer>

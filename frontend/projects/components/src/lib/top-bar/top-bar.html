@@ -1,0 +1,42 @@
+<header class="header" [class.header--compact]="compact()">
+  <div class="wrap header__inner">
+    <ll-brand [variant]="brand()" [label]="homeLabel()" />
+    @if (links().length) {
+      <nav class="nav" popover [attr.aria-label]="navLabel()">
+        <ul class="nav__list">
+          @for (link of links(); track link.label) {
+            <li>
+              <a
+                class="nav__link"
+                [routerLink]="link.path"
+                [queryParams]="link.queryParams ?? null"
+                routerLinkActive
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="matchOptions(link)"
+                >{{ link.label }}</a
+              >
+            </li>
+          }
+        </ul>
+      </nav>
+    }
+    <div class="header__actions">
+      <ng-content select="[slot=actions]" />
+      @if (links().length) {
+        <button
+          #menu
+          type="button"
+          class="menu-btn"
+          aria-haspopup="dialog"
+          [attr.aria-expanded]="menuExpanded()"
+          [attr.aria-label]="menuLabel()"
+          (click)="menuOpened.emit(menu)"
+        >
+          <svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h10" /></svg
+          ><span class="menu-btn__label">{{ menuLabel() }}</span>
+        </button>
+      }
+    </div>
+  </div>
+</header>

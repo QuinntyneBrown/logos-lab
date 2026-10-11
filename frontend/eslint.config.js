@@ -18,15 +18,29 @@ module.exports = tseslint.config(
         'error',
         { type: 'attribute', prefix: 'll', style: 'camelCase' },
       ],
+      // Element components are kebab-case (ll-top-bar); attribute components on native elements
+      // are camelCase (a[llButton]), see docs/specs/components.
       '@angular-eslint/component-selector': [
         'error',
-        { type: ['element', 'attribute'], prefix: 'll', style: 'kebab-case' },
+        { type: 'element', prefix: 'll', style: 'kebab-case' },
       ],
       '@angular-eslint/component-max-inline-declarations': [
         'error',
         { template: 0, styles: 0, animations: 0 },
       ],
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
+    },
+  },
+  {
+    files: [
+      'projects/components/src/lib/button/*.ts',
+      'projects/components/src/lib/text-field/*.ts',
+    ],
+    rules: {
+      '@angular-eslint/component-selector': [
+        'error',
+        { type: 'attribute', prefix: 'll', style: 'camelCase' },
+      ],
     },
   },
   {

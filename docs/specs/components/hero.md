@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-hero` |
 | Library path | `frontend/projects/components/src/lib/hero/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`hero.html`](../../design-system/components/hero.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/home/signed-in`](../../mocks/pages/home/signed-in.html), [`pages/course-overview/visitor`](../../mocks/pages/course-overview/visitor.html), [`pages/course-overview/default`](../../mocks/pages/course-overview/default.html) |

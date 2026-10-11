@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-footer` |
 | Library path | `frontend/projects/components/src/lib/footer/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-127, L2-130, L2-134, L2-150 |
 | Design system | [`footer.html`](../../design-system/components/footer.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/sign-in-verify/default`](../../mocks/pages/sign-in-verify/default.html), [`pages/admin/default`](../../mocks/pages/admin/default.html), [`pages/moderation-queue/default`](../../mocks/pages/moderation-queue/default.html), [`pages/account-notice/default`](../../mocks/pages/account-notice/default.html) |

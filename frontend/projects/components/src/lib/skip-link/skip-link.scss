@@ -1,0 +1,26 @@
+// The skip-link block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: var(--z-tooltip);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+  font: var(--text-label);
+  translate: 0 -200%;
+}
+.skip-link:focus {
+  translate: 0 0;
+}
+// Clipped as well as moved, so it never shows through a scrolled or nested header.
+.skip-link:not(:focus) {
+  clip-path: inset(50%);
+}
+.skip-link:hover {
+  color: var(--color-fg-inverse);
+}

@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `button[llButton]`, `a[llButton]`, `button[llIconButton]`, `a[llIconButton]` |
 | Library path | `frontend/projects/components/src/lib/button/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 |
 | Design system | [`button.html`](../../design-system/components/button.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/course-overview/visitor`](../../mocks/pages/course-overview/visitor.html), [`dialogs/nav-drawer/default`](../../mocks/dialogs/nav-drawer/default.html), [`dialogs/delete-account/default`](../../mocks/dialogs/delete-account/default.html), [`notifications/toast/default`](../../mocks/notifications/toast/default.html) |

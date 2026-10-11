@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-skip-link` |
 | Library path | `frontend/projects/components/src/lib/skip-link/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-129, L2-134, L2-147 |
 | Design system | [`skip-link.html`](../../design-system/components/skip-link.html) |
 | Source mocks | every page, for example [`pages/home/default`](../../mocks/pages/home/default.html) and [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html) |

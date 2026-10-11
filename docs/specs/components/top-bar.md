@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-top-bar` |
 | Library path | `frontend/projects/components/src/lib/top-bar/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150 |
 | Design system | [`top-bar.html`](../../design-system/components/top-bar.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/home/signed-in`](../../mocks/pages/home/signed-in.html), [`pages/admin/default`](../../mocks/pages/admin/default.html), [`pages/studio/default`](../../mocks/pages/studio/default.html), [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`dialogs/nav-drawer/default`](../../mocks/dialogs/nav-drawer/default.html) |
@@ -66,9 +66,10 @@ Host: `ll-top-bar` is `display: contents`; it renders the `<header class="header
 | `menuExpanded` | `boolean` | `false` | no | Mirrors the drawer state on the Menu button's `aria-expanded`. |
 | `compact` | `boolean` | `false` | no | Adds `.header--compact`: the Menu button shows at every width and inline links hide. |
 
-`TopBarLink` is `{ label: string; href: string; exact?: boolean }`. The current link is the one whose
-`href` matches the router URL (exactly when `exact`, otherwise as a prefix); it gets
-`aria-current="page"`.
+`TopBarLink` is `{ label: string; path: string; queryParams?: Params; exact?: boolean }`. The current
+link is the one whose path matches the router URL (exactly when `exact`, otherwise as a prefix) and
+whose query parameters match exactly, so "Courses" (`/explore?type=course`) and "Explore"
+(`/explore`) are never current together; it gets `aria-current="page"`.
 
 ### Outputs
 

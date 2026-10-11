@@ -23,7 +23,10 @@ built separately.
    foundations: the `@base`, `link` and `layout` blocks of `components.css`. Every other block of
    `components.css` moves into the `.scss` of the component that owns it, with emulated
    encapsulation. A component whose classes other templates use on native elements (for example
-   `.btn` on an `<a>`) is an attribute component (`a[llButton]`), so its styles stay encapsulated.
+   `.btn` on an `<a>`) is an attribute component (`a[llButton]`) whose styles target `:host(...)`.
+   A composite component whose parts arrive as projected content (top bar actions, hero title,
+   footer links) wraps its block in `:host ::ng-deep { … }`, so the block's BEM classes reach the
+   projected elements but never leave the component's subtree.
 3. **Text.** User-facing text is marked with Angular's built-in i18n (`i18n` attributes and
    `$localize`), with en-CA as the source locale (`L2-147`). No runtime translation library is added.
 4. **Rendering.** The application is client-rendered for now. Server rendering of public pages

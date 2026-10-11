@@ -1,0 +1,48 @@
+<div class="wrap">
+  <ll-hero labelledBy="hero-title">
+    <p class="eyebrow" i18n="@@home.hero.eyebrow">Faith and artificial intelligence</p>
+    <h1 class="hero__title" id="hero-title" i18n="@@home.hero.title">
+      Think clearly about AI, <em>rooted in faith.</em>
+    </h1>
+    <p class="lead hero__lead" i18n="@@home.hero.lead">
+      Courses, talks and reading from theologians, ethicists and engineers, reviewed by the Logos
+      Lab editors. Everything is free with an account.
+    </p>
+    <form
+      llSearch
+      class="home__search"
+      inputId="hero-search"
+      label="Search courses, videos, articles and experts"
+      i18n-label="@@home.hero.searchLabel"
+      placeholder="Try “personhood” or “Augustine”"
+      i18n-placeholder="@@home.hero.searchPlaceholder"
+    >
+      <button llButton variant="primary" type="submit" i18n="@@home.hero.searchAction">
+        Search
+      </button>
+    </form>
+    <div class="hero__actions home__browse">
+      <a llButton variant="quiet" size="lg" routerLink="/explore"
+        ><ng-container i18n="@@home.hero.browse">Browse the catalogue</ng-container>
+        <svg class="btn__arrow icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4.5 12h15" />
+          <path d="m13.5 6 6 6-6 6" /></svg
+      ></a>
+    </div>
+    <figure class="photo" slot="aside">
+      <div class="photo__frame">
+        <img
+          src="images/coffee-together.jpg"
+          alt="Two people talking over coffee at a wooden table"
+          i18n-alt="@@home.hero.photoAlt"
+          width="800"
+          height="800"
+          fetchpriority="high"
+        />
+      </div>
+      <figcaption class="photo__caption">
+        <span i18n="@@home.hero.photoCaption">After the September panel</span><span>Ottawa</span>
+      </figcaption>
+    </figure>
+  </ll-hero>
+</div>

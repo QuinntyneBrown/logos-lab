@@ -1,0 +1,63 @@
+// The brand block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.brand {
+  flex: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-default);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  letter-spacing: calc(-1 * var(--letter-spacing-slight));
+}
+.brand:hover {
+  color: var(--color-fg-default);
+}
+.brand__mark {
+  flex: none;
+  width: var(--space-8);
+  height: var(--space-8);
+  color: var(--color-accent);
+}
+.brand:hover .brand__mark {
+  color: var(--color-accent-hover);
+}
+.brand__mark .brand__sun {
+  fill: var(--color-warning-icon);
+  stroke: none;
+}
+.brand:hover .brand__sun {
+  translate: 0 calc(-1 * var(--space-0-5));
+}
+.brand--mark-only > span {
+  position: absolute;
+  width: var(--border-width-hairline);
+  height: var(--border-width-hairline);
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brand__mark {
+    transition: color var(--duration-base) var(--ease-standard);
+  }
+  .brand__sun {
+    transition: translate var(--duration-slow) var(--ease-standard);
+  }
+}
+@media (max-width: 29.99rem) {
+  .brand--compact > span {
+    position: absolute;
+    width: var(--border-width-hairline);
+    height: var(--border-width-hairline);
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

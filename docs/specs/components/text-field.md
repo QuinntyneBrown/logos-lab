@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `input[llInput]`, `form[llSearch]`, `div[llSearch]` |
 | Library path | `frontend/projects/components/src/lib/text-field/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-001, L2-003, L2-126, L2-127, L2-128, L2-129, L2-130, L2-132, L2-134, L2-150 |
 | Design system | [`text-field.html`](../../design-system/components/text-field.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/experts/default`](../../mocks/pages/experts/default.html), [`pages/certificate-verify/default`](../../mocks/pages/certificate-verify/default.html), [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`dialogs/search-suggest/default`](../../mocks/dialogs/search-suggest/default.html) |
@@ -263,7 +263,8 @@ Border and fill transitions are removed under reduced motion.
   `form[llSearch], div[llSearch]`), `input.ts` (`Input`, selector `input[llInput]`), each with `.html`
   and `.scss` from the `text-field` block. `Search` styles its host with `:host(.search)` rules and its
   projected action under `:host ::ng-deep`.
-- `Input` has an empty template; its styles target `:host`.
+- `Input` has an empty template; its styles target `:host`. It is built with the first form slice
+  (sign-in); the search pill is built with the app shell.
 
 ## Decisions
 

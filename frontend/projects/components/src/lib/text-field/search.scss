@@ -1,0 +1,57 @@
+// The .search rules of the text-field block of docs/design-system/assets/components.css.
+// The host is the .search pill.
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: var(--layout-narrow);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+}
+:host(:focus-within) {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+:host(:hover) {
+  border-color: var(--color-fg-muted);
+}
+:host(:has(.search__input[aria-invalid='true'])) {
+  border-color: var(--color-danger-solid);
+  background: var(--color-danger-bg);
+}
+:host(:has(.search__input:disabled)) {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-transparent);
+}
+.search__input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  min-height: var(--control-height-md);
+  border: 0;
+  background: transparent;
+  font: var(--text-body);
+}
+.search__input:focus {
+  outline: none;
+}
+.search__input::placeholder {
+  color: var(--color-fg-subtle);
+}
+.search__input:disabled,
+.search__input:disabled::placeholder {
+  color: var(--color-fg-disabled);
+  cursor: not-allowed;
+}
+.icon {
+  color: var(--color-fg-subtle);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    transition:
+      border-color var(--duration-base) var(--ease-standard),
+      background-color var(--duration-base) var(--ease-standard);
+  }
+}

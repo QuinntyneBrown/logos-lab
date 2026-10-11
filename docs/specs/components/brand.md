@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-brand` |
 | Library path | `frontend/projects/components/src/lib/brand/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-127, L2-130, L2-132, L2-134 |
 | Design system | [`brand.html`](../../design-system/components/brand.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html) (top bar and footer), [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/report-change/default`](../../mocks/pages/report-change/default.html) |
