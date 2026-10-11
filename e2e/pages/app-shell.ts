@@ -22,8 +22,21 @@ export class AppShell {
     this.footerNav = this.footer.getByRole('navigation', { name: 'Footer' });
     this.signIn = this.banner.locator('.header__signin');
     this.createAccount = this.banner.locator('.header__cta');
-    this.menuButton = this.banner.locator('button.menu-btn');
+    // Located by class: while a modal is open the page behind is hidden from the accessibility tree.
+    this.menuButton = page.locator('header.header button.menu-btn');
     this.searchButton = this.banner.locator('.header__search-btn');
+  }
+
+  async openMenu(): Promise<void> {
+    await this.menuButton.click();
+  }
+
+  async pressEscape(): Promise<void> {
+    await this.page.keyboard.press('Escape');
+  }
+
+  async resizeTo(width: number, height = 900): Promise<void> {
+    await this.page.setViewportSize({ width, height });
   }
 
   navLink(name: string): Locator {

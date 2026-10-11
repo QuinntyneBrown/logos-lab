@@ -11,3 +11,8 @@ export * from './lib/skip-link/skip-link';
 export * from './lib/text-field/search';
 export * from './lib/top-bar/top-bar';
 export * from './lib/top-bar/top-bar-link';
+export * from './lib/drawer/drawer';
+export * from './lib/drawer/drawer-side';
+export * from './lib/sidebar-navigation/sidebar-navigation';
+export * from './lib/sidebar-navigation/sidebar-nav-group';
+export * from './lib/sidebar-navigation/sidebar-nav-item';

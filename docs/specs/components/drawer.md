@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-drawer` |
 | Library path | `frontend/projects/components/src/lib/drawer/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134 |
 | Design system | [`drawer.html`](../../design-system/components/drawer.html) |
 | Source mocks | [`dialogs/nav-drawer/default`](../../mocks/dialogs/nav-drawer/default.html), [`dialogs/nav-drawer/signed-in`](../../mocks/dialogs/nav-drawer/signed-in.html), [`dialogs/nav-drawer/staff`](../../mocks/dialogs/nav-drawer/staff.html), [`dialogs/explore-filters/default`](../../mocks/dialogs/explore-filters/default.html) |

@@ -7,6 +7,8 @@
   menuLabel="Menu"
   i18n-menuLabel="@@shell.menu"
   [links]="primaryLinks"
+  [menuExpanded]="navigation.drawerOpen()"
+  (menuOpened)="void navigation.openDrawer()"
 >
   <a
     llButton

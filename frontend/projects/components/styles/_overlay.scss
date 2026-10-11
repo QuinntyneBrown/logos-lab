@@ -1,0 +1,20 @@
+// Overlay foundation: the CDK overlay container sits outside every component, so its backdrop and
+// pane positions are global. Dialog and drawer components style what renders inside the pane.
+@use '@angular/cdk/overlay-prebuilt';
+
+.ll-backdrop {
+  background: var(--color-bg-backdrop);
+}
+
+.cdk-overlay-container {
+  z-index: var(--z-modal);
+}
+
+.ll-drawer-panel--left {
+  width: min(100vw, var(--layout-aside-width));
+  height: 100dvh;
+}
+
+.cdk-dialog-container:focus {
+  outline: none;
+}

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { Button, Footer, SkipLink, TopBar } from '@logos-lab/components';
+import { GlobalNavigation } from './global-navigation';
 import { PRIMARY_LINKS } from './primary-links';
 import { RouteFocus } from './route-focus';
 
@@ -13,6 +14,7 @@ import { RouteFocus } from './route-focus';
 })
 export class App {
   protected readonly primaryLinks = PRIMARY_LINKS;
+  protected readonly navigation = inject(GlobalNavigation);
 
   constructor() {
     inject(RouteFocus).start();

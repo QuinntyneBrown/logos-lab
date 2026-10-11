@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-sidebar-nav` |
 | Library path | `frontend/projects/components/src/lib/sidebar-navigation/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150 |
 | Design system | [`sidebar-navigation.html`](../../design-system/components/sidebar-navigation.html) |
 | Source mocks | [`dialogs/nav-drawer/default`](../../mocks/dialogs/nav-drawer/default.html), [`dialogs/nav-drawer/staff`](../../mocks/dialogs/nav-drawer/staff.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`pages/admin/default`](../../mocks/pages/admin/default.html), [`pages/moderation-queue/default`](../../mocks/pages/moderation-queue/default.html) |
