@@ -1,0 +1,7 @@
+:host {
+  display: contents;
+}
+:host(.header__search) {
+  display: block;
+  min-width: 0;
+}

@@ -1,0 +1,12 @@
+<form
+  llSearch
+  [class.header__search--wide]="variant() === 'wide'"
+  [inputId]="variant() === 'wide' ? 'site-search' : 'site-search-row'"
+  label="Search Logos Lab"
+  i18n-label="@@shell.siteSearch"
+  placeholder="Search Logos Lab"
+  i18n-placeholder="@@shell.siteSearch"
+  [maxlength]="200"
+  (searched)="submit($event)"
+  (queryKeydown)="keydown($event)"
+></form>

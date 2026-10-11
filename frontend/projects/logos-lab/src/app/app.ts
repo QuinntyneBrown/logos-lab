@@ -1,5 +1,14 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { ThemePreference } from '@logos-lab/api';
 import {
@@ -18,6 +27,7 @@ import { memberPlaces, SIGN_OUT_ID, signOutItem, staffPlaces } from './member-na
 import { PRIMARY_LINKS } from './primary-links';
 import { RouteFocus } from './route-focus';
 import { Session } from './session';
+import { SiteSearchField } from './site-search/site-search-field';
 import { Theme } from './theme';
 import { themeButtonLabel, themeItems } from './theme-options';
 
@@ -35,6 +45,7 @@ import { themeButtonLabel, themeItems } from './theme-options';
     Icon,
     Menu,
     Avatar,
+    SiteSearchField,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -47,6 +58,21 @@ export class App {
   protected readonly theme = inject(Theme);
 
   protected readonly member = this.session.member;
+
+  /** The search row below XL, opened from the search icon. */
+  protected readonly searchOpen = signal(false);
+  private readonly searchButton = viewChild('searchButton', {
+    read: ElementRef<HTMLButtonElement>,
+  });
+
+  protected openSearch(): void {
+    this.searchOpen.set(true);
+  }
+
+  protected closeSearch(returnFocus: boolean): void {
+    this.searchOpen.set(false);
+    if (returnFocus) this.searchButton()?.nativeElement.focus();
+  }
   protected readonly visitor = computed(() => this.member() === null);
 
   protected readonly themeSections = computed<readonly MenuSection[]>(() => [

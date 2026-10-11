@@ -14,5 +14,13 @@
   [value]="value()"
   [attr.aria-invalid]="invalid() || null"
   [attr.aria-describedby]="describedBy()"
+  [attr.maxlength]="maxlength()"
+  [attr.role]="listboxId() ? 'combobox' : null"
+  [attr.aria-autocomplete]="listboxId() ? 'list' : null"
+  [attr.aria-controls]="listboxId()"
+  [attr.aria-expanded]="listboxId() ? expanded() : null"
+  [attr.aria-activedescendant]="listboxId() ? activeDescendant() : null"
+  (input)="queryChanged.emit(query.value)"
+  (keydown)="queryKeydown.emit($event)"
 />
 <ng-content />

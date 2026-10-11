@@ -14,6 +14,7 @@ export class AppShell {
   readonly searchButton: Locator;
   readonly themeButton: Locator;
   readonly accountButton: Locator;
+  readonly siteSearch: Locator;
 
   constructor(private readonly page: Page) {
     this.skipLink = page.locator('a.skip-link');
@@ -29,6 +30,9 @@ export class AppShell {
     this.searchButton = this.banner.locator('.header__search-btn');
     this.themeButton = page.locator('header.header .header__lg');
     this.accountButton = page.locator('header.header .avatar-btn');
+    this.siteSearch = this.banner
+      .getByRole('searchbox', { name: 'Search Logos Lab' })
+      .or(this.banner.getByRole('combobox', { name: 'Search Logos Lab' }));
   }
 
   async openMenu(): Promise<void> {
@@ -41,6 +45,15 @@ export class AppShell {
 
   async resizeTo(width: number, height = 900): Promise<void> {
     await this.page.setViewportSize({ width, height });
+  }
+
+  async openSearch(): Promise<void> {
+    await this.searchButton.click();
+  }
+
+  async searchSite(query: string): Promise<void> {
+    await this.siteSearch.fill(query);
+    await this.siteSearch.press('Enter');
   }
 
   async openAccountMenu(): Promise<void> {

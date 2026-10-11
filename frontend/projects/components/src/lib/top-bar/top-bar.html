@@ -20,6 +20,7 @@
         </ul>
       </nav>
     }
+    <ng-content select="[slot=search]" />
     <div class="header__actions">
       <ng-content select="[slot=actions]" />
       @if (links().length) {

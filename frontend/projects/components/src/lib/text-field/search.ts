@@ -29,12 +29,28 @@ export class Search {
   readonly value = input('');
   readonly invalid = input(false, { transform: booleanAttribute });
   readonly describedBy = input<string | null>(null);
+  readonly maxlength = input<number | null>(null);
+  readonly listboxId = input<string | null>(null);
+  readonly expanded = input(false, { transform: booleanAttribute });
+  readonly activeDescendant = input<string | null>(null);
 
   readonly searched = output<string>();
+  readonly queryChanged = output<string>();
+  readonly queryKeydown = output<KeyboardEvent>();
 
   protected readonly isForm =
     inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.tagName === 'FORM';
   private readonly query = viewChild.required<ElementRef<HTMLInputElement>>('query');
+
+  /** Moves focus into the query. */
+  focus(): void {
+    this.query().nativeElement.focus();
+  }
+
+  /** The query as typed. */
+  text(): string {
+    return this.query().nativeElement.value;
+  }
 
   protected submit(event: Event): void {
     event.preventDefault();

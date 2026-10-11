@@ -10,6 +10,30 @@
   [menuExpanded]="navigation.drawerOpen()"
   (menuOpened)="void navigation.openDrawer()"
 >
+  @if (searchOpen()) {
+    <ll-site-search-field
+      slot="search"
+      variant="row"
+      [autofocus]="true"
+      (dismissed)="closeSearch(true)"
+      (searchedFor)="closeSearch(false)"
+    />
+  }
+  <ng-container ngProjectAs="[slot=actions]">
+    <ll-site-search-field variant="wide" />
+    <button
+      #searchButton
+      llIconButton
+      type="button"
+      class="header__search-btn"
+      aria-label="Search"
+      i18n-aria-label="@@shell.searchButton"
+      [attr.aria-expanded]="searchOpen()"
+      (click)="openSearch()"
+    >
+      <svg llIcon name="search"></svg>
+    </button>
+  </ng-container>
   @if (member(); as member) {
     <button
       type="button"
