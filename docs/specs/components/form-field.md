@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `ll-form-field` |
 | Library path | `frontend/projects/components/src/lib/form-field/` |
-| Status | built |
+| Status | built (help placement and a label-less field planned) |
 | Traces to | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`form-field.html`](../../design-system/components/form-field.html) |
 | Source mocks | [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/sign-in/invalid`](../../mocks/pages/sign-in/invalid.html), [`pages/register/invalid`](../../mocks/pages/register/invalid.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`pages/studio-editor/default`](../../mocks/pages/studio-editor/default.html), [`dialogs/report-content/default`](../../mocks/dialogs/report-content/default.html) |
@@ -29,7 +29,8 @@ Out of scope:
 |---|---|---|---|---|
 | `pages/sign-in/*` email | label "Email" | input type email | default, invalid "Enter your email in the form name@example.ca", disabled | auth card |
 | `pages/sign-in/*` password | label "Password", label action "Forgot your password?", control row with "Show" toggle | input type password | default, invalid "Enter your password", disabled | auth card |
-| `pages/register/*` | labels "Your name", "Email", "Password"; help "At least 12 characters…" | inputs | default, invalid | auth card |
+| `pages/register/*` | labels "Your name", "Email", "Password"; help before the control "12 to 128 characters…" | inputs | default, invalid | auth card |
+| `pages/register/*` terms, `pages/policy-reconsent/*` | no label (the checkbox row names the box); help and error after the row | `label[llCheck]` | default, invalid | auth card |
 | `pages/settings-*/*` | optional "(optional)", help, counter "18 of 30" | inputs, textareas, selects | default, read-only | surface |
 | studio editors and admin dialogs | counter "42 of 120", help | inputs, textareas | default, invalid, read-only | surface, dialog |
 
@@ -37,11 +38,13 @@ Out of scope:
 
 1. **Field** — `div.field`: a grid with `--space-2` gaps.
 2. **Label row** — `label.field__label[for]` with an optional `span.field__optional` ("(optional)");
-   when a label action exists, the label and the action sit in `div.cluster.cluster--between`.
-3. **Control** — projected; with a trailing button it sits in `div.input-group`.
-4. **Help** — `p.field__help[id]`.
-5. **Error** — `p.field__error[id]` with the attention icon.
-6. **Counter** — `p.field__counter[id]`, end-aligned ("18 of 30").
+   when a label action exists, the label and the action sit in `div.cluster.cluster--between`. Omitted
+   when the field has no label.
+3. **Help** — `p.field__help[id]`, here when help is placed before the control.
+4. **Control** — projected; with a trailing button it sits in `div.input-group`.
+5. **Help** — `p.field__help[id]`, here when help is placed after the control (the default).
+6. **Error** — `p.field__error[id]` with the attention icon.
+7. **Counter** — `p.field__counter[id]`, end-aligned ("18 of 30").
 
 Host: `ll-form-field` is `display: contents`; it renders the field and sets the control's ARIA through
 the control id it is given.
@@ -52,10 +55,11 @@ the control id it is given.
 
 | Input | Type | Default | Required | Rule |
 |---|---|---|---|---|
-| `label` | `string` | — | yes | The visible label. |
+| `label` | `string \| null` | `null` | no | The visible label; `null` only when the control names itself, as a checkbox row does. |
 | `controlId` | `string` | — | yes | The control's `id`; help, error and counter ids derive from it (`{id}-help`, `{id}-error`, `{id}-counter`). |
 | `optional` | `string \| null` | `null` | no | Text after the label, "(optional)". |
 | `help` | `string \| null` | `null` | no | Help text. |
+| `helpPlacement` | `'before' \| 'after'` | `'after'` | no | Help between the label and the control (`before`), as the registration mocks place it, or after the control. |
 | `error` | `string \| null` | `null` | no | Error text; while set the control gets `aria-invalid="true"`. |
 | `counter` | `string \| null` | `null` | no | Counter text, formatted by the page ("18 of 30"). |
 
@@ -90,6 +94,22 @@ None.
 | With counter | `counter` set | Counter at the end | Read as description |
 
 ## Markup
+
+```html
+<!-- rendered: help before the control -->
+<div class="field">
+  <label class="field__label" for="name">Your name</label>
+  <p class="field__help" id="name-help">Shown on your comments and certificates. 2 to 50 characters.</p>
+  <input class="input" id="name" type="text" autocomplete="name" required maxlength="50" aria-describedby="name-help">
+</div>
+
+<!-- rendered: no label, a checkbox row with help and an error -->
+<div class="field">
+  <label class="check"><input class="check__box" type="checkbox" id="terms" required aria-invalid="true" aria-describedby="terms-help terms-error"><span>I accept the Terms of Use and the Privacy Policy</span></label>
+  <p class="field__help" id="terms-help">Read the Terms of Use and the Privacy Policy.</p>
+  <p class="field__error" id="terms-error"><svg class="icon icon--sm" aria-hidden="true">…</svg>Accept the Terms of Use and the Privacy Policy to create an account</p>
+</div>
+```
 
 ```html
 <!-- rendered: invalid email -->
@@ -185,6 +205,8 @@ None.
 - **AC-1** Given the sign-in form, when it renders, then the email and password inputs have visible labels "Email" and "Password" tied to them. (L2-128)
 - **AC-2** Given the email field with the error "Enter your email in the form name@example.ca", when it renders, then the input has `aria-invalid="true"` and `aria-describedby` naming the error. (L2-128)
 - **AC-3** Given a field with help and a counter, when it renders, then the control's `aria-describedby` lists both. (L2-127)
+- **AC-9** Given the registration name field with help placed before the control, when it renders, then the help sits between the label and the input and the input's `aria-describedby` names it. (L2-127)
+- **AC-10** Given the terms field with no label and the error "Accept the Terms of Use and the Privacy Policy to create an account", when it renders, then no field label shows, the checkbox has `aria-invalid="true"` and its `aria-describedby` names the help and the error. (L2-128)
 
 ### Keyboard and focus
 
@@ -212,3 +234,7 @@ None.
   every page gets the association right without repeating ids.
 - **D-2** *Where do the `.input-group` rules live?* In the form field, the only place a control row
   appears.
+- **D-3** *Where does help go?* Where the page's mock puts it: the design system and most settings mocks
+  put it after the control, the registration mocks before. `helpPlacement` keeps both without page CSS.
+- **D-4** *A field without a label?* Only for a control that names itself (a checkbox row); the field
+  still ties its help and error to the control.
