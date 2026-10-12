@@ -21,12 +21,20 @@ An Unverified member may sign in and browse. Each contribution action shows a pr
 - **`ll-account-banner`** — banner below the header for an Unverified member, with "Resend email". The mocks in `docs/mocks/notifications/account-banner/` cover `warning`, `info`, `success` and `persistent` (the deletion date).
 - **`VerificationGateService`** — web service that intercepts a `403` problem of type `email-unverified` and opens `VerifyEmailPromptDialog`.
 
+**Page flow**
+
+- Opening `/verify-email?token=…` shows the `loading` state ("Checking your link…") while `GET /api/v1/auth/email-verifications/{token}` looks the token up without using it. A `200` gives `{ email, displayName }` for the `default` state, which names the address. A `410` problem `link-expired` shows the `expired` state. It names the address when the problem carries `email`.
+- "Confirm my email" shows the `loading` state again while it posts the token. A `204` shows `success`, which greets the member by `displayName`. A `410` shows `expired`. Any other failure returns to the card with the danger alert of the `error` state, and the button reads "Try again".
+- "Send a new link" posts the token to `resend`. A `200` shows `resend-sent` with the success alert "Email sent at {time}". From then until `retryAfterSeconds` runs out, the quiet "Resend email" button is disabled and reads "Resend in {n} s". Its help reads "You can send up to 5 emails a day. You have {remainingToday} left today." This is the `cooldown` state. At 0 the button turns back on. A `429` restarts the countdown from `Retry-After`.
+
 **API contract (shared API library)**
 
-- **`AuthApi`** (token `AUTH_API`, implementation `HttpAuthApi`) — `confirmEmail(token)`, `resendVerification()` for a signed-in Unverified member, and `resendVerificationForToken(token)` for the expired-link page.
+- **`AuthApi`** (token `AUTH_API`, implementation `HttpAuthApi`) — `lookUpEmailVerification(token)` returning `EmailVerification` (`email`, `displayName`), `confirmEmail(token)`, `resendVerification()` for a signed-in Unverified member, and `resendVerificationForToken(token)` for the expired-link page.
 - **`ResendResult`** — `sentTo`, `retryAfterSeconds`, `remainingToday`.
 
 **Endpoints (Logos Lab API)**
+
+- **`GET /api/v1/auth/email-verifications/{token}`** — anonymous, read-only. Answers `200` with `{ email, displayName }`, or `410` with problem type `link-expired` (carrying `email` when the token is known but expired or used).
 
 - **`POST /api/v1/auth/email-verifications`** — anonymous. Body `{ token }`. Answers `204` on success and `410` with problem type `link-expired` for an expired, used or unknown token.
 - **`POST /api/v1/auth/email-verifications/resend`** — authenticated Unverified member, or anonymous with the expired token in the body. Answers `200` with `ResendResult`, or `429` with `Retry-After` inside the cooldown or past the daily limit.
