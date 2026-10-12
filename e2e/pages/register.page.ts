@@ -51,6 +51,21 @@ export class RegisterPage {
     await this.submit.click();
   }
 
+  /** Whether "Create account" paints the disabled fill and label (button CRD), pointer or not. */
+  submitLooksDisabled(): Promise<boolean> {
+    return this.submit.evaluate((button) => {
+      const probe = document.createElement('span');
+      probe.style.background = 'var(--color-bg-subtle)';
+      probe.style.color = 'var(--color-fg-disabled)';
+      document.body.append(probe);
+      const want = getComputedStyle(probe);
+      const got = getComputedStyle(button);
+      const same = got.backgroundColor === want.backgroundColor && got.color === want.color;
+      probe.remove();
+      return same;
+    });
+  }
+
   /** The "Check your email" card's next steps. */
   nextSteps(): Locator {
     return this.card.locator('.prose li');

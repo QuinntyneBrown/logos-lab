@@ -136,6 +136,8 @@ test.describe('Registering', () => {
 
     await expect(register.submit).toHaveText('Creating your account…');
     await expect(register.submit).toHaveAttribute('aria-busy', 'true');
+    // The pointer is still on the button it pressed; busy shows the disabled colours anyway.
+    await expect.poll(() => register.submitLooksDisabled()).toBe(true);
     expect(api.requestsTo('POST', '/auth/registrations')[0].body).toEqual({
       displayName: 'Miriam Clarke',
       email: 'miriam.clarke@example.ca',
@@ -241,6 +243,7 @@ test.describe('Registration failures', () => {
     await expect(register.terms).toBeDisabled();
     await expect(register.terms).toBeChecked();
     await expect(register.submit).toBeDisabled();
+    await expect.poll(() => register.submitLooksDisabled()).toBe(true);
 
     await page.clock.runFor('10:01');
 

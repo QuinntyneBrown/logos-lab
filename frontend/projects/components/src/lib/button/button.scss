@@ -89,8 +89,10 @@
   cursor: progress;
   gap: var(--space-3);
 }
-:host([disabled]),
-:host([aria-disabled='true']) {
+// .btn matches the specificity of the variant :hover rules above, as in components.css, so a
+// disabled or busy button keeps its colours under the pointer that pressed it.
+:host(.btn[disabled]),
+:host(.btn[aria-disabled='true']) {
   background: var(--color-bg-subtle);
   color: var(--color-fg-disabled);
   border-color: transparent;
