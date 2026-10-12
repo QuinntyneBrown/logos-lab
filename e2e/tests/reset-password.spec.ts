@@ -61,3 +61,35 @@ test.describe('Reset password page', () => {
     await expect(reset.alt).toContainText('Remembered it?');
   });
 });
+
+test.describe('Reset password validation', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test.beforeEach(({ api }) => {
+    api.respond('POST', '/auth/password-resets/validations', link);
+  });
+
+  // L2-011 AC3, L2-006 · form-layout AC-1, form-field AC-3
+  test('a password under 12 characters is refused before saving', async ({ page, api }) => {
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('harbour19');
+
+    await expect(reset.summary).toBeFocused();
+    await expect(reset.summary).toContainText('One thing to fix before you can save');
+    await expect(reset.passwordError).toHaveText('Use at least 12 characters. This one has 9.');
+    await expect(reset.password).toHaveAttribute('aria-invalid', 'true');
+    expect(api.requestsTo('POST', '/auth/password-resets/completions')).toHaveLength(0);
+  });
+
+  // L2-011 AC3
+  test('an empty password asks for one', async ({ page }) => {
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('');
+
+    await expect(reset.passwordError).toHaveText('Enter a new password');
+  });
+});
