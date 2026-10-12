@@ -109,3 +109,29 @@ test.describe('Requesting a reset link', () => {
     await expect(forgot.email).toBeFocused();
   });
 });
+
+test.describe('Forgot password failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-011 AC1, L2-141 · alert AC-1
+  test('a server failure keeps the email and says to try again', async ({ page, api }) => {
+    api.fail('POST', '/auth/password-resets', 503);
+    const forgot = new ForgotPasswordPage(page);
+    await forgot.open();
+
+    await forgot.requestLink('miriam.clarke@example.ca');
+
+    await expect(forgot.alert).toHaveAttribute('role', 'alert');
+    await expect(forgot.alert).toContainText("We couldn't send a reset link just now");
+    await expect(forgot.alert).toContainText(
+      'Something went wrong on our side. Try again in a minute; if it keeps happening, write to help@logoslab.ca.',
+    );
+    await expect(forgot.email).toHaveValue('miriam.clarke@example.ca');
+    await expect(forgot.submit).toHaveText('Send reset link');
+    await expect(forgot.heading).toHaveText('Reset your password');
+
+    api.respond('POST', '/auth/password-resets', undefined, 202);
+    await forgot.submit.click();
+    await expect(forgot.heading).toHaveText('Check your email');
+  });
+});

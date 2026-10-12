@@ -12,6 +12,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { AUTH_API } from '@logos-lab/api';
 import {
+  Alert,
   AuthCard,
   Button,
   Form,
@@ -24,7 +25,7 @@ import { EMAIL_PATTERN } from '../../forms/email-pattern';
 
 @Component({
   selector: 'll-forgot-password-page',
-  imports: [RouterLink, AuthCard, Form, FormField, FormSummary, Input, Button],
+  imports: [RouterLink, Alert, AuthCard, Form, FormField, FormSummary, Input, Button],
   templateUrl: './forgot-password-page.html',
   styleUrl: './forgot-password-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,7 @@ export class ForgotPasswordPage {
   protected readonly busy = signal(false);
   /** True once the API took the request; the page then shows the same message for any address. */
   protected readonly sent = signal(false);
+  protected readonly failed = signal(false);
 
   protected readonly email = signal('');
   protected readonly errors = signal<readonly FormError[]>([]);
@@ -52,11 +54,16 @@ export class ForgotPasswordPage {
       return;
     }
     this.busy.set(true);
+    this.failed.set(false);
     this.authApi.requestPasswordReset(this.email().trim()).subscribe({
       next: () => {
         this.busy.set(false);
         this.sent.set(true);
         this.focusAfterRender(() => this.sentHeading()?.nativeElement);
+      },
+      error: () => {
+        this.busy.set(false);
+        this.failed.set(true);
       },
     });
   }
