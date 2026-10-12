@@ -11,6 +11,8 @@ export class VerifyEmailPage {
   readonly alt: Locator;
   readonly dashboard: Locator;
   readonly startHere: Locator;
+  readonly sendNewLink: Locator;
+  readonly signIn: Locator;
   private readonly card: Locator;
 
   constructor(private readonly page: Page) {
@@ -23,6 +25,8 @@ export class VerifyEmailPage {
     this.confirm = this.card.getByRole('button', { name: 'Confirm my email' });
     this.alt = this.card.locator('.auth__alt');
     this.dashboard = this.card.getByRole('link', { name: 'Go to your dashboard' });
+    this.sendNewLink = this.card.getByRole('button', { name: 'Send a new link' });
+    this.signIn = this.alt.getByRole('link', { name: 'Sign in' });
     this.startHere = this.alt.getByRole('link', { name: 'Start Here: Faith and AI' });
   }
 

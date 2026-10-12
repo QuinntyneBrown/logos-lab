@@ -76,3 +76,59 @@ test.describe('Confirming an email', () => {
     await expect(verify.startHere).toHaveAttribute('href', '/collections/start-here-faith-and-ai');
   });
 });
+
+test.describe('Expired verification links', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-007 AC2
+  test('a link older than 24 hours or already used says so and offers a new one', async ({
+    page,
+    api,
+  }) => {
+    api.fail('GET', `/auth/email-verifications/${token}`, 410, 'link-expired', {
+      email: 'miriam.clarke@example.ca',
+    });
+    const verify = new VerifyEmailPage(page);
+
+    await verify.open(token);
+
+    await expect(verify.heading).toHaveText('This link has expired');
+    await expect(verify.sub).toHaveText(
+      'Verification links work once, within 24 hours. We can send a new one to miriam.clarke@example.ca.',
+    );
+    await expect(verify.sendNewLink).toBeVisible();
+    await expect(verify.alt).toContainText('Already verified?');
+    await expect(verify.signIn).toHaveAttribute('href', '/sign-in');
+  });
+
+  // L2-007 AC2
+  test('a link that expires before it is confirmed shows the expired state', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', `/auth/email-verifications/${token}`, verification);
+    api.fail('POST', '/auth/email-verifications', 410, 'link-expired');
+    const verify = new VerifyEmailPage(page);
+    await verify.open(token);
+
+    await verify.confirmEmail();
+
+    await expect(verify.heading).toHaveText('This link has expired');
+    await expect(verify.heading).toBeFocused();
+    await expect(verify.sub).toContainText('miriam.clarke@example.ca');
+    await expect(verify.sendNewLink).toBeVisible();
+  });
+
+  // L2-007 AC2
+  test('an unknown link says it has expired and points to sign in', async ({ page, api }) => {
+    api.fail('GET', `/auth/email-verifications/${token}`, 410, 'link-expired');
+    const verify = new VerifyEmailPage(page);
+
+    await verify.open(token);
+
+    await expect(verify.heading).toHaveText('This link has expired');
+    await expect(verify.sub).toHaveText('Verification links work once, within 24 hours.');
+    await expect(verify.sendNewLink).toHaveCount(0);
+    await expect(verify.signIn).toBeVisible();
+  });
+});
