@@ -71,7 +71,8 @@
     color: var(--color-fg-muted);
     white-space: nowrap;
   }
+  // Without a label action the row is not part of the anatomy: the label is the field's grid item.
   .field__label-row:not(:has(> :nth-child(2))) {
-    display: block;
+    display: contents;
   }
 }

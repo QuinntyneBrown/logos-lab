@@ -234,7 +234,8 @@ test.describe('Registration failures', () => {
 
     await expect(register.alertTitle()).toHaveText('Too many attempts from this connection');
     await expect(register.alert).toHaveAttribute('role', 'status');
-    await expect(register.alert).toContainText('Try again at 10:34 AM EDT.');
+    // The locale's own time form in the viewer's zone, zone named; CLDR versions differ on "AM"/"a.m.".
+    await expect(register.alert).toContainText(/Try again at 10:34\s(AM|a\.m\.) EDT\./);
     await expect(register.name).toBeDisabled();
     await expect(register.name).toHaveValue('Miriam Clarke');
     await expect(register.terms).toBeDisabled();
