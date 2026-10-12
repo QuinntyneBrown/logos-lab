@@ -56,6 +56,16 @@
         </ll-alert>
       }
       @case ('ready') {
+        @if (saveFailed()) {
+          <ll-alert
+            tone="danger"
+            heading="We couldn't save your profile"
+            i18n-heading="@@settingsProfile.saveFailed.title"
+            i18n="@@settingsProfile.saveFailed.body"
+            >Your changes are still here. Try again in a minute; if it keeps happening, write to
+            help&#64;logoslab.ca.</ll-alert
+          >
+        }
         <form llForm card (submit)="$event.preventDefault(); submit()">
           @if (errors().length) {
             <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
