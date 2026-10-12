@@ -13,6 +13,36 @@
       </p>
     }
   </div>
+  @if (failure(); as failure) {
+    @switch (failure.kind) {
+      @case ('paused') {
+        <ll-alert
+          tone="warning"
+          heading="Verification is paused for 15 minutes"
+          i18n-heading="@@signInVerify.paused.title"
+        >
+          <ng-container i18n="@@signInVerify.paused.body"
+            >Five codes didn't match in a row, so we've paused this step to protect your account.
+            Try again at {{ time(failure.until) }}. If you've lost your phone, write to us and we'll
+            help you back in.</ng-container
+          >
+          <a slot="actions" href="mailto:help@logoslab.ca" i18n="@@signInVerify.paused.help"
+            >Write to help&#64;logoslab.ca</a
+          >
+        </ll-alert>
+      }
+      @case ('unavailable') {
+        <ll-alert
+          tone="danger"
+          heading="We couldn't check your code"
+          i18n-heading="@@signInVerify.failed.title"
+          i18n="@@signInVerify.failed.body"
+          >Something went wrong on our side. Enter the newest code from your app and try
+          again.</ll-alert
+        >
+      }
+    }
+  }
   <form llForm (submit)="$event.preventDefault(); submit()">
     @if (errors().length) {
       <ll-form-summary
@@ -40,6 +70,7 @@
           autocapitalize="characters"
           spellcheck="false"
           required
+          [disabled]="paused()"
           (input)="code.set($any($event.target).value)"
         />
       </ll-form-field>
@@ -64,11 +95,20 @@
           maxlength="6"
           pattern="[0-9]{6}"
           required
+          [disabled]="paused()"
           (input)="code.set($any($event.target).value)"
         />
       </ll-form-field>
     }
-    <button llButton variant="primary" size="lg" block type="submit" [busy]="busy()">
+    <button
+      llButton
+      variant="primary"
+      size="lg"
+      block
+      type="submit"
+      [busy]="busy()"
+      [disabled]="paused()"
+    >
       @if (busy()) {
         <ng-container i18n="@@signInVerify.verifying">Verifying…</ng-container>
       } @else {

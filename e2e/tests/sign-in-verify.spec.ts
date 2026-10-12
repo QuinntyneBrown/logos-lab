@@ -119,3 +119,73 @@ test.describe('Signing in with a recovery code', () => {
     await expect(verify.recoveryError).toHaveText('Enter a recovery code');
   });
 });
+
+test.describe('Two-step sign-in failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-014 AC3 · form-field AC-3
+  test('a wrong code says how many tries are left', async ({ page, api }) => {
+    api.fail('POST', verifications, 401, 'invalid-code', { attemptsLeft: 3 });
+    const verify = new SignInVerifyPage(page);
+    await verify.open();
+
+    await verify.verify('482931');
+
+    const message =
+      "That code doesn't match. Enter the newest code from your app; you have 3 tries left before a 15-minute pause.";
+    await expect(verify.codeError).toHaveText(message);
+    await expect(verify.summary).toBeFocused();
+    await expect(verify.summary.getByRole('link')).toHaveText(message);
+    await expect(verify.submit).toHaveText('Verify');
+  });
+
+  // L2-014 AC4
+  test('a wrong or used recovery code is refused on the field', async ({ page, api }) => {
+    api.fail('POST', verifications, 401, 'invalid-code', { attemptsLeft: 4 });
+    const verify = new SignInVerifyPage(page);
+    await verify.open('?method=recovery');
+
+    await verify.verifyRecoveryCode('4F7K-29XM');
+
+    await expect(verify.recoveryError).toHaveText(
+      "That recovery code doesn't match or has been used. Check it and try again.",
+    );
+  });
+
+  // L2-014 AC3 · alert AC-1
+  test('five wrong codes pause the step until the time the server gives', async ({ page, api }) => {
+    await page.clock.install({ time: new Date('2026-10-12T14:24:00Z') });
+    api.fail('POST', verifications, 429, 'too-many-requests', {}, { 'Retry-After': '900' });
+    const verify = new SignInVerifyPage(page);
+    await verify.open();
+
+    await verify.verify('482931');
+
+    await expect(verify.alert).toHaveAttribute('role', 'status');
+    await expect(verify.alert).toContainText('Verification is paused for 15 minutes');
+    await expect(verify.alert).toContainText('Try again at 10:39');
+    await expect(verify.alert.getByRole('link')).toHaveAttribute('href', 'mailto:help@logoslab.ca');
+    await expect(verify.code).toBeDisabled();
+    await expect(verify.submit).toBeDisabled();
+
+    await page.clock.runFor(900_000);
+    await expect(verify.code).toBeEnabled();
+    await expect(verify.alert).toHaveCount(0);
+  });
+
+  // L2-014, L2-141 · alert AC-1
+  test('a server failure keeps the code and asks for a fresh one', async ({ page, api }) => {
+    api.fail('POST', verifications, 503);
+    const verify = new SignInVerifyPage(page);
+    await verify.open();
+
+    await verify.verify('482913');
+
+    await expect(verify.alert).toHaveAttribute('role', 'alert');
+    await expect(verify.alert).toContainText("We couldn't check your code");
+    await expect(verify.alert).toContainText(
+      'Something went wrong on our side. Enter the newest code from your app and try again.',
+    );
+    await expect(verify.code).toHaveValue('482913');
+  });
+});
