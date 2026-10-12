@@ -60,3 +60,52 @@ test.describe('Forgot password validation', () => {
     await expect(forgot.emailError).toHaveText('Enter your email');
   });
 });
+
+test.describe('Requesting a reset link', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-011 AC1, AC5 · button AC-4
+  test('sending shows a busy button, then the same message for any address', async ({
+    page,
+    api,
+  }) => {
+    const release = api.hold('POST', '/auth/password-resets', undefined, 202);
+    const forgot = new ForgotPasswordPage(page);
+    await forgot.open();
+
+    await forgot.requestLink('  miriam.clarke@example.ca ');
+
+    await expect(forgot.submit).toHaveAttribute('aria-busy', 'true');
+    await expect(forgot.submit).toHaveText('Sending…');
+    release();
+
+    await expect(forgot.heading).toHaveText('Check your email');
+    await expect(forgot.heading).toBeFocused();
+    await expect(forgot.sub).toHaveText(
+      "If an account exists for that address, we've sent a reset link.",
+    );
+    await expect(forgot.notes).toHaveText([
+      'The link works for 60 minutes and only once.',
+      'Asking again sends a new link and turns off the old one.',
+      'Check your spam folder if nothing arrives in a few minutes.',
+    ]);
+    await expect(forgot.backToSignIn).toHaveAttribute('href', '/sign-in');
+    expect(api.requestsTo('POST', '/auth/password-resets')[0].body).toEqual({
+      email: 'miriam.clarke@example.ca',
+    });
+  });
+
+  // L2-011 AC1
+  test('"Use a different email" returns to an empty form', async ({ page, api }) => {
+    api.respond('POST', '/auth/password-resets', undefined, 202);
+    const forgot = new ForgotPasswordPage(page);
+    await forgot.open();
+    await forgot.requestLink('miriam.clarke@example.ca');
+
+    await forgot.differentEmail.click();
+
+    await expect(forgot.heading).toHaveText('Reset your password');
+    await expect(forgot.email).toHaveValue('');
+    await expect(forgot.email).toBeFocused();
+  });
+});

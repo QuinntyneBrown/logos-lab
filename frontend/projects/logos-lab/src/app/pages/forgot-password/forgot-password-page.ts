@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, signal, viewChild } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AUTH_API } from '@logos-lab/api';
 import {
   AuthCard,
   Button,
@@ -19,7 +30,15 @@ import { EMAIL_PATTERN } from '../../forms/email-pattern';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForgotPasswordPage {
+  private readonly authApi = inject(AUTH_API);
+  private readonly injector = inject(Injector);
   private readonly summary = viewChild(FormSummary);
+  private readonly sentHeading = viewChild<ElementRef<HTMLElement>>('sentHeading');
+  private readonly emailInput = viewChild('emailInput', { read: ElementRef<HTMLInputElement> });
+
+  protected readonly busy = signal(false);
+  /** True once the API took the request; the page then shows the same message for any address. */
+  protected readonly sent = signal(false);
 
   protected readonly email = signal('');
   protected readonly errors = signal<readonly FormError[]>([]);
@@ -32,6 +51,25 @@ export class ForgotPasswordPage {
       this.summary()?.focus();
       return;
     }
+    this.busy.set(true);
+    this.authApi.requestPasswordReset(this.email().trim()).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.sent.set(true);
+        this.focusAfterRender(() => this.sentHeading()?.nativeElement);
+      },
+    });
+  }
+
+  protected useDifferentEmail(): void {
+    this.email.set('');
+    this.errors.set([]);
+    this.sent.set(false);
+    this.focusAfterRender(() => this.emailInput()?.nativeElement);
+  }
+
+  private focusAfterRender(target: () => HTMLElement | undefined): void {
+    afterNextRender(() => target()?.focus(), { injector: this.injector });
   }
 
   private validate(): FormError[] {

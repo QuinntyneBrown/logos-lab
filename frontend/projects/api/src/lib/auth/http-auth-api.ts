@@ -38,6 +38,10 @@ export class HttpAuthApi implements AuthApi {
     return this.http.post<ResendResult>('/api/v1/auth/email-verifications/resend', { token });
   }
 
+  requestPasswordReset(email: string): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/password-resets', { email });
+  }
+
   signOut(): Observable<void> {
     return this.http.delete<void>('/api/v1/auth/session');
   }

@@ -47,6 +47,12 @@ export interface AuthApi {
    */
   resendVerificationForToken(token: string): Observable<ResendResult>;
 
+  /**
+   * POST /api/v1/auth/password-resets: 202 for every well-formed address, whether or not an account
+   * exists, and past the hourly limit (L2-011 AC1, AC5).
+   */
+  requestPasswordReset(email: string): Observable<void>;
+
   /** DELETE /api/v1/auth/session: ends the current session and clears its cookie. */
   signOut(): Observable<void>;
 }
