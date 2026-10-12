@@ -128,7 +128,7 @@ component stops the click (and the form submit it would cause) before it reaches
 | Focus | `:focus-visible` | `--focus-ring-width` ring in `--color-focus-ring`, offset `--focus-ring-offset` | Focus announced with name |
 | Active | `:active` | Presses down by `--space-0-5`; primary uses `--color-accent-active` | — |
 | Pressed | `aria-pressed="true"` | `--border-width-thick` accent outline | "pressed" / "not pressed" |
-| Busy | `aria-busy="true"` + `aria-disabled="true"` | Spinner before the label, colours of the disabled state, `cursor: progress` | Name kept, focus kept, activation ignored |
+| Busy | `aria-busy="true"` + `aria-disabled="true"` | Spinner before the label; the variant's own fill and label, with no hover change (D-5); `cursor: progress` | Name kept, focus kept, activation ignored |
 | Disabled | `disabled` | `--color-bg-subtle` fill, `--color-fg-disabled` label | Removed from the tab order |
 | Count | `.icon-btn__count` present | Accent badge at the top right | Badge hidden; the count is in the name |
 
@@ -269,6 +269,7 @@ colour changes are instant.
 ### States
 
 - **AC-4** Given a primary submit button labelled "Sending…" with `busy` set, when it renders, then it has `aria-busy="true"` and `aria-disabled="true"`, shows a `.spinner` with `aria-hidden="true"`, and is not natively disabled. (L2-127)
+- **AC-15** Given a primary submit button with `busy` set and the pointer still over it, when it renders, then it keeps the primary fill and label colours, not the hover or the disabled colours. (L2-127)
 - **AC-5** Given a busy submit button with keyboard focus, when the user presses Enter again, then focus stays on it and no second click or submit reaches the page. (L2-126)
 - **AC-6** Given a "Save Imago Dei in an Age of Machines" icon toggle with `pressed` false, when the page sets it to true, then it renders `aria-pressed="true"` and the accent outline. (L2-127)
 - **AC-7** Given a notifications icon button with `count` 3 and the label "Notifications, 3 unread", when it renders, then the badge reads "3", has `aria-hidden="true"`, and the accessible name is "Notifications, 3 unread". (L2-127)
@@ -316,3 +317,7 @@ colour changes are instant.
   added by its own ADR if page budgets prove insufficient.
 - **D-4** *How is a disabled link shown?* It is not: the mocks never render one, so a consumer removes
   or replaces an unavailable link rather than disabling it.
+- **D-5** *Which colours does a busy button wear?* Its variant's own, as the design-system page ("keeps
+  its label and width, adds a spinner") and the submitting mocks show. `aria-disabled` on a busy button
+  only blocks activation, so it neither greys the button out nor lets hover darken it under the pointer
+  that pressed it. A natively `disabled` button keeps the disabled colours, under the pointer too.
