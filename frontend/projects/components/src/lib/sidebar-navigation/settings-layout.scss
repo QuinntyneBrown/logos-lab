@@ -1,0 +1,20 @@
+// The .settings-layout rules of the sidebar-navigation block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+
+.settings-layout {
+  display: grid;
+  gap: var(--space-8);
+  padding-block: var(--space-8) 0;
+}
+
+.settings-layout > * {
+  min-width: 0;
+}
+
+@media (min-width: 64rem) {
+  .settings-layout {
+    grid-template-columns: var(--layout-settings-nav) minmax(0, 1fr);
+  }
+}

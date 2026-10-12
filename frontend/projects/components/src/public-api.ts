@@ -64,3 +64,8 @@ export * from './lib/form-layout/form-error';
 export * from './lib/form-layout/form-summary';
 export * from './lib/text-field/input';
 export * from './lib/text-field/input-size';
+export * from './lib/page-header/page-header';
+export * from './lib/page-header/page-header-actions';
+export * from './lib/page-header/page-header-busy';
+export * from './lib/page-header/page-header-top';
+export * from './lib/sidebar-navigation/settings-layout';

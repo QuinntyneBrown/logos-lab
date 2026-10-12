@@ -1,0 +1,20 @@
+<ll-settings-layout>
+  <ll-sidebar-nav
+    slot="nav"
+    label="Settings"
+    i18n-label="@@settings.nav.label"
+    variant="settings"
+    [groups]="settingsNavigation"
+  />
+  <div>
+    <ll-page-header
+      top="xs"
+      eyebrow="Settings"
+      i18n-eyebrow="@@settings.eyebrow"
+      heading="Profile"
+      i18n-heading="@@settingsProfile.title"
+      sub="How other members see you. Your email address, enrolments and progress are never shown on your profile."
+      i18n-sub="@@settingsProfile.sub"
+    />
+  </div>
+</ll-settings-layout>

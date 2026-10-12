@@ -1,0 +1,59 @@
+// The page-header block of docs/design-system/assets/components.css, with the top-space modifiers
+// of the page-header CRD (D-1).
+:host {
+  display: contents;
+}
+
+.page-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  padding-block: var(--space-16) var(--space-10);
+}
+
+.page-head--top-md {
+  padding-top: var(--space-8);
+}
+
+.page-head--top-sm {
+  padding-top: var(--space-6);
+}
+
+.page-head--top-xs {
+  padding-top: var(--space-2);
+}
+
+.page-head__title {
+  font: var(--text-h1);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.page-head__sub {
+  color: var(--color-fg-muted);
+  font: var(--text-body-lg);
+}
+
+.page-head__sub:empty {
+  display: none;
+}
+
+.page-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (min-width: 48rem) {
+  .page-head--actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+  .page-head--actions > :not(.page-head__actions) {
+    grid-column: 1;
+  }
+  .page-head--actions .page-head__actions {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: end;
+  }
+}

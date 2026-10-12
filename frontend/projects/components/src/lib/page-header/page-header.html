@@ -1,0 +1,42 @@
+<div
+  class="page-head"
+  [class.page-head--actions]="actions() === 'side'"
+  [class.page-head--top-md]="top() === 'md'"
+  [class.page-head--top-sm]="top() === 'sm'"
+  [class.page-head--top-xs]="top() === 'xs'"
+  [attr.aria-busy]="busy() === 'none' ? null : 'true'"
+>
+  @if (busy() !== 'none' && busyMessage(); as message) {
+    <p class="vh" role="status">{{ message }}</p>
+  }
+  @if (busy() === 'all') {
+    <h1 class="vh">{{ heading() }}</h1>
+    <div aria-hidden="true">
+      @if (eyebrow(); as eyebrow) {
+        <p class="eyebrow">{{ eyebrow }}</p>
+      } @else {
+        <span llSkeleton shape="text-short"></span>
+      }
+      <span llSkeleton shape="title"></span>
+      <span llSkeleton shape="title"></span>
+      <span llSkeleton shape="text"></span>
+    </div>
+  } @else {
+    <ng-content select="[slot=context]" />
+    @if (eyebrow(); as eyebrow) {
+      <p class="eyebrow">{{ eyebrow }}</p>
+    }
+    <h1 class="page-head__title">{{ heading() }}</h1>
+    <ng-content select="[slot=lead]" />
+    @if (busy() === 'sub') {
+      <span llSkeleton shape="text-short"></span>
+    }
+    <p class="page-head__sub" [hidden]="busy() === 'sub'">
+      {{ sub() }}<ng-content select="[slot=sub]" />
+    </p>
+    <ng-content />
+  }
+  @if (actions() !== 'none') {
+    <div class="page-head__actions"><ng-content select="[slot=actions]" /></div>
+  }
+</div>

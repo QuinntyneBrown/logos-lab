@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { memberGuard } from './member-guard';
 
 export const routes: Routes = [
   {
@@ -46,6 +47,21 @@ export const routes: Routes = [
     data: { shell: { kind: 'focused', action: 'sign-in' } },
     loadComponent: () =>
       import('./pages/verify-email/verify-email-page').then((m) => m.VerifyEmailPage),
+  },
+  {
+    path: 'settings',
+    canActivate: [memberGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'profile' },
+      {
+        path: 'profile',
+        title: $localize`:@@settingsProfile.pageTitle:Profile settings - Logos Lab`,
+        loadComponent: () =>
+          import('./pages/settings-profile/settings-profile-page').then(
+            (m) => m.SettingsProfilePage,
+          ),
+      },
+    ],
   },
   {
     path: '403',
