@@ -30,8 +30,7 @@ import { retryAt } from '../../http/retry-at';
 import { RegisterFailure } from './register-failure';
 import { RegisterFieldError } from './register-field-error';
 import { clockTime } from '../../content/clock-time';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from '../../forms/email-pattern';
 
 @Component({
   selector: 'll-register-page',
@@ -189,7 +188,7 @@ export class RegisterPage {
         controlId: 'email',
         message: $localize`:@@register.error.emailMissing:Enter your email`,
       });
-    else if (!EMAIL.test(email))
+    else if (!EMAIL_PATTERN.test(email))
       errors.push({
         controlId: 'email',
         message: $localize`:@@register.error.emailFormat:Enter your email in the form name@example.ca`,

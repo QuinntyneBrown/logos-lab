@@ -29,8 +29,7 @@ import { readSignInFailure } from './read-sign-in-failure';
 import { SignInFailure } from './sign-in-failure';
 import { calendarDay } from '../../content/calendar-day';
 import { clockTime } from '../../content/clock-time';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from '../../forms/email-pattern';
 
 @Component({
   selector: 'll-sign-in-page',
@@ -143,7 +142,7 @@ export class SignInPage {
         controlId: 'email',
         message: $localize`:@@signIn.error.emailMissing:Enter your email`,
       });
-    else if (!EMAIL.test(email))
+    else if (!EMAIL_PATTERN.test(email))
       errors.push({
         controlId: 'email',
         message: $localize`:@@signIn.error.emailFormat:Enter your email in the form name@example.ca`,

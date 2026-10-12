@@ -9,8 +9,7 @@ import {
   FormSummary,
   Input,
 } from '@logos-lab/components';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_PATTERN } from '../../forms/email-pattern';
 
 @Component({
   selector: 'll-forgot-password-page',
@@ -44,7 +43,7 @@ export class ForgotPasswordPage {
           message: $localize`:@@forgotPassword.error.emailMissing:Enter your email`,
         },
       ];
-    if (!EMAIL.test(email))
+    if (!EMAIL_PATTERN.test(email))
       return [
         {
           controlId: 'email',
