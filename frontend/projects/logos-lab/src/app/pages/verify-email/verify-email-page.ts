@@ -16,6 +16,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AUTH_API, EmailVerification } from '@logos-lab/api';
 import { Alert, AuthCard, Button, Form, FormField, SpinnerRegion } from '@logos-lab/components';
 import { retryAt } from '../../http/retry-at';
+import { Session } from '../../session';
 import { VerifyEmailState } from './verify-email-state';
 import { clockTime } from '../../content/clock-time';
 
@@ -29,6 +30,7 @@ import { clockTime } from '../../content/clock-time';
 export class VerifyEmailPage {
   private readonly locale = inject(LOCALE_ID);
   private readonly authApi = inject(AUTH_API);
+  private readonly session = inject(Session);
   private readonly injector = inject(Injector);
   private readonly token = inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '';
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
@@ -61,7 +63,11 @@ export class VerifyEmailPage {
   protected confirm(verification: EmailVerification): void {
     this.state.set({ kind: 'loading' });
     this.authApi.confirmEmail(this.token).subscribe({
-      next: () => this.show({ kind: 'verified', verification }, true),
+      next: () => {
+        this.show({ kind: 'verified', verification }, true);
+        // A signed-in member's account is now Active; the shell's account banner follows /me.
+        if (this.session.member()) this.session.load();
+      },
       error: (error: unknown) => this.refused(error, verification),
     });
   }

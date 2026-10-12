@@ -1,4 +1,19 @@
-@if (shown()) {
+@if (justVerified()) {
+  <ll-banner
+    tone="success"
+    live
+    label="Account"
+    i18n-label="@@accountBanner.label"
+    dismissLabel="Dismiss"
+    i18n-dismissLabel="@@accountBanner.dismiss"
+    (dismissed)="dismissSuccess()"
+  >
+    <ng-container i18n="@@accountBanner.verified"
+      >Your email is verified. You can now enrol, comment, register for events and send
+      messages.</ng-container
+    >
+  </ll-banner>
+} @else if (shown()) {
   @let member = unverified()!;
   @if (resentTo(); as resentTo) {
     <ll-banner

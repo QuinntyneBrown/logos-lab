@@ -3,6 +3,7 @@ import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { AccountBanner } from '../pages/account-banner';
 import { HomePage } from '../pages/home.page';
+import { VerifyEmailPage } from '../pages/verify-email.page';
 
 test.describe('Account banner', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -151,5 +152,35 @@ test.describe('Account banner before deletion', () => {
     );
     await expect(banner.resend).toHaveText('Resend email');
     await expect(banner.dismiss).toHaveCount(0);
+  });
+});
+
+test.describe('Account banner after verifying', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-007 AC1 · banner AC-2, AC-9
+  test('verifying in the same session turns the banner to success', async ({ page, api }) => {
+    api.respond('GET', '/me', members.ethan);
+    api.respond('GET', '/auth/email-verifications/tok-ethan', {
+      email: 'ethan.wu@example.ca',
+      displayName: 'Ethan Wu',
+    });
+    api.respond('POST', '/auth/email-verifications', null, 204);
+    const verify = new VerifyEmailPage(page);
+    const banner = new AccountBanner(page);
+    await verify.open('tok-ethan');
+    api.respond('GET', '/me', { ...members.ethan, emailVerified: true, deleteUnverifiedAt: null });
+
+    await verify.confirmEmail();
+    await expect(verify.heading).toHaveText('Your email is verified');
+    await verify.dashboard.click();
+
+    await expect(banner.root).toHaveClass(/banner--success/);
+    await expect(banner.root).toHaveRole('status');
+    await expect(banner.text).toHaveText(
+      'Your email is verified. You can now enrol, comment, register for events and send messages.',
+    );
+    await banner.dismissIt();
+    await expect(banner.root).toHaveCount(0);
   });
 });

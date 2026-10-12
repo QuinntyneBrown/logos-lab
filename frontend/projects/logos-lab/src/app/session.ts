@@ -14,12 +14,18 @@ export class Session {
   private readonly router = inject(Router);
 
   readonly member = signal<CurrentMember | null | undefined>(undefined);
+  /** True once the member verifies their email during this session, until acknowledged. */
+  readonly justVerified = signal(false);
 
   load(): void {
     this.meApi
       .getMe()
       .pipe(catchError(() => of(null)))
-      .subscribe((member) => this.member.set(member));
+      .subscribe((member) => {
+        const before = this.member();
+        if (before && !before.emailVerified && member?.emailVerified) this.justVerified.set(true);
+        this.member.set(member);
+      });
   }
 
   can(capability: Capability): boolean {

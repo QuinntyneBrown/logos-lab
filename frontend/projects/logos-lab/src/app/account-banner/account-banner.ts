@@ -67,8 +67,15 @@ export class AccountBanner {
     () => !!this.unverified() && (!this.dismissed() || !!this.deletionDay()),
   );
 
+  /** The member verified during this session: the banner turns to success. */
+  protected readonly justVerified = this.session.justVerified;
+
   constructor() {
     inject(DestroyRef).onDestroy(() => clearInterval(this.ticker));
+  }
+
+  protected dismissSuccess(): void {
+    this.justVerified.set(false);
   }
 
   protected resend(): void {
