@@ -14,9 +14,7 @@ import { Banner, Button } from '@logos-lab/components';
 import { calendarDay } from '../content/calendar-day';
 import { retryAt } from '../http/retry-at';
 import { Session } from '../session';
-
-/** Kept for the browser session, so "Dismiss for now" lasts until the next sign-in. */
-const DISMISSED_KEY = 'll.accountBanner.dismissed';
+import { readBannerDismissal, saveBannerDismissal } from './banner-dismissal';
 
 /** From this long before deletion the banner names the date and cannot be dismissed. */
 const FINAL_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -36,7 +34,7 @@ export class AccountBanner {
   private readonly locale = inject(LOCALE_ID);
   private readonly session = inject(Session);
   private readonly authApi = inject(AUTH_API);
-  private readonly dismissed = signal(readDismissed());
+  private readonly dismissed = signal(readBannerDismissal());
 
   /** The address a new link went to, once "Resend email" succeeded. */
   protected readonly resentTo = signal<string | null>(null);
@@ -97,11 +95,7 @@ export class AccountBanner {
 
   protected dismiss(): void {
     this.dismissed.set(true);
-    try {
-      sessionStorage.setItem(DISMISSED_KEY, 'true');
-    } catch {
-      // Storage can be unavailable; the banner then stays hidden for this page only.
-    }
+    saveBannerDismissal();
   }
 
   private coolDown(until: Date): void {
@@ -112,13 +106,5 @@ export class AccountBanner {
       this.now.set(new Date());
       if (this.waitSeconds() === 0) clearInterval(this.ticker);
     }, 1000);
-  }
-}
-
-function readDismissed(): boolean {
-  try {
-    return sessionStorage.getItem(DISMISSED_KEY) === 'true';
-  } catch {
-    return false;
   }
 }

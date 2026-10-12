@@ -2,6 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AUTH_API, Capability, CurrentMember, ME_API } from '@logos-lab/api';
 import { catchError, of } from 'rxjs';
+import { clearBannerDismissal } from './account-banner/banner-dismissal';
 
 /**
  * The signed-in member for this tab: `undefined` while it loads, `null` for a visitor. The shell
@@ -40,6 +41,7 @@ export class Session {
   }
 
   private signedOut(): void {
+    clearBannerDismissal();
     this.member.set(null);
     void this.router.navigate(['/sign-in'], { queryParams: { signedOut: true } });
   }

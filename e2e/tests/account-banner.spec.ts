@@ -2,7 +2,9 @@ import { homePage } from '../data/home';
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { AccountBanner } from '../pages/account-banner';
+import { AccountMenu } from '../pages/account-menu';
 import { HomePage } from '../pages/home.page';
+import { SignInPage } from '../pages/sign-in.page';
 import { VerifyEmailPage } from '../pages/verify-email.page';
 
 test.describe('Account banner', () => {
@@ -43,6 +45,25 @@ test.describe('Account banner', () => {
     await page.reload();
     await home.open();
     await expect(banner.root).toHaveCount(0);
+  });
+
+  // L2-007 AC3
+  test('a dismissed banner comes back after signing out and in again', async ({ page, api }) => {
+    api.respond('GET', '/me', members.ethan);
+    api.respond('DELETE', '/auth/session', undefined, 204);
+    api.respond('POST', '/auth/sessions', { status: 'SignedIn', mfaEnrolmentRequired: false });
+    const home = new HomePage(page);
+    const banner = new AccountBanner(page);
+    const menu = new AccountMenu(page);
+    await home.open();
+    await banner.dismissIt();
+
+    await home.shell.openAccountMenu();
+    await menu.choose('Sign out');
+    await new SignInPage(page).signIn('ethan.wu@example.ca', 'a long enough password');
+    await page.goto('/');
+
+    await expect(banner.root).toBeVisible();
   });
 
   // L2-007
