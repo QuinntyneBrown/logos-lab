@@ -32,6 +32,7 @@ The feature is the first of the authorization subsystem. It decides whether a ca
 - **`PendingActionResumer`** — after sign-in, it navigates to the same-origin `returnUrl` (`ReturnUrlPolicy`, `L2-008`) and replays the intent on that page.
 - **`UnauthorizedInterceptor`** — HTTP interceptor that turns a `401` during a member action into the same prompt, and a `401` with `session-expired` into the sign-in page.
 - The mocks `docs/mocks/pages/home/` and `docs/mocks/pages/video-page/` show the visitor views of public pages.
+- **`memberGuard`** — route guard for pages that exist only for a member (Dashboard, My learning, Saved, My events, My certificates, Following, Settings, Studio, Moderation, Admin). It waits for the session to load; a visitor is sent to `/sign-in?returnUrl={the requested path}` and returns there after signing in. A member passes, and capability guards (`authorization/enforce-role-permissions`) run after it.
 
 **Public surface (anonymous)**
 

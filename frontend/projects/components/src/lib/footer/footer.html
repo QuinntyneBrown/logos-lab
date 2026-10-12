@@ -1,0 +1,15 @@
+<footer class="footer">
+  <div class="wrap footer__grid">
+    @if (variant() === 'full') {
+      <ll-brand [label]="homeLabel()" />
+    }
+    <nav [attr.aria-label]="navLabel()">
+      <ul class="footer__links">
+        <ng-content />
+      </ul>
+    </nav>
+    <p [class.footer__land]="variant() === 'full'" [class.footer__made]="variant() === 'quiet'">
+      <ng-content select="[slot=note]" />
+    </p>
+  </div>
+</footer>

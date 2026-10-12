@@ -1,0 +1,146 @@
+<ll-auth-card>
+  <div slot="intro">
+    <p class="eyebrow" i18n="@@signInVerify.eyebrow">Two-step verification</p>
+    @if (recovery()) {
+      <h1 class="auth__title" i18n="@@signInVerify.recovery.title">Use a recovery code</h1>
+      <p class="auth__sub" i18n="@@signInVerify.recovery.sub">
+        Enter one of the 10 recovery codes you saved when you set up two-step verification.
+      </p>
+    } @else {
+      <h1 class="auth__title" i18n="@@signInVerify.title">Enter your verification code</h1>
+      <p class="auth__sub" i18n="@@signInVerify.sub">
+        Open your authenticator app and enter the 6-digit code it shows for Logos Lab.
+      </p>
+    }
+  </div>
+  @if (failure(); as failure) {
+    @switch (failure.kind) {
+      @case ('paused') {
+        <ll-alert
+          tone="warning"
+          heading="Verification is paused for 15 minutes"
+          i18n-heading="@@signInVerify.paused.title"
+        >
+          <ng-container i18n="@@signInVerify.paused.body"
+            >Five codes didn't match in a row, so we've paused this step to protect your account.
+            Try again at {{ time(failure.until) }}. If you've lost your phone, write to us and we'll
+            help you back in.</ng-container
+          >
+          <a slot="actions" href="mailto:help@logoslab.ca" i18n="@@signInVerify.paused.help"
+            >Write to help&#64;logoslab.ca</a
+          >
+        </ll-alert>
+      }
+      @case ('unavailable') {
+        <ll-alert
+          tone="danger"
+          heading="We couldn't check your code"
+          i18n-heading="@@signInVerify.failed.title"
+          i18n="@@signInVerify.failed.body"
+          >Something went wrong on our side. Enter the newest code from your app and try
+          again.</ll-alert
+        >
+      }
+    }
+  }
+  <form llForm (submit)="$event.preventDefault(); submit()">
+    @if (errors().length) {
+      <ll-form-summary
+        heading="One thing to fix before you can sign in"
+        i18n-heading="@@signInVerify.summary"
+        [errors]="errors()"
+      />
+    }
+    @if (recovery()) {
+      <ll-form-field
+        label="Recovery code"
+        i18n-label="@@signInVerify.recovery.label"
+        controlId="recovery"
+        help="It looks like 4F7K-29XM. Each code works once, and we'll email you when one is used."
+        i18n-help="@@signInVerify.recovery.help"
+        helpPlacement="before"
+        [error]="fieldError()"
+      >
+        <input
+          llInput
+          id="recovery"
+          name="recovery"
+          type="text"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          required
+          [disabled]="paused()"
+          (input)="code.set($any($event.target).value)"
+        />
+      </ll-form-field>
+    } @else {
+      <ll-form-field
+        label="6-digit code"
+        i18n-label="@@signInVerify.code"
+        controlId="code"
+        help="Codes change every 30 seconds."
+        i18n-help="@@signInVerify.codeHelp"
+        helpPlacement="before"
+        [error]="fieldError()"
+      >
+        <input
+          llInput
+          otp
+          id="code"
+          name="code"
+          type="text"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          pattern="[0-9]{6}"
+          required
+          [disabled]="paused()"
+          (input)="code.set($any($event.target).value)"
+        />
+      </ll-form-field>
+    }
+    <button
+      llButton
+      variant="primary"
+      size="lg"
+      block
+      type="submit"
+      [busy]="busy()"
+      [disabled]="paused()"
+    >
+      @if (busy()) {
+        <ng-container i18n="@@signInVerify.verifying">Verifying…</ng-container>
+      } @else {
+        <ng-container i18n="@@signInVerify.verify">Verify</ng-container>
+      }
+    </button>
+  </form>
+  <ng-container ngProjectAs="[slot=alt]">
+    <p class="auth__alt">
+      @if (recovery()) {
+        <a
+          routerLink="."
+          [queryParams]="{ method: null }"
+          queryParamsHandling="merge"
+          i18n="@@signInVerify.useApp"
+          >Use your authenticator app instead</a
+        >
+      } @else {
+        <a
+          routerLink="."
+          [queryParams]="{ method: 'recovery' }"
+          queryParamsHandling="merge"
+          i18n="@@signInVerify.useRecovery"
+          >Lost your phone? Use a recovery code</a
+        >
+      }
+    </p>
+    <p class="auth__alt">
+      <ng-container i18n="@@signInVerify.notYou">Not you?</ng-container>&ngsp;
+      <a routerLink="/sign-in" i18n="@@signInVerify.differentAccount"
+        >Sign in with a different account</a
+      >
+    </p>
+  </ng-container>
+</ll-auth-card>

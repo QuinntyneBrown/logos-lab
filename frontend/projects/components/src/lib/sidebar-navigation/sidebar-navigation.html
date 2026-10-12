@@ -1,0 +1,35 @@
+<nav
+  class="sidebar-nav"
+  [class.settings-nav]="variant() === 'settings'"
+  [attr.aria-label]="label()"
+>
+  @for (group of groups(); track $index) {
+    @if (group.label) {
+      <p class="sidebar-nav__group">{{ group.label }}</p>
+    }
+    @for (item of group.items; track item.id) {
+      @if (item.path) {
+        <a
+          [routerLink]="item.path"
+          [queryParams]="item.queryParams ?? null"
+          routerLinkActive
+          ariaCurrentWhenActive="page"
+          [routerLinkActiveOptions]="matchOptions(item)"
+          (click)="itemSelected.emit(item.id)"
+          >{{ item.label }}<ng-container *ngTemplateOutlet="count; context: { $implicit: item }"
+        /></a>
+      } @else {
+        <button type="button" (click)="itemSelected.emit(item.id)">
+          {{ item.label }}<ng-container *ngTemplateOutlet="count; context: { $implicit: item }" />
+        </button>
+      }
+    }
+  }
+</nav>
+<ng-template #count let-item>
+  @if (item.count > 0) {
+    <span class="badge badge--count"
+      >{{ item.count }}<span class="vh"> {{ item.countLabel }}</span></span
+    >
+  }
+</ng-template>

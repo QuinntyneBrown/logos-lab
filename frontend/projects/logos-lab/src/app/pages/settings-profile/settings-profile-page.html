@@ -1,0 +1,206 @@
+<ll-settings-layout>
+  <ll-sidebar-nav
+    slot="nav"
+    label="Settings"
+    i18n-label="@@settings.nav.label"
+    variant="settings"
+    [groups]="settingsNavigation"
+  />
+  <div>
+    <ll-page-header
+      top="xs"
+      eyebrow="Settings"
+      i18n-eyebrow="@@settings.eyebrow"
+      heading="Profile"
+      i18n-heading="@@settingsProfile.title"
+      sub="How other members see you. Your email address, enrolments and progress are never shown on your profile."
+      i18n-sub="@@settingsProfile.sub"
+    />
+    @switch (state()) {
+      @case ('loading') {
+        <form llForm card aria-busy="true">
+          <p class="vh" role="status" i18n="@@settingsProfile.loading">Loading your profile…</p>
+          <div class="stack" aria-hidden="true">
+            <span llSkeleton shape="photo"></span>
+            @for (row of [1, 2, 3]; track row) {
+              <span llSkeleton shape="title"></span>
+              <span llSkeleton shape="text"></span>
+              <span llSkeleton shape="block"></span>
+            }
+            <span llSkeleton shape="pill"></span>
+          </div>
+        </form>
+      }
+      @case ('failed') {
+        <ll-alert
+          tone="danger"
+          heading="We couldn't load your profile"
+          i18n-heading="@@settingsProfile.loadFailed.title"
+        >
+          <ng-container i18n="@@settingsProfile.loadFailed.body"
+            >Your settings are safe; this page didn't reach our server. Check your connection, then
+            try again. If it keeps happening, write to
+            <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.</ng-container
+          >
+          <button
+            llButton
+            variant="quiet"
+            size="sm"
+            type="button"
+            slot="actions"
+            (click)="load()"
+            i18n="@@settingsProfile.loadFailed.retry"
+          >
+            Try again
+          </button>
+        </ll-alert>
+      }
+      @case ('ready') {
+        <form llForm card (submit)="$event.preventDefault(); submit()">
+          @if (errors().length) {
+            <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
+          }
+          <fieldset class="form-section">
+            <legend class="form-section__title" i18n="@@settingsProfile.about">About you</legend>
+            <ll-form-field
+              label="Photo"
+              i18n-label="@@settingsProfile.photo"
+              labelAs="span"
+              controlId="photo"
+            >
+              <ll-photo-edit
+                [name]="displayName()"
+                [photoUrl]="avatarUrl()"
+                alt="{{ displayName() }}'s current photo"
+                i18n-alt="@@settingsProfile.photoAlt"
+                labelledBy="photo-label"
+              >
+                <button
+                  llButton
+                  variant="quiet"
+                  size="sm"
+                  type="button"
+                  i18n="@@settingsProfile.changePhoto"
+                >
+                  Change photo
+                </button>
+                <p class="field__help" i18n="@@settingsProfile.photoHelp">
+                  JPEG, PNG or WebP, up to 5 MB and at least 128 × 128 pixels. We crop it to a
+                  square and remove location data.
+                </p>
+              </ll-photo-edit>
+            </ll-form-field>
+            <ll-form-field
+              label="Display name"
+              i18n-label="@@settingsProfile.displayName"
+              controlId="display-name"
+              help="2 to 50 characters. Shown with your comments, cohort posts and certificates."
+              i18n-help="@@settingsProfile.displayNameHelp"
+              [error]="displayNameError()"
+              ><input
+                llInput
+                id="display-name"
+                name="display-name"
+                type="text"
+                autocomplete="name"
+                required
+                minlength="2"
+                maxlength="50"
+                [value]="displayName()"
+                (input)="displayName.set($any($event.target).value)"
+              />
+            </ll-form-field>
+            <ll-form-field
+              label="Bio"
+              i18n-label="@@settingsProfile.bio"
+              optional="optional"
+              i18n-optional="@@settingsProfile.optional"
+              controlId="bio"
+              help="A few sentences about who you are and what brings you here."
+              i18n-help="@@settingsProfile.bioHelp"
+              [counter]="bioCounter()"
+              [error]="bioError()"
+            >
+              <textarea
+                llTextarea
+                id="bio"
+                name="bio"
+                rows="5"
+                [value]="bio()"
+                (input)="bio.set($any($event.target).value)"
+              ></textarea>
+            </ll-form-field>
+            <ll-form-field
+              label="Pronouns"
+              i18n-label="@@settingsProfile.pronouns"
+              optional="optional"
+              i18n-optional="@@settingsProfile.optional"
+              controlId="pronouns"
+              help="Shown beside your name if you add them."
+              i18n-help="@@settingsProfile.pronounsHelp"
+            >
+              <input
+                llInput
+                id="pronouns"
+                name="pronouns"
+                type="text"
+                maxlength="30"
+                placeholder="For example, she/her or they/them"
+                i18n-placeholder="@@settingsProfile.pronounsPlaceholder"
+                [value]="pronouns()"
+                (input)="pronouns.set($any($event.target).value)"
+              />
+            </ll-form-field>
+          </fieldset>
+          <fieldset class="form-section">
+            <legend class="form-section__title" i18n="@@settingsProfile.visibility">
+              Visibility
+            </legend>
+            <label llCheck
+              ><input
+                class="check__box"
+                type="checkbox"
+                name="public-profile"
+                aria-describedby="public-profile-desc"
+                [checked]="profileVisible()"
+                (change)="profileVisible.set($any($event.target).checked)"
+              /><span class="check__text"
+                ><span i18n="@@settingsProfile.visible">Show my profile page to other members</span
+                ><span
+                  class="check__desc"
+                  id="public-profile-desc"
+                  i18n="@@settingsProfile.visibleDesc"
+                  >They see your name, photo, bio and public community activity. When this is off,
+                  your name and photo still appear on your comments and posts.</span
+                ></span
+              ></label
+            >
+          </fieldset>
+          <div class="form-actions">
+            <button llButton variant="primary" type="submit" [busy]="busy()">
+              @if (busy()) {
+                <ng-container i18n="@@settingsProfile.saving">Saving…</ng-container>
+              } @else {
+                <ng-container i18n="@@settingsProfile.save">Save changes</ng-container>
+              }
+            </button>
+            @if (member(); as member) {
+              <a
+                llButton
+                variant="quiet"
+                [routerLink]="['/members', member.id]"
+                i18n="@@settingsProfile.view"
+                >View your profile</a
+              >
+            }
+            @if (saved()) {
+              <p llInlineStatus tone="success" live="polite" i18n="@@settingsProfile.saved">
+                Profile saved. Members see the change straight away.
+              </p>
+            }
+          </div>
+        </form>
+      }
+    }
+  </div>
+</ll-settings-layout>

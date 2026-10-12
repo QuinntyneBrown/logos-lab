@@ -1,0 +1,50 @@
+// The .person rules of the person-list block of docs/design-system/assets/components.css; the host
+// is the .person.
+:host {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  align-items: center;
+  padding-block: var(--space-6);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+}
+.person__photo {
+  width: var(--space-16);
+  height: var(--space-16);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--color-bg-subtle);
+}
+// Without a photo: initials on the oat tile (person-list CRD D-1).
+.person__initials {
+  display: grid;
+  place-items: center;
+  font: var(--text-label);
+  color: var(--color-fg-default);
+}
+.person__name {
+  font: var(--text-h4);
+}
+.person__name a {
+  color: inherit;
+  text-decoration: none;
+}
+.person__name a:hover {
+  text-decoration: underline;
+}
+.person__meta {
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+:host(.person--plain) {
+  padding-block: 0;
+  border-bottom: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .person__photo {
+    transition: scale var(--duration-deliberate) var(--ease-standard);
+  }
+  :host(:hover) .person__photo {
+    scale: 1.03;
+  }
+}

@@ -1,0 +1,71 @@
+// The .form, .form-section, .form-actions and .form-card rules of the form-layout block of
+// docs/design-system/assets/components.css.
+:host {
+  display: grid;
+  gap: var(--space-6);
+}
+:host(.form-card) {
+  gap: var(--space-8);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+}
+@media (min-width: 40rem) {
+  :host(.form-card) {
+    padding: var(--space-10);
+  }
+}
+:host ::ng-deep {
+  .form-card {
+    display: grid;
+    gap: var(--space-8);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-surface);
+    border: var(--border-width-hairline) solid var(--color-border-default);
+  }
+  .form-section {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .form-section__title {
+    font: var(--text-h3);
+    padding: 0;
+  }
+  .form-section > legend {
+    margin-bottom: var(--space-6);
+  }
+  .form-section > legend.field__label {
+    margin-bottom: var(--space-3);
+  }
+  .form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+  }
+  .form-actions--end {
+    justify-content: flex-end;
+  }
+  .form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-3);
+  }
+  .form-inline > .field {
+    flex: 1 1 var(--layout-card-min);
+  }
+  @media (min-width: 40rem) {
+    .form-card {
+      padding: var(--space-10);
+    }
+  }
+  /* @end form-layout */
+}

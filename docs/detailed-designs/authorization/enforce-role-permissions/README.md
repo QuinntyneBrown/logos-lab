@@ -45,6 +45,7 @@ The table copies `L2-016`. Acceptance criterion 3 permits an Administrator every
 - **`CapabilityService`** — holds the current member's capabilities for the session.
 - **`capabilityGuard`** — route guard. A route declares its capability in route data; a user without it sees `ForbiddenPage`.
 - **`ForbiddenPage`** — the "You don't have access to this page" state, at `/403` and in place on a guarded route, built on `ll-error-page`. The mocks are `docs/mocks/pages/forbidden/default.html` and `docs/mocks/pages/admin/forbidden.html`.
+- At `/403`, with no area to name, the page says "Your account doesn't have the role this page needs. If you think you should have access, write to help@logoslab.ca." A guarded area (Studio, admin, moderation) words the text for that area, as its own mock shows.
 - **`NavigationService`** — builds the links of the header, `AccountMenu` and the navigation drawer from `CapabilityService`. The navigation never shows a link the user cannot use. The mocks `docs/mocks/dialogs/account-menu/` (`default`, `staff`), `docs/mocks/dialogs/nav-drawer/` (`signed-in`, `staff`) and `docs/mocks/pages/admin/` (`default`, `editor`) show the role-specific link sets.
 - An `*llIfCan` structural directive hides controls the user cannot use.
 

@@ -1,0 +1,67 @@
+// The .input rules of the text-field block of docs/design-system/assets/components.css.
+:host {
+  --ll-field-border: var(--color-border-strong);
+  width: 100%;
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-4);
+  border: var(--border-width-hairline) solid var(--ll-field-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  font: var(--text-body);
+}
+:host::placeholder {
+  color: var(--color-fg-subtle);
+}
+:host(:hover) {
+  --ll-field-border: var(--color-fg-muted);
+}
+:host(:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+:host([aria-invalid='true']) {
+  --ll-field-border: var(--color-danger-solid);
+  background: var(--color-danger-bg);
+}
+:host([readonly]) {
+  --ll-field-border: var(--color-border-default);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+}
+:host([disabled]) {
+  --ll-field-border: var(--color-transparent);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-disabled);
+  cursor: not-allowed;
+}
+:host([disabled])::placeholder {
+  color: var(--color-fg-disabled);
+}
+:host(.input--sm) {
+  min-height: var(--control-height-sm);
+  font-size: var(--font-size-sm);
+}
+:host(.input--md) {
+  min-height: var(--control-height-md);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    transition:
+      border-color var(--duration-base) var(--ease-standard),
+      background-color var(--duration-base) var(--ease-standard);
+  }
+}
+@media (forced-colors: active) {
+  :host {
+    border: var(--border-width-hairline) solid CanvasText;
+  }
+}
+
+:host(.otp) {
+  max-width: var(--space-40);
+  font: var(--text-code);
+  font-size: var(--font-size-xl);
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: center;
+}

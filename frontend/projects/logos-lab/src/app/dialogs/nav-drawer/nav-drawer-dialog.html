@@ -1,0 +1,51 @@
+<ll-drawer
+  heading="Menu"
+  i18n-heading="@@drawer.title"
+  headingId="drawer-title"
+  closeLabel="Close menu"
+  i18n-closeLabel="@@drawer.close"
+  (closeRequested)="close()"
+>
+  <ll-sidebar-nav
+    label="Site"
+    i18n-label="@@drawer.siteNav"
+    [groups]="groups()"
+    (itemSelected)="close()"
+  />
+  <ll-sidebar-nav label="Display" i18n-label="@@drawer.display" [groups]="displayGroup" />
+  <ll-menu
+    inline
+    label="Theme"
+    i18n-label="@@theme.menu"
+    [sections]="themeSections()"
+    (itemSelected)="chooseTheme($event)"
+  />
+  @if (member()) {
+    <ll-sidebar-nav
+      label="Account"
+      i18n-label="@@drawer.account"
+      [groups]="accountGroup"
+      (itemSelected)="chooseAccount($event)"
+    />
+  } @else {
+    <a
+      llButton
+      variant="primary"
+      class="sheet__done"
+      routerLink="/register"
+      (click)="close()"
+      i18n="@@shell.createAccount"
+      >Create account</a
+    >
+    <a
+      llButton
+      variant="quiet"
+      block
+      class="nav-drawer__sign-in"
+      routerLink="/sign-in"
+      (click)="close()"
+      i18n="@@shell.signIn"
+      >Sign in</a
+    >
+  }
+</ll-drawer>

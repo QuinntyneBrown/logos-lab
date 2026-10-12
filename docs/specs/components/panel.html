@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of panel, in light and dark, keyed to the acceptance criteria in panel.md.">
+<meta name="crd:component" content="panel">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Panel</h1>
+    <p class="ds-lead">A warm grain panel for a page's one invitation. Requirements: <a href="panel.md">panel.md</a>. Design system: <a href="../../design-system/components/panel.html">panel</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-panel</code></span><span class="ds-pill">Status: built</span><span class="ds-pill">Traces to L2-001, L2-127, L2-129, L2-130, L2-134, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><div class="panel grain">
+        <div class="panel__grid">
+          <div>
+            <p class="eyebrow">New to Logos Lab</p>
+            <h2 class="panel__title" id="start-title">Start with twelve short pieces</h2>
+            <p class="panel__text">Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.</p>
+            <div class="panel__actions"><a class="btn btn--primary" href="#">Open the collection</a></div>
+          </div>
+          <ul class="panel__list">
+            <li class="panel__item"><img src="../../mocks/assets/photos/daniel-reyes.jpg" alt=""><p><strong>Inside a Neural Network in Ten Minutes</strong><span class="panel__meta">Video · 10:12</span></p><span class="panel__meta">1</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/amara-osei.jpg" alt=""><p><strong>Sabbath for the Always-On Mind</strong><span class="panel__meta">Article · 8 min</span></p><span class="panel__meta">2</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt=""><p><strong>Case Study: The Chatbot Chaplain</strong><span class="panel__meta">Module · 25 min</span></p><span class="panel__meta">3</span></li>
+          </ul>
+        </div>
+      </div></div></div><div class="ds-example__caption"><span>Default: the visitor's start panel. <span class="crd-ac">AC-1, AC-2</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><div class="panel panel--compact grain">
+        <div class="panel__grid">
+          <div>
+            <p class="eyebrow">Continue learning</p>
+            <h2 class="panel__title" id="continue-title">Representing, not resembling</h2>
+            <p class="panel__text">Lesson 3.2 of Imago Dei in an Age of Machines, with Dr. Abena Mensah. About 14 minutes.</p>
+            <div class="progress" role="progressbar" aria-label="Imago Dei in an Age of Machines progress" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" style="--ll-progress-value: 42%; margin-top: var(--space-6); max-width: var(--layout-measure-short)"><div class="progress__bar"></div></div>
+            <p class="panel__note" style="margin-top: var(--space-2)">42% · 10 of 24 lessons</p>
+            <div class="panel__actions"><a class="btn btn--primary" href="#">Continue the lesson</a></div>
+          </div>
+          <ul class="panel__list" aria-label="Also in progress">
+            <li class="panel__item"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt=""><p><strong><a href="#">Case Study: The Chatbot Chaplain</a></strong><span class="panel__meta">Module · opened 11 Oct · about 15 min left</span></p><span class="panel__meta">Resume</span></li>
+            <li class="panel__item"><span class="content-card__mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><p><strong><a href="#">Faith, Work and Automation</a></strong><span class="panel__meta">Course · 1 of 14 lessons · enrolled 6 Oct</span></p><span class="panel__meta">7%</span></li>
+          </ul>
+        </div>
+      </div></div></div><div class="ds-example__caption"><span>Compact: continue learning. <span class="crd-ac">AC-1</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><div class="panel grain">
+        <div class="panel__grid">
+          <div>
+            <p class="eyebrow">New to Logos Lab</p>
+            <h2 class="panel__title" id="start-title">Start with twelve short pieces on faith, technology and the questions people ask first</h2>
+            <p class="panel__text">Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.</p>
+            <div class="panel__actions"><a class="btn btn--primary" href="#">Open the collection</a></div>
+          </div>
+          <ul class="panel__list">
+            <li class="panel__item"><img src="../../mocks/assets/photos/daniel-reyes.jpg" alt=""><p><strong>Inside a Neural Network in Ten Minutes</strong><span class="panel__meta">Video · 10:12</span></p><span class="panel__meta">1</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/amara-osei.jpg" alt=""><p><strong>Sabbath for the Always-On Mind</strong><span class="panel__meta">Article · 8 min</span></p><span class="panel__meta">2</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt=""><p><strong>Case Study: The Chatbot Chaplain</strong><span class="panel__meta">Module · 25 min</span></p><span class="panel__meta">3</span></li>
+          </ul>
+        </div>
+      </div></div></div><div class="ds-example__caption"><span>A long title wraps. <span class="crd-ac">AC-6</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><div class="panel grain">
+        <div class="panel__grid">
+          <div>
+            <p class="eyebrow">New to Logos Lab</p>
+            <h2 class="panel__title" id="start-title">Start with twelve short pieces</h2>
+            <p class="panel__text">Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.</p>
+            <div class="panel__actions"><a class="btn btn--primary" href="#">Open the collection</a></div>
+          </div>
+          <ul class="panel__list">
+            <li class="panel__item"><img src="../../mocks/assets/photos/daniel-reyes.jpg" alt=""><p><strong>Inside a Neural Network in Ten Minutes</strong><span class="panel__meta">Video · 10:12</span></p><span class="panel__meta">1</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/amara-osei.jpg" alt=""><p><strong>Sabbath for the Always-On Mind</strong><span class="panel__meta">Article · 8 min</span></p><span class="panel__meta">2</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt=""><p><strong>Case Study: The Chatbot Chaplain</strong><span class="panel__meta">Module · 25 min</span></p><span class="panel__meta">3</span></li>
+          </ul>
+        </div>
+      </div></div></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div class="wrap"><div class="panel grain">
+        <div class="panel__grid">
+          <div>
+            <p class="eyebrow">New to Logos Lab</p>
+            <h2 class="panel__title" id="start-title">Start with twelve short pieces</h2>
+            <p class="panel__text">Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.</p>
+            <div class="panel__actions"><a class="btn btn--primary" href="#">Open the collection</a></div>
+          </div>
+          <ul class="panel__list">
+            <li class="panel__item"><img src="../../mocks/assets/photos/daniel-reyes.jpg" alt=""><p><strong>Inside a Neural Network in Ten Minutes</strong><span class="panel__meta">Video · 10:12</span></p><span class="panel__meta">1</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/amara-osei.jpg" alt=""><p><strong>Sabbath for the Always-On Mind</strong><span class="panel__meta">Article · 8 min</span></p><span class="panel__meta">2</span></li>
+            <li class="panel__item"><img src="../../mocks/assets/photos/peter-walsh.jpg" alt=""><p><strong>Case Study: The Chatbot Chaplain</strong><span class="panel__meta">Module · 25 min</span></p><span class="panel__meta">3</span></li>
+          </ul>
+        </div>
+      </div></div></div></div><span class="crd-ac">AC-3, AC-4</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-5, AC-6</span><iframe title="320 pixel wide frame, light theme" width="320" height="700" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;div class=&quot;panel grain&quot;&gt;
+        &lt;div class=&quot;panel__grid&quot;&gt;
+          &lt;div&gt;
+            &lt;p class=&quot;eyebrow&quot;&gt;New to Logos Lab&lt;/p&gt;
+            &lt;h2 class=&quot;panel__title&quot; id=&quot;start-title&quot;&gt;Start with twelve short pieces&lt;/h2&gt;
+            &lt;p class=&quot;panel__text&quot;&gt;Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.&lt;/p&gt;
+            &lt;div class=&quot;panel__actions&quot;&gt;&lt;a class=&quot;btn btn--primary&quot; href=&quot;#&quot;&gt;Open the collection&lt;/a&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;ul class=&quot;panel__list&quot;&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/daniel-reyes.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Inside a Neural Network in Ten Minutes&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Video · 10:12&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;1&lt;/span&gt;&lt;/li&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/amara-osei.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Sabbath for the Always-On Mind&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Article · 8 min&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;2&lt;/span&gt;&lt;/li&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/peter-walsh.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Case Study: The Chatbot Chaplain&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Module · 25 min&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;3&lt;/span&gt;&lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-5, AC-6</span><iframe title="360 pixel wide frame, dark theme" width="360" height="700" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;div class=&quot;panel grain&quot;&gt;
+        &lt;div class=&quot;panel__grid&quot;&gt;
+          &lt;div&gt;
+            &lt;p class=&quot;eyebrow&quot;&gt;New to Logos Lab&lt;/p&gt;
+            &lt;h2 class=&quot;panel__title&quot; id=&quot;start-title&quot;&gt;Start with twelve short pieces&lt;/h2&gt;
+            &lt;p class=&quot;panel__text&quot;&gt;Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.&lt;/p&gt;
+            &lt;div class=&quot;panel__actions&quot;&gt;&lt;a class=&quot;btn btn--primary&quot; href=&quot;#&quot;&gt;Open the collection&lt;/a&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;ul class=&quot;panel__list&quot;&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/daniel-reyes.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Inside a Neural Network in Ten Minutes&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Video · 10:12&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;1&lt;/span&gt;&lt;/li&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/amara-osei.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Sabbath for the Always-On Mind&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Article · 8 min&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;2&lt;/span&gt;&lt;/li&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/peter-walsh.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Case Study: The Chatbot Chaplain&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Module · 25 min&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;3&lt;/span&gt;&lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-5, AC-6</span><iframe title="768 pixel wide frame, light theme" width="768" height="700" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot;&gt;&lt;div class=&quot;panel grain&quot;&gt;
+        &lt;div class=&quot;panel__grid&quot;&gt;
+          &lt;div&gt;
+            &lt;p class=&quot;eyebrow&quot;&gt;New to Logos Lab&lt;/p&gt;
+            &lt;h2 class=&quot;panel__title&quot; id=&quot;start-title&quot;&gt;Start with twelve short pieces&lt;/h2&gt;
+            &lt;p class=&quot;panel__text&quot;&gt;Start Here: Faith and AI walks through the questions people ask first, in about three hours, at your own pace.&lt;/p&gt;
+            &lt;div class=&quot;panel__actions&quot;&gt;&lt;a class=&quot;btn btn--primary&quot; href=&quot;#&quot;&gt;Open the collection&lt;/a&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;ul class=&quot;panel__list&quot;&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/daniel-reyes.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Inside a Neural Network in Ten Minutes&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Video · 10:12&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;1&lt;/span&gt;&lt;/li&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/amara-osei.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Sabbath for the Always-On Mind&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Article · 8 min&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;2&lt;/span&gt;&lt;/li&gt;
+            &lt;li class=&quot;panel__item&quot;&gt;&lt;img src=&quot;../../mocks/assets/photos/peter-walsh.jpg&quot; alt=&quot;&quot;&gt;&lt;p&gt;&lt;strong&gt;Case Study: The Chatbot Chaplain&lt;/strong&gt;&lt;span class=&quot;panel__meta&quot;&gt;Module · 25 min&lt;/span&gt;&lt;/p&gt;&lt;span class=&quot;panel__meta&quot;&gt;3&lt;/span&gt;&lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-panel" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-panel" data-min="4.5"></span></div><div class="ds-pair"><span>Text</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-panel" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Text</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-panel" data-min="4.5"></span></div></div><span class="crd-ac">AC-3, AC-4</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Panel</td><td><code>--color-bg-panel</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-panel" data-swatch></i><span data-token="--color-bg-panel"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-panel" data-swatch></i><span data-token="--color-bg-panel"></span></span></td></tr><tr><td>Grain</td><td><code>--color-grain</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-grain" data-swatch></i><span data-token="--color-grain"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-grain" data-swatch></i><span data-token="--color-grain"></span></span></td></tr><tr><td>Text</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Item</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>

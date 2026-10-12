@@ -1,0 +1,20 @@
+@if (loading()) {
+  <span llSkeleton shape="photo"></span>
+  <div><span llSkeleton shape="title"></span><span llSkeleton shape="text-short"></span></div>
+} @else {
+  @if (photoUrl(); as photoUrl) {
+    <img class="person__photo" [src]="photoUrl" alt="" width="64" height="64" loading="lazy" />
+  } @else {
+    <span class="person__photo person__initials tile--oat" aria-hidden="true">{{
+      initials()
+    }}</span>
+  }
+  <div>
+    <p class="person__name">
+      <a [routerLink]="path()">{{ name() }}</a>
+    </p>
+    @for (line of meta(); track $index) {
+      <p class="person__meta">{{ line }}</p>
+    }
+  </div>
+}

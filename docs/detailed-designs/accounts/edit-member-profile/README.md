@@ -20,8 +20,17 @@ The profile is deliberately narrow. Email address, enrolments and progress are n
 
 - **`SettingsProfilePage`** — routed page at `/settings/profile`, in the settings layout (`ll-sidebar-navigation`, `ll-page-header`). An `ll-panel` form card holds the photo with "Change photo", display name (`ll-text-field`), bio (`ll-textarea` with a 500-character counter), optional pronouns, and the visibility `ll-checkbox` "Show my profile page to other members". The mocks in `docs/mocks/pages/settings-profile/` cover `default`, `loading`, `error`, `invalid`, `submitting`, `success` and `long`.
 - **`AvatarUploadDialog`** — CDK dialog built on `ll-dialog` and `ll-file-upload` (drop zone), with a square crop preview and zoom `ll-slider`. "Change photo" opens it. The mocks in `docs/mocks/dialogs/avatar-upload/` cover `default`, `busy`, `invalid`, `crop`, `failed` and `success`.
-- **`MemberProfilePage`** — the public member profile that other members open. Its route is `<TO SUPPLY>`; it renders the fields of `MemberPublicProfile` only.
+- **`MemberProfilePage`** — the public member profile that other members open. Its route is `/members/{id}`; it renders the fields of `MemberPublicProfile` only.
 - Display names are bound with Angular text interpolation everywhere, never with `innerHTML`. A name that contains HTML or script renders as literal text.
+
+**Settings profile flow**
+
+- `/settings` opens `/settings/profile`. Every settings page is a member page (`memberGuard`) inside `ll-settings-layout` with the "Settings" navigation: Profile, Email and password, Security, Sessions, Notifications, Privacy and messaging, Your data, Blocked members.
+- While `GET /api/v1/me/profile` loads, the form card holds skeletons and the status "Loading your profile…". If it fails, the danger alert "We couldn't load your profile" offers "Try again".
+- `MemberProfile` is `displayName`, `bio`, `pronouns`, `avatarUrl` and `profileVisible`. The bio shows its count as "136 / 500".
+- "Save changes" checks first. A display name outside 2 to 50 characters reads "Enter a display name of 2 to 50 characters. This one has {n}." A bio over 500 reads "Shorten your bio to 500 characters. It has {n} now." The summary reads "One thing to fix before you can save", or "{Two} things to fix before you can save".
+- Saving shows "Saving…". A `200` returns the saved profile, updates the member's name in the header, and shows the success status "Profile saved. Members see the change straight away." beside the actions. A `422` maps `displayName` and `bio` errors onto the fields. Any other failure shows the danger alert "We couldn't save your profile" above the form, keeping what was typed.
+- "View your profile" links to the member's own public profile at `/members/{id}`.
 
 **API contract (shared API library)**
 

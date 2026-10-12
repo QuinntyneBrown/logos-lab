@@ -36,10 +36,11 @@ a signed-in member's choice.
 - **Theme control** — 3 options rendered with `ll-menu` as `menuitemradio` items with `aria-checked`.
   It appears in 3 places: the header theme menu (`docs/mocks/dialogs/theme-menu/`, states `default`
   and `selected`), the account menu (`docs/mocks/dialogs/account-menu/`, states `default`, `selected`
-  and `staff`) and the "Display" group of the navigation drawer (`docs/mocks/dialogs/nav-drawer/`).
+  and `staff`) and the "Display" group of the navigation drawer (`docs/mocks/dialogs/nav-drawer/`),
+  where it renders inline rather than as a row that opens the menu (menu CRD D-1).
   Below LG the header theme button folds into the drawer.
 - **Option labels** — `L2-133` AC2 names the options System, Light and Dark. The mocks label the first
-  option "Match my device". The shipped label is `<TO SUPPLY>`; the stored value is `system` either way.
+  option "Match my device". The shipped label is "Match my device" (menu CRD D-2); the stored value is `system` either way.
 - **`ThemeService`** — Logos Lab Web service. It holds the preference as a signal and sets or removes
   `data-theme` at once, without a reload (`L2-133` AC2). For a visitor it writes the preference to
   local storage under the key `ll-theme`. For a member it saves the preference through the API. Every

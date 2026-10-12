@@ -1,0 +1,182 @@
+<ll-auth-card>
+  <div slot="intro">
+    <p class="eyebrow" i18n="@@signIn.eyebrow">Welcome back</p>
+    <h1 class="auth__title" i18n="@@signIn.title">Sign in to Logos Lab</h1>
+    <p class="auth__sub" i18n="@@signIn.sub">
+      Pick up your courses, saved items and conversations where you left them.
+    </p>
+  </div>
+  @switch (notice()) {
+    @case ('signed-out') {
+      <ll-alert tone="success" heading="You're signed out" i18n-heading="@@signIn.signedOut.title">
+        <ng-container i18n="@@signIn.signedOut.body"
+          >Your session has ended on this device. On a shared computer, close the browser as
+          well.</ng-container
+        >
+      </ll-alert>
+    }
+    @case ('session-expired') {
+      <ll-alert
+        heading="You were signed out after 14 days away"
+        i18n-heading="@@signIn.expired.title"
+      >
+        <ng-container i18n="@@signIn.expired.body"
+          >For your security, sessions end after 14 days without activity. Sign in again and we'll
+          take you back to where you were.</ng-container
+        >
+      </ll-alert>
+    }
+  }
+  @if (failure(); as failure) {
+    @switch (failure.kind) {
+      @case ('invalid-credentials') {
+        <ll-alert
+          tone="danger"
+          heading="Email or password is incorrect"
+          i18n-heading="@@signIn.invalid.title"
+        >
+          <ng-container i18n="@@signIn.invalid.body"
+            >Check both and try again. If you've forgotten your password, you can reset it by
+            email.</ng-container
+          >
+          <a slot="actions" routerLink="/forgot-password" i18n="@@signIn.resetPassword"
+            >Reset your password</a
+          >
+        </ll-alert>
+      }
+      @case ('paused') {
+        <ll-alert tone="warning" [heading]="pausedHeading(failure.minutes)">
+          <ng-container i18n="@@signIn.paused.body"
+            >There have been a lot of sign-in attempts from this connection, so we've paused them to
+            keep accounts safe. Try again at {{ time(failure.until) }}.</ng-container
+          >
+          <ng-container ngProjectAs="[slot=actions]">
+            <a routerLink="/forgot-password" i18n="@@signIn.resetPassword">Reset your password</a>
+            <a href="mailto:help@logoslab.ca" i18n="@@signIn.writeToHelp"
+              >Write to help&#64;logoslab.ca</a
+            >
+          </ng-container>
+        </ll-alert>
+      }
+      @case ('suspended') {
+        <ll-alert
+          tone="warning"
+          heading="Your account is suspended until {{ day(failure.until) }}"
+          i18n-heading="@@signIn.suspended.title"
+        >
+          <ng-container i18n="@@signIn.suspended.body"
+            >We emailed you the details and how to appeal. You can sign in again after the
+            suspension ends.</ng-container
+          >
+          <ng-container ngProjectAs="[slot=actions]">
+            <a routerLink="/account-notice" i18n="@@signIn.readNotice">Read the notice</a>
+            <a href="mailto:help@logoslab.ca" i18n="@@signIn.writeToHelp"
+              >Write to help&#64;logoslab.ca</a
+            >
+          </ng-container>
+        </ll-alert>
+      }
+      @case ('deactivated') {
+        <ll-alert
+          tone="warning"
+          heading="This account is set to be deleted"
+          i18n-heading="@@signIn.deactivated.title"
+        >
+          <ng-container i18n="@@signIn.deactivated.body"
+            >You asked us to delete it on {{ day(failure.requestedAt) }}. Until
+            {{ day(failure.purgeAt) }} you can restore it, with everything intact, from the link in
+            our confirmation email.</ng-container
+          >
+          <ng-container ngProjectAs="[slot=actions]">
+            <a routerLink="/restore-account" i18n="@@signIn.restore">Restore your account</a>
+            <a href="mailto:help@logoslab.ca" i18n="@@signIn.writeToHelp"
+              >Write to help&#64;logoslab.ca</a
+            >
+          </ng-container>
+        </ll-alert>
+      }
+    }
+  }
+  <form llForm (submit)="$event.preventDefault(); submit()">
+    @if (errors().length) {
+      <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
+    }
+    <ll-form-field
+      label="Email"
+      i18n-label="@@signIn.email"
+      controlId="email"
+      [error]="emailError()"
+    >
+      <input
+        llInput
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        required
+        [disabled]="paused()"
+        (input)="email.set($any($event.target).value)"
+      />
+    </ll-form-field>
+    <ll-form-field
+      label="Password"
+      i18n-label="@@signIn.password"
+      controlId="password"
+      [error]="passwordError()"
+    >
+      <a
+        llButton
+        variant="text"
+        size="sm"
+        slot="label-action"
+        routerLink="/forgot-password"
+        i18n="@@signIn.forgot"
+        >Forgot your password?</a
+      >
+      <div class="input-group">
+        <input
+          llInput
+          id="password"
+          name="password"
+          [type]="passwordShown() ? 'text' : 'password'"
+          autocomplete="current-password"
+          required
+          [disabled]="paused()"
+          (input)="password.set($any($event.target).value)"
+        />
+        <button
+          llButton
+          variant="quiet"
+          type="button"
+          aria-controls="password"
+          [disabled]="paused()"
+          [pressed]="passwordShown()"
+          (click)="passwordShown.set(!passwordShown())"
+          i18n="@@signIn.show"
+        >
+          Show
+        </button>
+      </div>
+    </ll-form-field>
+    <button
+      llButton
+      variant="primary"
+      size="lg"
+      block
+      type="submit"
+      [busy]="busy()"
+      [disabled]="paused()"
+    >
+      @if (busy()) {
+        <ng-container i18n="@@signIn.submitting">Signing in…</ng-container>
+      } @else {
+        <ng-container i18n="@@signIn.submit">Sign in</ng-container>
+      }
+    </button>
+  </form>
+  <p class="auth__alt" slot="alt">
+    <ng-container i18n="@@signIn.new">New to Logos Lab?</ng-container>&ngsp;
+    <a routerLink="/register" i18n="@@signIn.register">Create a free account</a>
+  </p>
+</ll-auth-card>

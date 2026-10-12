@@ -1,0 +1,18 @@
+@if (photoUrl(); as photoUrl) {
+  <img
+    class="avatar"
+    [class]="sizeClass()"
+    [src]="photoUrl"
+    [width]="pixels()"
+    [height]="pixels()"
+    alt=""
+  />
+} @else {
+  <span
+    class="avatar-initials"
+    [class]="sizeClass() + ' tile--' + tone()"
+    aria-hidden="true"
+    [attr.aria-busy]="busy() || null"
+    >{{ initials() }}</span
+  >
+}

@@ -1,0 +1,159 @@
+<ll-skip-link i18n="@@shell.skipLink">Skip to main content</ll-skip-link>
+@if (focused()) {
+  <ll-top-bar homeLabel="Logos Lab home" i18n-homeLabel="@@shell.homeLabel" brand="full">
+    @if (focusedAction() === 'register') {
+      <a
+        llButton
+        variant="text"
+        size="sm"
+        slot="actions"
+        routerLink="/register"
+        i18n="@@shell.createAccount"
+        >Create account</a
+      >
+    } @else {
+      <a
+        llButton
+        variant="text"
+        size="sm"
+        slot="actions"
+        routerLink="/sign-in"
+        i18n="@@shell.signIn"
+        >Sign in</a
+      >
+    }
+  </ll-top-bar>
+} @else {
+  <ll-top-bar
+    homeLabel="Logos Lab home"
+    i18n-homeLabel="@@shell.homeLabel"
+    navLabel="Primary"
+    i18n-navLabel="@@shell.primaryNav"
+    menuLabel="Menu"
+    i18n-menuLabel="@@shell.menu"
+    [links]="primaryLinks"
+    [menuExpanded]="navigation.drawerOpen()"
+    (menuOpened)="void navigation.openDrawer()"
+  >
+    @if (searchOpen()) {
+      <ll-site-search-field
+        slot="search"
+        variant="row"
+        [autofocus]="true"
+        (dismissed)="closeSearch(true)"
+        (searchedFor)="closeSearch(false)"
+      />
+    }
+    <ng-container ngProjectAs="[slot=actions]">
+      <ll-site-search-field variant="wide" />
+      <button
+        #searchButton
+        llIconButton
+        type="button"
+        class="header__search-btn"
+        aria-label="Search"
+        i18n-aria-label="@@shell.searchButton"
+        [attr.aria-expanded]="searchOpen()"
+        (click)="openSearch()"
+      >
+        <svg llIcon name="search"></svg>
+      </button>
+    </ng-container>
+    @if (member(); as member) {
+      <button
+        type="button"
+        slot="actions"
+        class="avatar-btn"
+        [cdkMenuTriggerFor]="accountMenu"
+        [attr.aria-label]="accountLabel()"
+      >
+        <ll-avatar [name]="member.displayName" [photoUrl]="member.avatarUrl" />
+      </button>
+    } @else if (visitor()) {
+      <ng-container ngProjectAs="[slot=actions]">
+        <button
+          llIconButton
+          type="button"
+          slot="actions"
+          class="header__lg"
+          [cdkMenuTriggerFor]="themeMenu"
+          [attr.aria-label]="themeLabel()"
+        >
+          <svg llIcon [name]="themeIcon()"></svg>
+        </button>
+        <a
+          llButton
+          variant="text"
+          slot="actions"
+          class="header__signin"
+          routerLink="/sign-in"
+          i18n="@@shell.signIn"
+          >Sign in</a
+        >
+        <a
+          llButton
+          variant="primary"
+          size="sm"
+          slot="actions"
+          class="header__cta"
+          routerLink="/register"
+          i18n="@@shell.createAccount"
+          >Create account</a
+        >
+      </ng-container>
+    }
+  </ll-top-bar>
+}
+@if (!focused()) {
+  <ll-account-banner />
+}
+<main id="main" tabindex="-1">
+  <router-outlet />
+</main>
+@if (focused()) {
+  <ll-footer variant="quiet" navLabel="Footer" i18n-navLabel="@@shell.footerNav">
+    <li><a routerLink="/policies/privacy" i18n="@@footer.privacy">Privacy</a></li>
+    <li><a routerLink="/policies/terms" i18n="@@footer.terms">Terms</a></li>
+    <li><a routerLink="/accessibility" i18n="@@footer.accessibility">Accessibility</a></li>
+    <li><a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a></li>
+    <span slot="note" i18n="@@footer.made">Logos Lab · your data is stored in Canada</span>
+  </ll-footer>
+} @else {
+  <ll-footer
+    navLabel="Footer"
+    i18n-navLabel="@@shell.footerNav"
+    homeLabel="Logos Lab home"
+    i18n-homeLabel="@@shell.homeLabel"
+  >
+    <li><a routerLink="/policies/privacy" i18n="@@footer.privacy">Privacy</a></li>
+    <li><a routerLink="/policies/terms" i18n="@@footer.terms">Terms</a></li>
+    <li>
+      <a routerLink="/policies/community-guidelines" i18n="@@footer.guidelines"
+        >Community guidelines</a
+      >
+    </li>
+    <li><a routerLink="/accessibility" i18n="@@footer.accessibility">Accessibility</a></li>
+    <li><button type="button" i18n="@@footer.cookieSettings">Cookie settings</button></li>
+    <li><a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a></li>
+    <span slot="note" i18n="@@footer.land"
+      >Logos Lab is an expert-curated place to learn where Christian faith meets artificial
+      intelligence. Made in Canada; your data is stored in Canada.</span
+    >
+  </ll-footer>
+}
+
+<ng-template #themeMenu>
+  <ll-menu [sections]="themeSections()" (itemSelected)="chooseTheme($event)" />
+</ng-template>
+
+<ng-template #accountMenu>
+  @if (member(); as member) {
+    <ll-menu
+      label="Your account"
+      i18n-label="@@shell.accountMenu"
+      [header]="{ title: member.displayName, meta: member.email }"
+      [sections]="accountSections()"
+      (itemSelected)="chooseAccountItem($event)"
+    />
+  }
+</ng-template>

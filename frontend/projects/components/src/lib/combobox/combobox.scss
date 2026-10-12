@@ -1,0 +1,112 @@
+// The combobox block of docs/design-system/assets/components.css, with the spinner rules for
+// the busy status.
+:host {
+  display: contents;
+}
+// When a container lays the host out (the top bar's wide field), the combobox fills it.
+.combobox {
+  flex: 1;
+  min-width: 0;
+}
+.combobox {
+  position: relative;
+}
+.combobox__list {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  max-height: var(--size-combobox-max);
+  margin: 0;
+  padding: var(--space-2);
+  overflow-y: auto;
+  list-style: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  box-shadow: var(--shadow-3);
+}
+.combobox__group {
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font: var(--text-overline);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.combobox__option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  min-height: var(--target-comfortable);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-default);
+  text-decoration: none;
+  cursor: pointer;
+}
+.combobox__option .icon {
+  color: var(--color-fg-subtle);
+}
+.combobox__option:hover,
+.combobox__option[data-state='hover'] {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+}
+.combobox__option[aria-selected='true'] {
+  background: var(--color-accent-subtle);
+}
+.combobox__option mark {
+  background: none;
+  color: inherit;
+  font-weight: var(--font-weight-semibold);
+}
+.combobox__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.combobox__meta {
+  font: var(--text-caption);
+  color: var(--color-fg-subtle);
+  white-space: nowrap;
+}
+.combobox__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+.combobox__status--danger {
+  color: var(--color-danger-fg);
+}
+.combobox__foot {
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+.combobox__foot {
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+.combobox__foot[aria-selected='true'] {
+  background: var(--color-accent-subtle);
+}
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  border: var(--border-width-thick) solid currentColor;
+  border-right-color: transparent;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spinner {
+    animation: spin var(--duration-deliberate) linear infinite;
+  }
+}

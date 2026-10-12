@@ -1,0 +1,10 @@
+<div class="wrap auth">
+  <div class="auth__card">
+    @if (icon(); as icon) {
+      <span class="empty__icon" aria-hidden="true"><svg llIcon [name]="icon"></svg></span>
+    }
+    <div><ng-content select="[slot=intro]" /></div>
+    <ng-content />
+    <ng-content select="[slot=alt]" />
+  </div>
+</div>

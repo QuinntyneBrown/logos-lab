@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drawer — Component requirements rendering</title>
+<meta name="description" content="Every variant, size and state of drawer, in light and dark, keyed to the acceptance criteria in drawer.md.">
+<meta name="crd:component" content="drawer">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+/* Specimen only, not product CSS: sidebar-navigation D-1 */ .sidebar-nav button { display:flex; align-items:center; gap:var(--space-3); min-height:var(--target-comfortable); padding:0 var(--space-3); border:0; background:none; border-radius:var(--radius-md); color:var(--color-fg-muted); font-weight:var(--font-weight-medium); text-align:start; cursor:pointer; }
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Drawer</h1>
+    <p class="ds-lead">A modal sheet from an edge: the navigation drawer and phone filter sheets. Requirements: <a href="drawer.md">drawer.md</a>. Design system: <a href="../../design-system/components/drawer.html">drawer</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-drawer</code></span><span class="ds-pill">Status: built</span><span class="ds-pill">Traces to L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#states">States</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+<section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas"><div style="background:var(--color-bg-backdrop);padding:var(--space-4)"><div class="sheet sheet--left" role="dialog" aria-modal="true" aria-labelledby="drawer-title" style="position:relative;height:auto">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="drawer-title">Menu</h2>
+        <button class="icon-btn" type="button" aria-label="Close menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">Display</p>
+        <button type="button">Theme: match my device</button>
+      </nav>
+      <a class="btn btn--primary sheet__done" href="#">Create account</a>
+      <a class="btn btn--quiet btn--block" href="#" style="margin-top: var(--space-3)">Sign in</a>
+      
+    </div></div></div><div class="ds-example__caption"><span>Left, visitor: the navigation drawer with "Create account" and "Sign in". <span class="crd-ac">AC-1, AC-2, AC-9</span></span></div></div><div class="ds-example"><div class="ds-example__canvas"><div style="background:var(--color-bg-backdrop);padding:var(--space-4)"><div class="sheet sheet--left" role="dialog" aria-modal="true" aria-labelledby="drawer-title" style="position:relative;height:auto">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="drawer-title">Menu</h2>
+        <button class="icon-btn" type="button" aria-label="Close menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">You</p>
+        <a href="#" aria-current="page">Dashboard</a>
+        <a href="#">Messages <span class="badge badge--count">1<span class="vh"> unread</span></span></a>
+        <a href="#">Settings</a>
+        <p class="sidebar-nav__group">Account</p>
+        <a href="#">Sign out</a>
+      </nav>
+      
+    </div></div></div><div class="ds-example__caption"><span>Left, member. <span class="crd-ac">AC-1</span></span></div></div></section><section class="ds-section" id="states"><h2>States</h2><div class="ds-example"><div class="ds-example__canvas"><div style="background:var(--color-bg-backdrop);padding:var(--space-4)"><div class="sheet sheet--left" role="dialog" aria-modal="true" aria-labelledby="drawer-title" style="position:relative;height:auto">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="drawer-title">Menu</h2>
+        <button class="icon-btn" type="button" aria-label="Close menu" data-state="focus"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">Display</p>
+        <button type="button">Theme: match my device</button>
+      </nav>
+      <a class="btn btn--primary sheet__done" href="#">Create account</a>
+      <a class="btn btn--quiet btn--block" href="#" style="margin-top: var(--space-3)">Sign in</a>
+      
+    </div></div></div><div class="ds-example__caption"><span>Open with focus on the close control (focus trapped, Escape closes, focus returns to Menu). <span class="crd-ac">AC-3, AC-4, AC-5, AC-10</span></span></div></div></section><section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light" class="ds-example__canvas ds-example__canvas--stack"><div class="sheet sheet--left" role="dialog" aria-modal="true" aria-labelledby="drawer-title" style="position:relative;height:auto">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="drawer-title">Menu</h2>
+        <button class="icon-btn" type="button" aria-label="Close menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">Display</p>
+        <button type="button">Theme: match my device</button>
+      </nav>
+      <a class="btn btn--primary sheet__done" href="#">Create account</a>
+      <a class="btn btn--quiet btn--block" href="#" style="margin-top: var(--space-3)">Sign in</a>
+      
+    </div></div><div data-theme="dark" class="ds-example__canvas ds-example__canvas--stack"><div class="sheet sheet--left" role="dialog" aria-modal="true" aria-labelledby="drawer-title" style="position:relative;height:auto">
+      <div class="sheet__head">
+        <h2 class="sheet__title" id="drawer-title">Menu</h2>
+        <button class="icon-btn" type="button" aria-label="Close menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+      <nav class="sidebar-nav" aria-label="Site">
+        <p class="sidebar-nav__group">Browse</p>
+        <a href="#">Explore</a>
+        <a href="#">Courses</a>
+        <a href="#">Events</a>
+        <a href="#">Experts</a>
+        <a href="#">Collections</a>
+        <p class="sidebar-nav__group">Display</p>
+        <button type="button">Theme: match my device</button>
+      </nav>
+      <a class="btn btn--primary sheet__done" href="#">Create account</a>
+      <a class="btn btn--quiet btn--block" href="#" style="margin-top: var(--space-3)">Sign in</a>
+      
+    </div></div></div><span class="crd-ac">AC-6, AC-7</span></section><section class="ds-section" id="responsive"><h2>Responsive</h2><div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-8, AC-9</span><iframe title="320 pixel wide frame, light theme" width="320" height="640" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;background:var(--color-bg-backdrop);min-height:100vh&quot;&gt;&lt;div class=&quot;sheet sheet--left&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;drawer-title&quot; style=&quot;position:relative;height:auto&quot;&gt;
+      &lt;div class=&quot;sheet__head&quot;&gt;
+        &lt;h2 class=&quot;sheet__title&quot; id=&quot;drawer-title&quot;&gt;Menu&lt;/h2&gt;
+        &lt;button class=&quot;icon-btn&quot; type=&quot;button&quot; aria-label=&quot;Close menu&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;m6 6 12 12M18 6 6 18&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;nav class=&quot;sidebar-nav&quot; aria-label=&quot;Site&quot;&gt;
+        &lt;p class=&quot;sidebar-nav__group&quot;&gt;Browse&lt;/p&gt;
+        &lt;a href=&quot;#&quot;&gt;Explore&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Courses&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Events&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Experts&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Collections&lt;/a&gt;
+        &lt;p class=&quot;sidebar-nav__group&quot;&gt;Display&lt;/p&gt;
+        &lt;button type=&quot;button&quot;&gt;Theme: match my device&lt;/button&gt;
+      &lt;/nav&gt;
+      &lt;a class=&quot;btn btn--primary sheet__done&quot; href=&quot;#&quot;&gt;Create account&lt;/a&gt;
+      &lt;a class=&quot;btn btn--quiet btn--block&quot; href=&quot;#&quot; style=&quot;margin-top: var(--space-3)&quot;&gt;Sign in&lt;/a&gt;
+      
+    &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-8, AC-9</span><iframe title="360 pixel wide frame, dark theme" width="360" height="640" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div style=&quot;background:var(--color-bg-backdrop);min-height:100vh&quot;&gt;&lt;div class=&quot;sheet sheet--left&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;drawer-title&quot; style=&quot;position:relative;height:auto&quot;&gt;
+      &lt;div class=&quot;sheet__head&quot;&gt;
+        &lt;h2 class=&quot;sheet__title&quot; id=&quot;drawer-title&quot;&gt;Menu&lt;/h2&gt;
+        &lt;button class=&quot;icon-btn&quot; type=&quot;button&quot; aria-label=&quot;Close menu&quot;&gt;&lt;svg class=&quot;icon&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;m6 6 12 12M18 6 6 18&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;nav class=&quot;sidebar-nav&quot; aria-label=&quot;Site&quot;&gt;
+        &lt;p class=&quot;sidebar-nav__group&quot;&gt;Browse&lt;/p&gt;
+        &lt;a href=&quot;#&quot;&gt;Explore&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Courses&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Events&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Experts&lt;/a&gt;
+        &lt;a href=&quot;#&quot;&gt;Collections&lt;/a&gt;
+        &lt;p class=&quot;sidebar-nav__group&quot;&gt;Display&lt;/p&gt;
+        &lt;button type=&quot;button&quot;&gt;Theme: match my device&lt;/button&gt;
+      &lt;/nav&gt;
+      &lt;a class=&quot;btn btn--primary sheet__done&quot; href=&quot;#&quot;&gt;Create account&lt;/a&gt;
+      &lt;a class=&quot;btn btn--quiet btn--block&quot; href=&quot;#&quot; style=&quot;margin-top: var(--space-3)&quot;&gt;Sign in&lt;/a&gt;
+      
+    &lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div></section><section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Title and content</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Title and content</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Focus</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div></div><span class="crd-ac">AC-6, AC-7</span></section><section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Sheet</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr><tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Backdrop</td><td><code>--color-bg-backdrop</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-backdrop" data-swatch></i><span data-token="--color-bg-backdrop"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-backdrop" data-swatch></i><span data-token="--color-bg-backdrop"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+// The progress-bar block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.progress {
+  --ll-progress-value: 0%;
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-border-default);
+  overflow: hidden;
+}
+.progress__bar {
+  width: var(--ll-progress-value);
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: inherit;
+}
+.progress--success .progress__bar {
+  background: var(--color-success-solid);
+}
+.progress--danger .progress__bar {
+  background: var(--color-danger-solid);
+}
+.progress[aria-busy='true'] .progress__bar {
+  width: var(--size-progress-indeterminate);
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font: var(--text-body-sm);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .progress__bar {
+    transition: width var(--duration-slow) var(--ease-standard);
+  }
+  .progress[aria-busy='true'] .progress__bar {
+    animation: shimmer var(--duration-breath) var(--ease-breath) infinite;
+  }
+}
+.progress[aria-busy='true'] .progress__bar {
+  margin-inline-start: 30%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .progress[aria-busy='true'] .progress__bar {
+    margin-inline-start: 0;
+    animation:
+      progress-drift var(--duration-breath) var(--ease-standard) infinite,
+      shimmer var(--duration-breath) var(--ease-breath) infinite;
+  }
+  @keyframes progress-drift {
+    from {
+      translate: -100% 0;
+    }
+    to {
+      translate: 250% 0;
+    }
+  }
+}

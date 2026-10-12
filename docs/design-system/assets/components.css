@@ -290,7 +290,7 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .btn:active, .btn[data-state="active"] { transform: translateY(var(--space-0-5)); }
 .btn[aria-pressed="true"] { outline: var(--border-width-thick) solid var(--color-accent); outline-offset: var(--space-0-5); }
 .btn[aria-busy="true"] { cursor: progress; gap: var(--space-3); }
-.btn[disabled], .btn[aria-disabled="true"] { background: var(--color-bg-subtle); color: var(--color-fg-disabled); border-color: transparent; cursor: not-allowed; transform: none; }
+.btn[disabled], .btn[aria-disabled="true"]:not([aria-busy="true"]) { background: var(--color-bg-subtle); color: var(--color-fg-disabled); border-color: transparent; cursor: not-allowed; transform: none; }
 
 /* Icon button: a round, borderless target for toolbars, dialogs and toasts */
 .icon-btn {

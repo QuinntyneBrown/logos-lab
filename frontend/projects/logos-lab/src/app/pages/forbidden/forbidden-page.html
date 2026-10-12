@@ -1,0 +1,25 @@
+<div class="wrap">
+  <ll-error-page code="403">
+    <span slot="title" i18n="@@forbidden.title">You don't have access to this page</span>
+    <span slot="text" i18n="@@forbidden.text"
+      >Your account doesn't have the role this page needs. If you think you should have access,
+      write to help&#64;logoslab.ca.</span
+    >
+    <a
+      llButton
+      variant="primary"
+      slot="actions"
+      routerLink="/dashboard"
+      i18n="@@forbidden.dashboard"
+      >Go to your dashboard</a
+    >
+    <a
+      llButton
+      variant="quiet"
+      slot="actions"
+      href="mailto:help@logoslab.ca"
+      i18n="@@forbidden.help"
+      >Write to help&#64;logoslab.ca</a
+    >
+  </ll-error-page>
+</div>

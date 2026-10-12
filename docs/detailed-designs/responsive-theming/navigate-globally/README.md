@@ -58,7 +58,18 @@ notification count from APIs that other designs own.
   current page, because the "Menu" button is hidden at LG (baseline choice; the specification does not
   say where focus goes).
 - The LG boundary is 992px in `L1-022` and 64rem (1024px) in the design system and the mocks. The value
-  that ships is `<TO SUPPLY>` and follows the decision in adapt layouts across viewports.
+  that ships is 64rem, the design system's value (top-bar CRD D-2).
+
+### Logos Lab Web decisions
+
+- **Member actions** — a member's top bar shows the account button (avatar) instead of the theme
+  button, "Sign in" and "Create account"; the theme lives in the account menu and the drawer.
+- **Account menu and drawer** — built from `CurrentMember.capabilities`: Dashboard, My learning, Saved,
+  Messages and Settings for every member; a "Staff" group with Studio (author or manage content),
+  Review queue (manage any content), Moderation (moderate) and Admin (administer); the theme choice;
+  and "Sign out". The drawer's "You" group carries Dashboard, Messages and Settings, as in the mocks.
+  The counts beside Saved and Messages arrive with the saved-items and messages features.
+- **Sign out** — `DELETE /api/v1/auth/session`, then `/sign-in?signedOut=true`.
 
 ### Data the header reads
 

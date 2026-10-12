@@ -1,0 +1,52 @@
+// The .photo-edit rules of the file-upload block of docs/design-system/assets/components.css, with
+// the initials tile of the photo-edit CRD (D-1).
+:host {
+  display: contents;
+}
+
+.photo-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.photo-edit__img {
+  width: var(--space-24);
+  height: var(--space-24);
+  flex: none;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: var(--color-bg-subtle);
+}
+
+.photo-edit__initials {
+  display: grid;
+  place-items: center;
+  font: var(--font-weight-light) var(--font-size-3xl) / 1 var(--font-family-display);
+  color: var(--color-tile-fg);
+}
+
+.tile--sage {
+  background: var(--color-tile-sage);
+}
+.tile--clay {
+  background: var(--color-tile-clay);
+}
+.tile--fjord {
+  background: var(--color-tile-fjord);
+}
+.tile--oat {
+  background: var(--color-tile-oat);
+}
+
+.photo-edit__text {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+.photo-edit__text ::ng-deep .field__help {
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}

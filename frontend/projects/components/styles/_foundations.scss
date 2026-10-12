@@ -1,0 +1,429 @@
+// Global foundations: base element styles, links and layout utilities, copied from the
+// @base, @component link and @component layout blocks of docs/design-system/assets/components.css.
+// Component styles live with their components; only foundations and utilities belong here.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-default);
+  font: var(--text-body);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+}
+ul[class],
+ol[class] {
+  list-style: none;
+  padding: 0;
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+[data-state='focus'],
+[data-state='focus-visible'] {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+::selection {
+  background: var(--color-accent-subtle-hover);
+  color: var(--color-fg-default);
+}
+
+.vh {
+  position: absolute !important;
+  width: var(--border-width-hairline);
+  height: var(--border-width-hairline);
+  padding: 0;
+  margin: calc(-1 * var(--border-width-hairline));
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.icon {
+  width: var(--space-5);
+  height: var(--space-5);
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon--sm {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+.icon--lg {
+  width: var(--space-6);
+  height: var(--space-6);
+}
+
+/* Type helpers */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-overline);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.eyebrow::before {
+  content: '';
+  width: var(--space-5);
+  height: var(--border-width-hairline);
+  background: currentColor;
+}
+.lead {
+  font: var(--text-body-lg);
+  color: var(--color-fg-muted);
+  max-width: var(--layout-measure);
+}
+.muted {
+  color: var(--color-fg-muted);
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tiles behind initials and marks */
+.tile--sage {
+  background: var(--color-tile-sage);
+}
+.tile--clay {
+  background: var(--color-tile-clay);
+}
+.tile--fjord {
+  background: var(--color-tile-fjord);
+}
+.tile--oat {
+  background: var(--color-tile-oat);
+}
+
+/* Shared motion vocabulary: slow, quiet, only when welcome */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes settle {
+    from {
+      opacity: 0;
+      translate: 0 var(--space-3);
+    }
+  }
+  @keyframes rise {
+    from {
+      translate: 0 var(--space-4);
+    }
+  }
+  @keyframes shimmer {
+    50% {
+      opacity: 0.55;
+    }
+  }
+  @keyframes spin {
+    to {
+      rotate: 1turn;
+    }
+  }
+  @keyframes breathe {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-online) 50%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 var(--space-1) color-mix(in srgb, var(--color-online) 0%, transparent);
+    }
+  }
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: drift-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    @keyframes drift-in {
+      from {
+        translate: 0 var(--space-6);
+      }
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+a {
+  color: var(--color-fg-link);
+  text-decoration-thickness: var(--border-width-hairline);
+  text-underline-offset: var(--link-underline-offset);
+}
+a:hover,
+a[data-state='hover'] {
+  color: var(--color-fg-link-hover);
+  text-decoration-thickness: var(--border-width-thick);
+}
+.link-danger {
+  color: var(--color-danger-fg);
+}
+.link-danger:hover,
+.link-danger[data-state='hover'] {
+  color: var(--color-danger-fg);
+}
+.link-standalone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-label);
+}
+.link-standalone .icon {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+  .link-standalone .link__arrow {
+    transition: translate var(--duration-base) var(--ease-standard);
+  }
+  .link-standalone:hover .link__arrow,
+  .link-standalone[data-state='hover'] .link__arrow {
+    translate: var(--lift-nudge) 0;
+  }
+}
+.wrap {
+  width: 100%;
+  max-width: calc(var(--layout-container-max) + 2 * var(--layout-margin));
+  margin-inline: auto;
+  padding-inline: var(--layout-margin);
+}
+.narrow {
+  max-width: var(--layout-narrow);
+}
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+.stack--lg {
+  gap: var(--space-8);
+}
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.cluster--between {
+  justify-content: space-between;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--layout-card-min)), 1fr));
+  gap: var(--layout-gutter);
+}
+.page-block {
+  padding-block: var(--space-10) 0;
+}
+.page-block + .page-block {
+  padding-top: var(--space-12);
+}
+.two-col {
+  display: grid;
+  gap: var(--space-12);
+}
+.split {
+  display: grid;
+  gap: var(--space-6);
+}
+.sidebar-layout {
+  display: grid;
+  gap: var(--space-10);
+  padding-bottom: var(--space-8);
+}
+.page-behind {
+  min-height: 100vh;
+}
+
+.section {
+  padding-block: var(--layout-section-gap) 0;
+}
+.section__head {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+.section__title {
+  font: var(--text-h2);
+  letter-spacing: var(--letter-spacing-tight);
+}
+.section__more {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-label);
+}
+@media (min-width: 48rem) {
+  .section__head {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+  .section__head > .eyebrow {
+    grid-column: 1 / -1;
+  }
+  .section__more {
+    justify-self: end;
+  }
+}
+@media (min-width: 64rem) {
+  .two-col {
+    grid-template-columns: minmax(0, 1fr) var(--layout-aside-width);
+    align-items: start;
+  }
+  .split {
+    grid-template-columns: var(--layout-list-pane) minmax(0, 1fr);
+    align-items: start;
+  }
+  .sidebar-layout {
+    grid-template-columns: var(--layout-sidebar-width) minmax(0, 1fr);
+    gap: var(--space-16);
+    align-items: start;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .section__more .icon {
+    transition: translate var(--duration-base) var(--ease-standard);
+  }
+  .section__more:hover .icon {
+    translate: var(--lift-nudge) 0;
+  }
+}
+.two-col > *,
+.split > *,
+.sidebar-layout > *,
+.stack > * {
+  min-width: 0;
+}
+
+/* Content grid: pages lay out content cards with it (content-card CRD D-2). */
+.content-grid {
+  display: grid;
+  gap: var(--layout-gutter);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--size-content-card-min)), 1fr));
+}
+.content-grid--rows {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+// Checkbox groups (checkbox CRD): containers of label[llCheck] rows.
+.check-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.check-group > legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font: var(--text-label);
+}
+.check-group.check-group--nested {
+  padding-left: var(--space-8);
+}
+.check-grid {
+  display: grid;
+  gap: var(--space-1);
+}
+@media (min-width: 40rem) {
+  .check-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Prose: typography for authored and long-form content (the prose block of components.css). Global
+// because it styles rich text that arrives as HTML, where component encapsulation cannot reach.
+.prose {
+  max-width: var(--layout-narrow);
+  display: grid;
+  gap: var(--space-5);
+}
+.prose h2 {
+  font: var(--text-h2);
+  font-size: var(--font-size-2xl);
+  margin-top: var(--space-6);
+}
+.prose h3 {
+  font: var(--text-h3);
+  margin-top: var(--space-4);
+}
+.prose p,
+.prose li {
+  color: var(--color-fg-muted);
+  font: var(--text-body-lg);
+}
+.prose ul,
+.prose ol {
+  padding-left: var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg-default);
+}
+.prose a {
+  overflow-wrap: anywhere;
+}

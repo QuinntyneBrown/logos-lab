@@ -1,0 +1,48 @@
+// The .icon-btn rules of the button block in docs/design-system/assets/components.css.
+:host {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--target-comfortable);
+  height: var(--target-comfortable);
+  border-radius: var(--radius-full);
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+:host(:hover) {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+}
+:host(.icon-btn--sm) {
+  width: var(--space-8);
+  height: var(--space-8);
+}
+:host(:disabled) {
+  color: var(--color-fg-disabled);
+  background: none;
+  cursor: not-allowed;
+}
+.icon-btn__count {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  min-width: var(--space-5);
+  height: var(--space-5);
+  padding: 0 var(--space-1);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-fg-on-accent);
+  font: var(--font-weight-bold) var(--font-size-xs) / 1 var(--font-family-sans);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :host {
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-base) var(--ease-standard);
+  }
+}

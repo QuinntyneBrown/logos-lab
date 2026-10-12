@@ -1,0 +1,32 @@
+// The .verse rules of the testimonial block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.verse {
+  display: grid;
+  gap: var(--space-5);
+  justify-items: center;
+  text-align: center;
+  padding-block: var(--layout-section-gap) 0;
+}
+.verse__text {
+  font: var(--font-weight-light) var(--font-size-2xl) / 1.45 var(--font-family-display);
+  max-width: var(--layout-measure-verse);
+  letter-spacing: calc(-1 * var(--letter-spacing-subtle));
+}
+.verse__ref {
+  font: var(--text-overline);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.verse__rule {
+  width: var(--space-10);
+  height: var(--border-width-hairline);
+  background: var(--color-accent);
+}
+@media (min-width: 64rem) {
+  .verse__text {
+    font-size: var(--font-size-3xl);
+  }
+}

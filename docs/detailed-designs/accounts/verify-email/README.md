@@ -19,14 +19,27 @@ An Unverified member may sign in and browse. Each contribution action shows a pr
 - **`VerifyEmailPage`** — routed page at `/verify-email?token=…`, built on `ll-auth-card`, `ll-button`, `ll-empty-state` and `ll-alert`. Opening the link does not verify by itself; one "Confirm my email" button posts the token, so link scanners cannot use it up. The mocks in `docs/mocks/pages/verify-email/` cover `default`, `loading`, `success`, `expired`, `resend-sent`, `cooldown` and `error`.
 - **`VerifyEmailPromptDialog`** — CDK dialog built on `ll-dialog`, opened when an Unverified member tries a contribution action. It offers "Resend email". The mocks in `docs/mocks/dialogs/verify-email-prompt/` cover `default`, `busy`, `success`, `cooldown` and `failed` (daily limit reached).
 - **`ll-account-banner`** — banner below the header for an Unverified member, with "Resend email". The mocks in `docs/mocks/notifications/account-banner/` cover `warning`, `info`, `success` and `persistent` (the deletion date).
+- **Account banner rules** — `GET /api/v1/me` carries `emailVerified` and, for an Unverified member, `deleteUnverifiedAt`, the time the cleanup job will delete the account. The banner sits between the header and the page on every product page (not in the focused shell).
+  - `warning` reads "Verify your email to enrol, comment, register for events and send messages. We sent a link to {email}." with "Resend email" and "Dismiss for now". Dismissing hides it until the next sign-in; the choice is kept in session storage.
+  - From 7 days before `deleteUnverifiedAt` the banner is `persistent`: "Verify your email by {date} to keep your account. Unverified accounts are deleted after 30 days, with everything in them." with "Resend email" and no dismiss.
+  - "Resend email" calls `resendVerification()`. A `200` turns the banner `info`: "We sent a new verification link to {email}. It works for 24 hours; check your spam folder if it isn't there in a few minutes." with "Dismiss". A `429` keeps the banner and disables "Resend email" until `Retry-After` passes, reading "Resend in {n} s".
+  - When the member verifies in the same browser session, the verify page reloads the session, and the banner turns `success`: "Your email is verified. You can now enrol, comment, register for events and send messages." with "Dismiss".
 - **`VerificationGateService`** — web service that intercepts a `403` problem of type `email-unverified` and opens `VerifyEmailPromptDialog`.
+
+**Page flow**
+
+- Opening `/verify-email?token=…` shows the `loading` state ("Checking your link…") while `GET /api/v1/auth/email-verifications/{token}` looks the token up without using it. A `200` gives `{ email, displayName }` for the `default` state, which names the address. A `410` problem `link-expired` shows the `expired` state. When the problem carries `email`, the state names the address and offers "Send a new link". An unknown token carries no address, so the state says only "Verification links work once, within 24 hours." and points to "Sign in", from which an Unverified member can resend through the account banner.
+- "Confirm my email" shows the `loading` state again while it posts the token. A `204` shows `success`, which greets the member by the first word of `displayName` ("Welcome to Logos Lab, Miriam.") and moves focus to its heading. A `410` shows `expired`. Any other failure returns to the card with the danger alert of the `error` state, and the button reads "Try again". If the lookup itself fails with anything but `410`, the same alert shows without the address, and "Try again" looks the link up again.
+- "Send a new link" posts the token to `resend`. A `200` shows `resend-sent` with the success alert "Email sent at {time}". From then until `retryAfterSeconds` runs out, the quiet "Resend email" button is disabled and reads "Resend in {n} s". Its help reads "You can send up to 5 emails a day. You have {remainingToday} left today." This is the `cooldown` state. The help sits under the button in a label-less form field (form-field CRD D-4), which ties it to the button as its description. At 0 the button turns back on. A `429` restarts the countdown from `Retry-After`.
 
 **API contract (shared API library)**
 
-- **`AuthApi`** (token `AUTH_API`, implementation `HttpAuthApi`) — `confirmEmail(token)`, `resendVerification()` for a signed-in Unverified member, and `resendVerificationForToken(token)` for the expired-link page.
+- **`AuthApi`** (token `AUTH_API`, implementation `HttpAuthApi`) — `lookUpEmailVerification(token)` returning `EmailVerification` (`email`, `displayName`), `confirmEmail(token)`, `resendVerification()` for a signed-in Unverified member, and `resendVerificationForToken(token)` for the expired-link page.
 - **`ResendResult`** — `sentTo`, `retryAfterSeconds`, `remainingToday`.
 
 **Endpoints (Logos Lab API)**
+
+- **`GET /api/v1/auth/email-verifications/{token}`** — anonymous, read-only. Answers `200` with `{ email, displayName }`, or `410` with problem type `link-expired` (carrying `email` when the token is known but expired or used).
 
 - **`POST /api/v1/auth/email-verifications`** — anonymous. Body `{ token }`. Answers `204` on success and `410` with problem type `link-expired` for an expired, used or unknown token.
 - **`POST /api/v1/auth/email-verifications/resend`** — authenticated Unverified member, or anonymous with the expired token in the body. Answers `200` with `ResendResult`, or `429` with `Retry-After` inside the cooldown or past the daily limit.

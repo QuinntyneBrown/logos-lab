@@ -1,0 +1,219 @@
+@let current = state();
+@switch (current.kind) {
+  @case ('loading') {
+    <ll-auth-card>
+      <div slot="intro">
+        <p class="eyebrow" i18n="@@verifyEmail.eyebrow">Almost there</p>
+        <h1 class="auth__title" i18n="@@verifyEmail.title">Confirm your email</h1>
+      </div>
+      <ll-spinner-region message="Checking your link…" i18n-message="@@verifyEmail.checking" />
+    </ll-auth-card>
+  }
+  @case ('ready') {
+    <ll-auth-card icon="mail">
+      <div slot="intro">
+        <p class="eyebrow" i18n="@@verifyEmail.eyebrow">Almost there</p>
+        <h1 class="auth__title" i18n="@@verifyEmail.title">Confirm your email</h1>
+        <p class="auth__sub" i18n="@@verifyEmail.sub">
+          Confirm that <strong>{{ current.verification.email }}</strong> is yours to finish setting
+          up your Logos Lab account.
+        </p>
+      </div>
+      <form llForm (submit)="$event.preventDefault(); confirm(current.verification)">
+        <button
+          llButton
+          variant="primary"
+          size="lg"
+          block
+          type="submit"
+          i18n="@@verifyEmail.confirm"
+        >
+          Confirm my email
+        </button>
+      </form>
+      <p class="auth__alt" slot="alt" i18n="@@verifyEmail.once">
+        This link works once, within 24 hours of when we sent it.
+      </p>
+    </ll-auth-card>
+  }
+  @case ('verified') {
+    <ll-auth-card icon="check">
+      <div slot="intro">
+        <h1 class="auth__title" tabindex="-1" #heading i18n="@@verifyEmail.verified.title">
+          Your email is verified
+        </h1>
+        <p class="auth__sub" i18n="@@verifyEmail.verified.sub">
+          Welcome to Logos Lab, {{ firstName(current.verification) }}. Your account is active, so
+          you can enrol in courses, comment and register for events.
+        </p>
+      </div>
+      <a
+        llButton
+        variant="primary"
+        size="lg"
+        block
+        routerLink="/dashboard"
+        i18n="@@verifyEmail.verified.dashboard"
+        >Go to your dashboard</a
+      >
+      <p class="auth__alt" slot="alt">
+        <ng-container i18n="@@verifyEmail.verified.start">Not sure where to start?</ng-container
+        >&ngsp;
+        <a routerLink="/collections/start-here-faith-and-ai" i18n="@@verifyEmail.verified.startHere"
+          >Start Here: Faith and AI</a
+        >
+      </p>
+    </ll-auth-card>
+  }
+  @case ('expired') {
+    <ll-auth-card icon="clock">
+      <div slot="intro">
+        <h1 class="auth__title" tabindex="-1" #heading i18n="@@verifyEmail.expired.title">
+          This link has expired
+        </h1>
+        <p class="auth__sub">
+          <ng-container i18n="@@verifyEmail.expired.sub"
+            >Verification links work once, within 24 hours.</ng-container
+          >
+          @if (current.email; as email) {
+            &ngsp;<ng-container i18n="@@verifyEmail.expired.offer"
+              >We can send a new one to <strong>{{ email }}</strong
+              >.</ng-container
+            >
+          }
+        </p>
+      </div>
+      @if (current.email) {
+        <button
+          llButton
+          variant="primary"
+          size="lg"
+          block
+          type="button"
+          [busy]="sending()"
+          (click)="sendNewLink()"
+          i18n="@@verifyEmail.expired.send"
+        >
+          Send a new link
+        </button>
+      }
+      <p class="auth__alt" slot="alt">
+        <ng-container i18n="@@verifyEmail.expired.already">Already verified?</ng-container>&ngsp;
+        <a routerLink="/sign-in" i18n="@@verifyEmail.expired.signIn">Sign in</a>
+      </p>
+    </ll-auth-card>
+  }
+  @case ('sent') {
+    <ll-auth-card icon="mail">
+      <div slot="intro">
+        <h1 class="auth__title" tabindex="-1" #heading i18n="@@verifyEmail.sent.title">
+          We sent a new link
+        </h1>
+        <p class="auth__sub" i18n="@@verifyEmail.sent.sub">
+          Check <strong>{{ current.sentTo }}</strong
+          >. The new link works for 24 hours, and earlier links no longer do.
+        </p>
+      </div>
+      <ll-alert
+        tone="success"
+        icon="check"
+        heading="Email sent at {{ time(current.sentAt) }}"
+        i18n-heading="@@verifyEmail.sent.alert"
+        i18n="@@verifyEmail.sent.alertBody"
+        >It can take a few minutes. Check your spam folder if it hasn't arrived.</ll-alert
+      >
+      @if (waitSeconds() > 0) {
+        <ll-form-field
+          controlId="resend"
+          help="You can send up to 5 emails a day. You have {{
+            current.remainingToday
+          }} left today."
+          i18n-help="@@verifyEmail.sent.limit"
+        >
+          <button
+            llButton
+            variant="quiet"
+            block
+            type="button"
+            id="resend"
+            disabled
+            i18n="@@verifyEmail.sent.wait"
+          >
+            Resend in {{ waitSeconds() }} s
+          </button>
+        </ll-form-field>
+      } @else {
+        <button
+          llButton
+          variant="quiet"
+          block
+          type="button"
+          [busy]="sending()"
+          (click)="sendNewLink()"
+          i18n="@@verifyEmail.sent.resend"
+        >
+          Resend email
+        </button>
+      }
+      <p class="auth__alt" slot="alt">
+        <ng-container i18n="@@verifyEmail.sent.wrong">Wrong address?</ng-container>&ngsp;
+        <a routerLink="/register" i18n="@@verifyEmail.sent.again">Create the account again</a>
+      </p>
+    </ll-auth-card>
+  }
+  @case ('failed') {
+    <ll-auth-card>
+      <div slot="intro">
+        <p class="eyebrow" i18n="@@verifyEmail.eyebrow">Almost there</p>
+        <h1 class="auth__title" tabindex="-1" #heading i18n="@@verifyEmail.title">
+          Confirm your email
+        </h1>
+        @if (current.verification; as verification) {
+          <p class="auth__sub" i18n="@@verifyEmail.sub">
+            Confirm that <strong>{{ verification.email }}</strong> is yours to finish setting up
+            your Logos Lab account.
+          </p>
+        }
+      </div>
+      <ll-alert
+        tone="danger"
+        heading="We couldn't verify your email just now"
+        i18n-heading="@@verifyEmail.failed.title"
+      >
+        <ng-container i18n="@@verifyEmail.failed.body"
+          >Something went wrong on our side. Your link still works, so try again in a
+          minute.</ng-container
+        >
+        <a slot="actions" href="mailto:help@logoslab.ca" i18n="@@verifyEmail.failed.help"
+          >Write to help&#64;logoslab.ca</a
+        >
+      </ll-alert>
+      @if (current.verification; as verification) {
+        <form llForm (submit)="$event.preventDefault(); confirm(verification)">
+          <button
+            llButton
+            variant="primary"
+            size="lg"
+            block
+            type="submit"
+            i18n="@@verifyEmail.failed.retry"
+          >
+            Try again
+          </button>
+        </form>
+      } @else {
+        <button
+          llButton
+          variant="primary"
+          size="lg"
+          block
+          type="button"
+          (click)="lookUp()"
+          i18n="@@verifyEmail.failed.retry"
+        >
+          Try again
+        </button>
+      }
+    </ll-auth-card>
+  }
+}

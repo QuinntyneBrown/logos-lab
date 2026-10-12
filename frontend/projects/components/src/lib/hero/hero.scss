@@ -1,0 +1,116 @@
+// The hero block of docs/design-system/assets/components.css (with .photo), scoped to this
+// component's subtree so the projected title, lead, actions and photo take their roles.
+:host {
+  display: contents;
+}
+:host ::ng-deep {
+  .hero {
+    display: grid;
+    gap: var(--space-12);
+    padding-block: var(--space-16) var(--space-12);
+  }
+  .hero__title {
+    font: var(--text-display);
+    letter-spacing: var(--letter-spacing-tight);
+    max-width: var(--layout-measure-display);
+  }
+  .hero__title em {
+    font-style: normal;
+    color: var(--color-fg-accent);
+  }
+  .hero__lead {
+    margin-top: var(--space-8);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
+  }
+  .hero__aside {
+    display: grid;
+    gap: var(--space-6);
+    align-content: end;
+  }
+  .photo {
+    position: relative;
+    margin: 0;
+  }
+  .photo__frame {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-subtle);
+    aspect-ratio: 1;
+  }
+  .photo__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .photo__caption {
+    margin-top: var(--space-3);
+    font: var(--text-caption);
+    color: var(--color-fg-subtle);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .photo--small {
+    max-width: var(--size-photo-sm);
+  }
+  .hero .eyebrow + .hero__title {
+    margin-top: var(--space-6);
+  }
+  .hero--centred {
+    justify-items: center;
+    text-align: center;
+  }
+  .hero--centred .hero__title,
+  .hero--centred .hero__lead {
+    margin-inline: auto;
+  }
+  .hero--centred .hero__actions {
+    justify-content: center;
+  }
+  .hero--compact {
+    gap: var(--space-8);
+    padding-block: var(--space-12) var(--space-10);
+  }
+  .hero--compact .hero__title {
+    font: var(--text-h1);
+    letter-spacing: var(--letter-spacing-tight);
+    max-width: var(--layout-measure-title);
+  }
+  .hero--compact .hero__lead {
+    margin-top: var(--space-6);
+  }
+  .hero--compact .hero__actions {
+    margin-top: var(--space-8);
+  }
+  @media (min-width: 64rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: var(--space-20);
+      padding-block: var(--space-24) var(--space-16);
+      align-items: end;
+    }
+    .hero--centred {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hero--compact {
+      gap: var(--space-10);
+      padding-block: var(--space-16) var(--space-12);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .photo__frame img {
+      transition: scale var(--duration-deliberate) var(--ease-standard);
+    }
+    .photo:hover .photo__frame img {
+      scale: 1.03;
+    }
+  }
+  .photo--wide .photo__frame {
+    aspect-ratio: 16 / 9;
+  }
+}

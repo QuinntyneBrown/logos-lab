@@ -1,0 +1,49 @@
+<div class="field">
+  @if (label(); as label) {
+    <div class="cluster cluster--between field__label-row">
+      @if (labelAs() === 'span') {
+        <span class="field__label" [id]="labelId()">{{ label }}</span>
+      } @else {
+        <label class="field__label" [for]="controlId()"
+          >{{ label }}
+          @if (optional(); as optional) {
+            <span class="field__optional">{{ optional }}</span>
+          }
+        </label>
+      }
+      <ng-content select="[slot=label-action]" />
+    </div>
+  }
+  @if (hasHelp() && helpPlacement() === 'before') {
+    <ng-container *ngTemplateOutlet="helpTemplate" />
+  }
+  <ng-content />
+  @if (hasHelp() && helpPlacement() === 'after' && counter()) {
+    <!-- Help and counter share one row (form-field CRD D-7). -->
+    <ng-container *ngTemplateOutlet="errorTemplate" />
+    <div class="cluster cluster--between">
+      <ng-container *ngTemplateOutlet="helpTemplate" />
+      <ng-container *ngTemplateOutlet="counterTemplate" />
+    </div>
+  } @else {
+    @if (hasHelp() && helpPlacement() === 'after') {
+      <ng-container *ngTemplateOutlet="helpTemplate" />
+    }
+    <ng-container *ngTemplateOutlet="errorTemplate" />
+    <ng-container *ngTemplateOutlet="counterTemplate" />
+  }
+</div>
+<ng-template #errorTemplate>
+  @if (error(); as error) {
+    <p class="field__error" [id]="errorId()">
+      <svg llIcon name="attention" size="sm"></svg>{{ error }}
+    </p>
+  }
+</ng-template>
+<ng-template #counterTemplate>
+  @if (counter(); as counter) {
+    <p class="field__counter" [id]="counterId()">{{ counter }}</p>
+  }</ng-template
+><ng-template #helpTemplate>
+  <p class="field__help" [id]="helpId()">{{ help() }}<ng-content select="[llFieldHelp]" /></p>
+</ng-template>

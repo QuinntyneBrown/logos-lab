@@ -1,0 +1,24 @@
+<div
+  class="banner"
+  [class.banner--success]="tone() === 'success'"
+  [class.banner--warning]="tone() === 'warning'"
+  [class.banner--danger]="tone() === 'danger'"
+  [attr.role]="role()"
+  [attr.aria-label]="label()"
+>
+  <div class="wrap banner__inner">
+    <svg llIcon [name]="iconName()"></svg>
+    <p class="banner__text"><ng-content /></p>
+    <ng-content select="[slot=actions]" />
+    @if (dismissLabel(); as dismissLabel) {
+      <button
+        llIconButton
+        type="button"
+        [attr.aria-label]="dismissLabel"
+        (click)="dismissed.emit()"
+      >
+        <svg llIcon name="close" size="sm"></svg>
+      </button>
+    }
+  </div>
+</div>

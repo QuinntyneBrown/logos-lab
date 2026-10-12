@@ -1,0 +1,21 @@
+@if (caption() || valueText()) {
+  <div class="progress-label">
+    <span>{{ caption() }}</span
+    ><span>{{ valueText() }}</span>
+  </div>
+}
+<div
+  class="progress"
+  [class.progress--success]="tone() === 'success'"
+  [class.progress--danger]="tone() === 'danger'"
+  role="progressbar"
+  [attr.aria-label]="label()"
+  [attr.aria-valuenow]="clamped()"
+  [attr.aria-valuetext]="valueText()"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-busy]="clamped() === null ? 'true' : null"
+  [style.--ll-progress-value.%]="clamped() ?? 0"
+>
+  <div class="progress__bar"></div>
+</div>

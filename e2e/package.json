@@ -1,0 +1,17 @@
+{
+  "name": "logos-lab-e2e",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "lint": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.20.5",
+    "prettier": "^3.9.10",
+    "typescript": "5.9"
+  }
+}

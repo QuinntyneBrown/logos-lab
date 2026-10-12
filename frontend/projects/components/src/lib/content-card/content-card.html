@@ -1,0 +1,93 @@
+<article
+  class="content-card"
+  [class.content-card--row]="variant() === 'row'"
+  [class.is-unavailable]="unavailable()"
+>
+  <div class="content-card__cover" [class]="tile()">
+    @if (coverUrl(); as coverUrl) {
+      <img [src]="coverUrl" alt="" width="640" height="360" loading="lazy" />
+    } @else {
+      <svg llIcon [name]="glyph()" class="content-card__glyph"></svg>
+    }
+    @if (duration(); as duration) {
+      <span class="content-card__duration">{{ duration }}</span>
+    }
+  </div>
+  @if (saved() !== null) {
+    <button
+      llIconButton
+      type="button"
+      class="content-card__save"
+      [pressed]="saved()"
+      [attr.aria-label]="saveLabel()"
+      (click)="saveToggled.emit(!saved())"
+    >
+      <svg llIcon name="bookmark"></svg>
+    </button>
+  }
+  <div class="content-card__body">
+    <p class="content-card__type">{{ typeLabel() }}</p>
+    @switch (headingLevel()) {
+      @case (2) {
+        <h2 class="content-card__title"><ng-container *ngTemplateOutlet="link" /></h2>
+      }
+      @case (4) {
+        <h4 class="content-card__title"><ng-container *ngTemplateOutlet="link" /></h4>
+      }
+      @default {
+        <h3 class="content-card__title"><ng-container *ngTemplateOutlet="link" /></h3>
+      }
+    }
+    @if (author(); as author) {
+      <p class="content-card__by">
+        @if (author.logosLab) {
+          <span class="content-card__mark"
+            ><svg viewBox="0 0 32 32" aria-hidden="true">
+              <path
+                d="M16 11c-3-2-7-2.5-11-2v15c4-.5 8 0 11 2M16 11c3-2 7-2.5 11-2v15c-4-.5-8 0-11 2M16 4v22M13.5 7h5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              /></svg
+          ></span>
+        } @else if (author.photoUrl) {
+          <img [src]="author.photoUrl" alt="" width="24" height="24" loading="lazy" />
+        }
+        {{ author.name }}
+      </p>
+    }
+    @if (meta().length) {
+      <p class="content-card__meta">
+        @for (fact of meta(); track $index) {
+          <span>{{ fact }}</span>
+        }
+      </p>
+    }
+    @if (progress(); as progress) {
+      <div class="content-card__progress">
+        <ll-progress-bar [value]="progress.value" [label]="progress.label" /><span>{{
+          progress.caption
+        }}</span>
+      </div>
+    }
+    @if (statuses().length) {
+      <p class="content-card__status">
+        @for (status of statuses(); track status.label) {
+          <span llBadge [tone]="status.tone" [plain]="status.plain ?? false">
+            @if (status.icon) {
+              <svg llIcon [name]="status.icon" size="sm"></svg>
+            }
+            {{ status.label }}</span
+          >
+        }
+      </p>
+    }
+    <ng-content select="[slot=actions]" />
+  </div>
+</article>
+
+<ng-template #link
+  ><a [routerLink]="path()">{{ title() }}</a></ng-template
+>

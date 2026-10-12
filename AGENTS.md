@@ -23,6 +23,9 @@ Founder and Chief Product Officer: Quinntyne Brown.
 
 ## Repository layout
 
+- `frontend/` — the Angular workspace: the `logos-lab` application and the `@logos-lab/components` and
+  `@logos-lab/api` libraries (see `docs/adr/0001-frontend-workspace-and-testing.md`)
+- `e2e/` — the Playwright acceptance suite: `tests/`, page objects in `pages/`, the API stub in `fixtures/`
 - `docs/specs/` — requirements (`L1.md` high-level, `L2.md` detailed with acceptance criteria)
 - `docs/specs/components/` — component requirements documents (CRDs): `<component>.md` and
   `<component>.html` per component, tracing to L2; see `docs/specs/components/README.md`

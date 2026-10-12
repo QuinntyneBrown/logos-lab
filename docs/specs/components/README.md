@@ -1,0 +1,49 @@
+# Component requirements documents
+
+One CRD per shared component in `frontend/projects/components`: `<component>.md` holds the
+requirements and Given/When/Then acceptance criteria, `<component>.html` renders every variant and
+state in light and dark with the design system's own styles. A component is built only after its CRD
+exists; when its behaviour changes, the CRD changes first (`AGENTS.md`).
+
+Check the set after every edit:
+
+```bash
+python .claude/skills/writing-component-requirements-documents/scripts/check_crds.py docs/specs/components
+```
+
+| Component | Selector | Status | Traces to | Requirements | Rendering | Design system |
+|---|---|---|---|---|---|---|
+| Alert | `ll-alert` | built | L2-008, L2-009, L2-010, L2-019, L2-127, L2-129, L2-130, L2-134, L2-150 | [alert.md](alert.md) | [alert.html](alert.html) | [alert](../../design-system/components/alert.html) |
+| Avatar | `ll-avatar` | built | L2-120, L2-127, L2-129, L2-134 | [avatar.md](avatar.md) | [avatar.html](avatar.html) | [avatar](../../design-system/components/avatar.html) |
+| Badge | `span[llBadge]` | built | L2-001, L2-127, L2-129, L2-134, L2-150 | [badge.md](badge.md) | [badge.html](badge.html) | [badge](../../design-system/components/badge.html) |
+| Banner | `ll-banner` | built | L2-007, L2-078, L2-091, L2-098, L2-126, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [banner.md](banner.md) | [banner.html](banner.html) | [alert](../../design-system/components/alert.html) |
+| Brand | `ll-brand` | built | L2-127, L2-130, L2-132, L2-134 | [brand.md](brand.md) | [brand.html](brand.html) | [brand](../../design-system/components/brand.html) |
+| Button | `button[llButton]`, `a[llButton]`, `button[llIconButton]`, `a[llIconButton]` | built | L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 | [button.md](button.md) | [button.html](button.html) | [button](../../design-system/components/button.html) |
+| Checkbox | `label[llCheck]` | built | L2-114, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [checkbox.md](checkbox.md) | [checkbox.html](checkbox.html) | [checkbox](../../design-system/components/checkbox.html) |
+| Combobox | `ll-combobox` | built | L2-003, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 | [combobox.md](combobox.md) | [combobox.html](combobox.html) | [combobox](../../design-system/components/combobox.html) |
+| Content card | `ll-content-card` | built | L2-001, L2-071, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 | [content-card.md](content-card.md) | [content-card.html](content-card.html) | [content-card](../../design-system/components/content-card.html) |
+| Drawer | `ll-drawer` | built | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134 | [drawer.md](drawer.md) | [drawer.html](drawer.html) | [drawer](../../design-system/components/drawer.html) |
+| Empty state | `ll-empty-state` | built | L2-001, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [empty-state.md](empty-state.md) | [empty-state.html](empty-state.html) | [empty-state](../../design-system/components/empty-state.html) |
+| Error page | `ll-error-page` | built | L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [error-page.md](error-page.md) | [error-page.html](error-page.html) | [error-page](../../design-system/components/error-page.html) |
+| Event row | `ul[llEventList]`, `li[llEventRow]` | built | L2-001, L2-051, L2-126, L2-127, L2-129, L2-130, L2-134, L2-150 | [event-row.md](event-row.md) | [event-row.html](event-row.html) | [event-row](../../design-system/components/event-row.html) |
+| Footer | `ll-footer` | built | L2-127, L2-130, L2-134, L2-150 | [footer.md](footer.md) | [footer.html](footer.html) | [footer](../../design-system/components/footer.html) |
+| Form field | `ll-form-field` | built | L2-013, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [form-field.md](form-field.md) | [form-field.html](form-field.html) | [form-field](../../design-system/components/form-field.html) |
+| Form layout | `form[llForm]`, `ll-form-summary` | built | L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [form-layout.md](form-layout.md) | [form-layout.html](form-layout.html) | [form-layout](../../design-system/components/form-layout.html) |
+| Hero | `ll-hero` | built | L2-001, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 | [hero.md](hero.md) | [hero.html](hero.html) | [hero](../../design-system/components/hero.html) |
+| Icon | `svg[llIcon]` | built | L2-127, L2-129, L2-134 | [icon.md](icon.md) | [icon.html](icon.html) | [iconography](../../design-system/foundations/iconography.html) |
+| Inline message | `p[llInlineStatus]`, `span[llInlineStatus]` | planned | L2-007, L2-013, L2-082, L2-084, L2-091, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [inline-message.md](inline-message.md) | [inline-message.html](inline-message.html) | [inline-message](../../design-system/components/inline-message.html) |
+| Menu | `ll-menu` | built | L2-126, L2-127, L2-129, L2-130, L2-132, L2-133, L2-134, L2-150 | [menu.md](menu.md) | [menu.html](menu.html) | [menu](../../design-system/components/menu.html) |
+| Page header | `ll-page-header` | planned | L2-002, L2-003, L2-005, L2-013, L2-045, L2-069, L2-075, L2-086, L2-090, L2-095, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 | [page-header.md](page-header.md) | [page-header.html](page-header.html) | [page-header](../../design-system/components/page-header.html) |
+| Panel | `ll-panel` | built | L2-001, L2-127, L2-129, L2-130, L2-134, L2-150 | [panel.md](panel.md) | [panel.html](panel.html) | [panel](../../design-system/components/panel.html) |
+| Person list | `ul[llPersonList]`, `li[llPerson]` | built | L2-001, L2-022, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 | [person-list.md](person-list.md) | [person-list.html](person-list.html) | [person-list](../../design-system/components/person-list.html) |
+| Photo edit | `ll-photo-edit` | planned | L2-013, L2-023, L2-108, L2-126, L2-127, L2-130, L2-134, L2-150 | [photo-edit.md](photo-edit.md) | [photo-edit.html](photo-edit.html) | [file-upload](../../design-system/components/file-upload.html) |
+| Progress bar | `ll-progress-bar` | built | L2-001, L2-030, L2-127, L2-129, L2-134 | [progress-bar.md](progress-bar.md) | [progress-bar.html](progress-bar.html) | [progress-bar](../../design-system/components/progress-bar.html) |
+| Sidebar navigation | `ll-sidebar-nav`, `ll-settings-layout` | built | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150 | [sidebar-navigation.md](sidebar-navigation.md) | [sidebar-navigation.html](sidebar-navigation.html) | [sidebar-navigation](../../design-system/components/sidebar-navigation.html) |
+| Sign-in card | `ll-auth-card` | built | L2-008, L2-127, L2-129, L2-130, L2-134, L2-150 | [auth-card.md](auth-card.md) | [auth-card.html](auth-card.html) | [auth-card](../../design-system/components/auth-card.html) |
+| Skeleton | `span[llSkeleton]`, `ll-skeleton-card` | built | L2-120, L2-127, L2-129, L2-134 | [skeleton.md](skeleton.md) | [skeleton.html](skeleton.html) | [skeleton](../../design-system/components/skeleton.html) |
+| Skip link | `ll-skip-link` | built | L2-126, L2-129, L2-134, L2-147 | [skip-link.md](skip-link.md) | [skip-link.html](skip-link.html) | [skip-link](../../design-system/components/skip-link.html) |
+| Spinner | `span[llSpinner]`, `ll-spinner-region` | built | L2-007, L2-127, L2-129, L2-134, L2-150 | [spinner.md](spinner.md) | [spinner.html](spinner.html) | [spinner](../../design-system/components/spinner.html) |
+| Testimonial | `ll-verse` | built | L2-127, L2-129, L2-130, L2-134 | [testimonial.md](testimonial.md) | [testimonial.html](testimonial.html) | [testimonial](../../design-system/components/testimonial.html) |
+| Text field | `input[llInput]`, `form[llSearch]`, `div[llSearch]` | built | L2-001, L2-003, L2-014, L2-126, L2-127, L2-128, L2-129, L2-130, L2-132, L2-134, L2-150 | [text-field.md](text-field.md) | [text-field.html](text-field.html) | [text-field](../../design-system/components/text-field.html) |
+| Textarea | `textarea[llTextarea]` | planned | L2-013, L2-060, L2-085, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [textarea.md](textarea.md) | [textarea.html](textarea.html) | [textarea](../../design-system/components/textarea.html) |
+| Top bar | `ll-top-bar` | built | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150 | [top-bar.md](top-bar.md) | [top-bar.html](top-bar.html) | [top-bar](../../design-system/components/top-bar.html) |

@@ -1,0 +1,6 @@
+// Entry point for the global styles every Logos Lab application loads.
+// Fonts and tokens are read straight from the design system, its single source of truth.
+@use '../../../../docs/design-system/assets/fonts/fonts';
+@use '../../../../docs/design-system/tokens/tokens';
+@use 'foundations';
+@use 'overlay';

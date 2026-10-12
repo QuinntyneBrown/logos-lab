@@ -17,17 +17,23 @@ The request step answers the same way whether or not an account exists, so it ca
 - **`ForgotPasswordPage`** — routed page at `/forgot-password`, built on `ll-auth-card`, `ll-form-field`, `ll-text-field`, `ll-button` and `ll-alert`. The mocks in `docs/mocks/pages/forgot-password/` cover `default`, `submitting`, `invalid`, `success` and `error`. The `success` state shows "If an account exists for that address, we've sent a reset link" in every case.
 - **`ResetPasswordPage`** — routed page at `/reset-password?token=…`. It checks the link on load, then offers the new-password field with the rules. The mocks in `docs/mocks/pages/reset-password/` cover `default`, `loading`, `submitting`, `invalid`, `success`, `expired` and `error`.
 
+**Page flow**
+
+- `ResetPasswordPage` shows the `loading` state ("Checking your reset link…") while it checks the token, then `default`, which names the address ("For miriam.clarke@example.ca…"), or `expired` for a `410`.
+- The field is checked before sending: empty reads "Enter a new password"; the length rules read as on registration ("Use at least 12 characters. This one has 9."). A `422` maps `breached` to "This password has appeared in a data breach. Choose a different one." and `same-as-current` to "Choose a password different from your current one."
+- "Save new password" shows "Saving…". A `204` shows `success` naming the address, with "Sign in"; a `410` shows `expired`; any other failure shows the `error` alert and keeps what was typed. A failed check of the link shows the danger alert "We couldn't check your reset link just now" with "Try again", which checks it again.
+
 **API contract (shared API library)**
 
-- **`AuthApi`** (token `AUTH_API`, implementation `HttpAuthApi`) — `requestPasswordReset(email)`, `checkPasswordResetLink(token)`, `completePasswordReset(token, newPassword)`.
+- **`AuthApi`** (token `AUTH_API`, implementation `HttpAuthApi`) — `requestPasswordReset(email)`, `checkPasswordResetLink(token)` returning `PasswordResetLink` (`email`), `completePasswordReset(token, newPassword)`.
 
 **Endpoints (Logos Lab API)**
 
 All three are anonymous. Tokens travel in request bodies, not in API paths, so they stay out of access logs.
 
 - **`POST /api/v1/auth/password-resets`** — body `{ email }`. Always answers `202` when the email is well formed.
-- **`POST /api/v1/auth/password-resets/validations`** — body `{ token }`. Answers `204` for a valid link, or `410` with problem type `link-invalid`.
-- **`POST /api/v1/auth/password-resets/completions`** — body `{ token, newPassword }`. Answers `204`, `410` with `link-invalid`, or `422` with password errors.
+- **`POST /api/v1/auth/password-resets/validations`** — body `{ token }`. Answers `200` with `{ email }` for a valid link, so the page can name the account, or `410` with problem type `link-invalid`.
+- **`POST /api/v1/auth/password-resets/completions`** — body `{ token, newPassword }`. Answers `204`, `410` with `link-invalid`, or `422` with `errors: [{ field: "newPassword", code }]`, where `code` is `breached` or `same-as-current`.
 
 **Application and domain (Logos Lab API)**
 

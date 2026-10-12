@@ -1,0 +1,74 @@
+// The drawer block of docs/design-system/assets/components.css. The CDK overlay pane positions
+// the sheet (see styles/_overlay.scss), so the sheet fills the pane instead of fixing itself.
+:host {
+  display: contents;
+}
+:host ::ng-deep {
+  .sheet {
+    margin: 0;
+    border: 0;
+    color: var(--color-fg-default);
+    background: var(--color-bg-surface-raised);
+    box-shadow: var(--shadow-4);
+    padding: var(--space-8) var(--layout-margin) var(--space-6);
+    overflow: auto;
+  }
+  .sheet[popover],
+  .sheet--bottom {
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 86vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+  .sheet--left,
+  .sheet--right {
+    inset: 0 auto 0 0;
+    width: min(100%, var(--layout-aside-width));
+    max-height: none;
+    height: 100dvh;
+    border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  }
+  .sheet--right {
+    inset: 0 0 0 auto;
+    border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  }
+  .sheet--left,
+  .sheet--right {
+    max-width: var(--layout-aside-width);
+    padding-inline: var(--space-6);
+  }
+  .sheet--right {
+    margin-inline-start: auto;
+  }
+  .sheet::backdrop {
+    background: var(--color-bg-backdrop);
+  }
+  .sheet__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  .sheet__title {
+    font: var(--text-h4);
+  }
+  .sheet__done {
+    margin-top: var(--space-6);
+    width: 100%;
+  }
+  .sheet--left,
+  .sheet--right {
+    width: 100%;
+    height: 100%;
+  }
+  .sheet--bottom {
+    max-height: 86dvh;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sheet {
+      animation: settle var(--duration-slow) var(--ease-enter);
+    }
+  }
+}

@@ -1,0 +1,58 @@
+// The auth-card block of docs/design-system/assets/components.css, scoped to this component's
+// subtree so the projected title, sub and alternative take their roles.
+:host {
+  display: contents;
+}
+:host ::ng-deep {
+  .auth {
+    display: grid;
+    justify-items: center;
+    padding-block: var(--space-16) var(--space-24);
+  }
+  .auth__card {
+    width: 100%;
+    max-width: var(--size-auth-card);
+    display: grid;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-surface);
+    border: var(--border-width-hairline) solid var(--color-border-default);
+  }
+  .auth__title {
+    font: var(--text-h1);
+    font-size: var(--font-size-3xl);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+  .auth__sub {
+    margin-top: var(--space-3);
+    color: var(--color-fg-muted);
+  }
+  .auth__alt {
+    text-align: center;
+    font: var(--text-body-sm);
+    color: var(--color-fg-muted);
+  }
+  @media (min-width: 40rem) {
+    .auth__card {
+      padding: var(--space-12);
+    }
+  }
+  .eyebrow + .auth__title {
+    margin-top: var(--space-4);
+  }
+  // The icon tile, as the empty state draws it (auth-card CRD D-2).
+  .empty__icon {
+    display: grid;
+    place-items: center;
+    width: var(--size-empty-icon);
+    height: var(--size-empty-icon);
+    border-radius: var(--radius-md);
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+  .empty__icon .icon {
+    width: var(--size-empty-glyph);
+    height: var(--size-empty-glyph);
+  }
+}

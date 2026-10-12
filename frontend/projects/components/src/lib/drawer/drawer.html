@@ -1,0 +1,16 @@
+<div class="sheet" [class]="'sheet--' + side()">
+  <div class="sheet__head">
+    <h2 class="sheet__title" [id]="headingId()">{{ heading() }}</h2>
+    <button
+      llIconButton
+      type="button"
+      [attr.aria-label]="closeLabel()"
+      (click)="closeRequested.emit()"
+    >
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 6 12 12M18 6 6 18" />
+      </svg>
+    </button>
+  </div>
+  <ng-content />
+</div>

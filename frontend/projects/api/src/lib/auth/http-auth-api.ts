@@ -1,0 +1,65 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AuthApi } from './auth-api';
+import { EmailVerification } from './email-verification';
+import { PasswordResetLink } from './password-reset-link';
+import { RegisterRequest } from './register-request';
+import { ResendResult } from './resend-result';
+import { SecondFactorRequest } from './second-factor-request';
+import { SignInRequest } from './sign-in-request';
+import { SignInResult } from './sign-in-result';
+
+@Injectable()
+export class HttpAuthApi implements AuthApi {
+  private readonly http = inject(HttpClient);
+
+  signIn(request: SignInRequest): Observable<SignInResult> {
+    return this.http.post<SignInResult>('/api/v1/auth/sessions', request);
+  }
+
+  register(request: RegisterRequest): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/registrations', request);
+  }
+
+  lookUpEmailVerification(token: string): Observable<EmailVerification> {
+    return this.http.get<EmailVerification>(
+      `/api/v1/auth/email-verifications/${encodeURIComponent(token)}`,
+    );
+  }
+
+  confirmEmail(token: string): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/email-verifications', { token });
+  }
+
+  resendVerification(): Observable<ResendResult> {
+    return this.http.post<ResendResult>('/api/v1/auth/email-verifications/resend', {});
+  }
+
+  resendVerificationForToken(token: string): Observable<ResendResult> {
+    return this.http.post<ResendResult>('/api/v1/auth/email-verifications/resend', { token });
+  }
+
+  requestPasswordReset(email: string): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/password-resets', { email });
+  }
+
+  checkPasswordResetLink(token: string): Observable<PasswordResetLink> {
+    return this.http.post<PasswordResetLink>('/api/v1/auth/password-resets/validations', { token });
+  }
+
+  completePasswordReset(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/password-resets/completions', {
+      token,
+      newPassword,
+    });
+  }
+
+  verifySecondFactor(request: SecondFactorRequest): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/mfa-challenges/current/verifications', request);
+  }
+
+  signOut(): Observable<void> {
+    return this.http.delete<void>('/api/v1/auth/session');
+  }
+}

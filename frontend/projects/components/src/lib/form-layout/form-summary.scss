@@ -1,0 +1,25 @@
+// The .form-summary rules of the form-layout block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.form-summary {
+  padding: var(--space-5);
+  border: var(--border-width-hairline) solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+}
+.form-summary__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-h4);
+}
+.form-summary ul {
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-6);
+}
+.form-summary a {
+  color: inherit;
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,11 @@
+<section
+  class="hero"
+  [class.hero--compact]="variant() === 'compact'"
+  [class.hero--centred]="variant() === 'centred'"
+  [attr.aria-labelledby]="labelledBy()"
+>
+  <div><ng-content /></div>
+  @if (variant() !== 'centred') {
+    <div class="hero__aside"><ng-content select="[slot=aside]" /></div>
+  }
+</section>

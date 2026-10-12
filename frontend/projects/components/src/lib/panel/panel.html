@@ -1,0 +1,6 @@
+<div class="panel" [class.panel--compact]="compact()" [class.grain]="grain()">
+  <div class="panel__grid">
+    <div><ng-content /></div>
+    <ng-content select="[slot=list]" />
+  </div>
+</div>

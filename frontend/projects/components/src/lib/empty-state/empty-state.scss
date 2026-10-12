@@ -1,0 +1,53 @@
+// The empty-state block of docs/design-system/assets/components.css, scoped to this component's
+// subtree so the projected actions sit in the row.
+:host {
+  display: contents;
+}
+:host ::ng-deep {
+  .empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-4);
+    padding: var(--space-16) var(--space-6);
+    text-align: center;
+    border: var(--border-width-hairline) dashed var(--color-border-strong);
+    border-radius: var(--radius-lg);
+  }
+  .empty__icon {
+    display: grid;
+    place-items: center;
+    width: var(--size-empty-icon);
+    height: var(--size-empty-icon);
+    border-radius: var(--radius-md);
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+  .empty__icon .icon {
+    width: var(--size-empty-glyph);
+    height: var(--size-empty-glyph);
+  }
+  .empty__title {
+    font: var(--text-h3);
+  }
+  .empty > p {
+    max-width: var(--layout-measure-short);
+    color: var(--color-fg-muted);
+  }
+  .empty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+  .empty--error .empty__icon {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-icon);
+  }
+  .empty--compact {
+    padding: var(--space-6);
+  }
+  .empty__actions:empty {
+    display: none;
+  }
+}

@@ -26,10 +26,18 @@ The feature belongs to the accounts subsystem. It covers turning the feature on,
 - **`MfaDisableDialog`** — CDK dialog built on `ll-dialog` that asks for the password and a current code. Mocks in `docs/mocks/dialogs/mfa-disable/`: `default`, `busy`, `invalid`, `failed`, `success`.
 - **`mfaEnrolmentGuard`** — route guard that sends a member flagged for mandatory enrolment to `/settings/security/two-step` in the `mandatory` state before any other page loads.
 
+**Sign-in verify flow**
+
+- Sign-in answers `SecondFactorRequired` and opens `/sign-in/verify?returnUrl=…`. The code field takes 6 digits; anything else reads "Enter the 6-digit code from your app" before sending. "Lost your phone? Use a recovery code" swaps the field for "Recovery code"; an empty one reads "Enter a recovery code". "Use your authenticator app instead" swaps back.
+- "Verify" shows "Verifying…". A `204` loads the session and opens the return URL, as sign-in does.
+- A `401` problem `invalid-code` carries `attemptsLeft`. The field and summary read "That code doesn't match. Enter the newest code from your app; you have {n} tries left before a 15-minute pause." For a recovery code: "That recovery code doesn't match or has been used. Check it and try again."
+- A `429` with `Retry-After` shows the warning alert "Verification is paused for 15 minutes", naming the time it reopens, and disables the form until then.
+- Any other failure shows the danger alert "We couldn't check your code" and keeps the code.
+
 **API contract (shared API library)**
 
 - **`AccountApi`** (token `ACCOUNT_API`) — `getSecurity()`, `startMfaEnrolment()`, `confirmMfaEnrolment(code)`, `disableMfa(password, code)`.
-- **`AuthApi`** (token `AUTH_API`) — `verifySecondFactor(request: SecondFactorRequest)`.
+- **`AuthApi`** (token `AUTH_API`) — `verifySecondFactor(request: SecondFactorRequest)`, where `SecondFactorRequest` is `{ code }` or `{ recoveryCode }`.
 - **`MfaEnrolmentStart`** — `otpauthUri`, `manualKey`. **`MfaEnabled`** — `recoveryCodes: string[]`.
 
 **Endpoints (Logos Lab API)**
