@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthApi } from './auth-api';
+import { EmailVerification } from './email-verification';
 import { RegisterRequest } from './register-request';
 import { SignInRequest } from './sign-in-request';
 import { SignInResult } from './sign-in-result';
@@ -16,6 +17,12 @@ export class HttpAuthApi implements AuthApi {
 
   register(request: RegisterRequest): Observable<void> {
     return this.http.post<void>('/api/v1/auth/registrations', request);
+  }
+
+  lookUpEmailVerification(token: string): Observable<EmailVerification> {
+    return this.http.get<EmailVerification>(
+      `/api/v1/auth/email-verifications/${encodeURIComponent(token)}`,
+    );
   }
 
   signOut(): Observable<void> {

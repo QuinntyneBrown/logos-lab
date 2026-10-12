@@ -1,0 +1,39 @@
+@let current = state();
+@switch (current.kind) {
+  @case ('loading') {
+    <ll-auth-card>
+      <div slot="intro">
+        <p class="eyebrow" i18n="@@verifyEmail.eyebrow">Almost there</p>
+        <h1 class="auth__title" i18n="@@verifyEmail.title">Confirm your email</h1>
+      </div>
+      <ll-spinner-region message="Checking your link…" i18n-message="@@verifyEmail.checking" />
+    </ll-auth-card>
+  }
+  @case ('ready') {
+    <ll-auth-card icon="mail">
+      <div slot="intro">
+        <p class="eyebrow" i18n="@@verifyEmail.eyebrow">Almost there</p>
+        <h1 class="auth__title" i18n="@@verifyEmail.title">Confirm your email</h1>
+        <p class="auth__sub" i18n="@@verifyEmail.sub">
+          Confirm that <strong>{{ current.verification.email }}</strong> is yours to finish setting
+          up your Logos Lab account.
+        </p>
+      </div>
+      <form llForm (submit)="$event.preventDefault(); confirm()">
+        <button
+          llButton
+          variant="primary"
+          size="lg"
+          block
+          type="submit"
+          i18n="@@verifyEmail.confirm"
+        >
+          Confirm my email
+        </button>
+      </form>
+      <p class="auth__alt" slot="alt" i18n="@@verifyEmail.once">
+        This link works once, within 24 hours of when we sent it.
+      </p>
+    </ll-auth-card>
+  }
+}

@@ -51,18 +51,27 @@ export class RegisterPage {
     await this.submit.click();
   }
 
-  /** Whether "Create account" paints the disabled fill and label (button CRD), pointer or not. */
-  submitLooksDisabled(): Promise<boolean> {
+  /**
+   * The colours "Create account" wears, by design-system role: the primary fill and label, the
+   * disabled fill and label (button CRD), or something else such as the hover fill.
+   */
+  submitPaint(): Promise<'primary' | 'disabled' | 'other'> {
     return this.submit.evaluate((button) => {
-      const probe = document.createElement('span');
-      probe.style.background = 'var(--color-bg-subtle)';
-      probe.style.color = 'var(--color-fg-disabled)';
-      document.body.append(probe);
-      const want = getComputedStyle(probe);
-      const got = getComputedStyle(button);
-      const same = got.backgroundColor === want.backgroundColor && got.color === want.color;
-      probe.remove();
-      return same;
+      const paint = (background: string, color: string): string => {
+        const probe = document.createElement('span');
+        probe.style.background = background;
+        probe.style.color = color;
+        document.body.append(probe);
+        const style = getComputedStyle(probe);
+        const value = `${style.backgroundColor} ${style.color}`;
+        probe.remove();
+        return value;
+      };
+      const style = getComputedStyle(button);
+      const actual = `${style.backgroundColor} ${style.color}`;
+      if (actual === paint('var(--color-accent)', 'var(--color-fg-on-accent)')) return 'primary';
+      if (actual === paint('var(--color-bg-subtle)', 'var(--color-fg-disabled)')) return 'disabled';
+      return 'other';
     });
   }
 

@@ -20,6 +20,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register-page').then((m) => m.RegisterPage),
   },
   {
+    path: 'verify-email',
+    title: $localize`:@@verifyEmail.pageTitle:Verify your email - Logos Lab`,
+    data: { shell: { kind: 'focused', action: 'sign-in' } },
+    loadComponent: () =>
+      import('./pages/verify-email/verify-email-page').then((m) => m.VerifyEmailPage),
+  },
+  {
     path: '403',
     title: $localize`:@@forbidden.pageTitle:No access - Logos Lab`,
     loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),

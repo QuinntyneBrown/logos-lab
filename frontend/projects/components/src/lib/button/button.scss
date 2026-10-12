@@ -40,18 +40,18 @@
   --ll-button-bg: var(--color-accent);
   --ll-button-fg: var(--color-fg-on-accent);
 }
-:host(.btn--primary:hover) {
+:host(.btn--primary:hover:not(:disabled):not([aria-disabled='true'])) {
   background: var(--color-accent-hover);
   color: var(--color-fg-on-accent);
 }
-:host(.btn--primary:active) {
+:host(.btn--primary:active:not(:disabled):not([aria-disabled='true'])) {
   background: var(--color-accent-active);
 }
 :host(.btn--danger) {
   --ll-button-bg: var(--color-danger-solid);
   --ll-button-fg: var(--color-fg-on-danger);
 }
-:host(.btn--danger:hover) {
+:host(.btn--danger:hover:not(:disabled):not([aria-disabled='true'])) {
   background: var(--color-danger-solid-hover);
   color: var(--color-fg-on-danger);
 }
@@ -67,7 +67,7 @@
   --ll-button-fg: var(--color-fg-link);
   padding-inline: var(--space-2);
 }
-:host(.btn--text:hover) {
+:host(.btn--text:hover:not(:disabled):not([aria-disabled='true'])) {
   color: var(--color-fg-link-hover);
 }
 :host(.btn--quiet:hover:not(:disabled):not([aria-disabled='true'])) {
@@ -89,10 +89,11 @@
   cursor: progress;
   gap: var(--space-3);
 }
-// .btn matches the specificity of the variant :hover rules above, as in components.css, so a
-// disabled or busy button keeps its colours under the pointer that pressed it.
+// Variant hover and active rules skip disabled and busy buttons, so a disabled button keeps these
+// colours under the pointer. A busy button keeps its variant's own colours (CRD D-5): its
+// aria-disabled only blocks activation.
 :host(.btn[disabled]),
-:host(.btn[aria-disabled='true']) {
+:host(.btn[aria-disabled='true']:not([aria-busy='true'])) {
   background: var(--color-bg-subtle);
   color: var(--color-fg-disabled);
   border-color: transparent;
@@ -119,7 +120,7 @@
       border-color var(--duration-base) var(--ease-standard),
       color var(--duration-fast) var(--ease-standard);
   }
-  :host(.btn--primary:hover) {
+  :host(.btn--primary:hover:not(:disabled):not([aria-disabled='true'])) {
     transform: translateY(calc(-1 * var(--border-width-hairline)));
   }
   :host ::ng-deep .btn__arrow {
