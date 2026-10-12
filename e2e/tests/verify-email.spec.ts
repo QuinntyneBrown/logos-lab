@@ -46,3 +46,33 @@ test.describe('Verify email page', () => {
     expect(api.requestsTo('POST', '/auth/email-verifications')).toHaveLength(0);
   });
 });
+
+test.describe('Confirming an email', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test.beforeEach(({ api }) => {
+    api.respond('GET', `/auth/email-verifications/${token}`, verification);
+  });
+
+  // L2-007 AC1 · spinner AC-1
+  test('confirming posts the token, checks it, then welcomes Miriam', async ({ page, api }) => {
+    const release = api.hold('POST', '/auth/email-verifications', null, 204);
+    const verify = new VerifyEmailPage(page);
+    await verify.open(token);
+
+    await verify.confirmEmail();
+
+    await expect(verify.loading).toHaveText('Checking your link…');
+    expect(api.requestsTo('POST', '/auth/email-verifications')[0].body).toEqual({ token });
+
+    release();
+
+    await expect(verify.heading).toHaveText('Your email is verified');
+    await expect(verify.heading).toBeFocused();
+    await expect(verify.sub).toHaveText(
+      'Welcome to Logos Lab, Miriam. Your account is active, so you can enrol in courses, comment and register for events.',
+    );
+    await expect(verify.dashboard).toHaveAttribute('href', '/dashboard');
+    await expect(verify.startHere).toHaveAttribute('href', '/collections/start-here-faith-and-ai');
+  });
+});

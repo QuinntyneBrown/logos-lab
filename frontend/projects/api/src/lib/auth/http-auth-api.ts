@@ -25,6 +25,10 @@ export class HttpAuthApi implements AuthApi {
     );
   }
 
+  confirmEmail(token: string): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/email-verifications', { token });
+  }
+
   signOut(): Observable<void> {
     return this.http.delete<void>('/api/v1/auth/session');
   }

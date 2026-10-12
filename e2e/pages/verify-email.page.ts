@@ -9,6 +9,8 @@ export class VerifyEmailPage {
   readonly loading: Locator;
   readonly confirm: Locator;
   readonly alt: Locator;
+  readonly dashboard: Locator;
+  readonly startHere: Locator;
   private readonly card: Locator;
 
   constructor(private readonly page: Page) {
@@ -20,10 +22,16 @@ export class VerifyEmailPage {
     this.loading = this.card.locator('.spinner-region');
     this.confirm = this.card.getByRole('button', { name: 'Confirm my email' });
     this.alt = this.card.locator('.auth__alt');
+    this.dashboard = this.card.getByRole('link', { name: 'Go to your dashboard' });
+    this.startHere = this.alt.getByRole('link', { name: 'Start Here: Faith and AI' });
   }
 
   async open(token: string): Promise<void> {
     await this.page.goto(`/verify-email?token=${token}`);
     await this.heading.waitFor();
+  }
+
+  async confirmEmail(): Promise<void> {
+    await this.confirm.click();
   }
 }

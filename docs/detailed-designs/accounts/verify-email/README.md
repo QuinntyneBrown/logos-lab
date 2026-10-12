@@ -24,7 +24,7 @@ An Unverified member may sign in and browse. Each contribution action shows a pr
 **Page flow**
 
 - Opening `/verify-email?token=…` shows the `loading` state ("Checking your link…") while `GET /api/v1/auth/email-verifications/{token}` looks the token up without using it. A `200` gives `{ email, displayName }` for the `default` state, which names the address. A `410` problem `link-expired` shows the `expired` state. It names the address when the problem carries `email`.
-- "Confirm my email" shows the `loading` state again while it posts the token. A `204` shows `success`, which greets the member by `displayName`. A `410` shows `expired`. Any other failure returns to the card with the danger alert of the `error` state, and the button reads "Try again".
+- "Confirm my email" shows the `loading` state again while it posts the token. A `204` shows `success`, which greets the member by the first word of `displayName` ("Welcome to Logos Lab, Miriam.") and moves focus to its heading. A `410` shows `expired`. Any other failure returns to the card with the danger alert of the `error` state, and the button reads "Try again".
 - "Send a new link" posts the token to `resend`. A `200` shows `resend-sent` with the success alert "Email sent at {time}". From then until `retryAfterSeconds` runs out, the quiet "Resend email" button is disabled and reads "Resend in {n} s". Its help reads "You can send up to 5 emails a day. You have {remainingToday} left today." This is the `cooldown` state. At 0 the button turns back on. A `429` restarts the countdown from `Retry-After`.
 
 **API contract (shared API library)**

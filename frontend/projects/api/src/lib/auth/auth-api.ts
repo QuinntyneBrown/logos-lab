@@ -27,6 +27,12 @@ export interface AuthApi {
    */
   lookUpEmailVerification(token: string): Observable<EmailVerification>;
 
+  /**
+   * POST /api/v1/auth/email-verifications: 204 makes the account Active and uses the link up. Fails
+   * with 410 `link-expired` for an expired, used or unknown link.
+   */
+  confirmEmail(token: string): Observable<void>;
+
   /** DELETE /api/v1/auth/session: ends the current session and clears its cookie. */
   signOut(): Observable<void>;
 }
