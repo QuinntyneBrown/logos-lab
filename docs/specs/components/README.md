@@ -16,6 +16,7 @@ python .claude/skills/writing-component-requirements-documents/scripts/check_crd
 | Alert | `ll-alert` | built | L2-008, L2-009, L2-010, L2-019, L2-127, L2-129, L2-130, L2-134, L2-150 | [alert.md](alert.md) | [alert.html](alert.html) | [alert](../../design-system/components/alert.html) |
 | Avatar | `ll-avatar` | built | L2-120, L2-127, L2-129, L2-134 | [avatar.md](avatar.md) | [avatar.html](avatar.html) | [avatar](../../design-system/components/avatar.html) |
 | Badge | `span[llBadge]` | built | L2-001, L2-127, L2-129, L2-134, L2-150 | [badge.md](badge.md) | [badge.html](badge.html) | [badge](../../design-system/components/badge.html) |
+| Banner | `ll-banner` | built | L2-007, L2-078, L2-091, L2-098, L2-126, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 | [banner.md](banner.md) | [banner.html](banner.html) | [alert](../../design-system/components/alert.html) |
 | Brand | `ll-brand` | built | L2-127, L2-130, L2-132, L2-134 | [brand.md](brand.md) | [brand.html](brand.html) | [brand](../../design-system/components/brand.html) |
 | Button | `button[llButton]`, `a[llButton]`, `button[llIconButton]`, `a[llIconButton]` | built | L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 | [button.md](button.md) | [button.html](button.html) | [button](../../design-system/components/button.html) |
 | Checkbox | `label[llCheck]` | built | L2-114, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 | [checkbox.md](checkbox.md) | [checkbox.html](checkbox.html) | [checkbox](../../design-system/components/checkbox.html) |
