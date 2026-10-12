@@ -13,6 +13,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AUTH_API } from '@logos-lab/api';
 import {
+  Alert,
   AuthCard,
   Button,
   Form,
@@ -27,7 +28,17 @@ import { ResetPasswordState } from './reset-password-state';
 
 @Component({
   selector: 'll-reset-password-page',
-  imports: [RouterLink, AuthCard, Form, FormField, FormSummary, Input, Button, SpinnerRegion],
+  imports: [
+    RouterLink,
+    Alert,
+    AuthCard,
+    Form,
+    FormField,
+    FormSummary,
+    Input,
+    Button,
+    SpinnerRegion,
+  ],
   templateUrl: './reset-password-page.html',
   styleUrl: './reset-password-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,17 +55,19 @@ export class ResetPasswordPage {
   protected readonly password = signal('');
   protected readonly passwordShown = signal(false);
   protected readonly busy = signal(false);
+  protected readonly saveFailed = signal(false);
   protected readonly errors = signal<readonly FormError[]>([]);
   protected readonly passwordError = computed(() => this.errors()[0]?.message ?? null);
 
   constructor() {
+    this.check();
+  }
+
+  protected check(): void {
+    this.state.set({ kind: 'loading' });
     this.authApi.checkPasswordResetLink(this.token).subscribe({
       next: ({ email }) => this.state.set({ kind: 'ready', email }),
-      error: (error: unknown) => {
-        if (error instanceof HttpErrorResponse && error.status === 410) {
-          this.state.set({ kind: 'expired' });
-        }
-      },
+      error: (error: unknown) => this.state.set({ kind: expired(error) ? 'expired' : 'unchecked' }),
     });
   }
 
@@ -67,15 +80,35 @@ export class ResetPasswordPage {
       return;
     }
     this.busy.set(true);
+    this.saveFailed.set(false);
     this.authApi.completePasswordReset(this.token, this.password()).subscribe({
       next: () => {
         this.busy.set(false);
         this.state.set({ kind: 'changed', email });
         // Every session has ended, this tab's included.
         if (this.session.member()) this.session.member.set(null);
-        afterNextRender(() => this.heading()?.nativeElement.focus(), { injector: this.injector });
+        this.focusHeading();
+      },
+      error: (error: unknown) => {
+        this.busy.set(false);
+        if (expired(error)) {
+          this.state.set({ kind: 'expired' });
+          this.focusHeading();
+          return;
+        }
+        const fieldError = error instanceof HttpErrorResponse ? refusal(error) : null;
+        if (fieldError) {
+          this.errors.set([fieldError]);
+          afterNextRender(() => this.summary()?.focus(), { injector: this.injector });
+          return;
+        }
+        this.saveFailed.set(true);
       },
     });
+  }
+
+  private focusHeading(): void {
+    afterNextRender(() => this.heading()?.nativeElement.focus(), { injector: this.injector });
   }
 
   private validate(): FormError[] {
@@ -92,4 +125,26 @@ export class ResetPasswordPage {
       );
     return [];
   }
+}
+
+function expired(error: unknown): boolean {
+  return error instanceof HttpErrorResponse && error.status === 410;
+}
+
+/** The field message for a 422 the page knows; null for anything else. */
+function refusal(error: HttpErrorResponse): FormError | null {
+  if (error.status !== 422) return null;
+  const problems = (error.error?.errors ?? []) as { field?: string; code?: string }[];
+  const codes = problems.filter((p) => p.field === 'newPassword').map((p) => p.code);
+  if (codes.includes('breached'))
+    return {
+      controlId: 'password',
+      message: $localize`:@@resetPassword.error.breached:This password has appeared in a data breach. Choose a different one.`,
+    };
+  if (codes.includes('same-as-current'))
+    return {
+      controlId: 'password',
+      message: $localize`:@@resetPassword.error.same:Choose a password different from your current one.`,
+    };
+  return null;
 }

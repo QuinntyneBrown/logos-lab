@@ -124,3 +124,88 @@ test.describe('Saving a new password', () => {
     await expect(reset.alt.getByRole('link')).toHaveAttribute('href', 'mailto:help@logoslab.ca');
   });
 });
+
+test.describe('Reset password failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-011 AC3, L2-006 · form-field AC-3
+  test('a breached password is refused on the field', async ({ page, api }) => {
+    api.respond('POST', '/auth/password-resets/validations', link);
+    api.fail('POST', '/auth/password-resets/completions', 422, 'validation-failed', {
+      errors: [{ field: 'newPassword', code: 'breached' }],
+    });
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('password12345');
+
+    await expect(reset.passwordError).toHaveText(
+      'This password has appeared in a data breach. Choose a different one.',
+    );
+    await expect(reset.summary).toBeFocused();
+  });
+
+  // L2-011 AC3
+  test('the current password is refused on the field', async ({ page, api }) => {
+    api.respond('POST', '/auth/password-resets/validations', link);
+    api.fail('POST', '/auth/password-resets/completions', 422, 'validation-failed', {
+      errors: [{ field: 'newPassword', code: 'same-as-current' }],
+    });
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('the old harbour path');
+
+    await expect(reset.passwordError).toHaveText(
+      'Choose a password different from your current one.',
+    );
+  });
+
+  // L2-011 AC4
+  test('a link that stops working before saving shows the expired state', async ({ page, api }) => {
+    api.respond('POST', '/auth/password-resets/validations', link);
+    api.fail('POST', '/auth/password-resets/completions', 410, 'link-invalid');
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('psalm-eight-under-stars');
+
+    await expect(reset.heading).toHaveText('This reset link no longer works');
+    await expect(reset.heading).toBeFocused();
+  });
+
+  // L2-011 AC3, L2-141 · alert AC-1
+  test('a server failure on saving keeps the password and says to try again', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', '/auth/password-resets/validations', link);
+    api.fail('POST', '/auth/password-resets/completions', 503);
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('psalm-eight-under-stars');
+
+    await expect(reset.alert).toHaveAttribute('role', 'alert');
+    await expect(reset.alert).toContainText("We couldn't save your new password");
+    await expect(reset.alert).toContainText(
+      "Something went wrong on our side and your password hasn't changed. Your link still works for a while, so try again.",
+    );
+    await expect(reset.password).toHaveValue('psalm-eight-under-stars');
+    await expect(reset.submit).toHaveText('Save new password');
+  });
+
+  // L2-011 AC4, L2-141
+  test('a server failure on checking the link offers to check it again', async ({ page, api }) => {
+    api.fail('POST', '/auth/password-resets/validations', 500);
+    const reset = new ResetPasswordPage(page);
+
+    await reset.open(token);
+
+    await expect(reset.alert).toContainText("We couldn't check your reset link just now");
+    api.respond('POST', '/auth/password-resets/validations', link);
+    await reset.tryAgain.click();
+
+    await expect(reset.password).toBeVisible();
+  });
+});

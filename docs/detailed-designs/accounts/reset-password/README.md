@@ -21,7 +21,7 @@ The request step answers the same way whether or not an account exists, so it ca
 
 - `ResetPasswordPage` shows the `loading` state ("Checking your reset link…") while it checks the token, then `default`, which names the address ("For miriam.clarke@example.ca…"), or `expired` for a `410`.
 - The field is checked before sending: empty reads "Enter a new password"; the length rules read as on registration ("Use at least 12 characters. This one has 9."). A `422` maps `breached` to "This password has appeared in a data breach. Choose a different one." and `same-as-current` to "Choose a password different from your current one."
-- "Save new password" shows "Saving…". A `204` shows `success` naming the address, with "Sign in"; a `410` shows `expired`; any other failure shows the `error` alert and keeps what was typed. A failed check of the link shows the same alert with "Try again", which checks it again.
+- "Save new password" shows "Saving…". A `204` shows `success` naming the address, with "Sign in"; a `410` shows `expired`; any other failure shows the `error` alert and keeps what was typed. A failed check of the link shows the danger alert "We couldn't check your reset link just now" with "Try again", which checks it again.
 
 **API contract (shared API library)**
 
