@@ -22,6 +22,7 @@ import {
   SkipLink,
   TopBar,
 } from '@logos-lab/components';
+import { AccountBanner } from './account-banner/account-banner';
 import { GlobalNavigation } from './global-navigation';
 import { memberPlaces, SIGN_OUT_ID, signOutItem, staffPlaces } from './member-navigation';
 import { PRIMARY_LINKS } from './primary-links';
@@ -47,6 +48,7 @@ import { themeButtonLabel, themeItems } from './theme-options';
     Menu,
     Avatar,
     SiteSearchField,
+    AccountBanner,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

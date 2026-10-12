@@ -8,6 +8,8 @@ export const members = {
     roles: ['learner'],
     capabilities: ['Learn'],
     themePreference: 'system',
+    emailVerified: true,
+    deleteUnverifiedAt: null,
   },
   isaac: {
     id: 'u-isaac',
@@ -26,5 +28,18 @@ export const members = {
       'ViewPlatformAnalytics',
     ],
     themePreference: 'system',
+    emailVerified: true,
+    deleteUnverifiedAt: null,
+  },
+  ethan: {
+    id: 'u-ethan',
+    displayName: 'Ethan Wu',
+    email: 'ethan.wu@example.ca',
+    avatarUrl: null,
+    roles: ['learner'],
+    capabilities: ['Learn'],
+    themePreference: 'system',
+    emailVerified: false,
+    deleteUnverifiedAt: '2026-11-11T15:00:00Z',
   },
 } as const;

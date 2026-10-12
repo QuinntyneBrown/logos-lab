@@ -104,6 +104,9 @@
     }
   </ll-top-bar>
 }
+@if (!focused()) {
+  <ll-account-banner />
+}
 <main id="main" tabindex="-1">
   <router-outlet />
 </main>

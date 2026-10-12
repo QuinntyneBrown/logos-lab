@@ -1,0 +1,26 @@
+@if (shown()) {
+  @let member = unverified()!;
+  <ll-banner
+    tone="warning"
+    label="Account"
+    i18n-label="@@accountBanner.label"
+    dismissLabel="Dismiss for now"
+    i18n-dismissLabel="@@accountBanner.dismissForNow"
+    (dismissed)="dismiss()"
+  >
+    <ng-container i18n="@@accountBanner.verify"
+      >Verify your email to enrol, comment, register for events and send messages. We sent a link to
+      {{ member.email }}.</ng-container
+    >
+    <button
+      llButton
+      variant="quiet"
+      size="sm"
+      type="button"
+      slot="actions"
+      i18n="@@accountBanner.resend"
+    >
+      Resend email
+    </button>
+  </ll-banner>
+}
