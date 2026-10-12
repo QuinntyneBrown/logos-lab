@@ -127,3 +127,29 @@ test.describe('Resending from the account banner', () => {
     await expect(banner.resend).toBeEnabled();
   });
 });
+
+test.describe('Account banner before deletion', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-007 AC3, AC5 · banner AC-4
+  test('in the last 7 days the banner names the deletion date and cannot be dismissed', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.install({ time: new Date('2026-11-05T14:00:00Z') });
+    api.respond('GET', '/home', homePage());
+    api.respond('GET', '/me', members.ethan);
+    await page.addInitScript(() => sessionStorage.setItem('ll.accountBanner.dismissed', 'true'));
+    const home = new HomePage(page);
+    const banner = new AccountBanner(page);
+
+    await home.open();
+
+    await expect(banner.root).toHaveClass(/banner--warning/);
+    await expect(banner.text).toHaveText(
+      'Verify your email by Wed, Nov 11, 2026 to keep your account. Unverified accounts are deleted after 30 days, with everything in them.',
+    );
+    await expect(banner.resend).toHaveText('Resend email');
+    await expect(banner.dismiss).toHaveCount(0);
+  });
+});

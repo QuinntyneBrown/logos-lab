@@ -14,6 +14,16 @@
         folder if it isn't there in a few minutes.</ng-container
       >
     </ll-banner>
+  } @else if (deletionDay(); as deletionDay) {
+    <ll-banner tone="warning" label="Account" i18n-label="@@accountBanner.label">
+      <ng-container i18n="@@accountBanner.deletion"
+        >Verify your email by {{ deletionDay }} to keep your account. Unverified accounts are
+        deleted after 30 days, with everything in them.</ng-container
+      >
+      <ng-container ngProjectAs="[slot=actions]">
+        <ng-container *ngTemplateOutlet="resendButton" />
+      </ng-container>
+    </ll-banner>
   } @else {
     <ll-banner
       tone="warning"
@@ -27,32 +37,29 @@
         >Verify your email to enrol, comment, register for events and send messages. We sent a link
         to {{ member.email }}.</ng-container
       >
-      @if (waitSeconds() > 0) {
-        <button
-          llButton
-          variant="quiet"
-          size="sm"
-          type="button"
-          slot="actions"
-          disabled
-          i18n="@@accountBanner.wait"
-        >
-          Resend in {{ waitSeconds() }} s
-        </button>
-      } @else {
-        <button
-          llButton
-          variant="quiet"
-          size="sm"
-          type="button"
-          slot="actions"
-          [busy]="sending()"
-          (click)="resend()"
-          i18n="@@accountBanner.resend"
-        >
-          Resend email
-        </button>
-      }
+      <ng-container ngProjectAs="[slot=actions]">
+        <ng-container *ngTemplateOutlet="resendButton" />
+      </ng-container>
     </ll-banner>
   }
 }
+
+<ng-template #resendButton>
+  @if (waitSeconds() > 0) {
+    <button llButton variant="quiet" size="sm" type="button" disabled i18n="@@accountBanner.wait">
+      Resend in {{ waitSeconds() }} s
+    </button>
+  } @else {
+    <button
+      llButton
+      variant="quiet"
+      size="sm"
+      type="button"
+      [busy]="sending()"
+      (click)="resend()"
+      i18n="@@accountBanner.resend"
+    >
+      Resend email
+    </button>
+  }
+</ng-template>
