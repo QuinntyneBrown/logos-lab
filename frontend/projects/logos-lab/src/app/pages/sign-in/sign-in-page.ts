@@ -27,6 +27,7 @@ import { safeReturnUrl } from '../../return-url';
 import { Session } from '../../session';
 import { readSignInFailure } from './read-sign-in-failure';
 import { SignInFailure } from './sign-in-failure';
+import { calendarDay } from '../../content/calendar-day';
 import { clockTime } from '../../content/clock-time';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -108,12 +109,7 @@ export class SignInPage {
 
   /** "Tue, Oct 20, 2026" in the viewer's time zone. */
   protected day(date: Date): string {
-    return new Intl.DateTimeFormat(this.locale, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
+    return calendarDay(this.locale, date);
   }
 
   /** "10:39 AM EDT" in the viewer's time zone. */
