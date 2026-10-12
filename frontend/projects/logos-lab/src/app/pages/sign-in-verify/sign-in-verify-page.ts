@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AUTH_API } from '@logos-lab/api';
+import { AUTH_API, SecondFactorRequest } from '@logos-lab/api';
 import {
   AuthCard,
   Button,
@@ -39,6 +39,8 @@ export class SignInVerifyPage {
   private readonly query = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
   private readonly returnUrl = computed(() => safeReturnUrl(this.query().get('returnUrl')));
 
+  /** "Use a recovery code" is a link to `?method=recovery`, so Back returns to the app code. */
+  protected readonly recovery = computed(() => this.query().get('method') === 'recovery');
   protected readonly code = signal('');
   protected readonly busy = signal(false);
   protected readonly errors = signal<readonly FormError[]>([]);
@@ -52,8 +54,12 @@ export class SignInVerifyPage {
       this.summary()?.focus();
       return;
     }
+    const value = this.code().trim();
+    const request: SecondFactorRequest = this.recovery()
+      ? { recoveryCode: value }
+      : { code: value };
     this.busy.set(true);
-    this.authApi.verifySecondFactor({ code: this.code().trim() }).subscribe({
+    this.authApi.verifySecondFactor(request).subscribe({
       next: () => {
         this.session.load();
         void this.router.navigateByUrl(this.returnUrl());
@@ -64,6 +70,15 @@ export class SignInVerifyPage {
 
   private validate(): FormError[] {
     const value = this.code().trim();
+    if (this.recovery())
+      return value
+        ? []
+        : [
+            {
+              controlId: 'recovery',
+              message: $localize`:@@signInVerify.error.recoveryMissing:Enter a recovery code`,
+            },
+          ];
     return SIX_DIGITS.test(value)
       ? []
       : [

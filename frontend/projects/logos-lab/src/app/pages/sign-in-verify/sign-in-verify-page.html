@@ -1,10 +1,17 @@
 <ll-auth-card>
   <div slot="intro">
     <p class="eyebrow" i18n="@@signInVerify.eyebrow">Two-step verification</p>
-    <h1 class="auth__title" i18n="@@signInVerify.title">Enter your verification code</h1>
-    <p class="auth__sub" i18n="@@signInVerify.sub">
-      Open your authenticator app and enter the 6-digit code it shows for Logos Lab.
-    </p>
+    @if (recovery()) {
+      <h1 class="auth__title" i18n="@@signInVerify.recovery.title">Use a recovery code</h1>
+      <p class="auth__sub" i18n="@@signInVerify.recovery.sub">
+        Enter one of the 10 recovery codes you saved when you set up two-step verification.
+      </p>
+    } @else {
+      <h1 class="auth__title" i18n="@@signInVerify.title">Enter your verification code</h1>
+      <p class="auth__sub" i18n="@@signInVerify.sub">
+        Open your authenticator app and enter the 6-digit code it shows for Logos Lab.
+      </p>
+    }
   </div>
   <form llForm (submit)="$event.preventDefault(); submit()">
     @if (errors().length) {
@@ -14,29 +21,53 @@
         [errors]="errors()"
       />
     }
-    <ll-form-field
-      label="6-digit code"
-      i18n-label="@@signInVerify.code"
-      controlId="code"
-      help="Codes change every 30 seconds."
-      i18n-help="@@signInVerify.codeHelp"
-      helpPlacement="before"
-      [error]="fieldError()"
-    >
-      <input
-        llInput
-        otp
-        id="code"
-        name="code"
-        type="text"
-        inputmode="numeric"
-        autocomplete="one-time-code"
-        maxlength="6"
-        pattern="[0-9]{6}"
-        required
-        (input)="code.set($any($event.target).value)"
-      />
-    </ll-form-field>
+    @if (recovery()) {
+      <ll-form-field
+        label="Recovery code"
+        i18n-label="@@signInVerify.recovery.label"
+        controlId="recovery"
+        help="It looks like 4F7K-29XM. Each code works once, and we'll email you when one is used."
+        i18n-help="@@signInVerify.recovery.help"
+        helpPlacement="before"
+        [error]="fieldError()"
+      >
+        <input
+          llInput
+          id="recovery"
+          name="recovery"
+          type="text"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          required
+          (input)="code.set($any($event.target).value)"
+        />
+      </ll-form-field>
+    } @else {
+      <ll-form-field
+        label="6-digit code"
+        i18n-label="@@signInVerify.code"
+        controlId="code"
+        help="Codes change every 30 seconds."
+        i18n-help="@@signInVerify.codeHelp"
+        helpPlacement="before"
+        [error]="fieldError()"
+      >
+        <input
+          llInput
+          otp
+          id="code"
+          name="code"
+          type="text"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="6"
+          pattern="[0-9]{6}"
+          required
+          (input)="code.set($any($event.target).value)"
+        />
+      </ll-form-field>
+    }
     <button llButton variant="primary" size="lg" block type="submit" [busy]="busy()">
       @if (busy()) {
         <ng-container i18n="@@signInVerify.verifying">Verifying…</ng-container>
@@ -47,13 +78,23 @@
   </form>
   <ng-container ngProjectAs="[slot=alt]">
     <p class="auth__alt">
-      <a
-        routerLink="."
-        [queryParams]="{ method: 'recovery' }"
-        queryParamsHandling="merge"
-        i18n="@@signInVerify.useRecovery"
-        >Lost your phone? Use a recovery code</a
-      >
+      @if (recovery()) {
+        <a
+          routerLink="."
+          [queryParams]="{ method: null }"
+          queryParamsHandling="merge"
+          i18n="@@signInVerify.useApp"
+          >Use your authenticator app instead</a
+        >
+      } @else {
+        <a
+          routerLink="."
+          [queryParams]="{ method: 'recovery' }"
+          queryParamsHandling="merge"
+          i18n="@@signInVerify.useRecovery"
+          >Lost your phone? Use a recovery code</a
+        >
+      }
     </p>
     <p class="auth__alt">
       <ng-container i18n="@@signInVerify.notYou">Not you?</ng-container>&ngsp;

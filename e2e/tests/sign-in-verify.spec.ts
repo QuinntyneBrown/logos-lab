@@ -67,3 +67,55 @@ test.describe('Verifying the second factor', () => {
     expect(api.requestsTo('POST', verifications)).toHaveLength(0);
   });
 });
+
+test.describe('Signing in with a recovery code', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-014 AC4
+  test('"Use a recovery code" swaps the field, and a recovery code signs in', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', verifications, undefined, 204);
+    api.respond('GET', '/me', members.miriam);
+    const verify = new SignInVerifyPage(page);
+    await verify.open('?returnUrl=%2Fno-such-saved-page');
+
+    await verify.useRecoveryCode.click();
+
+    await expect(verify.heading).toHaveText('Use a recovery code');
+    await expect(verify.sub).toHaveText(
+      'Enter one of the 10 recovery codes you saved when you set up two-step verification.',
+    );
+    await expect(verify.recoveryCode).toHaveAccessibleDescription(
+      "It looks like 4F7K-29XM. Each code works once, and we'll email you when one is used.",
+    );
+    await expect(verify.useApp).toBeVisible();
+
+    await verify.verifyRecoveryCode(' 4F7K-29XM ');
+
+    await expect(page).toHaveURL('/no-such-saved-page');
+    expect(api.requestsTo('POST', verifications)[0].body).toEqual({ recoveryCode: '4F7K-29XM' });
+  });
+
+  // L2-014
+  test('the app code comes back with "Use your authenticator app instead"', async ({ page }) => {
+    const verify = new SignInVerifyPage(page);
+    await verify.open('?method=recovery');
+
+    await verify.useApp.click();
+
+    await expect(verify.heading).toHaveText('Enter your verification code');
+    await expect(verify.code).toBeVisible();
+  });
+
+  // L2-014
+  test('an empty recovery code asks for one', async ({ page }) => {
+    const verify = new SignInVerifyPage(page);
+    await verify.open('?method=recovery');
+
+    await verify.verifyRecoveryCode('');
+
+    await expect(verify.recoveryError).toHaveText('Enter a recovery code');
+  });
+});
