@@ -132,3 +132,86 @@ test.describe('Expired verification links', () => {
     await expect(verify.signIn).toBeVisible();
   });
 });
+
+test.describe('Sending a new verification link', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test.beforeEach(async ({ page, api }) => {
+    await page.clock.install({ time: new Date('2026-10-12T14:24:00Z') });
+    api.fail('GET', `/auth/email-verifications/${token}`, 410, 'link-expired', {
+      email: 'miriam.clarke@example.ca',
+    });
+  });
+
+  // L2-007 AC2, AC4 · alert AC-1
+  test('a new link is sent, and resending pauses for 60 seconds with the daily limit', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', '/auth/email-verifications/resend', {
+      sentTo: 'miriam.clarke@example.ca',
+      retryAfterSeconds: 60,
+      remainingToday: 3,
+    });
+    const verify = new VerifyEmailPage(page);
+    await verify.open(token);
+
+    await verify.sendANewLink();
+
+    await expect(verify.heading).toHaveText('We sent a new link');
+    expect(api.requestsTo('POST', '/auth/email-verifications/resend')[0].body).toEqual({ token });
+    await expect(verify.heading).toBeFocused();
+    await expect(verify.sub).toHaveText(
+      'Check miriam.clarke@example.ca. The new link works for 24 hours, and earlier links no longer do.',
+    );
+    await expect(verify.alert).toHaveAttribute('role', 'status');
+    await expect(verify.alert).toContainText('Email sent at 10:24');
+    await expect(verify.alert).toContainText(
+      "It can take a few minutes. Check your spam folder if it hasn't arrived.",
+    );
+    await expect(verify.resend).toBeDisabled();
+    await expect(verify.resend).toHaveText('Resend in 60 s');
+    await expect(verify.resendHelp).toHaveText(
+      'You can send up to 5 emails a day. You have 3 left today.',
+    );
+    await expect(verify.resend).toHaveAccessibleDescription(
+      'You can send up to 5 emails a day. You have 3 left today.',
+    );
+    await expect(verify.createAgain).toHaveAttribute('href', '/register');
+
+    await page.clock.runFor(18_000);
+    await expect(verify.resend).toHaveText('Resend in 42 s');
+
+    await page.clock.runFor(42_000);
+    await expect(verify.resend).toHaveText('Resend email');
+    await expect(verify.resend).toBeEnabled();
+  });
+
+  // L2-007 AC4
+  test('resending within the cooldown waits as long as the server says', async ({ page, api }) => {
+    api.respond('POST', '/auth/email-verifications/resend', {
+      sentTo: 'miriam.clarke@example.ca',
+      retryAfterSeconds: 0,
+      remainingToday: 3,
+    });
+    const verify = new VerifyEmailPage(page);
+    await verify.open(token);
+    await verify.sendANewLink();
+    await expect(verify.resend).toHaveText('Resend email');
+    api.fail(
+      'POST',
+      '/auth/email-verifications/resend',
+      429,
+      'too-many-requests',
+      {},
+      {
+        'Retry-After': '42',
+      },
+    );
+
+    await verify.resendEmail();
+
+    await expect(verify.resend).toHaveText('Resend in 42 s');
+    await expect(verify.resend).toBeDisabled();
+  });
+});

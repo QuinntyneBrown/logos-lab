@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import { EmailVerification } from './email-verification';
 import { RegisterRequest } from './register-request';
+import { ResendResult } from './resend-result';
 import { SignInRequest } from './sign-in-request';
 import { SignInResult } from './sign-in-result';
 
@@ -32,6 +33,13 @@ export interface AuthApi {
    * with 410 `link-expired` for an expired, used or unknown link.
    */
   confirmEmail(token: string): Observable<void>;
+
+  /**
+   * POST /api/v1/auth/email-verifications/resend with an expired link's token: sends a new link and
+   * makes earlier ones stop working. Fails with 429 and `Retry-After` within 60 seconds of the last
+   * email or past 5 emails in 24 hours.
+   */
+  resendVerificationForToken(token: string): Observable<ResendResult>;
 
   /** DELETE /api/v1/auth/session: ends the current session and clears its cookie. */
   signOut(): Observable<void>;

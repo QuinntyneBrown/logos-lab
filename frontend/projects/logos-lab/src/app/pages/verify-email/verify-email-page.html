@@ -90,6 +90,8 @@
           size="lg"
           block
           type="button"
+          [busy]="sending()"
+          (click)="sendNewLink()"
           i18n="@@verifyEmail.expired.send"
         >
           Send a new link
@@ -98,6 +100,64 @@
       <p class="auth__alt" slot="alt">
         <ng-container i18n="@@verifyEmail.expired.already">Already verified?</ng-container>&ngsp;
         <a routerLink="/sign-in" i18n="@@verifyEmail.expired.signIn">Sign in</a>
+      </p>
+    </ll-auth-card>
+  }
+  @case ('sent') {
+    <ll-auth-card icon="mail">
+      <div slot="intro">
+        <h1 class="auth__title" tabindex="-1" #heading i18n="@@verifyEmail.sent.title">
+          We sent a new link
+        </h1>
+        <p class="auth__sub" i18n="@@verifyEmail.sent.sub">
+          Check <strong>{{ current.sentTo }}</strong
+          >. The new link works for 24 hours, and earlier links no longer do.
+        </p>
+      </div>
+      <ll-alert
+        tone="success"
+        icon="check"
+        heading="Email sent at {{ time(current.sentAt) }}"
+        i18n-heading="@@verifyEmail.sent.alert"
+        i18n="@@verifyEmail.sent.alertBody"
+        >It can take a few minutes. Check your spam folder if it hasn't arrived.</ll-alert
+      >
+      @if (waitSeconds() > 0) {
+        <ll-form-field
+          controlId="resend"
+          help="You can send up to 5 emails a day. You have {{
+            current.remainingToday
+          }} left today."
+          i18n-help="@@verifyEmail.sent.limit"
+        >
+          <button
+            llButton
+            variant="quiet"
+            block
+            type="button"
+            id="resend"
+            disabled
+            i18n="@@verifyEmail.sent.wait"
+          >
+            Resend in {{ waitSeconds() }} s
+          </button>
+        </ll-form-field>
+      } @else {
+        <button
+          llButton
+          variant="quiet"
+          block
+          type="button"
+          [busy]="sending()"
+          (click)="sendNewLink()"
+          i18n="@@verifyEmail.sent.resend"
+        >
+          Resend email
+        </button>
+      }
+      <p class="auth__alt" slot="alt">
+        <ng-container i18n="@@verifyEmail.sent.wrong">Wrong address?</ng-container>&ngsp;
+        <a routerLink="/register" i18n="@@verifyEmail.sent.again">Create the account again</a>
       </p>
     </ll-auth-card>
   }

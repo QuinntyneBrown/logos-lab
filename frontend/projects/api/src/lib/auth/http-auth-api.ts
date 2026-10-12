@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AuthApi } from './auth-api';
 import { EmailVerification } from './email-verification';
 import { RegisterRequest } from './register-request';
+import { ResendResult } from './resend-result';
 import { SignInRequest } from './sign-in-request';
 import { SignInResult } from './sign-in-result';
 
@@ -27,6 +28,10 @@ export class HttpAuthApi implements AuthApi {
 
   confirmEmail(token: string): Observable<void> {
     return this.http.post<void>('/api/v1/auth/email-verifications', { token });
+  }
+
+  resendVerificationForToken(token: string): Observable<ResendResult> {
+    return this.http.post<ResendResult>('/api/v1/auth/email-verifications/resend', { token });
   }
 
   signOut(): Observable<void> {

@@ -17,6 +17,7 @@ export * from './lib/auth/http-auth-api';
 export * from './lib/auth/sign-in-request';
 export * from './lib/auth/register-request';
 export * from './lib/auth/email-verification';
+export * from './lib/auth/resend-result';
 export * from './lib/auth/sign-in-result';
 export * from './lib/auth/sign-in-status';
 export * from './lib/me/capability';

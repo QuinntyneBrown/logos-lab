@@ -1,35 +1,51 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  DestroyRef,
   ElementRef,
   afterNextRender,
   inject,
   Injector,
+  LOCALE_ID,
   signal,
   viewChild,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AUTH_API, EmailVerification } from '@logos-lab/api';
-import { AuthCard, Button, Form, SpinnerRegion } from '@logos-lab/components';
+import { Alert, AuthCard, Button, Form, FormField, SpinnerRegion } from '@logos-lab/components';
+import { retryAt } from '../../http/retry-at';
 import { VerifyEmailState } from './verify-email-state';
 
 @Component({
   selector: 'll-verify-email-page',
-  imports: [RouterLink, AuthCard, Form, Button, SpinnerRegion],
+  imports: [RouterLink, Alert, AuthCard, Form, FormField, Button, SpinnerRegion],
   templateUrl: './verify-email-page.html',
   styleUrl: './verify-email-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerifyEmailPage {
+  private readonly locale = inject(LOCALE_ID);
   private readonly authApi = inject(AUTH_API);
   private readonly injector = inject(Injector);
   private readonly token = inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '';
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
 
   protected readonly state = signal<VerifyEmailState>({ kind: 'loading' });
+  protected readonly sending = signal(false);
+
+  /** When "Resend email" turns back on; ticks once a second until then. */
+  private readonly resendAt = signal<Date | null>(null);
+  private readonly now = signal(new Date());
+  private ticker: ReturnType<typeof setInterval> | undefined;
+  protected readonly waitSeconds = computed(() => {
+    const at = this.resendAt();
+    return at ? Math.max(0, Math.ceil((at.getTime() - this.now().getTime()) / 1000)) : 0;
+  });
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => clearInterval(this.ticker));
     this.authApi.lookUpEmailVerification(this.token).subscribe({
       next: (verification) => this.state.set({ kind: 'ready', verification }),
       error: (error: unknown) => this.refused(error, null),
@@ -42,6 +58,45 @@ export class VerifyEmailPage {
       next: () => this.show({ kind: 'verified', verification }, true),
       error: (error: unknown) => this.refused(error, verification),
     });
+  }
+
+  protected sendNewLink(): void {
+    if (this.sending() || this.waitSeconds() > 0) return;
+    this.sending.set(true);
+    this.authApi.resendVerificationForToken(this.token).subscribe({
+      next: (result) => {
+        this.sending.set(false);
+        const sentAt = new Date();
+        const focus = this.state().kind !== 'sent';
+        const { sentTo, remainingToday } = result;
+        this.show({ kind: 'sent', sentTo, sentAt, remainingToday }, focus);
+        this.coolDown(new Date(sentAt.getTime() + result.retryAfterSeconds * 1000));
+      },
+      error: (error: unknown) => {
+        this.sending.set(false);
+        if (error instanceof HttpErrorResponse && error.status === 429) {
+          this.coolDown(retryAt(error.headers.get('Retry-After'), new Date(), 60_000));
+        }
+      },
+    });
+  }
+
+  protected time(date: Date): string {
+    return new Intl.DateTimeFormat(this.locale, {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    }).format(date);
+  }
+
+  private coolDown(until: Date): void {
+    clearInterval(this.ticker);
+    this.now.set(new Date());
+    this.resendAt.set(until);
+    this.ticker = setInterval(() => {
+      this.now.set(new Date());
+      if (this.waitSeconds() === 0) clearInterval(this.ticker);
+    }, 1000);
   }
 
   private refused(error: unknown, verification: EmailVerification | null): void {

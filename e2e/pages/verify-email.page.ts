@@ -13,6 +13,10 @@ export class VerifyEmailPage {
   readonly startHere: Locator;
   readonly sendNewLink: Locator;
   readonly signIn: Locator;
+  readonly alert: Locator;
+  readonly resend: Locator;
+  readonly resendHelp: Locator;
+  readonly createAgain: Locator;
   private readonly card: Locator;
 
   constructor(private readonly page: Page) {
@@ -26,6 +30,10 @@ export class VerifyEmailPage {
     this.alt = this.card.locator('.auth__alt');
     this.dashboard = this.card.getByRole('link', { name: 'Go to your dashboard' });
     this.sendNewLink = this.card.getByRole('button', { name: 'Send a new link' });
+    this.alert = this.card.locator('.alert');
+    this.resend = this.card.getByRole('button', { name: /^Resend/ });
+    this.resendHelp = this.card.locator('.field__help');
+    this.createAgain = this.alt.getByRole('link', { name: 'Create the account again' });
     this.signIn = this.alt.getByRole('link', { name: 'Sign in' });
     this.startHere = this.alt.getByRole('link', { name: 'Start Here: Faith and AI' });
   }
@@ -33,6 +41,14 @@ export class VerifyEmailPage {
   async open(token: string): Promise<void> {
     await this.page.goto(`/verify-email?token=${token}`);
     await this.heading.waitFor();
+  }
+
+  async sendANewLink(): Promise<void> {
+    await this.sendNewLink.click();
+  }
+
+  async resendEmail(): Promise<void> {
+    await this.resend.click();
   }
 
   async confirmEmail(): Promise<void> {

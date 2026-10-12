@@ -31,6 +31,7 @@ Out of scope:
 | `pages/sign-in/*` password | label "Password", label action "Forgot your password?", control row with "Show" toggle | input type password | default, invalid "Enter your password", disabled | auth card |
 | `pages/register/*` | labels "Your name", "Email", "Password"; help before the control "12 to 128 characters…" | inputs | default, invalid | auth card |
 | `pages/register/*` terms, `pages/policy-reconsent/*` | no label (the checkbox row names the box); help and error after the row | `label[llCheck]` | default, invalid | auth card |
+| `pages/verify-email/cooldown` | no label (the button names itself); help after "You can send up to 5 emails a day. You have 3 left today." | `button[llButton]` quiet block, disabled "Resend in 42 s" | default | auth card |
 | `pages/settings-*/*` | optional "(optional)", help, counter "18 of 30" | inputs, textareas, selects | default, read-only | surface |
 | studio editors and admin dialogs | counter "42 of 120", help | inputs, textareas | default, invalid, read-only | surface, dialog |
 
@@ -241,7 +242,8 @@ None.
   appears.
 - **D-3** *Where does help go?* Where the page's mock puts it: the design system and most settings mocks
   put it after the control, the registration mocks before. `helpPlacement` keeps both without page CSS.
-- **D-4** *A field without a label?* Only for a control that names itself (a checkbox row); the field
-  still ties its help and error to the control.
+- **D-4** *A field without a label?* Only for a control that names itself (a checkbox row, or a
+  button such as verify-email's "Resend in 42 s"); the field still ties its help and error to the
+  control.
 - **D-5** *Help with links?* A projected `[llFieldHelp]` element rather than an HTML string input, so
   links keep their router bindings and the copy stays in the page's translated template.
