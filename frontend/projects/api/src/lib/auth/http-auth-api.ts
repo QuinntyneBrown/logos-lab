@@ -30,6 +30,10 @@ export class HttpAuthApi implements AuthApi {
     return this.http.post<void>('/api/v1/auth/email-verifications', { token });
   }
 
+  resendVerification(): Observable<ResendResult> {
+    return this.http.post<ResendResult>('/api/v1/auth/email-verifications/resend', {});
+  }
+
   resendVerificationForToken(token: string): Observable<ResendResult> {
     return this.http.post<ResendResult>('/api/v1/auth/email-verifications/resend', { token });
   }

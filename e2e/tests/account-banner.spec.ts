@@ -58,3 +58,72 @@ test.describe('Account banner', () => {
     await expect(banner.root).toHaveCount(0);
   });
 });
+
+test.describe('Resending from the account banner', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test.beforeEach(async ({ page, api }) => {
+    await page.clock.install({ time: new Date('2026-10-13T14:00:00Z') });
+    api.respond('GET', '/home', homePage());
+    api.respond('GET', '/me', members.ethan);
+  });
+
+  // L2-007 AC3, AC4 · banner AC-9
+  test('resending says a new link went out, and the banner can be dismissed', async ({
+    page,
+    api,
+  }) => {
+    api.respond('POST', '/auth/email-verifications/resend', {
+      sentTo: 'ethan.wu@example.ca',
+      retryAfterSeconds: 60,
+      remainingToday: 4,
+    });
+    const home = new HomePage(page);
+    const banner = new AccountBanner(page);
+    await home.open();
+
+    await banner.resendEmail();
+
+    await expect(banner.text).toHaveText(
+      "We sent a new verification link to ethan.wu@example.ca. It works for 24 hours; check your spam folder if it isn't there in a few minutes.",
+    );
+    expect(api.requestsTo('POST', '/auth/email-verifications/resend')).toHaveLength(1);
+    await expect(banner.root).toHaveRole('status');
+    await expect(banner.root).not.toHaveClass(/banner--warning/);
+    await expect(banner.resend).toHaveCount(0);
+    await expect(banner.dismiss).toHaveAccessibleName('Dismiss');
+
+    await banner.dismissIt();
+    await expect(banner.root).toHaveCount(0);
+  });
+
+  // L2-007 AC4
+  test('resending too soon pauses the button for as long as the server says', async ({
+    page,
+    api,
+  }) => {
+    api.fail(
+      'POST',
+      '/auth/email-verifications/resend',
+      429,
+      'too-many-requests',
+      {},
+      {
+        'Retry-After': '42',
+      },
+    );
+    const home = new HomePage(page);
+    const banner = new AccountBanner(page);
+    await home.open();
+
+    await banner.resendEmail();
+
+    await expect(banner.resend).toBeDisabled();
+    await expect(banner.resend).toHaveText(/Resend in \d+ s/);
+    await expect(banner.text).toContainText('Verify your email');
+
+    await page.clock.runFor(42_000);
+    await expect(banner.resend).toHaveText('Resend email');
+    await expect(banner.resend).toBeEnabled();
+  });
+});

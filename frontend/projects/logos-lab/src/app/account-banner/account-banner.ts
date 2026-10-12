@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { AUTH_API } from '@logos-lab/api';
 import { Banner, Button } from '@logos-lab/components';
+import { retryAt } from '../http/retry-at';
 import { Session } from '../session';
 
 /** Kept for the browser session, so "Dismiss for now" lasts until the next sign-in. */
@@ -18,7 +28,20 @@ const DISMISSED_KEY = 'll.accountBanner.dismissed';
 })
 export class AccountBanner {
   private readonly session = inject(Session);
+  private readonly authApi = inject(AUTH_API);
   private readonly dismissed = signal(readDismissed());
+
+  /** The address a new link went to, once "Resend email" succeeded. */
+  protected readonly resentTo = signal<string | null>(null);
+  protected readonly sending = signal(false);
+
+  private readonly resendAt = signal<Date | null>(null);
+  private readonly now = signal(new Date());
+  private ticker: ReturnType<typeof setInterval> | undefined;
+  protected readonly waitSeconds = computed(() => {
+    const at = this.resendAt();
+    return at ? Math.max(0, Math.ceil((at.getTime() - this.now().getTime()) / 1000)) : 0;
+  });
 
   protected readonly unverified = computed(() => {
     const member = this.session.member();
@@ -27,6 +50,27 @@ export class AccountBanner {
 
   protected readonly shown = computed(() => !!this.unverified() && !this.dismissed());
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearInterval(this.ticker));
+  }
+
+  protected resend(): void {
+    if (this.sending() || this.waitSeconds() > 0) return;
+    this.sending.set(true);
+    this.authApi.resendVerification().subscribe({
+      next: (result) => {
+        this.sending.set(false);
+        this.resentTo.set(result.sentTo);
+      },
+      error: (error: unknown) => {
+        this.sending.set(false);
+        if (error instanceof HttpErrorResponse && error.status === 429) {
+          this.coolDown(retryAt(error.headers.get('Retry-After'), new Date(), 60_000));
+        }
+      },
+    });
+  }
+
   protected dismiss(): void {
     this.dismissed.set(true);
     try {
@@ -34,6 +78,16 @@ export class AccountBanner {
     } catch {
       // Storage can be unavailable; the banner then stays hidden for this page only.
     }
+  }
+
+  private coolDown(until: Date): void {
+    clearInterval(this.ticker);
+    this.now.set(new Date());
+    this.resendAt.set(until);
+    this.ticker = setInterval(() => {
+      this.now.set(new Date());
+      if (this.waitSeconds() === 0) clearInterval(this.ticker);
+    }, 1000);
   }
 }
 

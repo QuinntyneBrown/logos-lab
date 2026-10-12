@@ -1,26 +1,58 @@
 @if (shown()) {
   @let member = unverified()!;
-  <ll-banner
-    tone="warning"
-    label="Account"
-    i18n-label="@@accountBanner.label"
-    dismissLabel="Dismiss for now"
-    i18n-dismissLabel="@@accountBanner.dismissForNow"
-    (dismissed)="dismiss()"
-  >
-    <ng-container i18n="@@accountBanner.verify"
-      >Verify your email to enrol, comment, register for events and send messages. We sent a link to
-      {{ member.email }}.</ng-container
+  @if (resentTo(); as resentTo) {
+    <ll-banner
+      live
+      label="Account"
+      i18n-label="@@accountBanner.label"
+      dismissLabel="Dismiss"
+      i18n-dismissLabel="@@accountBanner.dismiss"
+      (dismissed)="dismiss()"
     >
-    <button
-      llButton
-      variant="quiet"
-      size="sm"
-      type="button"
-      slot="actions"
-      i18n="@@accountBanner.resend"
+      <ng-container i18n="@@accountBanner.resent"
+        >We sent a new verification link to {{ resentTo }}. It works for 24 hours; check your spam
+        folder if it isn't there in a few minutes.</ng-container
+      >
+    </ll-banner>
+  } @else {
+    <ll-banner
+      tone="warning"
+      label="Account"
+      i18n-label="@@accountBanner.label"
+      dismissLabel="Dismiss for now"
+      i18n-dismissLabel="@@accountBanner.dismissForNow"
+      (dismissed)="dismiss()"
     >
-      Resend email
-    </button>
-  </ll-banner>
+      <ng-container i18n="@@accountBanner.verify"
+        >Verify your email to enrol, comment, register for events and send messages. We sent a link
+        to {{ member.email }}.</ng-container
+      >
+      @if (waitSeconds() > 0) {
+        <button
+          llButton
+          variant="quiet"
+          size="sm"
+          type="button"
+          slot="actions"
+          disabled
+          i18n="@@accountBanner.wait"
+        >
+          Resend in {{ waitSeconds() }} s
+        </button>
+      } @else {
+        <button
+          llButton
+          variant="quiet"
+          size="sm"
+          type="button"
+          slot="actions"
+          [busy]="sending()"
+          (click)="resend()"
+          i18n="@@accountBanner.resend"
+        >
+          Resend email
+        </button>
+      }
+    </ll-banner>
+  }
 }

@@ -35,6 +35,12 @@ export interface AuthApi {
   confirmEmail(token: string): Observable<void>;
 
   /**
+   * POST /api/v1/auth/email-verifications/resend for the signed-in Unverified member. Fails with 429
+   * and `Retry-After` within 60 seconds of the last email or past 5 emails in 24 hours.
+   */
+  resendVerification(): Observable<ResendResult>;
+
+  /**
    * POST /api/v1/auth/email-verifications/resend with an expired link's token: sends a new link and
    * makes earlier ones stop working. Fails with 429 and `Retry-After` within 60 seconds of the last
    * email or past 5 emails in 24 hours.

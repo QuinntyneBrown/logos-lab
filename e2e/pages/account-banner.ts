@@ -14,6 +14,10 @@ export class AccountBanner {
     this.dismiss = this.root.getByRole('button', { name: /^Dismiss/ });
   }
 
+  async resendEmail(): Promise<void> {
+    await this.resend.click();
+  }
+
   async dismissIt(): Promise<void> {
     await this.dismiss.click();
   }
