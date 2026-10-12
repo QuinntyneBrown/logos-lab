@@ -20,6 +20,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register-page').then((m) => m.RegisterPage),
   },
   {
+    path: '403',
+    title: $localize`:@@forbidden.pageTitle:No access - Logos Lab`,
+    loadComponent: () => import('./pages/forbidden/forbidden-page').then((m) => m.ForbiddenPage),
+  },
+  {
     path: '**',
     title: $localize`:@@notFound.pageTitle:Page not found - Logos Lab`,
     loadComponent: () => import('./pages/not-found/not-found-page').then((m) => m.NotFoundPage),
