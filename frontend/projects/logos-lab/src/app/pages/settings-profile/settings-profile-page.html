@@ -57,6 +57,9 @@
       }
       @case ('ready') {
         <form llForm card (submit)="$event.preventDefault(); submit()">
+          @if (errors().length) {
+            <ll-form-summary [heading]="summaryHeading()" [errors]="errors()" />
+          }
           <fieldset class="form-section">
             <legend class="form-section__title" i18n="@@settingsProfile.about">About you</legend>
             <ll-form-field
@@ -93,8 +96,8 @@
               controlId="display-name"
               help="2 to 50 characters. Shown with your comments, cohort posts and certificates."
               i18n-help="@@settingsProfile.displayNameHelp"
-            >
-              <input
+              [error]="displayNameError()"
+              ><input
                 llInput
                 id="display-name"
                 name="display-name"
@@ -116,6 +119,7 @@
               help="A few sentences about who you are and what brings you here."
               i18n-help="@@settingsProfile.bioHelp"
               [counter]="bioCounter()"
+              [error]="bioError()"
             >
               <textarea
                 llTextarea
@@ -173,8 +177,12 @@
             >
           </fieldset>
           <div class="form-actions">
-            <button llButton variant="primary" type="submit" i18n="@@settingsProfile.save">
-              Save changes
+            <button llButton variant="primary" type="submit" [busy]="busy()">
+              @if (busy()) {
+                <ng-container i18n="@@settingsProfile.saving">Saving…</ng-container>
+              } @else {
+                <ng-container i18n="@@settingsProfile.save">Save changes</ng-container>
+              }
             </button>
             @if (member(); as member) {
               <a
@@ -184,6 +192,11 @@
                 i18n="@@settingsProfile.view"
                 >View your profile</a
               >
+            }
+            @if (saved()) {
+              <p llInlineStatus tone="success" live="polite" i18n="@@settingsProfile.saved">
+                Profile saved. Members see the change straight away.
+              </p>
             }
           </div>
         </form>

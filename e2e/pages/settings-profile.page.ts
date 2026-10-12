@@ -21,6 +21,10 @@ export class SettingsProfilePage {
   readonly loading: Locator;
   readonly alert: Locator;
   readonly tryAgain: Locator;
+  readonly summary: Locator;
+  readonly displayNameError: Locator;
+  readonly bioError: Locator;
+  readonly saved: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -43,6 +47,10 @@ export class SettingsProfilePage {
     this.loading = page.locator('.form-card[aria-busy="true"]');
     this.alert = page.locator('main .alert');
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
+    this.summary = page.locator('.form-summary');
+    this.displayNameError = page.locator('#display-name-error');
+    this.bioError = page.locator('#bio-error');
+    this.saved = page.locator('.form-actions .inline-status');
   }
 
   async open(path = '/settings/profile'): Promise<void> {
@@ -55,6 +63,10 @@ export class SettingsProfilePage {
     const help = await this.page.locator(`#${controlId}-help`).boundingBox();
     const counter = await this.page.locator(`#${controlId}-counter`).boundingBox();
     return !!help && !!counter && Math.abs(help.y - counter.y) < 4;
+  }
+
+  async saveChanges(): Promise<void> {
+    await this.save.click();
   }
 
   sections(): Locator {

@@ -1,0 +1,6 @@
+@if (busy()) {
+  <span llSpinner></span>
+} @else if (iconName(); as icon) {
+  <svg llIcon [name]="icon" size="sm"></svg>
+}
+<ng-content />

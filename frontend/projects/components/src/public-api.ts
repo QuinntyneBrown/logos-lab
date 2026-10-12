@@ -72,3 +72,5 @@ export * from './lib/sidebar-navigation/settings-layout';
 export * from './lib/textarea/textarea';
 export * from './lib/photo-edit/photo-edit';
 export * from './lib/photo-edit/photo-edit-tone';
+export * from './lib/inline-message/inline-status';
+export * from './lib/inline-message/inline-status-tone';

@@ -110,3 +110,63 @@ test.describe('Profile settings', () => {
     await expect(settings.displayName).toHaveValue('Miriam Clarke');
   });
 });
+
+test.describe('Saving profile settings', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test.beforeEach(({ api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/me/profile', profiles.miriam);
+  });
+
+  // L2-013 AC1 · form-layout AC-1, form-field AC-3
+  test('a one-character name and a long bio are refused before saving', async ({ page, api }) => {
+    const settings = new SettingsProfilePage(page);
+    await settings.open();
+    await settings.displayName.fill('M');
+    await settings.bio.fill('a'.repeat(592));
+
+    await settings.saveChanges();
+
+    await expect(settings.summary).toBeFocused();
+    await expect(settings.summary).toContainText('Two things to fix before you can save');
+    await expect(settings.displayNameError).toHaveText(
+      'Enter a display name of 2 to 50 characters. This one has 1.',
+    );
+    await expect(settings.bioError).toHaveText(
+      'Shorten your bio to 500 characters. It has 592 now.',
+    );
+    await expect(settings.bioCounter).toHaveText('592 / 500');
+    expect(api.requestsTo('PUT', '/me/profile')).toHaveLength(0);
+  });
+
+  // L2-013 AC1 · inline-message AC-1, button AC-4
+  test('saving shows Saving…, then says the change is live and renames the member', async ({
+    page,
+    api,
+  }) => {
+    const saved = { ...profiles.miriam, displayName: 'Miriam J. Clarke', pronouns: 'she/her' };
+    const release = api.hold('PUT', '/me/profile', saved);
+    const settings = new SettingsProfilePage(page);
+    await settings.open();
+    await settings.displayName.fill(' Miriam J. Clarke ');
+    await settings.pronouns.fill('she/her');
+
+    await settings.saveChanges();
+
+    await expect(settings.save).toHaveText('Saving…');
+    await expect(settings.save).toHaveAttribute('aria-busy', 'true');
+    expect(api.requestsTo('PUT', '/me/profile')[0].body).toEqual({
+      displayName: 'Miriam J. Clarke',
+      bio: profiles.miriam.bio,
+      pronouns: 'she/her',
+      profileVisible: true,
+    });
+    release();
+
+    await expect(settings.saved).toHaveText('Profile saved. Members see the change straight away.');
+    await expect(settings.saved).toHaveAttribute('role', 'status');
+    await expect(settings.save).toHaveText('Save changes');
+    await expect(settings.shell.accountButton).toHaveAccessibleName(/Miriam J\. Clarke/);
+  });
+});
