@@ -161,4 +161,59 @@
       </p>
     </ll-auth-card>
   }
+  @case ('failed') {
+    <ll-auth-card>
+      <div slot="intro">
+        <p class="eyebrow" i18n="@@verifyEmail.eyebrow">Almost there</p>
+        <h1 class="auth__title" tabindex="-1" #heading i18n="@@verifyEmail.title">
+          Confirm your email
+        </h1>
+        @if (current.verification; as verification) {
+          <p class="auth__sub" i18n="@@verifyEmail.sub">
+            Confirm that <strong>{{ verification.email }}</strong> is yours to finish setting up
+            your Logos Lab account.
+          </p>
+        }
+      </div>
+      <ll-alert
+        tone="danger"
+        heading="We couldn't verify your email just now"
+        i18n-heading="@@verifyEmail.failed.title"
+      >
+        <ng-container i18n="@@verifyEmail.failed.body"
+          >Something went wrong on our side. Your link still works, so try again in a
+          minute.</ng-container
+        >
+        <a slot="actions" href="mailto:help@logoslab.ca" i18n="@@verifyEmail.failed.help"
+          >Write to help&#64;logoslab.ca</a
+        >
+      </ll-alert>
+      @if (current.verification; as verification) {
+        <form llForm (submit)="$event.preventDefault(); confirm(verification)">
+          <button
+            llButton
+            variant="primary"
+            size="lg"
+            block
+            type="submit"
+            i18n="@@verifyEmail.failed.retry"
+          >
+            Try again
+          </button>
+        </form>
+      } @else {
+        <button
+          llButton
+          variant="primary"
+          size="lg"
+          block
+          type="button"
+          (click)="lookUp()"
+          i18n="@@verifyEmail.failed.retry"
+        >
+          Try again
+        </button>
+      }
+    </ll-auth-card>
+  }
 }

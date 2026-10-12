@@ -47,6 +47,11 @@ export class VerifyEmailPage {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => clearInterval(this.ticker));
+    this.lookUp();
+  }
+
+  protected lookUp(): void {
+    this.state.set({ kind: 'loading' });
     this.authApi.lookUpEmailVerification(this.token).subscribe({
       next: (verification) => this.state.set({ kind: 'ready', verification }),
       error: (error: unknown) => this.refused(error, null),
@@ -100,6 +105,8 @@ export class VerifyEmailPage {
     if (error instanceof HttpErrorResponse && error.status === 410) {
       const email = (error.error as { email?: string } | null)?.email ?? verification?.email;
       this.show({ kind: 'expired', email: email ?? null }, verification !== null);
+    } else {
+      this.show({ kind: 'failed', verification }, verification !== null);
     }
   }
 

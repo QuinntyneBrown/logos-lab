@@ -17,6 +17,8 @@ export class VerifyEmailPage {
   readonly resend: Locator;
   readonly resendHelp: Locator;
   readonly createAgain: Locator;
+  readonly tryAgain: Locator;
+  readonly helpLink: Locator;
   private readonly card: Locator;
 
   constructor(private readonly page: Page) {
@@ -33,6 +35,8 @@ export class VerifyEmailPage {
     this.alert = this.card.locator('.alert');
     this.resend = this.card.getByRole('button', { name: /^Resend/ });
     this.resendHelp = this.card.locator('.field__help');
+    this.tryAgain = this.card.getByRole('button', { name: 'Try again' });
+    this.helpLink = this.alert.getByRole('link', { name: 'Write to help@logoslab.ca' });
     this.createAgain = this.alt.getByRole('link', { name: 'Create the account again' });
     this.signIn = this.alt.getByRole('link', { name: 'Sign in' });
     this.startHere = this.alt.getByRole('link', { name: 'Start Here: Faith and AI' });
@@ -47,8 +51,18 @@ export class VerifyEmailPage {
     await this.sendNewLink.click();
   }
 
+  /** The seconds the disabled resend button counts down from ("Resend in 42 s"), or null. */
+  async resendWaitSeconds(): Promise<number | null> {
+    const match = /Resend in (\d+) s/.exec((await this.resend.textContent()) ?? '');
+    return match ? Number(match[1]) : null;
+  }
+
   async resendEmail(): Promise<void> {
     await this.resend.click();
+  }
+
+  async retry(): Promise<void> {
+    await this.tryAgain.click();
   }
 
   async confirmEmail(): Promise<void> {

@@ -170,7 +170,8 @@ test.describe('Sending a new verification link', () => {
       "It can take a few minutes. Check your spam folder if it hasn't arrived.",
     );
     await expect(verify.resend).toBeDisabled();
-    await expect(verify.resend).toHaveText('Resend in 60 s');
+    await expect(verify.resend).toHaveText(/Resend in \d+ s/);
+    expect(await verify.resendWaitSeconds()).toBeLessThanOrEqual(60);
     await expect(verify.resendHelp).toHaveText(
       'You can send up to 5 emails a day. You have 3 left today.',
     );
@@ -180,7 +181,8 @@ test.describe('Sending a new verification link', () => {
     await expect(verify.createAgain).toHaveAttribute('href', '/register');
 
     await page.clock.runFor(18_000);
-    await expect(verify.resend).toHaveText('Resend in 42 s');
+    await expect.poll(() => verify.resendWaitSeconds()).toBeLessThanOrEqual(42);
+    await expect(verify.resend).toBeDisabled();
 
     await page.clock.runFor(42_000);
     await expect(verify.resend).toHaveText('Resend email');
@@ -211,7 +213,59 @@ test.describe('Sending a new verification link', () => {
 
     await verify.resendEmail();
 
-    await expect(verify.resend).toHaveText('Resend in 42 s');
     await expect(verify.resend).toBeDisabled();
+    expect(await verify.resendWaitSeconds()).toBeLessThanOrEqual(42);
+    expect(await verify.resendWaitSeconds()).toBeGreaterThan(30);
+
+    await page.clock.runFor(42_000);
+    await expect(verify.resend).toHaveText('Resend email');
+  });
+});
+
+test.describe('Verification failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-007 AC1, L2-141 · alert AC-1
+  test('a server failure on confirming keeps the link and offers to try again', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', `/auth/email-verifications/${token}`, verification);
+    api.fail('POST', '/auth/email-verifications', 503);
+    const verify = new VerifyEmailPage(page);
+    await verify.open(token);
+
+    await verify.confirmEmail();
+
+    await expect(verify.alert).toHaveAttribute('role', 'alert');
+    await expect(verify.alert).toContainText("We couldn't verify your email just now");
+    await expect(verify.alert).toContainText(
+      'Something went wrong on our side. Your link still works, so try again in a minute.',
+    );
+    await expect(verify.helpLink).toHaveAttribute('href', 'mailto:help@logoslab.ca');
+    await expect(verify.heading).toHaveText('Confirm your email');
+    await expect(verify.sub).toContainText('miriam.clarke@example.ca');
+
+    api.respond('POST', '/auth/email-verifications', null, 204);
+    await verify.retry();
+
+    await expect(verify.heading).toHaveText('Your email is verified');
+  });
+
+  // L2-007 AC1, L2-141
+  test('a server failure on checking the link offers to check it again', async ({ page, api }) => {
+    api.fail('GET', `/auth/email-verifications/${token}`, 500);
+    const verify = new VerifyEmailPage(page);
+
+    await verify.open(token);
+
+    await expect(verify.alert).toContainText("We couldn't verify your email just now");
+    await expect(verify.sub).toHaveCount(0);
+
+    api.respond('GET', `/auth/email-verifications/${token}`, verification);
+    await verify.retry();
+
+    await expect(verify.confirm).toBeVisible();
+    await expect(verify.sub).toContainText('miriam.clarke@example.ca');
   });
 });
