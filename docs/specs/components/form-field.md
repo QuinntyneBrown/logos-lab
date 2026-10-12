@@ -45,7 +45,8 @@ Out of scope:
 4. **Control** — projected; with a trailing button it sits in `div.input-group`.
 5. **Help** — `p.field__help[id]`, here when help is placed after the control (the default).
 6. **Error** — `p.field__error[id]` with the attention icon.
-7. **Counter** — `p.field__counter[id]`, end-aligned ("18 of 30").
+7. **Counter** — `p.field__counter[id]`, end-aligned ("18 of 30"). With help after the control,
+   help and counter share one row: `div.cluster.cluster--between` holding the help, then the counter.
 
 Host: `ll-form-field` is `display: contents`; it renders the field and sets the control's ARIA through
 the control id it is given.
@@ -212,6 +213,7 @@ None.
 - **AC-10** Given the terms field with no label and the error "Accept the Terms of Use and the Privacy Policy to create an account", when it renders, then no field label shows, the checkbox has `aria-invalid="true"` and its `aria-describedby` names the help and the error. (L2-128)
 - **AC-11** Given the terms field with help containing the links "Terms of Use" and "Privacy Policy", when it renders, then the links show inside the help and the checkbox's `aria-describedby` names the help. (L2-127)
 - **AC-13** Given Miriam's profile settings, when the Photo field renders with `labelAs="span"`, then "Photo" is a `span.field__label` with the id `photo-label` and the photo group is named "Photo" by it. (L2-013)
+- **AC-14** Given Miriam's bio with help after it and the counter "136 / 500", when it renders, then the help and the counter sit on one row, the counter at the end. (L2-013)
 - **AC-12** Given the news checkbox with `aria-describedby="news-desc"` in a field without help or error, when it renders, then its `aria-describedby` is still `news-desc`. (L2-127)
 
 ### Keyboard and focus
@@ -249,5 +251,7 @@ None.
   control.
 - **D-6** *A label for a group?* `labelAs="span"`: a `label` must point at one control, but the photo
   editor is an image and a button; the span names the group through `aria-labelledby`, as the mock does.
+- **D-7** *Help and counter on one row?* Yes, as every settings mock with both shows; on its own the
+  counter stays end-aligned on its own row.
 - **D-5** *Help with links?* A projected `[llFieldHelp]` element rather than an HTML string input, so
   links keep their router bindings and the copy stays in the page's translated template.
