@@ -69,3 +69,6 @@ export * from './lib/page-header/page-header-actions';
 export * from './lib/page-header/page-header-busy';
 export * from './lib/page-header/page-header-top';
 export * from './lib/sidebar-navigation/settings-layout';
+export * from './lib/textarea/textarea';
+export * from './lib/photo-edit/photo-edit';
+export * from './lib/photo-edit/photo-edit-tone';

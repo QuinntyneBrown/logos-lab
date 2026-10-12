@@ -39,3 +39,8 @@ export * from './lib/search/search-suggestion';
 export * from './lib/search/search-suggestion-kind';
 export * from './lib/search/search-suggestions';
 export * from './lib/search/text-segment';
+export * from './lib/account/account-api';
+export * from './lib/account/account-api-token';
+export * from './lib/account/http-account-api';
+export * from './lib/account/member-profile';
+export * from './lib/account/profile-update';

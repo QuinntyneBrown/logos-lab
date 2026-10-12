@@ -4,6 +4,18 @@
   display: grid;
   gap: var(--space-6);
 }
+:host(.form-card) {
+  gap: var(--space-8);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+}
+@media (min-width: 40rem) {
+  :host(.form-card) {
+    padding: var(--space-10);
+  }
+}
 :host ::ng-deep {
   .form-card {
     display: grid;

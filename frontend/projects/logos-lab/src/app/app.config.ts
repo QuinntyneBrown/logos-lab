@@ -3,8 +3,10 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 import {
   AUTH_API,
+  ACCOUNT_API,
   HOME_API,
   HttpAuthApi,
+  HttpAccountApi,
   HttpHomeApi,
   HttpMeApi,
   HttpPreferencesApi,
@@ -21,6 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withFetch()),
+    { provide: ACCOUNT_API, useClass: HttpAccountApi },
     { provide: HOME_API, useClass: HttpHomeApi },
     { provide: ME_API, useClass: HttpMeApi },
     { provide: AUTH_API, useClass: HttpAuthApi },

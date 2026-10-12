@@ -22,6 +22,8 @@ import { FieldHelp } from './field-help';
 })
 export class FormField {
   readonly label = input<string | null>(null);
+  /** `span` names a group of controls through `aria-labelledby` (form-field CRD D-6). */
+  readonly labelAs = input<'label' | 'span'>('label');
   readonly controlId = input.required<string>();
   readonly optional = input<string | null>(null);
   readonly help = input<string | null>(null);
@@ -33,6 +35,7 @@ export class FormField {
 
   private readonly richHelp = contentChild(FieldHelp);
   protected readonly hasHelp = computed(() => !!this.help() || !!this.richHelp());
+  protected readonly labelId = computed(() => `${this.controlId()}-label`);
   protected readonly helpId = computed(() => `${this.controlId()}-help`);
   protected readonly errorId = computed(() => `${this.controlId()}-error`);
   protected readonly counterId = computed(() => `${this.controlId()}-counter`);
