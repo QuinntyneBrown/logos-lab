@@ -17,6 +17,7 @@ import { AUTH_API, EmailVerification } from '@logos-lab/api';
 import { Alert, AuthCard, Button, Form, FormField, SpinnerRegion } from '@logos-lab/components';
 import { retryAt } from '../../http/retry-at';
 import { VerifyEmailState } from './verify-email-state';
+import { clockTime } from '../../content/clock-time';
 
 @Component({
   selector: 'll-verify-email-page',
@@ -82,11 +83,7 @@ export class VerifyEmailPage {
   }
 
   protected time(date: Date): string {
-    return new Intl.DateTimeFormat(this.locale, {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    }).format(date);
+    return clockTime(this.locale, date);
   }
 
   private coolDown(until: Date): void {

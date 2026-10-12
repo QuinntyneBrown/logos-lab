@@ -29,6 +29,7 @@ import { plural } from '../../content/plural';
 import { retryAt } from '../../http/retry-at';
 import { RegisterFailure } from './register-failure';
 import { RegisterFieldError } from './register-field-error';
+import { clockTime } from '../../content/clock-time';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -124,11 +125,7 @@ export class RegisterPage {
 
   /** "10:34 AM EDT" in the viewer's time zone. */
   protected time(date: Date): string {
-    return new Intl.DateTimeFormat(this.locale, {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    }).format(date);
+    return clockTime(this.locale, date);
   }
 
   /** "Wrong address? Start again": back to an empty form. */

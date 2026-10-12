@@ -27,6 +27,7 @@ import { safeReturnUrl } from '../../return-url';
 import { Session } from '../../session';
 import { readSignInFailure } from './read-sign-in-failure';
 import { SignInFailure } from './sign-in-failure';
+import { clockTime } from '../../content/clock-time';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -117,11 +118,7 @@ export class SignInPage {
 
   /** "10:39 AM EDT" in the viewer's time zone. */
   protected time(date: Date): string {
-    return new Intl.DateTimeFormat(this.locale, {
-      hour: 'numeric',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    }).format(date);
+    return clockTime(this.locale, date);
   }
 
   protected pausedHeading(minutes: number): string {
