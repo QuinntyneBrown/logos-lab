@@ -27,6 +27,13 @@ export const routes: Routes = [
       import('./pages/forgot-password/forgot-password-page').then((m) => m.ForgotPasswordPage),
   },
   {
+    path: 'reset-password',
+    title: $localize`:@@resetPassword.pageTitle:Choose a new password - Logos Lab`,
+    data: { shell: { kind: 'focused', action: 'sign-in' } },
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password-page').then((m) => m.ResetPasswordPage),
+  },
+  {
     path: 'verify-email',
     title: $localize`:@@verifyEmail.pageTitle:Verify your email - Logos Lab`,
     data: { shell: { kind: 'focused', action: 'sign-in' } },

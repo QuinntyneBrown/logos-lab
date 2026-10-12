@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { EmailVerification } from './email-verification';
+import { PasswordResetLink } from './password-reset-link';
 import { RegisterRequest } from './register-request';
 import { ResendResult } from './resend-result';
 import { SignInRequest } from './sign-in-request';
@@ -52,6 +53,12 @@ export interface AuthApi {
    * exists, and past the hourly limit (L2-011 AC1, AC5).
    */
   requestPasswordReset(email: string): Observable<void>;
+
+  /**
+   * POST /api/v1/auth/password-resets/validations: checks a reset link without using it. Fails with
+   * 410 `link-invalid` for an expired, used or tampered link.
+   */
+  checkPasswordResetLink(token: string): Observable<PasswordResetLink>;
 
   /** DELETE /api/v1/auth/session: ends the current session and clears its cookie. */
   signOut(): Observable<void>;

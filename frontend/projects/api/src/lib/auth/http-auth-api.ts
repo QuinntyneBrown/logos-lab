@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthApi } from './auth-api';
 import { EmailVerification } from './email-verification';
+import { PasswordResetLink } from './password-reset-link';
 import { RegisterRequest } from './register-request';
 import { ResendResult } from './resend-result';
 import { SignInRequest } from './sign-in-request';
@@ -40,6 +41,10 @@ export class HttpAuthApi implements AuthApi {
 
   requestPasswordReset(email: string): Observable<void> {
     return this.http.post<void>('/api/v1/auth/password-resets', { email });
+  }
+
+  checkPasswordResetLink(token: string): Observable<PasswordResetLink> {
+    return this.http.post<PasswordResetLink>('/api/v1/auth/password-resets/validations', { token });
   }
 
   signOut(): Observable<void> {
