@@ -1,9 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
+  Injector,
   signal,
   viewChild,
 } from '@angular/core';
@@ -19,6 +22,7 @@ import {
   Input,
   SpinnerRegion,
 } from '@logos-lab/components';
+import { Session } from '../../session';
 import { ResetPasswordState } from './reset-password-state';
 
 @Component({
@@ -30,12 +34,16 @@ import { ResetPasswordState } from './reset-password-state';
 })
 export class ResetPasswordPage {
   private readonly authApi = inject(AUTH_API);
+  private readonly session = inject(Session);
+  private readonly injector = inject(Injector);
   private readonly summary = viewChild(FormSummary);
+  private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
   private readonly token = inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '';
 
   protected readonly state = signal<ResetPasswordState>({ kind: 'loading' });
   protected readonly password = signal('');
   protected readonly passwordShown = signal(false);
+  protected readonly busy = signal(false);
   protected readonly errors = signal<readonly FormError[]>([]);
   protected readonly passwordError = computed(() => this.errors()[0]?.message ?? null);
 
@@ -50,13 +58,24 @@ export class ResetPasswordPage {
     });
   }
 
-  protected submit(): void {
+  protected submit(email: string): void {
+    if (this.busy()) return;
     const errors = this.validate();
     this.errors.set(errors);
     if (errors.length) {
       this.summary()?.focus();
       return;
     }
+    this.busy.set(true);
+    this.authApi.completePasswordReset(this.token, this.password()).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.state.set({ kind: 'changed', email });
+        // Every session has ended, this tab's included.
+        if (this.session.member()) this.session.member.set(null);
+        afterNextRender(() => this.heading()?.nativeElement.focus(), { injector: this.injector });
+      },
+    });
   }
 
   private validate(): FormError[] {

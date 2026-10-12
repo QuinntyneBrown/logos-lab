@@ -47,6 +47,13 @@ export class HttpAuthApi implements AuthApi {
     return this.http.post<PasswordResetLink>('/api/v1/auth/password-resets/validations', { token });
   }
 
+  completePasswordReset(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/password-resets/completions', {
+      token,
+      newPassword,
+    });
+  }
+
   signOut(): Observable<void> {
     return this.http.delete<void>('/api/v1/auth/session');
   }

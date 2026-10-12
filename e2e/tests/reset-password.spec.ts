@@ -93,3 +93,34 @@ test.describe('Reset password validation', () => {
     await expect(reset.passwordError).toHaveText('Enter a new password');
   });
 });
+
+test.describe('Saving a new password', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-011 AC3 · button AC-4
+  test('saving shows a busy button, then confirms and points to sign in', async ({ page, api }) => {
+    api.respond('POST', '/auth/password-resets/validations', link);
+    const release = api.hold('POST', '/auth/password-resets/completions', undefined, 204);
+    const reset = new ResetPasswordPage(page);
+    await reset.open(token);
+
+    await reset.save('psalm-eight-under-stars');
+
+    await expect(reset.submit).toHaveAttribute('aria-busy', 'true');
+    await expect(reset.submit).toHaveText('Saving…');
+    expect(api.requestsTo('POST', '/auth/password-resets/completions')[0].body).toEqual({
+      token,
+      newPassword: 'psalm-eight-under-stars',
+    });
+    release();
+
+    await expect(reset.heading).toHaveText('Your password is changed');
+    await expect(reset.heading).toBeFocused();
+    await expect(reset.sub).toHaveText(
+      "We've signed you out on every device and emailed miriam.clarke@example.ca to confirm. Sign in with your new password.",
+    );
+    await expect(reset.signInButton).toHaveAttribute('href', '/sign-in');
+    await expect(reset.alt).toContainText("Didn't change it?");
+    await expect(reset.alt.getByRole('link')).toHaveAttribute('href', 'mailto:help@logoslab.ca');
+  });
+});

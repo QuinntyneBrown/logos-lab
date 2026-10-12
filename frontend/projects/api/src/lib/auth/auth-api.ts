@@ -60,6 +60,13 @@ export interface AuthApi {
    */
   checkPasswordResetLink(token: string): Observable<PasswordResetLink>;
 
+  /**
+   * POST /api/v1/auth/password-resets/completions: sets the new password, ends every session and
+   * emails a confirmation. Fails with 410 `link-invalid`, or 422 with
+   * `errors: [{ field: 'newPassword', code: 'breached' | 'same-as-current' }]`.
+   */
+  completePasswordReset(token: string, newPassword: string): Observable<void>;
+
   /** DELETE /api/v1/auth/session: ends the current session and clears its cookie. */
   signOut(): Observable<void>;
 }
