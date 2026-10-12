@@ -3,6 +3,7 @@ import { EmailVerification } from './email-verification';
 import { PasswordResetLink } from './password-reset-link';
 import { RegisterRequest } from './register-request';
 import { ResendResult } from './resend-result';
+import { SecondFactorRequest } from './second-factor-request';
 import { SignInRequest } from './sign-in-request';
 import { SignInResult } from './sign-in-result';
 
@@ -66,6 +67,12 @@ export interface AuthApi {
    * `errors: [{ field: 'newPassword', code: 'breached' | 'same-as-current' }]`.
    */
   completePasswordReset(token: string, newPassword: string): Observable<void>;
+
+  /**
+   * POST /api/v1/auth/mfa-challenges/current/verifications: 204 creates the session. Fails with 401
+   * `invalid-code` carrying `attemptsLeft`, or 429 with `Retry-After` once the step is locked.
+   */
+  verifySecondFactor(request: SecondFactorRequest): Observable<void>;
 
   /** DELETE /api/v1/auth/session: ends the current session and clears its cookie. */
   signOut(): Observable<void>;

@@ -14,6 +14,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/sign-in/sign-in-page').then((m) => m.SignInPage),
   },
   {
+    path: 'sign-in/verify',
+    title: $localize`:@@signInVerify.pageTitle:Two-step verification - Logos Lab`,
+    data: { shell: { kind: 'focused', action: 'register' } },
+    loadComponent: () =>
+      import('./pages/sign-in-verify/sign-in-verify-page').then((m) => m.SignInVerifyPage),
+  },
+  {
     path: 'register',
     title: $localize`:@@register.pageTitle:Create account - Logos Lab`,
     data: { shell: { kind: 'focused', action: 'sign-in' } },

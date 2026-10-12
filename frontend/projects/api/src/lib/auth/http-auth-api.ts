@@ -6,6 +6,7 @@ import { EmailVerification } from './email-verification';
 import { PasswordResetLink } from './password-reset-link';
 import { RegisterRequest } from './register-request';
 import { ResendResult } from './resend-result';
+import { SecondFactorRequest } from './second-factor-request';
 import { SignInRequest } from './sign-in-request';
 import { SignInResult } from './sign-in-result';
 
@@ -52,6 +53,10 @@ export class HttpAuthApi implements AuthApi {
       token,
       newPassword,
     });
+  }
+
+  verifySecondFactor(request: SecondFactorRequest): Observable<void> {
+    return this.http.post<void>('/api/v1/auth/mfa-challenges/current/verifications', request);
   }
 
   signOut(): Observable<void> {

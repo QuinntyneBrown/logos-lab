@@ -57,3 +57,11 @@
     border: var(--border-width-hairline) solid CanvasText;
   }
 }
+
+:host(.otp) {
+  max-width: var(--space-40);
+  font: var(--text-code);
+  font-size: var(--font-size-xl);
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: center;
+}

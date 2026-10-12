@@ -11,10 +11,13 @@ import { InputSize } from './input-size';
     class: 'input',
     '[class.input--sm]': "size() === 'sm'",
     '[class.input--md]': "size() === 'md'",
+    '[class.otp]': 'otp()',
     '[attr.aria-invalid]': 'invalid() || null',
   },
 })
 export class Input {
   readonly size = input<InputSize>('lg');
   readonly invalid = input(false, { transform: booleanAttribute });
+  /** A one-time code: short, centred, in the code type (text-field CRD AC-15). */
+  readonly otp = input(false, { transform: booleanAttribute });
 }
