@@ -170,3 +170,44 @@ test.describe('Saving profile settings', () => {
     await expect(settings.shell.accountButton).toHaveAccessibleName(/Miriam J\. Clarke/);
   });
 });
+
+test.describe('Profile settings failures', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test.beforeEach(({ api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/me/profile', profiles.miriam);
+  });
+
+  // L2-013 AC1 · form-field AC-3
+  test('a name the server refuses is shown on the field', async ({ page, api }) => {
+    api.fail('PUT', '/me/profile', 422, 'validation-failed', {
+      errors: [{ field: 'displayName', code: 'length' }],
+    });
+    const settings = new SettingsProfilePage(page);
+    await settings.open();
+
+    await settings.saveChanges();
+
+    await expect(settings.displayNameError).toHaveText(
+      'Enter a display name of 2 to 50 characters. This one has 13.',
+    );
+    await expect(settings.summary).toBeFocused();
+  });
+
+  // L2-013 AC1, L2-141 · alert AC-1
+  test('a failed save keeps what was typed and says so', async ({ page, api }) => {
+    api.fail('PUT', '/me/profile', 503);
+    const settings = new SettingsProfilePage(page);
+    await settings.open();
+    await settings.pronouns.fill('she/her');
+
+    await settings.saveChanges();
+
+    await expect(settings.alert).toHaveAttribute('role', 'alert');
+    await expect(settings.alert).toContainText("We couldn't save your profile");
+    await expect(settings.pronouns).toHaveValue('she/her');
+    await expect(settings.save).toHaveText('Save changes');
+    await expect(settings.saved).toHaveCount(0);
+  });
+});

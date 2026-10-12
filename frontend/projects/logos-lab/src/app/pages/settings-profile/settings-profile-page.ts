@@ -7,6 +7,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { ACCOUNT_API, MemberProfile } from '@logos-lab/api';
 import {
@@ -74,6 +75,7 @@ export class SettingsProfilePage {
   protected readonly bioCounter = computed(() => `${this.bio().length} / ${BIO_LIMIT}`);
   protected readonly busy = signal(false);
   protected readonly saved = signal(false);
+  protected readonly saveFailed = signal(false);
   protected readonly errors = signal<readonly FormError[]>([]);
   protected readonly displayNameError = computed(() => this.errorFor('display-name'));
   protected readonly bioError = computed(() => this.errorFor('bio'));
@@ -104,6 +106,7 @@ export class SettingsProfilePage {
     const errors = this.validate();
     this.errors.set(errors);
     this.saved.set(false);
+    this.saveFailed.set(false);
     if (errors.length) {
       this.summary()?.focus();
       return;
@@ -127,24 +130,51 @@ export class SettingsProfilePage {
               : member,
           );
         },
+        error: (error: unknown) => {
+          this.busy.set(false);
+          const refused = error instanceof HttpErrorResponse ? this.refusals(error) : [];
+          if (refused.length) {
+            this.errors.set(refused);
+            setTimeout(() => this.summary()?.focus());
+            return;
+          }
+          this.saveFailed.set(true);
+        },
       });
+  }
+
+  /** The field errors of a 422, in this page's words. */
+  private refusals(error: HttpErrorResponse): FormError[] {
+    if (error.status !== 422) return [];
+    const fields = ((error.error?.errors ?? []) as { field?: string }[]).map((e) => e.field);
+    const errors: FormError[] = [];
+    if (fields.includes('displayName')) errors.push(this.nameError());
+    if (fields.includes('bio')) errors.push(this.bioLengthError());
+    return errors;
   }
 
   private validate(): FormError[] {
     const errors: FormError[] = [];
     const name = this.displayName().trim().length;
-    if (name < 2 || name > 50)
-      errors.push({
-        controlId: 'display-name',
-        message: $localize`:@@settingsProfile.error.displayName:Enter a display name of 2 to 50 characters. This one has ${name}:count:.`,
-      });
-    const bio = this.bio().length;
-    if (bio > BIO_LIMIT)
-      errors.push({
-        controlId: 'bio',
-        message: $localize`:@@settingsProfile.error.bio:Shorten your bio to 500 characters. It has ${bio}:count: now.`,
-      });
+    if (name < 2 || name > 50) errors.push(this.nameError());
+    if (this.bio().length > BIO_LIMIT) errors.push(this.bioLengthError());
     return errors;
+  }
+
+  private nameError(): FormError {
+    const count = this.displayName().trim().length;
+    return {
+      controlId: 'display-name',
+      message: $localize`:@@settingsProfile.error.displayName:Enter a display name of 2 to 50 characters. This one has ${count}:count:.`,
+    };
+  }
+
+  private bioLengthError(): FormError {
+    const count = this.bio().length;
+    return {
+      controlId: 'bio',
+      message: $localize`:@@settingsProfile.error.bio:Shorten your bio to 500 characters. It has ${count}:count: now.`,
+    };
   }
 
   private errorFor(controlId: string): string | null {

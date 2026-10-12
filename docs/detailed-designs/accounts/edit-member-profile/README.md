@@ -29,7 +29,7 @@ The profile is deliberately narrow. Email address, enrolments and progress are n
 - While `GET /api/v1/me/profile` loads, the form card holds skeletons and the status "Loading your profile…". If it fails, the danger alert "We couldn't load your profile" offers "Try again".
 - `MemberProfile` is `displayName`, `bio`, `pronouns`, `avatarUrl` and `profileVisible`. The bio shows its count as "136 / 500".
 - "Save changes" checks first. A display name outside 2 to 50 characters reads "Enter a display name of 2 to 50 characters. This one has {n}." A bio over 500 reads "Shorten your bio to 500 characters. It has {n} now." The summary reads "One thing to fix before you can save", or "{Two} things to fix before you can save".
-- Saving shows "Saving…". A `200` returns the saved profile, updates the member's name in the header, and shows the success status "Profile saved. Members see the change straight away." beside the actions. A `422` maps `displayName` and `bio` errors onto the fields. Any other failure shows the danger alert "We couldn't save your profile" above the form, keeping what was typed.
+- Saving shows "Saving…". A `200` returns the saved profile, updates the member's name in the header, and shows the success status "Profile saved. Members see the change straight away." beside the actions. A `422` maps `displayName` and `bio` errors onto the fields. Any other failure shows the danger alert "We couldn't save your profile" ("Your changes are still here. Try again in a minute; if it keeps happening, write to help@logoslab.ca.") above the form, keeping what was typed.
 - "View your profile" links to the member's own public profile at `/members/{id}`.
 
 **API contract (shared API library)**
