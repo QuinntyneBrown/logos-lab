@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Selector | `ll-sidebar-nav` |
+| Selector | `ll-sidebar-nav`, `ll-settings-layout` |
 | Library path | `frontend/projects/components/src/lib/sidebar-navigation/` |
 | Status | built |
 | Traces to | L2-126, L2-127, L2-129, L2-130, L2-131, L2-132, L2-134, L2-150 |
@@ -21,7 +21,8 @@ Use the top bar for the five primary destinations and tabs for views of one page
 
 Out of scope:
 
-- The page layout around a settings navigation (`.settings-layout`): the page.
+- The page header and the forms inside a settings page: the [page header](page-header.md) and the [form layout](form-layout.md).
+
 - What an action item does (opening the theme menu, signing out): the consumer handles `itemSelected`.
 
 ## Usage
@@ -46,7 +47,11 @@ Out of scope:
 5. **Count** — `span.badge.badge--count` at the end of a row, with a visually hidden word
    (`span.vh` " unread").
 
-Host: `ll-sidebar-nav` is `display: contents`; it renders the `nav`.
+6. **Settings layout** — `div.wrap.settings-layout`: the page body of Settings, Admin and Moderation.
+   It places the settings navigation beside (from LG) or above (below LG) the page's content.
+
+Host: `ll-sidebar-nav` is `display: contents`; it renders the `nav`. `ll-settings-layout` is
+`display: contents`; it renders the layout and projects the navigation and the content.
 
 ## API
 
@@ -72,7 +77,10 @@ positive `count` renders the badge with `countLabel` as its hidden word.
 
 ### Content slots
 
-None.
+| Slot | Accepts | Rule |
+|---|---|---|
+| `[slot=nav]` (`ll-settings-layout`) | one `ll-sidebar-nav` in the settings variant | Rendered first: the column from LG, the scrolling row below. |
+| default (`ll-settings-layout`) | the page header and the page's content in one wrapper | Rendered in the second column; `min-width: 0` so wide content never pushes the page sideways. |
 
 ## Variants and sizes
 
@@ -114,12 +122,28 @@ One size: rows `--target-comfortable` tall.
 <ll-sidebar-nav label="Site" [groups]="groups()" (itemSelected)="select($event)" />
 ```
 
+```html
+<!-- rendered: settings layout -->
+<div class="wrap settings-layout">
+  <nav class="sidebar-nav settings-nav" aria-label="Settings">…</nav>
+  <div>…page header and form…</div>
+</div>
+
+<!-- consumer -->
+<ll-settings-layout>
+  <ll-sidebar-nav slot="nav" label="Settings" variant="settings" [groups]="settings" />
+  <div>…</div>
+</ll-settings-layout>
+```
+
 ## Design
 
 - Grid gap `--space-1`; max width `--layout-sidebar-width` (none in the settings variant).
 - Group label padding `--space-4` `--space-3` `--space-1`, `--text-overline`, `--letter-spacing-wide`.
 - Rows: gap `--space-3`, padding `0 --space-3`, `--radius-md`, `--font-weight-medium`.
 - Settings variant below LG: a single scrolling row; from LG a column `--layout-settings-nav` wide.
+- Settings layout: grid, gap `--space-8`, padding-block `--space-8` 0; from LG two columns,
+  `--layout-settings-nav` and the rest.
 
 Component tokens: none.
 
@@ -206,6 +230,7 @@ Hover colour changes only; no motion.
 
 - **AC-8** Given Settings at 320 px, when the settings navigation renders, then it scrolls within its own row and the page does not scroll horizontally. (L2-130)
 - **AC-9** Given a viewport of 375 px, when a row is measured, then it is at least 44 CSS px tall. (L2-132)
+- **AC-11** Given Settings at 1440 px, when the settings layout renders, then the navigation is a column beside the page content; at 375 px it is a scrolling row above the content. (L2-130)
 - **AC-10** Given the pseudo-locale's longer labels, when the drawer navigation renders at 320 px, then labels wrap and none is clipped. (L2-150)
 
 ## Implementation notes
@@ -219,5 +244,8 @@ Hover colour changes only; no motion.
 - **D-1** *How do action items look?* Exactly like link rows; the design system styles only `a`, so the
   component applies the row rules to `button` too. Actions (theme, sign out) must be buttons because
   they do not navigate.
+- **D-3** *Who owns the settings layout?* This component: the layout is defined in the
+  `sidebar-navigation` block of the design system, it exists only to place the settings navigation,
+  and Settings, Admin and Moderation share it.
 - **D-2** *Does a link emit `itemSelected`?* Yes, so the navigation drawer can close when a destination is
   chosen.

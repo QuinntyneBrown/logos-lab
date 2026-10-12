@@ -52,6 +52,7 @@ summary.
 |---|---|---|---|---|
 | `heading` (`ll-form-summary`) | `string` | — | yes | "Two things to fix before you can sign in". |
 | `errors` (`ll-form-summary`) | `readonly FormError[]` | — | yes | `{ controlId: string; message: string }`; one link per error to `#{controlId}`. |
+| `card` (`form[llForm]`) | `boolean` | `false` | no | Adds `.form-card` to the form itself, as the settings forms do (`form.form-card`): the surface card with its own gap and padding. |
 
 `form[llForm]` adds `.form` and `novalidate`.
 
@@ -184,6 +185,7 @@ None.
 
 ### Responsive
 
+- **AC-9** Given Miriam's profile settings, when the form renders as a card, then the form element itself is the surface card with `--radius-xl`, a hairline border and `--space-6` padding, `--space-10` from SM. (L2-130)
 - **AC-7** Given a viewport of 320 px, when the summary renders, then its links wrap and nothing scrolls horizontally. (L2-130)
 - **AC-8** Given the pseudo-locale's longer messages, when the summary renders at 375 px, then nothing is clipped. (L2-150)
 
@@ -197,3 +199,6 @@ None.
 
 - **D-1** *Who moves focus to the summary?* The summary, when it is created, so every form gets
   `L2-128` AC2 without page code.
+- **D-2** *A form card around the form, or the form as the card?* Both appear: the settings mocks make
+  the form itself the card (`form.form-card`), the studio wraps several fields in a `div.form-card`.
+  The `card` input covers the first; a projected `.form-card` still covers the second.
