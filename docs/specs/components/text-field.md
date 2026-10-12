@@ -5,7 +5,7 @@
 | Selector | `input[llInput]`, `form[llSearch]`, `div[llSearch]` |
 | Library path | `frontend/projects/components/src/lib/text-field/` |
 | Status | built |
-| Traces to | L2-001, L2-003, L2-126, L2-127, L2-128, L2-129, L2-130, L2-132, L2-134, L2-150 |
+| Traces to | L2-001, L2-003, L2-014, L2-126, L2-127, L2-128, L2-129, L2-130, L2-132, L2-134, L2-150 |
 | Design system | [`text-field.html`](../../design-system/components/text-field.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/experts/default`](../../mocks/pages/experts/default.html), [`pages/certificate-verify/default`](../../mocks/pages/certificate-verify/default.html), [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`dialogs/search-suggest/default`](../../mocks/dialogs/search-suggest/default.html) |
 | Rendering | [`text-field.html`](text-field.html) |
@@ -38,6 +38,7 @@ Out of scope:
 | `dialogs/search-suggest/*` (top bar) | search, `form`, combobox query, `maxlength` 200 | label "Search Logos Lab" | default, busy, invalid, empty, failed, long | canvas |
 | `pages/search-results/*`, `pages/experts/*` | search, `div` inside the page's filter form, with "Search" action | "Search all content", "Search experts by name" | default, focus | canvas |
 | `pages/sign-in/*`, `pages/register/*`, `pages/settings-*/*`, studio editors, admin dialogs | input, lg (default) | types text, email, password, url, date, search; `autocomplete`, `inputmode`, `maxlength`, `aria-describedby` | default, hover, focus, invalid, readonly, disabled | surface, dialog |
+| `pages/sign-in-verify/*`, `pages/mfa-setup/*`, `dialogs/mfa-disable/*` | input, lg, `otp` | 6-digit code: `inputmode="numeric"`, `autocomplete="one-time-code"`, `maxlength` 6 | default, focus, invalid, disabled | surface, dialog |
 | filter toolbars, dense admin rows | input, md or sm | type search or date | default | surface |
 
 ## Anatomy
@@ -61,6 +62,7 @@ query inside and projects the action after them.
 | Input | Type | Default | Required | Rule |
 |---|---|---|---|---|
 | `size` (`llInput`) | `'sm' \| 'md' \| 'lg'` | `'lg'` | no | Adds `.input--sm` or `.input--md`; `lg` adds nothing. |
+| `otp` (`llInput`) | `boolean` | `false` | no | Adds `.otp`: a short, centred, monospaced field for a one-time code. |
 | `invalid` (`llInput`) | `boolean` | `false` | no | Sets `aria-invalid="true"`; the form field sets it when the field has an error. |
 | `label` (`llSearch`) | `string` | — | yes | Visually hidden label text. |
 | `placeholder` (`llSearch`) | `string` | `''` | no | Placeholder; never a substitute for the label. |
@@ -98,6 +100,7 @@ Native attributes on `input[llInput]` (`type`, `name`, `autocomplete`, `inputmod
 | Variant | Modifier | Use for |
 |---|---|---|
 | Input | `.input` | Every single-line form control. |
+| One-time code | `.input.otp` | A 6-digit code from an authenticator app. |
 | Search, standalone form | `.search` on `form[role=search]` | Top bar, hero, error pages, verification, admin lists. |
 | Search, inside a form | `.search` on `div` | Search box inside a larger filter form. |
 
@@ -249,6 +252,7 @@ Border and fill transitions are removed under reduced motion.
 
 - **AC-7** Given the hero search, when its query receives keyboard focus, then the focus ring surrounds the whole pill with at least 3:1 contrast and 2 CSS px thickness. (L2-126)
 
+- **AC-15** Given the two-step sign-in, when the code field renders, then it has `.otp`, `inputmode="numeric"`, `autocomplete="one-time-code"` and `maxlength="6"`, and its digits are centred in the code type. (L2-014)
 - **AC-14** Given the site search as a combobox with suggestions open, when it is inspected, then the query has `role="combobox"`, `aria-autocomplete="list"`, `aria-controls` naming the listbox, `aria-expanded="true"` and `maxlength="200"`. (L2-003)
 
 ### Screen readers
