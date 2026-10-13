@@ -151,4 +151,147 @@ test.describe('Events listing', () => {
     await expect(events.row(1)).not.toContainText('Recording available');
     await expect(events.row(1).getByRole('link', { name: 'Watch' })).toHaveCount(0);
   });
+
+  // L2-051 AC3 · select AC-4, search-filter-toolbar AC-5
+  test('offers format, topic and host filters, and Recording available on the Past tab', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events', eventList());
+    api.respond('GET', '/events?tab=past', eventList({ events: pastEvents, total: 2 }));
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.format.locator('option')).toHaveText([
+      'Any format',
+      'Online',
+      'In person',
+      'Hybrid',
+    ]);
+    await expect(events.topic.locator('option')).toHaveText([
+      'Any topic',
+      'Theology of technology',
+      'AI ethics',
+      'Pastoral care',
+    ]);
+    await expect(events.host.locator('option')).toHaveText([
+      'Any host',
+      'Logos Lab',
+      'Dr. Abena Mensah',
+      'Rev. Dr. Thomas Hale',
+    ]);
+    await expect(events.format).toHaveValue('');
+    await expect(events.recording).toHaveCount(0);
+
+    await events.pastTab.click();
+
+    await expect(events.recording).not.toBeChecked();
+  });
+
+  // L2-051 AC3 · search-filter-toolbar AC-16
+  test('choosing filters narrows the list, and the address and a pill show them', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events', eventList());
+    api.respond(
+      'GET',
+      '/events?format=online',
+      eventList({ events: [upcomingEvents[1]], total: 1 }),
+    );
+    api.respond(
+      'GET',
+      '/events?format=online&host=abena-mensah',
+      eventList({ events: [upcomingEvents[1]], total: 1 }),
+    );
+    const events = new EventsPage(page);
+    await events.open();
+    await expect(events.pills).toHaveCount(0);
+
+    await events.format.selectOption({ label: 'Online' });
+
+    await expect(page).toHaveURL('/events?format=online');
+    await expect(events.rows).toHaveCount(1);
+    await expect(events.count).toHaveText('1 upcoming event, soonest first');
+    await expect(events.pills).toHaveText(['Format: Online']);
+
+    await events.host.selectOption({ label: 'Dr. Abena Mensah' });
+
+    await expect(page).toHaveURL('/events?format=online&host=abena-mensah');
+    await expect(events.pills).toHaveText(['Format: Online', 'Host: Dr. Abena Mensah']);
+    await expect(events.format).toHaveValue('online');
+  });
+
+  // L2-051 AC3, L2-059 AC2 · search-filter-toolbar AC-12, AC-13
+  test('the address applies its filters, and ignores what it does not know', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events', eventList());
+    api.respond(
+      'GET',
+      '/events?tab=past&format=hybrid&topic=ai-ethics&host=thomas-hale&recording=1',
+      eventList({ events: pastEvents.slice(0, 1), total: 1 }),
+    );
+    const events = new EventsPage(page);
+
+    await events.open(
+      '/events?tab=past&format=hybrid&topic=ai-ethics&host=thomas-hale&recording=1',
+    );
+
+    await expect(events.format).toHaveValue('hybrid');
+    await expect(events.topic).toHaveValue('ai-ethics');
+    await expect(events.host).toHaveValue('thomas-hale');
+    await expect(events.recording).toBeChecked();
+    await expect(events.pills).toHaveText([
+      'Format: Hybrid',
+      'Topic: AI ethics',
+      'Host: Rev. Dr. Thomas Hale',
+      'Recording available',
+    ]);
+    await expect(events.rows).toHaveCount(1);
+
+    await events.open('/events?format=virtual&topic=Not%20a%20slug&recording=1&tab=soon');
+
+    await expect(events.rows).toHaveCount(3);
+    await expect(events.pills).toHaveCount(0);
+    expect(api.queriesTo('GET', '/events').at(-1)).toBe('');
+  });
+
+  // L2-051 AC3 · search-filter-toolbar AC-6, AC-14, empty-state AC-1
+  test('filters that match nothing say so, and each can be taken off', async ({ page, api }) => {
+    api.respond('GET', '/events', eventList({ totalEvents: 9, total: 9 }));
+    api.respond(
+      'GET',
+      '/events?format=in-person&topic=pastoral-care',
+      eventList({ events: [], total: 0, totalEvents: 9 }),
+    );
+    api.respond(
+      'GET',
+      '/events?topic=pastoral-care',
+      eventList({ events: upcomingEvents.slice(0, 2), total: 2, totalEvents: 9 }),
+    );
+    const events = new EventsPage(page);
+
+    await events.open('/events?format=in-person&topic=pastoral-care');
+
+    await expect(events.count).toHaveText('No upcoming events match In person and Pastoral care');
+    await expect(events.emptyTitle).toHaveText('No events match these filters');
+    await expect(events.emptyState).toContainText('clear the filters to see all 9');
+    await expect(events.pills).toHaveText(['Format: In person', 'Topic: Pastoral care']);
+
+    await events.removeFilter('Format: In person');
+
+    await expect(page).toHaveURL('/events?topic=pastoral-care');
+    await expect(events.pills).toHaveText(['Topic: Pastoral care']);
+    await expect(events.rows).toHaveCount(2);
+
+    await events.format.selectOption({ label: 'In person' });
+    await events.clearFilters.click();
+
+    await expect(page).toHaveURL('/events');
+    await expect(events.pills).toHaveCount(0);
+    await expect(events.count).toHaveText('9 upcoming events, soonest first');
+  });
 });

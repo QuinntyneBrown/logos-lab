@@ -9,5 +9,7 @@ export interface EventListQuery {
   readonly topic: string | null;
   /** A host slug, or null for any host. */
   readonly host: string | null;
+  /** Only events with a recording attached; meaningful on the Past tab. */
+  readonly recording: boolean;
   readonly cursor: string | null;
 }

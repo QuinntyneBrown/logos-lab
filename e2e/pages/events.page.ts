@@ -9,7 +9,16 @@ export class EventsPage {
   readonly tabs: Locator;
   readonly upcomingTab: Locator;
   readonly pastTab: Locator;
+  readonly filters: Locator;
+  readonly format: Locator;
+  readonly topic: Locator;
+  readonly host: Locator;
+  readonly recording: Locator;
+  readonly pills: Locator;
   readonly count: Locator;
+  readonly emptyState: Locator;
+  readonly emptyTitle: Locator;
+  readonly clearFilters: Locator;
   readonly rows: Locator;
 
   constructor(private readonly page: Page) {
@@ -21,6 +30,15 @@ export class EventsPage {
     this.tabs = main.getByRole('navigation', { name: 'When' });
     this.upcomingTab = this.tabs.getByRole('link', { name: 'Upcoming' });
     this.pastTab = this.tabs.getByRole('link', { name: 'Past' });
+    this.filters = main.getByRole('form', { name: 'Filter events' });
+    this.format = this.filters.getByLabel('Format');
+    this.topic = this.filters.getByLabel('Topic');
+    this.host = this.filters.getByLabel('Host');
+    this.recording = this.filters.getByLabel('Recording available');
+    this.pills = main.getByRole('list', { name: 'Active filters' }).getByRole('listitem');
+    this.emptyState = main.locator('.empty');
+    this.emptyTitle = main.locator('.empty__title');
+    this.clearFilters = this.emptyState.getByRole('button', { name: 'Clear filters' });
     this.count = main.locator('.toolbar__count');
     this.rows = main.locator('li.event');
   }
@@ -33,5 +51,13 @@ export class EventsPage {
   /** One event's row, by position. */
   row(index: number): Locator {
     return this.rows.nth(index);
+  }
+
+  /** Removes one active filter by its pill's text: "Format: In person". */
+  async removeFilter(label: string): Promise<void> {
+    await this.pills
+      .filter({ hasText: label })
+      .getByRole('button', { name: `Remove filter ${label}` })
+      .click();
   }
 }

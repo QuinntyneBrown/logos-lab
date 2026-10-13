@@ -16,6 +16,7 @@ export class HttpEventsApi implements EventsApi {
     if (query.format) params['format'] = query.format;
     if (query.topic) params['topic'] = query.topic;
     if (query.host) params['host'] = query.host;
+    if (query.recording) params['recording'] = '1';
     if (query.cursor) params['cursor'] = query.cursor;
     return this.http.get<EventList>('/api/v1/events', { params });
   }

@@ -19,8 +19,79 @@
       >Past</a
     >
   </nav>
-  <div llToolbar class="events__toolbar">
-    @if (list(); as list) {
+  <div llToolbar stacked class="events__toolbar">
+    <form class="cluster" aria-label="Filter events" i18n-aria-label="@@events.filters.label">
+      <ll-select
+        label="Format"
+        i18n-label="@@events.filter.format"
+        name="format"
+        [value]="query().format ?? ''"
+        (valueChange)="setFormat($event)"
+      >
+        <option value="" i18n="@@events.format.any">Any format</option>
+        @for (format of formats; track format.value) {
+          <option [value]="format.value">{{ format.label }}</option>
+        }
+      </ll-select>
+      <ll-select
+        label="Topic"
+        i18n-label="@@events.filter.topic"
+        name="topic"
+        [value]="query().topic ?? ''"
+        (valueChange)="setTopic($event)"
+      >
+        <option value="" i18n="@@events.topic.any">Any topic</option>
+        @for (topic of topics(); track topic.slug) {
+          <option [value]="topic.slug">{{ topic.name }}</option>
+        }
+      </ll-select>
+      <ll-select
+        label="Host"
+        i18n-label="@@events.filter.host"
+        name="host"
+        [value]="query().host ?? ''"
+        (valueChange)="setHost($event)"
+      >
+        <option value="" i18n="@@events.host.any">Any host</option>
+        @for (host of hosts(); track host.slug) {
+          <option [value]="host.slug">{{ host.name }}</option>
+        }
+      </ll-select>
+      @if (tab() === 'past') {
+        <label llCheck
+          ><input
+            class="check__box"
+            type="checkbox"
+            name="recording"
+            [checked]="query().recording"
+            (change)="setRecording($any($event.target).checked)"
+          /><span class="check__text" i18n="@@events.recording">Recording available</span></label
+        >
+      }
+    </form>
+    @if (pills().length) {
+      <ul llActiveFilters label="Active filters" i18n-label="@@events.active.label">
+        @for (pill of pills(); track pill.label) {
+          <li
+            llActiveFilter
+            [label]="pill.label"
+            [removeLabel]="pill.removeLabel"
+            (removed)="pill.remove()"
+          ></li>
+        }
+      </ul>
+    }
+    @if (noMatches(); as none) {
+      @if (listedTab() === 'past') {
+        <p llToolbarCount i18n="@@events.count.none.past">
+          <strong>No past events</strong> match {{ none.names }}
+        </p>
+      } @else {
+        <p llToolbarCount i18n="@@events.count.none.upcoming">
+          <strong>No upcoming events</strong> match {{ none.names }}
+        </p>
+      }
+    } @else if (list(); as list) {
       @if (listedTab() === 'past') {
         @if (list.total === 1) {
           <p llToolbarCount i18n="@@events.count.past.one">
@@ -47,6 +118,26 @@
       }
     }
   </div>
+  @if (noMatches(); as none) {
+    <ll-empty-state
+      heading="No events match these filters"
+      i18n-heading="@@events.none.title"
+      icon="search"
+      [headingLevel]="2"
+    >
+      {{ none.text }}
+      <button
+        llButton
+        variant="quiet"
+        type="button"
+        slot="actions"
+        (click)="clearFilters()"
+        i18n="@@events.none.action"
+      >
+        Clear filters
+      </button>
+    </ll-empty-state>
+  }
   @if (rows().length) {
     <ul llEventList>
       @for (row of rows(); track row.id) {
