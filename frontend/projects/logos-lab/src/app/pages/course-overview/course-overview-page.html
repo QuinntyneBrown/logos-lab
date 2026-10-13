@@ -1,0 +1,186 @@
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
+  <div class="wrap course">
+    @if (course(); as course) {
+      <nav
+        llBreadcrumb
+        label="Breadcrumb"
+        i18n-label="@@topic.crumb.label"
+        top="md"
+        [items]="trail()"
+      ></nav>
+      <ll-hero variant="compact" labelledBy="course-title">
+        <p class="eyebrow">{{ eyebrow() }}</p>
+        <h1 class="hero__title" id="course-title">{{ course.title }}</h1>
+        <p class="lead hero__lead">{{ course.summary }}</p>
+        <div class="hero__actions">
+          @switch (viewer()) {
+            @case ('visitor') {
+              <a
+                llButton
+                variant="primary"
+                size="lg"
+                routerLink="/sign-in"
+                [queryParams]="returnQuery()"
+                i18n="@@course.signIn"
+                >Sign in to enrol</a
+              >
+              <a
+                llButton
+                variant="quiet"
+                size="lg"
+                routerLink="/register"
+                [queryParams]="returnQuery()"
+                i18n="@@course.createAccount"
+                >Create a free account</a
+              >
+            }
+            @case ('member') {
+              <button llButton variant="primary" size="lg" [busy]="enrolling()" (click)="enrol()">
+                @if (enrolling()) {
+                  <ng-container i18n="@@course.enrolling">Enrolling…</ng-container>
+                } @else {
+                  <ng-container i18n="@@course.enrol">Enrol</ng-container>
+                }
+              </button>
+            }
+          }
+        </div>
+        <div slot="aside">
+          @if (course.coverUrl) {
+            <img class="course__cover" [src]="course.coverUrl" alt="" width="640" height="360" />
+          } @else {
+            <div class="content-card__cover tile--sage" aria-hidden="true"></div>
+          }
+        </div>
+      </ll-hero>
+      @if (enrolFailed()) {
+        <ll-alert
+          class="course__alert"
+          tone="danger"
+          heading="We couldn't enrol you just now"
+          i18n-heading="@@course.enrol.failed.title"
+        >
+          <ng-container i18n="@@course.enrol.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      }
+      <div class="two-col section course__body">
+        <div class="stack stack--lg">
+          <section aria-labelledby="learn-title">
+            <h2 class="section__title" id="learn-title" i18n="@@course.learn">What you’ll learn</h2>
+            <ul llList class="course__outcomes">
+              @for (outcome of course.outcomes; track $index) {
+                <li>{{ outcome }}</li>
+              }
+            </ul>
+          </section>
+          <section aria-labelledby="content-title">
+            <h2 class="section__title" id="content-title" i18n="@@course.content">
+              Course content
+            </h2>
+            <p class="muted course__content-summary">{{ contentSummary() }} {{ openingRule() }}</p>
+            <nav
+              llCourseOutline
+              label="Course outline"
+              i18n-label="@@course.outline"
+              currentToken="step"
+              [sections]="outline()"
+              (sectionToggled)="remember($event)"
+            ></nav>
+          </section>
+        </div>
+        <aside class="stack" aria-label="About this course" i18n-aria-label="@@course.aside">
+          <section llCard heading="Taught by" i18n-heading="@@course.taught" headingId="by-title">
+            <ul llList plain>
+              @for (contributor of course.contributors; track contributor.name) {
+                <li class="cluster">
+                  <ll-avatar
+                    [name]="contributor.name"
+                    [photoUrl]="contributor.photoUrl"
+                    size="md"
+                  />
+                  @if (contributor.slug) {
+                    <a [routerLink]="'/experts/' + contributor.slug">{{ contributor.name }}</a>
+                  } @else {
+                    <span>{{ contributor.name }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+          <section
+            llCard
+            heading="About this course"
+            i18n-heading="@@course.about"
+            headingId="facts-title"
+          >
+            <dl llDescriptionList variant="inline">
+              <div>
+                <dt i18n="@@course.fact.lessonsTerm">Lessons</dt>
+                <dd>{{ lessonsFact() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@course.fact.lengthTerm">Length</dt>
+                <dd>{{ lengthFact() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@course.fact.levelTerm">Level</dt>
+                <dd>{{ levelFact() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@course.fact.orderTerm">Order</dt>
+                <dd>{{ orderFact() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@course.fact.learnersTerm">Learners</dt>
+                <dd>{{ learnersFact() }}</dd>
+              </div>
+            </dl>
+            <ul llChips label="Topics" i18n-label="@@article.topics">
+              @for (topic of course.topics; track topic.slug) {
+                <li>
+                  <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
+                </li>
+              }
+            </ul>
+          </section>
+          <section
+            llCard
+            heading="Talk about it"
+            i18n-heading="@@course.talk"
+            headingId="talk-title"
+          >
+            <p class="muted">{{ commentsText() }}</p>
+          </section>
+        </aside>
+      </div>
+      @if (related().length) {
+        <section class="section" aria-labelledby="related-title">
+          <div class="section__head">
+            <p class="eyebrow" i18n="@@course.related.eyebrow">Shares topics with this course</p>
+            <h2 class="section__title" id="related-title" i18n="@@article.related.title">
+              Related
+            </h2>
+          </div>
+          <div class="content-grid">
+            @for (card of related(); track card.id) {
+              <ll-content-card
+                [type]="card.type"
+                [typeLabel]="card.typeLabel"
+                [title]="card.title"
+                [path]="card.path"
+                [author]="card.author"
+                [meta]="card.meta"
+                [duration]="card.duration"
+                [coverUrl]="card.coverUrl"
+              />
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+}

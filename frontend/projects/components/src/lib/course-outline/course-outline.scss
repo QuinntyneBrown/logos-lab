@@ -1,0 +1,116 @@
+// The outline block of docs/design-system/assets/components.css, with the course-outline CRD's
+// changes: the current lesson is marked by aria-current of either value, a lesson that is done
+// and current keeps its done mark, and a long title wraps.
+:host {
+  display: grid;
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+}
+:host([hidden]) {
+  display: none;
+}
+.outline__section {
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+}
+.outline__section > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+  min-height: var(--target-comfortable);
+  padding-block: var(--space-3);
+  cursor: pointer;
+  list-style: none;
+}
+.outline__section > summary::-webkit-details-marker {
+  display: none;
+}
+.outline__section > summary::after {
+  content: '+';
+  font: var(--text-h4);
+  color: var(--color-fg-subtle);
+}
+.outline__section[open] > summary::after {
+  content: '\2212';
+}
+.outline__section > summary:hover .outline__name {
+  color: var(--color-fg-accent);
+}
+.outline__name {
+  font: var(--text-h4);
+  overflow-wrap: anywhere;
+}
+.outline__count {
+  font: var(--text-caption);
+  color: var(--color-fg-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.outline__lessons {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0 0 var(--space-4);
+  list-style: none;
+}
+.outline__lesson {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  min-height: var(--target-comfortable);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  font: var(--text-body-sm);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+a.outline__lesson:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+}
+.outline__lesson[aria-current] {
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+  font-weight: var(--font-weight-semibold);
+}
+.outline__mark {
+  display: grid;
+  place-items: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  border-radius: var(--radius-full);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  color: var(--color-fg-subtle);
+}
+.outline__lesson[aria-current] .outline__mark {
+  border-color: var(--color-accent);
+  color: var(--color-fg-accent);
+}
+.outline__lesson.is-done .outline__mark,
+.outline__lesson.is-done[aria-current] .outline__mark {
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
+  color: var(--color-success-icon);
+}
+.outline__lesson.is-locked {
+  color: var(--color-fg-subtle);
+  cursor: not-allowed;
+}
+.outline__lesson.is-locked .outline__mark {
+  border-style: dashed;
+}
+.outline__time {
+  font: var(--text-caption);
+  color: var(--color-fg-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+:host(.outline--compact) .outline__lesson {
+  min-height: var(--target-comfortable);
+}
+@media (min-width: 64rem) {
+  :host(.outline--compact) .outline__lesson {
+    min-height: var(--control-height-sm);
+  }
+}

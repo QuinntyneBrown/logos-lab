@@ -72,7 +72,8 @@ function lessons(count: number, locale: string, number: Intl.NumberFormat): stri
   });
 }
 
-function hoursAndMinutes(total: number): string {
+/** A length as hours and minutes: "5 h 40 min", "45 min". */
+export function hoursAndMinutes(total: number): string {
   const hours = Math.floor(total / 60);
   const rest = total % 60;
   if (!hours) return minutes(rest);
@@ -80,7 +81,7 @@ function hoursAndMinutes(total: number): string {
   return $localize`:@@content.fact.hoursMinutes:${hours}:hours: h ${rest}:minutes: min`;
 }
 
-function minutes(count: number): string {
+export function minutes(count: number): string {
   return $localize`:@@content.fact.minutes:${count}:minutes: min`;
 }
 
