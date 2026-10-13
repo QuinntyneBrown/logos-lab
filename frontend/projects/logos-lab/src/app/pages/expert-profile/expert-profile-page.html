@@ -1,0 +1,51 @@
+@if (profile(); as profile) {
+  <div class="wrap expert">
+    <nav
+      llBreadcrumb
+      label="Breadcrumb"
+      i18n-label="@@topic.crumb.label"
+      top="md"
+      [items]="trail()"
+    ></nav>
+    <ll-profile-header
+      [name]="profile.name"
+      [photoUrl]="profile.photoUrl"
+      [sub]="sub()"
+      [meta]="meta()"
+    />
+    <div class="two-col">
+      <section aria-labelledby="about-title">
+        <h2 class="vh" id="about-title" i18n="@@expert.about">About {{ profile.name }}</h2>
+        <ll-prose [html]="profile.bioHtml" />
+      </section>
+      <aside
+        llCard
+        heading="Areas of expertise"
+        i18n-heading="@@expert.expertise"
+        headingId="expertise-title"
+      >
+        <ul llChips label="Areas of expertise" i18n-label="@@expert.expertise">
+          @for (area of profile.expertise; track area.slug) {
+            <li>
+              <a llChip size="sm" [routerLink]="'/topics/' + area.slug">{{ area.name }}</a>
+            </li>
+          }
+        </ul>
+        @if (profile.links.length) {
+          <h2 class="aside-card__title" id="elsewhere-title" i18n="@@expert.elsewhere">
+            Elsewhere
+          </h2>
+          <ul llList plain aria-labelledby="elsewhere-title">
+            @for (link of profile.links; track link.url) {
+              <li>
+                <a llExternalLink [href]="link.url" [externalLabel]="externalLabel">{{
+                  link.label
+                }}</a>
+              </li>
+            }
+          </ul>
+        }
+      </aside>
+    </div>
+  </div>
+}

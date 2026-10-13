@@ -1,0 +1,84 @@
+// The profile-header block of docs/design-system/assets/components.css.
+:host {
+  display: contents;
+}
+.profile-head {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-12) var(--space-8);
+  container-type: inline-size;
+}
+.profile-head__who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+.profile-head__photo {
+  width: var(--space-24);
+  height: var(--space-24);
+  flex: none;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: var(--color-bg-subtle);
+}
+.profile-head__initials {
+  display: grid;
+  place-items: center;
+  width: var(--space-24);
+  height: var(--space-24);
+  flex: none;
+  border-radius: var(--radius-lg);
+  font: var(--font-weight-light) var(--font-size-3xl) / 1 var(--font-family-display);
+  color: var(--color-tile-fg);
+}
+.profile-head__text {
+  display: grid;
+  flex: 1 1 auto;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.profile-head__name {
+  font: var(--text-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  overflow-wrap: break-word;
+}
+.profile-head__sub {
+  color: var(--color-fg-muted);
+}
+.profile-head__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+.profile-head__meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.profile-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.profile-head__actions:empty {
+  display: none;
+}
+@container (max-width: 34rem) {
+  .profile-head__who {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+  .profile-head__photo,
+  .profile-head__initials {
+    width: var(--space-16);
+    height: var(--space-16);
+    font-size: var(--font-size-2xl);
+  }
+  .profile-head__name {
+    font-size: var(--font-size-3xl);
+  }
+}

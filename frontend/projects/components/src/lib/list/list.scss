@@ -1,0 +1,22 @@
+// The .list rules of docs/design-system/assets/components.css; the rows are the consumer's `li`.
+:host {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+}
+:host ::ng-deep > li {
+  padding-block: var(--space-3);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+  overflow-wrap: anywhere;
+}
+:host(.list--plain) ::ng-deep > li {
+  border-bottom: 0;
+}
+:host ::ng-deep a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--target-comfortable);
+  overflow-wrap: anywhere;
+}
