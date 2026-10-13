@@ -27,10 +27,13 @@ import {
   DescriptionList,
   Hero,
   List,
+  ProgressBar,
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { approximateLength } from '../../content/approximate-length';
 import { VerifyEmailPrompt } from '../../dialogs/verify-email-prompt';
+import { dayWithWeekday } from '../../content/day-with-weekday';
 import { hoursAndMinutes } from '../../content/content-facts';
 import { OutlineViewer, toCourseOutline } from '../../content/course-outline-view';
 import { plural } from '../../content/plural';
@@ -56,6 +59,7 @@ import { MyStateStatus } from './my-state-status';
     Hero,
     List,
     NotFoundPage,
+    ProgressBar,
   ],
   templateUrl: './course-overview-page.html',
   styleUrl: './course-overview-page.scss',
@@ -140,19 +144,26 @@ export class CourseOverviewPage {
   });
 
   /** Who is looking: decides the hero's actions and how the outline reads. */
-  protected readonly viewer = computed<'visitor' | 'pending' | 'member'>(() => {
-    const member = this.session.member();
-    if (member === null) return 'visitor';
-    if (member === undefined || this.mine() === null) return 'pending';
-    return 'member';
-  });
+  protected readonly viewer = computed<'visitor' | 'pending' | 'member' | 'enrolled' | 'completed'>(
+    () => {
+      const member = this.session.member();
+      if (member === null) return 'visitor';
+      const mine = this.mine();
+      if (member === undefined || mine === null) return 'pending';
+      return mine.status === 'not-enrolled' ? 'member' : mine.status;
+    },
+  );
+  protected readonly learning = computed(
+    () => this.viewer() === 'enrolled' || this.viewer() === 'completed',
+  );
 
   /** The sections the learner opened or closed themselves, kept while the page lives. */
   private readonly sectionChoices = signal<Readonly<Record<string, boolean>>>({});
   protected readonly outline = computed(() => {
     const course = this.course();
     if (!course) return [];
-    const viewer: OutlineViewer = this.session.member() === null ? 'visitor' : 'member';
+    const viewer: OutlineViewer =
+      this.session.member() === null ? 'visitor' : this.learning() ? 'enrolled' : 'member';
     return toCourseOutline(course, this.mine(), viewer, course.slug, this.sectionChoices());
   });
 
@@ -245,6 +256,11 @@ export class CourseOverviewPage {
   protected readonly openingRule = computed(() => {
     const free = this.course()?.navigation === 'free';
     switch (this.viewer()) {
+      case 'enrolled':
+      case 'completed':
+        return free
+          ? $localize`:@@course.rule.enrolled.free:Lessons open in any order.`
+          : $localize`:@@course.rule.enrolled.sequential:Lessons open in order: finish one to unlock the next.`;
       case 'visitor':
         return free
           ? $localize`:@@course.rule.visitor.free:Sign in and enrol to open the lessons; they open in any order.`
@@ -256,6 +272,47 @@ export class CourseOverviewPage {
       default:
         return '';
     }
+  });
+
+  protected readonly percentText = computed(() =>
+    new Intl.NumberFormat(this.locale, { style: 'percent' }).format(
+      (this.mine()?.percent ?? 0) / 100,
+    ),
+  );
+  /** "10 of 24 lessons · next up: 3.2 Representing, not resembling, about 14 minutes". */
+  protected readonly progressHelp = computed(() => {
+    const mine = this.mine();
+    if (!mine) return '';
+    const done = mine.completedLessons;
+    const total = mine.totalLessons;
+    if (mine.status === 'completed') {
+      const on = mine.completedOn ? dayWithWeekday(this.locale, mine.completedOn) : '';
+      return $localize`:@@course.progress.completed:Completed ${on}:date: · ${done}:done: of ${total}:total: lessons`;
+    }
+    const next = mine.nextLesson;
+    if (!next) return $localize`:@@course.progress.count:${done}:done: of ${total}:total: lessons`;
+    const title = next.title;
+    if (next.minutes === null)
+      return $localize`:@@course.progress.nextOnly:${done}:done: of ${total}:total: lessons · next up: ${title}:title:`;
+    const length = approximateLength(next.minutes);
+    return $localize`:@@course.progress.next:${done}:done: of ${total}:total: lessons · next up: ${title}:title:, about ${length}:length:`;
+  });
+  protected readonly continueName = computed(() => {
+    const title = this.mine()?.nextLesson?.title ?? '';
+    return $localize`:@@course.continue.name:Continue: ${title}:title:`;
+  });
+  protected readonly nextLessonPath = computed(() => {
+    const next = this.mine()?.nextLesson;
+    return next ? `/courses/${this.course()?.slug}/lessons/${next.id}` : null;
+  });
+  protected readonly firstLessonPath = computed(() => {
+    const first = this.course()?.sections[0]?.lessons[0];
+    return first ? `/courses/${this.course()?.slug}/lessons/${first.id}` : null;
+  });
+  protected readonly archivedText = computed(() => {
+    const on = this.course()?.archivedOn;
+    const date = on ? dayWithWeekday(this.locale, on) : '';
+    return $localize`:@@course.archived.body:Logos Lab archived it on ${date}:date:, so it is no longer in the catalogue and won’t be updated. You can still finish it: your progress is kept, and you’ll get a certificate when you complete it.`;
   });
 
   protected readonly lessonsFact = computed(() => {

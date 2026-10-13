@@ -10,10 +10,35 @@
         top="md"
         [items]="trail()"
       ></nav>
+      @if (course.archivedOn && learning()) {
+        <ll-alert
+          class="course__archived"
+          tone="warning"
+          role="status"
+          heading="This course is no longer maintained"
+          i18n-heading="@@course.archived.title"
+        >
+          {{ archivedText() }}
+        </ll-alert>
+      }
       <ll-hero variant="compact" labelledBy="course-title">
         <p class="eyebrow">{{ eyebrow() }}</p>
         <h1 class="hero__title" id="course-title">{{ course.title }}</h1>
         <p class="lead hero__lead">{{ course.summary }}</p>
+        @if (learning()) {
+          <div class="course__progress">
+            <ll-progress-bar
+              label="Your progress"
+              i18n-label="@@course.progress.title"
+              caption="Your progress"
+              i18n-caption="@@course.progress.title"
+              [value]="mine()?.percent ?? 0"
+              [valueText]="percentText()"
+              [tone]="viewer() === 'completed' ? 'success' : 'accent'"
+            />
+            <p class="field__help course__progress-help">{{ progressHelp() }}</p>
+          </div>
+        }
         <div class="hero__actions">
           @switch (viewer()) {
             @case ('visitor') {
@@ -35,6 +60,39 @@
                 i18n="@@course.createAccount"
                 >Create a free account</a
               >
+            }
+            @case ('enrolled') {
+              @if (nextLessonPath(); as path) {
+                <a
+                  llButton
+                  variant="primary"
+                  size="lg"
+                  [routerLink]="path"
+                  [attr.aria-label]="continueName()"
+                  i18n="@@course.continue"
+                  >Continue</a
+                >
+              }
+              <button llButton variant="quiet" type="button" i18n="@@course.leave">
+                Leave course
+              </button>
+            }
+            @case ('completed') {
+              @if (mine()?.certificateCode; as code) {
+                <a
+                  llButton
+                  variant="primary"
+                  size="lg"
+                  [routerLink]="'/certificates/' + code"
+                  i18n="@@course.certificate"
+                  >View your certificate</a
+                >
+              }
+              @if (firstLessonPath(); as path) {
+                <a llButton variant="quiet" [routerLink]="path" i18n="@@course.review"
+                  >Review the lessons</a
+                >
+              }
             }
             @case ('member') {
               <button llButton variant="primary" size="lg" [busy]="enrolling()" (click)="enrol()">
@@ -147,6 +205,21 @@
               }
             </ul>
           </section>
+          @if (mine()?.cohort; as cohort) {
+            <section
+              llCard
+              heading="Your cohort"
+              i18n-heading="@@course.cohort"
+              headingId="cohort-title"
+            >
+              <p>
+                <strong>{{ cohort.name }}</strong>
+              </p>
+              <a class="link-standalone" [routerLink]="cohort.path" i18n="@@course.cohort.open"
+                >Open the cohort space</a
+              >
+            </section>
+          }
           <section
             llCard
             heading="Talk about it"

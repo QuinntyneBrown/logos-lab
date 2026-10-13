@@ -22,6 +22,16 @@ export class CourseOverviewPage {
   readonly enrol: Locator;
   readonly enrolling: Locator;
   readonly enrolAlertTitle: Locator;
+  readonly progressBar: Locator;
+  readonly progressValue: Locator;
+  readonly progressHelp: Locator;
+  readonly continueLink: Locator;
+  readonly leave: Locator;
+  readonly certificate: Locator;
+  readonly review: Locator;
+  readonly archived: Locator;
+  readonly archivedTitle: Locator;
+  readonly cohort: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -46,6 +56,17 @@ export class CourseOverviewPage {
     this.enrol = actions.getByRole('button', { name: 'Enrol' });
     this.enrolling = actions.getByRole('button', { name: 'Enrolling…' });
     this.enrolAlertTitle = main.locator('.course__alert .alert__title');
+    const hero = main.locator('.hero');
+    this.progressBar = hero.getByRole('progressbar');
+    this.progressValue = hero.locator('.progress-label > span:last-child');
+    this.progressHelp = hero.locator('.course__progress-help');
+    this.continueLink = actions.getByRole('link', { name: /^Continue/ });
+    this.leave = actions.getByRole('button', { name: 'Leave course' });
+    this.certificate = actions.getByRole('link', { name: 'View your certificate' });
+    this.review = actions.getByRole('link', { name: 'Review the lessons' });
+    this.archived = main.locator('.course__archived');
+    this.archivedTitle = this.archived.locator('.alert__title');
+    this.cohort = main.getByRole('region', { name: 'Your cohort' });
   }
 
   /** The names of the sections with their counts: "1. Beginnings4 lessons". */

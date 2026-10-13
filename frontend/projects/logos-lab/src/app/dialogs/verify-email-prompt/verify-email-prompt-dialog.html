@@ -49,51 +49,55 @@
     }
   }
   @if (sent() || dailyLimit()) {
-    <button
-      llButton
-      slot="footer"
-      variant="quiet"
-      type="button"
-      disabled
-      aria-describedby="resend-wait"
-    >
-      @if (sent()) {
-        <ng-container i18n="@@verify.resendIn">Resend in {{ waitSeconds() }} s</ng-container>
-      } @else {
-        <ng-container i18n="@@verify.resend">Resend email</ng-container>
-      }
-    </button>
-    <button
-      llButton
-      slot="footer"
-      variant="primary"
-      type="button"
-      cdkFocusInitial
-      (click)="close()"
-    >
-      {{ data.backLabel }}
-    </button>
+    <ng-container ngProjectAs="[slot=footer]">
+      <button
+        llButton
+        slot="footer"
+        variant="quiet"
+        type="button"
+        disabled
+        aria-describedby="resend-wait"
+      >
+        @if (sent()) {
+          <ng-container i18n="@@verify.resendIn">Resend in {{ waitSeconds() }} s</ng-container>
+        } @else {
+          <ng-container i18n="@@verify.resend">Resend email</ng-container>
+        }
+      </button>
+      <button
+        llButton
+        slot="footer"
+        variant="primary"
+        type="button"
+        cdkFocusInitial
+        (click)="close()"
+      >
+        {{ data.backLabel }}
+      </button>
+    </ng-container>
   } @else {
-    <button llButton slot="footer" variant="quiet" type="button" (click)="close()">
-      <ng-container i18n="@@verify.notNow">Not now</ng-container>
-    </button>
-    <button
-      llButton
-      slot="footer"
-      variant="primary"
-      type="button"
-      cdkFocusInitial
-      [busy]="resend().kind === 'sending'"
-      [disabled]="waitSeconds() > 0"
-      (click)="send()"
-    >
-      @if (resend().kind === 'sending') {
-        <ng-container i18n="@@verify.sending">Sending…</ng-container>
-      } @else if (waitSeconds() > 0) {
-        <ng-container i18n="@@verify.resendIn">Resend in {{ waitSeconds() }} s</ng-container>
-      } @else {
-        <ng-container i18n="@@verify.resend">Resend email</ng-container>
-      }
-    </button>
+    <ng-container ngProjectAs="[slot=footer]">
+      <button llButton slot="footer" variant="quiet" type="button" (click)="close()">
+        <ng-container i18n="@@verify.notNow">Not now</ng-container>
+      </button>
+      <button
+        llButton
+        slot="footer"
+        variant="primary"
+        type="button"
+        cdkFocusInitial
+        [busy]="resend().kind === 'sending'"
+        [disabled]="waitSeconds() > 0"
+        (click)="send()"
+      >
+        @if (resend().kind === 'sending') {
+          <ng-container i18n="@@verify.sending">Sending…</ng-container>
+        } @else if (waitSeconds() > 0) {
+          <ng-container i18n="@@verify.resendIn">Resend in {{ waitSeconds() }} s</ng-container>
+        } @else {
+          <ng-container i18n="@@verify.resend">Resend email</ng-container>
+        }
+      </button>
+    </ng-container>
   }
 </ll-dialog>

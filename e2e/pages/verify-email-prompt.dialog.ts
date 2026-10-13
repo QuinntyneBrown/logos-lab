@@ -12,6 +12,7 @@ export class VerifyEmailPromptDialog {
   readonly alert: Locator;
   readonly alertTitle: Locator;
   readonly close: Locator;
+  readonly footer: Locator;
 
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog', { name: /^(Verify your email|Check your inbox)/ });
@@ -23,6 +24,7 @@ export class VerifyEmailPromptDialog {
     this.changeAddress = this.dialog.getByRole('link', { name: 'Change it in Settings' });
     this.alert = this.dialog.locator('.alert');
     this.alertTitle = this.alert.locator('.alert__title');
+    this.footer = this.dialog.locator('.dialog__footer');
     this.close = this.dialog.getByRole('button', { name: 'Close' });
   }
 }

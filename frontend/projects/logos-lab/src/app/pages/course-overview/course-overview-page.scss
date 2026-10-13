@@ -5,6 +5,17 @@
   display: block;
   margin-top: var(--space-6);
 }
+.course__archived {
+  display: block;
+  margin-top: var(--space-6);
+}
+.course__progress {
+  margin-top: var(--space-8);
+  max-width: var(--layout-measure-short);
+}
+.course__progress-help {
+  margin-top: var(--space-2);
+}
 .course__body {
   padding-top: var(--space-4);
 }

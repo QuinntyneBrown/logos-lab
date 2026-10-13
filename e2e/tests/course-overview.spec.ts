@@ -1,4 +1,4 @@
-import { imagoDeiCourse, notEnrolled } from '../data/courses';
+import { completedState, enrolledAt42, imagoDeiCourse, notEnrolled } from '../data/courses';
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { CourseOverviewPage } from '../pages/course-overview.page';
@@ -175,6 +175,7 @@ test.describe('Course overview', () => {
       /^We sent a link to ethan\.wu@example\.ca when you joined\./,
     );
     await expect(prompt.changeAddress).toHaveAttribute('href', '/settings/account');
+    await expect(prompt.footer.getByRole('button')).toHaveText(['Not now', 'Resend email']);
     expect(
       api.requestsTo('POST', '/courses/imago-dei-in-an-age-of-machines/enrolment'),
     ).toHaveLength(0);
@@ -291,5 +292,129 @@ test.describe('Course overview', () => {
     await expect(prompt.alert).toContainText('The most recent link still works until');
     await expect(prompt.resend).toBeDisabled();
     await expect(prompt.back).toHaveText('Back to the course');
+  });
+
+  // L2-025 AC3 · progress-bar AC-1, hero AC-3
+  test('an enrolled learner sees their progress and Continue to the next lesson', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', enrolledAt42);
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.progressBar).toHaveAttribute('aria-valuenow', '42');
+    await expect(course.progressBar).toHaveAccessibleName('Your progress');
+    await expect(course.progressValue).toHaveText('42%');
+    await expect(course.progressHelp).toHaveText(
+      '10 of 24 lessons · next up: 3.2 Representing, not resembling, about 14 minutes',
+    );
+    await expect(course.continueLink).toHaveAttribute('href', `${path}/lessons/l3-2`);
+    await expect(course.continueLink).toHaveAccessibleName(
+      'Continue: 3.2 Representing, not resembling',
+    );
+    await expect(course.leave).toBeVisible();
+    await expect(course.enrol).toHaveCount(0);
+  });
+
+  // L2-025 AC2, AC3 · course-outline AC-4, AC-5, AC-6
+  test('the outline opens finished lessons and the next one, and keeps the rest locked', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', enrolledAt42);
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.contentSummary).toContainText(
+      'Lessons open in order: finish one to unlock the next.',
+    );
+    expect((await course.sectionSummaries())[0]).toBe('1. Beginnings4 of 4 lessons completed');
+    expect((await course.sectionSummaries())[2]).toBe(
+      '3. Image and likeness1 of 5 lessons completed',
+    );
+    await expect(course.sections.nth(2)).toHaveAttribute('open', '');
+    await expect(course.sections.nth(0)).not.toHaveAttribute('open', '');
+    const done = course.lessons.first();
+    await expect(done).toHaveAttribute('href', `${path}/lessons/l1-1`);
+    await expect(done).toContainText('completed');
+    const next = course.outline.getByRole('link', { name: /^3\.2 Representing/ });
+    await expect(next).toHaveAttribute('aria-current', 'step');
+    await expect(course.lessons.last()).toContainText('locked: finish the previous lesson first');
+  });
+
+  // L2-025 AC3 · progress-bar AC-3
+  test('a learner who finished the course sees it done and can view their certificate', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', completedState);
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.progressBar).toHaveAttribute('aria-valuenow', '100');
+    await expect(course.progressHelp).toHaveText('Completed Wed, Sep 2, 2026 · 24 of 24 lessons');
+    await expect(course.certificate).toHaveAttribute('href', '/certificates/LL-7K2M9X');
+    await expect(course.review).toHaveAttribute('href', `${path}/lessons/l1-1`);
+    await expect(course.continueLink).toHaveCount(0);
+  });
+
+  // L2-025 AC5 · alert AC-1
+  test('an archived course tells its learners it is no longer maintained', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', {
+      ...imagoDeiCourse,
+      archivedOn: '2026-10-09',
+    });
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', enrolledAt42);
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.archivedTitle).toHaveText('This course is no longer maintained');
+    await expect(course.archived).toContainText('archived it on Fri, Oct 9, 2026');
+    await expect(course.archived).toContainText('You can still finish it');
+    await expect(course.continueLink).toBeVisible();
+  });
+
+  // L2-025 AC5
+  test('an archived course the viewer is not enrolled in is not found', async ({ page, api }) => {
+    api.fail('GET', '/courses/imago-dei-in-an-age-of-machines', 404, 'not-found');
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.heading).toHaveText("We can't find that page");
+  });
+
+  // L2-025 AC4 · card AC-1
+  test('a learner in a cohort sees a link to the cohort space', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', {
+      ...enrolledAt42,
+      cohort: { name: 'Imago Dei, Autumn 2026', path: '/cohorts/imago-dei-autumn-2026' },
+    });
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.cohort).toContainText('Imago Dei, Autumn 2026');
+    await expect(course.cohort.getByRole('link')).toHaveAttribute(
+      'href',
+      '/cohorts/imago-dei-autumn-2026',
+    );
   });
 });

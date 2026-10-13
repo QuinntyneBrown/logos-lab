@@ -134,3 +134,16 @@ export const enrolledAt42 = {
   certificateCode: null,
   completedOn: null,
 };
+
+/** A learner who finished every lesson (docs/mocks/pages/course-overview/completed). */
+export const completedState = {
+  status: 'completed',
+  percent: 100,
+  completedLessons: 24,
+  totalLessons: 24,
+  lessons: lessonIds.map((lessonId) => ({ lessonId, state: 'done' })),
+  nextLesson: null,
+  cohort: null,
+  certificateCode: 'LL-7K2M9X',
+  completedOn: '2026-09-02',
+};
