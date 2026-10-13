@@ -71,6 +71,48 @@ catalogue still loads every item and shows a notice that search is limited (`L2-
 - No matches: an empty state names the active filters and offers a single "Clear filters" action.
 - "Most popular": items ordered by distinct engaged members in the last 30 days, descending.
 
+### Explore page decisions
+
+These settle what the design left open when `ExplorePage` was built against the mocks in
+`docs/mocks/pages/explore/` and `docs/mocks/dialogs/explore-filters/`.
+
+- **Address.** `/explore?type=&topic=&level=&contributor=&duration=&sort=&page=`. A filter with several
+  values repeats its parameter (`type=course&type=module`). Values: `type` is a content type; `topic` is
+  a topic slug; `level` is `introductory`, `intermediate` or `advanced`; `contributor` is an expert slug
+  or `logos-lab`; `duration` is `under-15`, `15-60` or `over-60`; `sort` is `newest` (the default,
+  left out) or `popular`; `page` is a number from 2 (page 1 is left out). An unknown value, or a page
+  that is not a positive whole number, is dropped without a message and the rest apply.
+- **Contract.** `CatalogueApi.browse(query)` calls `GET /api/v1/catalogue` with the same parameters and
+  returns `CataloguePage`: `items` (the page's `ContentSummary` values), `total` (all matches),
+  `page`, `pageCount`, `facets` and `searchDegraded`. Facets are the full option lists, never narrowed
+  by the active filters: `types` and `topics` carry `{ value, label?, count }` with the count of all
+  published items; `levels`, `durations` and `contributors` carry `{ value, label? }`, and the
+  contributors list starts with Logos Lab. The page size is 24 and fixed.
+- **Option lists.** The Topic and Contributor groups show their first 6 options and a "Show all 12
+  topics" / "Show all 38 experts" button (`aria-expanded`) that reveals the rest. The totals are the
+  list lengths; Logos Lab is not counted as an expert.
+- **Count line.** "Showing 1–24 of 212 items, newest first". With exactly one type selected the noun is
+  that type ("of 24 courses"); with 2 or more selected options the line adds "that match all N
+  filters" ("of 4 items that match all 7 filters"). The sort ends the line: "newest first" or "most
+  popular first". With no matches it reads "No items match Video, Creativity and the arts, and Over 60
+  min", naming the selected options in group order. With an empty catalogue it reads "No items
+  published yet".
+- **Active filters.** Below the count line, one removable pill per selected option, in group order, named
+  "Type: Course", "Topic: …", "Level: …", "Contributor: …", "Length: …", and a "Clear all" button.
+  The Filters button shows the number selected: "Filters · 3".
+- **States.** Loading keeps the toolbar and shows 6 skeleton cards with the sort disabled; "Loading the
+  catalogue…" is announced once. Failure keeps the filters and says so, with "Try again". An empty
+  catalogue invites "Meet the experts". No matches shows "No videos match these filters" (the noun
+  follows the one selected type, otherwise "items") with one "Clear filters" action. A `searchDegraded`
+  response shows the warning "Search is limited for now" with "Check again" above the toolbar; the list is
+  complete.
+- **Filters panel.** Beside the results from LG (64 rem) up; below LG the toolbar's Filters button opens
+  the same panel in `ExploreFiltersDialog`, a CDK dialog sheet. In the sheet the choices are a draft: its
+  primary button reads "Show 24 courses", is busy while the draft's count loads (the same `browse`
+  call), and applies the draft to the address when pressed. Closing it discards the draft.
+- **Address writes.** Every change replaces the address with the canonical query (no history entry for a
+  checkbox), except page changes, which add one. Changing a filter or the sort returns to page 1.
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
