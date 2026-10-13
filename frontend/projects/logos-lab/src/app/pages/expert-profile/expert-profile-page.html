@@ -50,6 +50,8 @@
           slot="actions"
           [variant]="following() ? 'quiet' : 'primary'"
           [pressed]="following()"
+          [paused]="pausedUntil() !== null"
+          [attr.aria-describedby]="pausedUntil() ? 'follow-limit' : null"
           (click)="follow()"
         >
           @if (following()) {
@@ -68,6 +70,29 @@
           </p>
         }
       </ll-profile-header>
+      @if (followStatus().kind === 'failed') {
+        <ll-alert
+          class="expert__follow-alert"
+          tone="danger"
+          heading="We couldn't follow just now"
+          i18n-heading="@@expert.follow.failed.title"
+        >
+          <ng-container i18n="@@expert.follow.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      } @else if (pausedUntil()) {
+        <ll-alert
+          id="follow-limit"
+          class="expert__follow-alert"
+          tone="warning"
+          role="alert"
+          heading="Give it a minute"
+          i18n-heading="@@expert.follow.paused.title"
+        >
+          {{ pausedBody() }}
+        </ll-alert>
+      }
       <div class="two-col">
         <section aria-labelledby="about-title">
           <h2 class="vh" id="about-title" i18n="@@expert.about">About {{ profile.name }}</h2>

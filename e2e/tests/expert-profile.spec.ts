@@ -250,5 +250,71 @@ test.describe('Expert profile', () => {
     );
     expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(1);
   });
-});
 
+  // L2-141 AC2 · alert AC-1
+  test('a follow that fails says so, keeps Follow, and can be tried again', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', abenaMensah);
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    api.fail('PUT', '/me/follows/experts/e-abena-mensah', 500);
+    const profile = new ExpertProfilePage(page);
+    await profile.open('/experts/abena-mensah');
+
+    await profile.follow.click();
+
+    await expect(profile.followAlertTitle).toHaveText("We couldn't follow just now");
+    await expect(profile.follow).toHaveText('Follow');
+    await expect(profile.follow).toHaveAttribute('aria-pressed', 'false');
+    await expect(profile.facts.first()).toHaveText('1,284 followers');
+
+    api.respond('PUT', '/me/follows/experts/e-abena-mensah', { followerCount: 1285 });
+    await profile.follow.click();
+
+    await expect(profile.follow).toHaveText('Following');
+    await expect(profile.followAlert).toHaveCount(0);
+  });
+
+  // L2-024 AC4 · button AC-16, AC-17, alert AC-1
+  test('after too many follows the button is paused until the time given', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', abenaMensah);
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    api.fail(
+      'PUT',
+      '/me/follows/experts/e-abena-mensah',
+      429,
+      'rate_limited',
+      {},
+      {
+        'Retry-After': '90',
+      },
+    );
+    const profile = new ExpertProfilePage(page);
+    await profile.open('/experts/abena-mensah');
+
+    await profile.follow.click();
+
+    await expect(profile.followAlertTitle).toHaveText('Give it a minute');
+    await expect(profile.followAlert).toContainText(
+      "You've followed and unfollowed Dr. Abena Mensah more than 10 times in a minute, so Follow is paused. You can try again at",
+    );
+    await expect(profile.follow).toHaveAttribute('aria-disabled', 'true');
+    await expect(profile.follow).toHaveAttribute('aria-pressed', 'false');
+    await expect(profile.follow).toHaveAccessibleDescription(/^Give it a minute/);
+
+    expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(1);
+    await profile.follow.focus();
+    await profile.pressKey('Enter');
+    expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(1);
+    await profile.pressKey('Space');
+    await expect(profile.follow).toBeFocused();
+
+    expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(1);
+  });
+});

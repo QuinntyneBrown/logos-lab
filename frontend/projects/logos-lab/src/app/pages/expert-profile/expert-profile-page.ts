@@ -14,6 +14,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContentType, EXPERTS_API, FOLLOWS_API } from '@logos-lab/api';
 import {
+  Alert,
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -35,6 +36,7 @@ import {
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { clockTime } from '../../content/clock-time';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
 import { searchTypeLabel } from '../../content/search-type-labels';
@@ -43,11 +45,13 @@ import { NotFoundPage } from '../not-found/not-found-page';
 import { ExpertContentState } from './expert-content-state';
 import { ExpertProfileState } from './expert-profile-state';
 import { FollowStatus } from './follow-status';
+import { readFollowFailure } from './read-follow-failure';
 
 @Component({
   selector: 'll-expert-profile-page',
   imports: [
     RouterLink,
+    Alert,
     Breadcrumb,
     Button,
     Card,
@@ -116,12 +120,23 @@ export class ExpertProfilePage {
     return { kind: 'none' };
   });
   protected readonly followBusy = signal(false);
+  /** When Follow works again, as the member's clock shows it, while the page has paused it. */
+  protected readonly pausedUntil = computed(() => {
+    const status = this.followStatus();
+    return status.kind === 'paused' ? clockTime(this.locale, status.until) : null;
+  });
+  protected readonly pausedBody = computed(() => {
+    const name = this.profile()?.name ?? '';
+    const time = this.pausedUntil() ?? '';
+    return $localize`:@@expert.follow.paused.body:You've followed and unfollowed ${name}:name: more than 10 times in a minute, so Follow is paused. You can try again at ${time}:time:.`;
+  });
 
   /** Follows the expert and shows the count the server answers with. */
   protected follow(): void {
     const profile = this.profile();
     if (!profile || this.followBusy()) return;
     this.followBusy.set(true);
+    this.followStatus.set({ kind: 'none' });
     this.followsApi.followExpert(profile.id).subscribe({
       next: (result) => {
         this.followBusy.set(false);
@@ -129,7 +144,10 @@ export class ExpertProfilePage {
         this.followerCount.set(result.followerCount);
         this.followStatus.set({ kind: 'followed' });
       },
-      error: () => this.followBusy.set(false),
+      error: (error: unknown) => {
+        this.followBusy.set(false);
+        this.followStatus.set(readFollowFailure(error, new Date()));
+      },
     });
   }
 

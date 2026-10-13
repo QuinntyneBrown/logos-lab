@@ -22,6 +22,8 @@ export class ExpertProfilePage {
   readonly tryAgain: Locator;
   readonly follow: Locator;
   readonly followStatus: Locator;
+  readonly followAlert: Locator;
+  readonly followAlertTitle: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -45,6 +47,8 @@ export class ExpertProfilePage {
     this.tryAgain = main.getByRole('button', { name: 'Try again' });
     this.follow = this.header.getByRole('button', { name: /^Follow(ing)?$/ });
     this.followStatus = this.header.getByRole('status');
+    this.followAlert = main.locator('.alert');
+    this.followAlertTitle = this.followAlert.locator('.alert__title');
     this.elsewhere = main
       .getByRole('heading', { name: 'Elsewhere' })
       .locator('xpath=following-sibling::ul[1]');
