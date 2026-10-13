@@ -1,4 +1,5 @@
 import { abenaMensah, expertArticles, expertContent, meiLinChen } from '../data/expert-profiles';
+import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { ExpertProfilePage } from '../pages/expert-profile.page';
 
@@ -224,4 +225,30 @@ test.describe('Expert profile', () => {
 
     await expect(profile.cards).toHaveCount(1);
   });
+
+  // L2-024 AC1 · button AC-1, inline-message AC-1
+  test('a member who presses Follow is following and the count goes up by one', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', abenaMensah);
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    api.respond('PUT', '/me/follows/experts/e-abena-mensah', { followerCount: 1285 });
+    const profile = new ExpertProfilePage(page);
+    await profile.open('/experts/abena-mensah');
+    await expect(profile.follow).toHaveAttribute('aria-pressed', 'false');
+    await expect(profile.follow).toHaveText('Follow');
+
+    await profile.follow.click();
+
+    await expect(profile.follow).toHaveText('Following');
+    await expect(profile.follow).toHaveAttribute('aria-pressed', 'true');
+    await expect(profile.facts.first()).toHaveText('1,285 followers');
+    await expect(profile.followStatus).toHaveText(
+      "Following. You'll hear when Dr. Abena Mensah publishes or announces an event.",
+    );
+    expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(1);
+  });
 });
+

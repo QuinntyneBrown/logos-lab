@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
   LOCALE_ID,
   signal,
 } from '@angular/core';
@@ -11,7 +12,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ContentType, EXPERTS_API } from '@logos-lab/api';
+import { ContentType, EXPERTS_API, FOLLOWS_API } from '@logos-lab/api';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,6 +23,8 @@ import {
   ContentCard,
   EmptyState,
   ExternalLink,
+  Icon,
+  InlineStatus,
   List,
   ProfileHeader,
   ProfileMeta,
@@ -35,9 +38,11 @@ import { toContentCard } from '../../content/content-card-view';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
 import { searchTypeLabel } from '../../content/search-type-labels';
+import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ExpertContentState } from './expert-content-state';
 import { ExpertProfileState } from './expert-profile-state';
+import { FollowStatus } from './follow-status';
 
 @Component({
   selector: 'll-expert-profile-page',
@@ -51,6 +56,8 @@ import { ExpertProfileState } from './expert-profile-state';
     ContentCard,
     EmptyState,
     ExternalLink,
+    Icon,
+    InlineStatus,
     List,
     NotFoundPage,
     ProfileHeader,
@@ -66,6 +73,8 @@ import { ExpertProfileState } from './expert-profile-state';
 export class ExpertProfilePage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EXPERTS_API);
+  private readonly followsApi = inject(FOLLOWS_API);
+  protected readonly session = inject(Session);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
@@ -98,6 +107,31 @@ export class ExpertProfilePage {
   });
   protected readonly notFound = computed(() => this.profileState().kind === 'not-found');
   protected readonly profileFailed = computed(() => this.profileState().kind === 'failed');
+
+  /** Whether the member follows the expert; the profile's answer until they press the button. */
+  protected readonly following = linkedSignal(() => this.profile()?.following ?? false);
+  protected readonly followerCount = linkedSignal(() => this.profile()?.followerCount ?? 0);
+  protected readonly followStatus = linkedSignal<FollowStatus>(() => {
+    this.profile();
+    return { kind: 'none' };
+  });
+  protected readonly followBusy = signal(false);
+
+  /** Follows the expert and shows the count the server answers with. */
+  protected follow(): void {
+    const profile = this.profile();
+    if (!profile || this.followBusy()) return;
+    this.followBusy.set(true);
+    this.followsApi.followExpert(profile.id).subscribe({
+      next: (result) => {
+        this.followBusy.set(false);
+        this.following.set(true);
+        this.followerCount.set(result.followerCount);
+        this.followStatus.set({ kind: 'followed' });
+      },
+      error: () => this.followBusy.set(false),
+    });
+  }
 
   /** The tabs: the types the expert has items of, in the tabs' order. */
   protected readonly tabs = computed(() => {
@@ -183,12 +217,13 @@ export class ExpertProfilePage {
     const profile = this.profile();
     if (!profile) return [];
     const format = new Intl.NumberFormat(this.locale);
+    const count = this.followerCount();
     return [
       {
         icon: 'people',
-        text: plural(this.locale, profile.followerCount, {
-          one: $localize`:@@expert.followers.one:${format.format(profile.followerCount)}:count: follower`,
-          other: $localize`:@@expert.followers.other:${format.format(profile.followerCount)}:count: followers`,
+        text: plural(this.locale, count, {
+          one: $localize`:@@expert.followers.one:${format.format(count)}:count: follower`,
+          other: $localize`:@@expert.followers.other:${format.format(count)}:count: followers`,
         }),
       },
       {

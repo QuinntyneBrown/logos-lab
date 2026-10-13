@@ -4,6 +4,8 @@ import { ExpertLink } from './expert-link';
 
 /** GET /api/v1/experts/{slug}: an expert's public profile (detailed design experts/view-expert-profile). */
 export interface ExpertProfile {
+  /** What the follow routes take. */
+  readonly id: string;
   readonly slug: string;
   readonly name: string;
   readonly photoUrl: string | null;
@@ -14,6 +16,8 @@ export interface ExpertProfile {
   /** The bio as HTML the server already sanitized to paragraphs, bold, italic and links. */
   readonly bioHtml: string;
   readonly followerCount: number;
+  /** Whether the signed-in member follows this expert; `false` for a visitor. */
+  readonly following: boolean;
   /** All published items. */
   readonly itemCount: number;
   readonly expertise: readonly ExpertExpertiseArea[];
