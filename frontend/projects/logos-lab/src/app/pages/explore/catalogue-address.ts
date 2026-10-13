@@ -16,8 +16,14 @@ export function readCatalogueQuery(params: ParamMap): CatalogueQuery {
     contributors: slugs('contributor'),
     durations: CATALOGUE_DURATIONS.filter((value) => params.getAll('duration').includes(value)),
     sort: params.get('sort') === 'popular' ? 'popular' : 'newest',
-    page: 1,
+    page: readPage(params.get('page')),
   };
+}
+
+/** A page number from the address: a whole number from 1, else the first page. */
+function readPage(value: string | null): number {
+  const page = Number(value);
+  return Number.isInteger(page) && page >= 1 ? page : 1;
 }
 
 /** The address of a query: only what differs from the defaults, in a fixed order. */
@@ -31,5 +37,6 @@ export function catalogueAddress(query: CatalogueQuery): Params {
   if (query.contributors.length) params['contributor'] = query.contributors;
   if (query.durations.length) params['duration'] = canonical(query.durations, CATALOGUE_DURATIONS);
   if (query.sort !== 'newest') params['sort'] = query.sort;
+  if (query.page > 1) params['page'] = query.page;
   return params;
 }

@@ -11,6 +11,7 @@ import {
   FilterOption,
   FilterPanel,
   PageHeader,
+  Pagination,
   SearchFilterToolbar,
   Select,
   ToolbarCount,
@@ -60,6 +61,7 @@ const NO_FILTERS: Pick<
     FilterOption,
     FilterPanel,
     PageHeader,
+    Pagination,
     SearchFilterToolbar,
     Select,
     ToolbarCount,
@@ -211,6 +213,21 @@ export class ExplorePage {
       : $localize`:@@explore.sort.newest.note:newest first`,
   );
 
+  protected readonly pageCount = computed(() => this.catalogue()?.pageCount ?? 0);
+  protected readonly pagerLabels = {
+    label: $localize`:@@explore.pager.label:Pages of the catalogue`,
+    // The pager fills in the number, so the translation keeps the placeholder.
+    page: $localize`:@@explore.pager.page:Page ${'{page}'}:page:`,
+    previous: $localize`:@@explore.pager.previous:Previous page`,
+    next: $localize`:@@explore.pager.next:Next page`,
+  };
+  protected readonly pagerSummary = computed(() => {
+    const format = new Intl.NumberFormat(this.locale);
+    const page = format.format(this.query().page);
+    const count = format.format(this.pageCount());
+    return $localize`:@@explore.pager.summary:Page ${page}:page: of ${count}:count:`;
+  });
+
   protected readonly range = computed(() => {
     const page = this.catalogue();
     if (!page) return null;
@@ -226,15 +243,15 @@ export class ExplorePage {
   protected toggle(key: FilterKey, value: string, checked: boolean): void {
     const query = this.query();
     const selected = (query[key] as readonly string[]).filter((entry) => entry !== value);
-    this.apply({ ...query, [key]: checked ? [...selected, value] : selected });
+    this.apply({ ...query, [key]: checked ? [...selected, value] : selected, page: 1 });
   }
 
   protected setSort(value: string): void {
-    this.apply({ ...this.query(), sort: value === 'popular' ? 'popular' : 'newest' });
+    this.apply({ ...this.query(), sort: value === 'popular' ? 'popular' : 'newest', page: 1 });
   }
 
   protected clearAll(): void {
-    this.apply({ ...this.query(), ...NO_FILTERS });
+    this.apply({ ...this.query(), ...NO_FILTERS, page: 1 });
   }
 
   private apply(query: CatalogueQuery): void {

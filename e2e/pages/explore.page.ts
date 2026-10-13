@@ -11,6 +11,9 @@ export class ExplorePage {
   readonly cards: Locator;
   readonly filters: Locator;
   readonly sort: Locator;
+  readonly pager: Locator;
+  readonly pagerText: Locator;
+  readonly pagerLinks: Locator;
   readonly pills: Locator;
   readonly clearAllInPills: Locator;
   readonly clearAllInPanel: Locator;
@@ -25,6 +28,9 @@ export class ExplorePage {
     this.cards = main.locator('.content-card');
     this.filters = main.getByRole('complementary', { name: 'Filters' });
     this.sort = main.getByLabel('Sort by');
+    this.pager = main.getByRole('navigation', { name: 'Pages of the catalogue' });
+    this.pagerText = this.pager.locator('.pager__text');
+    this.pagerLinks = this.pager.getByRole('link');
     const active = main.getByRole('list', { name: 'Active filters' });
     this.pills = active.locator('.pill');
     this.clearAllInPills = active.getByRole('button', { name: 'Clear all' });
@@ -34,6 +40,15 @@ export class ExplorePage {
   async open(path = '/explore'): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  /** A numbered link of the pager: its name is "Page 2". */
+  pageLink(number: number): Locator {
+    return this.pager.getByRole('link', { name: `Page ${number}`, exact: true });
+  }
+
+  async goToPage(number: number): Promise<void> {
+    await this.pageLink(number).click();
   }
 
   /** Picks a sort by its visible name: "Most popular". */

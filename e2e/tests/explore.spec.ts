@@ -253,4 +253,61 @@ test.describe('Explore', () => {
     await expect(page).toHaveURL('/explore?type=course&sort=popular');
     await expect(explore.pills).toHaveText(['Type: Course']);
   });
+
+  // L2-002 AC1 · pagination AC-1, AC-12
+  test('the catalogue is paged, with the pages and the one you are on', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    api.respond('GET', '/catalogue?page=2', cataloguePage({ page: 2 }));
+    const explore = new ExplorePage(page);
+
+    await explore.open();
+
+    await expect(explore.pagerText).toHaveText('Page 1 of 9');
+    await expect(explore.pagerLinks).toHaveText(
+      ['Previous page', '1', '2', '3', '9', 'Next page'],
+      { useInnerText: true },
+    );
+    await expect(explore.pageLink(1)).toHaveAttribute('aria-current', 'page');
+    await expect(explore.pageLink(2)).toHaveAttribute('href', '/explore?page=2');
+
+    await explore.goToPage(2);
+
+    await expect(page).toHaveURL('/explore?page=2');
+    await expect(explore.pagerText).toHaveText('Page 2 of 9');
+    await expect(explore.count).toHaveText('Showing 25–48 of 212 items, newest first');
+    await expect(explore.pageLink(2)).toHaveAttribute('aria-current', 'page');
+  });
+
+  // L2-002 AC2 · pagination AC-12
+  test('paging keeps the filters, and changing a filter goes back to page one', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/catalogue', cataloguePage({ page: 2 }));
+    const explore = new ExplorePage(page);
+    await explore.open('/explore?type=video&page=2');
+
+    await expect(explore.pageLink(3)).toHaveAttribute('href', '/explore?type=video&page=3');
+    await expect(explore.pageLink(1)).toHaveAttribute('href', '/explore?type=video');
+
+    await explore.choose('Topic', 'AI ethics');
+
+    await expect(page).toHaveURL('/explore?type=video&topic=ai-ethics');
+    expect(api.queriesTo('GET', '/catalogue')).toEqual([
+      '?type=video&page=2',
+      '?type=video&topic=ai-ethics',
+    ]);
+  });
+
+  // L2-002 AC4 · pagination AC-11
+  test('a page that is not a positive whole number is ignored', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+
+    await explore.open('/explore?page=abc');
+    await explore.open('/explore?page=0');
+
+    await expect(explore.pagerText).toHaveText('Page 1 of 9');
+    expect(api.queriesTo('GET', '/catalogue')).toEqual(['', '']);
+  });
 });
