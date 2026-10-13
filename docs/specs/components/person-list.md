@@ -5,7 +5,7 @@
 | Selector | `ul[llPersonList]`, `li[llPerson]` |
 | Library path | `frontend/projects/components/src/lib/person-list/` |
 | Status | built |
-| Traces to | L2-001, L2-003, L2-022, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 |
+| Traces to | L2-001, L2-003, L2-022, L2-052, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`person-list.html`](../../design-system/components/person-list.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/experts/default`](../../mocks/pages/experts/default.html), [`pages/course-overview/default`](../../mocks/pages/course-overview/default.html), [`pages/event-page/default`](../../mocks/pages/event-page/default.html), [`pages/module-page/default`](../../mocks/pages/module-page/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/topic/default`](../../mocks/pages/topic/default.html) |
 | Rendering | [`person-list.html`](person-list.html) |
@@ -50,7 +50,7 @@ Host: the consumer's own `ul` and `li`; the components add the classes and rende
 |---|---|---|---|---|
 | `stacked` (`llPersonList`) | `boolean` | `false` | no | Adds `.people--stacked`. |
 | `name` (`llPerson`) | `string` | `''` | unless `loading` | Link text. |
-| `path` (`llPerson`) | `string` | `''` | unless `loading` | Router link of the profile. |
+| `path` (`llPerson`) | `string` | `''` | unless `loading` | Router link of the profile. Empty for a person who has no profile (an event hosted by Logos Lab itself): the name is then plain text, not a link. |
 | `photoUrl` (`llPerson`) | `string \| null` | `null` | no | The photo; without one an initials tile is shown. |
 | `meta` (`llPerson`) | `readonly string[]` | `[]` | no | One `p.person__meta` each. |
 | `plain` (`llPerson`) | `boolean` | `false` | no | Adds `.person--plain` (no padding or hairline) for a single person in a card. |
@@ -172,6 +172,7 @@ The photo zoom is removed under reduced motion.
 - **AC-3** Given a person, when it is inspected, then the photo has empty `alt` and the name is a link. (L2-127)
 - **AC-4** Given a photo, when it loads, then its width and height are reserved. (L2-120)
 - **AC-10** Given the search results for "personhood", when the expert "Dr. Abena Mensah" renders with a projected meta line, then the line follows the name and the word "personhood" in it is a `mark.hit`. (L2-003)
+- **AC-11** Given the event page of an evening hosted by Logos Lab, which has no expert profile, when its Host section renders, then the person shows the initials tile, "Logos Lab" as plain text with no link, and "Organised by the Logos Lab editors". (L2-052)
 - **AC-9** Given the home page while its sections load, when the experts list renders, then it is busy, announces "Loading experts…" once and shows three skeleton people hidden from assistive technology. (L2-127)
 
 ### Theming
