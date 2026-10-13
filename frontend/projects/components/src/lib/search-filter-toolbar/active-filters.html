@@ -1,0 +1,8 @@
+<ng-content />
+@if (clearLabel(); as label) {
+  <li>
+    <button llButton variant="text" size="sm" type="button" (click)="cleared.emit()">
+      {{ label }}
+    </button>
+  </li>
+}

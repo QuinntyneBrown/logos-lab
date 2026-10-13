@@ -1,8 +1,11 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CATALOGUE_API, CatalogueQuery, ContentType } from '@logos-lab/api';
 import {
+  ActiveFilter,
+  ActiveFilters,
   ContentCard,
   FilterGroup,
   FilterOption,
@@ -17,13 +20,28 @@ import { toContentCard } from '../../content/content-card-view';
 import { contentTypeLabel } from '../../content/content-labels';
 import { plural } from '../../content/plural';
 import { catalogueAddress, readCatalogueQuery } from './catalogue-address';
+import { ExplorePill } from './explore-pill';
 
 /** Items on a catalogue page (the API's fixed page size). */
 const PAGE_SIZE = 24;
 
+const NO_FILTERS: Pick<
+  CatalogueQuery,
+  'types' | 'topics' | 'levels' | 'contributors' | 'durations'
+> = {
+  types: [],
+  topics: [],
+  levels: [],
+  contributors: [],
+  durations: [],
+};
+
 @Component({
   selector: 'll-explore-page',
   imports: [
+    NgTemplateOutlet,
+    ActiveFilter,
+    ActiveFilters,
     ContentCard,
     FilterGroup,
     FilterOption,
@@ -72,14 +90,31 @@ export class ExplorePage {
     })),
   );
 
+  /** One removable pill per selected option, in group order. */
+  protected readonly pills = computed<readonly ExplorePill[]>(() =>
+    this.query().types.map((type) => {
+      const label = $localize`:@@explore.pill.type:Type: ${contentTypeLabel(type)}:value:`;
+      return {
+        label,
+        removeLabel: $localize`:@@explore.pill.remove:Remove filter ${label}:pill:`,
+        remove: () => this.toggleType(type, false),
+      };
+    }),
+  );
+
   /** One selected type names what the count line counts; otherwise it counts items. */
   protected readonly noun = computed(() => {
-    const types = this.query().types;
-    return catalogueNoun(
+    const query = this.query();
+    const total = this.catalogue()?.total ?? 0;
+    const noun = catalogueNoun(
       this.locale,
-      types.length === 1 ? types[0] : null,
-      this.catalogue()?.total ?? 0,
+      query.types.length === 1 ? query.types[0] : null,
+      total,
     );
+    const filters = this.pills().length;
+    return filters > 1
+      ? $localize`:@@explore.count.matching:${noun}:noun: that match all ${filters}:count: filters`
+      : noun;
   });
 
   protected readonly range = computed(() => {
@@ -97,6 +132,10 @@ export class ExplorePage {
   protected toggleType(type: ContentType, checked: boolean): void {
     const types = this.query().types.filter((entry) => entry !== type);
     this.apply({ ...this.query(), types: checked ? [...types, type] : types });
+  }
+
+  protected clearAll(): void {
+    this.apply({ ...this.query(), ...NO_FILTERS });
   }
 
   private apply(query: CatalogueQuery): void {

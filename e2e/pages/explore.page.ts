@@ -10,6 +10,9 @@ export class ExplorePage {
   readonly count: Locator;
   readonly cards: Locator;
   readonly filters: Locator;
+  readonly pills: Locator;
+  readonly clearAllInPills: Locator;
+  readonly clearAllInPanel: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -20,11 +23,20 @@ export class ExplorePage {
     this.count = main.locator('.toolbar__count');
     this.cards = main.locator('.content-card');
     this.filters = main.getByRole('complementary', { name: 'Filters' });
+    const active = main.getByRole('list', { name: 'Active filters' });
+    this.pills = active.locator('.pill');
+    this.clearAllInPills = active.getByRole('button', { name: 'Clear all' });
+    this.clearAllInPanel = this.filters.getByRole('button', { name: 'Clear all' });
   }
 
   async open(path = '/explore'): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  /** Removes an active filter by its pill text: "Type: Course". */
+  async removePill(text: string): Promise<void> {
+    await this.shell.main.getByRole('button', { name: `Remove filter ${text}` }).click();
   }
 
   /** A filter group of the panel, named by its legend: "Type", "Topic". */

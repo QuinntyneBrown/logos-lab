@@ -102,3 +102,8 @@ export const catalogueCourses = [
 export function coursesPage() {
   return cataloguePage({ items: catalogueCourses, total: 24, pageCount: 1 });
 }
+
+/** GET /api/v1/catalogue?type=course&type=video: two filters on, 110 matches. */
+export function coursesAndVideosPage() {
+  return cataloguePage({ items: catalogueItems.slice(0, 6), total: 110, pageCount: 5 });
+}

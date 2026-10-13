@@ -8,7 +8,14 @@
   />
   @if (range(); as range) {
     <div class="sidebar-layout">
-      <ll-filter-panel heading="Filters" i18n-heading="@@explore.filters.title">
+      <ll-filter-panel
+        heading="Filters"
+        i18n-heading="@@explore.filters.title"
+        clearLabel="Clear all"
+        i18n-clearLabel="@@explore.clearAll"
+        [canClear]="pills().length > 0"
+        (cleared)="clearAll()"
+      >
         <fieldset llFilterGroup label="Type" i18n-label="@@explore.filters.type" name="type">
           @for (option of typeOptions(); track option.value) {
             <li
@@ -22,11 +29,37 @@
         </fieldset>
       </ll-filter-panel>
       <div>
-        <div llToolbar>
+        <ng-template #countLine>
           <p llToolbarCount i18n="@@explore.count">
             Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
             <strong>{{ range.total }}</strong> {{ noun() }}, newest first
           </p>
+        </ng-template>
+        <div llToolbar [stacked]="pills().length > 0">
+          @if (pills().length) {
+            <div class="cluster cluster--between">
+              <ng-container [ngTemplateOutlet]="countLine" />
+            </div>
+            <ul
+              llActiveFilters
+              label="Active filters"
+              i18n-label="@@explore.active.label"
+              clearLabel="Clear all"
+              i18n-clearLabel="@@explore.clearAll"
+              (cleared)="clearAll()"
+            >
+              @for (pill of pills(); track pill.label) {
+                <li
+                  llActiveFilter
+                  [label]="pill.label"
+                  [removeLabel]="pill.removeLabel"
+                  (removed)="pill.remove()"
+                ></li>
+              }
+            </ul>
+          } @else {
+            <ng-container [ngTemplateOutlet]="countLine" />
+          }
         </div>
         <div class="content-grid">
           @for (card of cards(); track card.id) {

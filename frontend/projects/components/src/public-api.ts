@@ -85,3 +85,5 @@ export * from './lib/search-filter-toolbar/toolbar-count';
 export * from './lib/search-filter-toolbar/filter-group';
 export * from './lib/search-filter-toolbar/filter-option';
 export * from './lib/search-filter-toolbar/filter-panel';
+export * from './lib/search-filter-toolbar/active-filter';
+export * from './lib/search-filter-toolbar/active-filters';

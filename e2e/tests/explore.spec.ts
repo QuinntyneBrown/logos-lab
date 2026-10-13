@@ -1,4 +1,4 @@
-import { cataloguePage, coursesPage } from '../data/catalogue';
+import { cataloguePage, coursesAndVideosPage, coursesPage } from '../data/catalogue';
 import { expect, test } from '../fixtures/test';
 import { ExplorePage } from '../pages/explore.page';
 
@@ -60,5 +60,52 @@ test.describe('Explore', () => {
     await expect(explore.count).toHaveText('Showing 1–24 of 24 courses, newest first');
     await expect(explore.cards).toHaveCount(24);
     await expect(explore.card(0).type).toHaveText('Course');
+  });
+
+  // L2-002 AC3 · search-filter-toolbar AC-12, AC-13
+  test('a chosen type shows as a pill that can be removed', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    api.respond('GET', '/catalogue?type=course', coursesPage());
+    const explore = new ExplorePage(page);
+
+    await explore.open('/explore?type=course');
+
+    await expect(explore.pills).toHaveText(['Type: Course']);
+    await expect(explore.option('Type', 'Course')).toBeChecked();
+
+    await explore.removePill('Type: Course');
+
+    await expect(page).toHaveURL('/explore');
+    await expect(explore.option('Type', 'Course')).not.toBeChecked();
+    await expect(explore.pills).toHaveCount(0);
+    await expect(explore.count).toHaveText('Showing 1–24 of 212 items, newest first');
+  });
+
+  // L2-002 AC5 · search-filter-toolbar AC-14, AC-15
+  test('Clear all, in the panel or beside the pills, removes every filter', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    api.respond('GET', '/catalogue?type=course&type=video', coursesAndVideosPage());
+    const explore = new ExplorePage(page);
+    await explore.open('/explore?type=course&type=video');
+
+    await expect(explore.pills).toHaveText(['Type: Course', 'Type: Video']);
+    await expect(explore.count).toHaveText(
+      'Showing 1–6 of 110 items that match all 2 filters, newest first',
+    );
+
+    await explore.clearAllInPanel.click();
+
+    await expect(page).toHaveURL('/explore');
+    await expect(explore.pills).toHaveCount(0);
+    await expect(explore.clearAllInPanel).toHaveCount(0);
+
+    await explore.open('/explore?type=course&type=video');
+    await explore.clearAllInPills.click();
+
+    await expect(page).toHaveURL('/explore');
+    await expect(explore.pills).toHaveCount(0);
   });
 });
