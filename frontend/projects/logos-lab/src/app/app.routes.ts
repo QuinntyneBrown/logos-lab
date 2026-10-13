@@ -19,6 +19,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/article/article-page').then((m) => m.ArticlePage),
   },
   {
+    path: 'collections/:slug',
+    title: $localize`:@@collection.routeTitle:Collection - Logos Lab`,
+    loadComponent: () => import('./pages/collection/collection-page').then((m) => m.CollectionPage),
+  },
+  {
     path: 'topics/:slug',
     title: $localize`:@@topic.routeTitle:Topic - Logos Lab`,
     loadComponent: () => import('./pages/topic/topic-page').then((m) => m.TopicPage),

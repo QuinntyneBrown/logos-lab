@@ -7,4 +7,8 @@ export interface FollowsApi {
   followExpert(expertId: string): Observable<FollowResult>;
   /** Stops following an expert. Idempotent. */
   unfollowExpert(expertId: string): Observable<FollowResult>;
+  /** Follows a collection. Idempotent. */
+  followCollection(collectionId: string): Observable<FollowResult>;
+  /** Stops following a collection. Idempotent. */
+  unfollowCollection(collectionId: string): Observable<FollowResult>;
 }
