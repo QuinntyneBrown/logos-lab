@@ -52,6 +52,11 @@ export class ArticlePage {
     this.correctionTitle = this.correction.locator('.alert__title');
   }
 
+  /** The save toggle of one related card, by the item's title. */
+  relatedSave(title: string): Locator {
+    return this.related.getByRole('button', { name: new RegExp(`${title}$`) });
+  }
+
   async bodyScriptRan(): Promise<boolean> {
     return this.page.evaluate(
       () => (window as unknown as { __articleScriptRan?: boolean }).__articleScriptRan === true,

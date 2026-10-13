@@ -15,6 +15,8 @@ export interface ContentCardView {
   readonly meta: readonly string[];
   readonly duration: string | null;
   readonly coverUrl: string | null;
+  /** The member's saved state; `null` when the card offers no save toggle. */
+  readonly saved: boolean | null;
 }
 
 export function toContentCard(item: ContentSummary, locale: string): ContentCardView {
@@ -32,5 +34,6 @@ export function toContentCard(item: ContentSummary, locale: string): ContentCard
     meta: contentFacts(item, locale),
     duration: item.durationSeconds === undefined ? null : videoDuration(item.durationSeconds),
     coverUrl: item.coverUrl ?? null,
+    saved: item.saved ?? null,
   };
 }

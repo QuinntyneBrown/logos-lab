@@ -4,4 +4,5 @@ export type SaveStatus =
   | { readonly kind: 'saved' }
   | { readonly kind: 'removed' }
   | { readonly kind: 'failed' }
-  | { readonly kind: 'full' };
+  /** Saved holds no more: `title` is what could not be saved. */
+  | { readonly kind: 'full'; readonly title: string };

@@ -103,7 +103,7 @@
         }
         <ll-prose variant="article" [html]="article.bodyHtml" />
       </article>
-      @if (related().length) {
+      @if (cards().length) {
         <section class="page-block" aria-labelledby="related-title">
           <div class="section__head article-page__head">
             <p class="eyebrow" i18n="@@article.related.eyebrow">Shares a topic</p>
@@ -112,7 +112,7 @@
             </h2>
           </div>
           <div class="content-grid">
-            @for (card of related(); track card.id) {
+            @for (card of cards(); track card.id) {
               <ll-content-card
                 [type]="card.type"
                 [typeLabel]="card.typeLabel"
@@ -122,6 +122,9 @@
                 [meta]="card.meta"
                 [duration]="card.duration"
                 [coverUrl]="card.coverUrl"
+                [saved]="card.saved"
+                [saveLabel]="card.saveLabel"
+                (saveToggled)="saveCard(card, $event)"
               />
             }
           </div>

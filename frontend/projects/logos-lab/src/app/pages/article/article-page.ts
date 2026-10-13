@@ -12,7 +12,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ARTICLES_API, RELATED_CONTENT_API, SAVED_ITEMS_API } from '@logos-lab/api';
+import { ARTICLES_API, ContentType, RELATED_CONTENT_API, SAVED_ITEMS_API } from '@logos-lab/api';
 import {
   Alert,
   Avatar,
@@ -26,14 +26,15 @@ import {
   PageHeader,
   Prose,
 } from '@logos-lab/components';
-import { catchError, map, of, startWith, switchMap } from 'rxjs';
-import { toContentCard } from '../../content/content-card-view';
+import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { ContentCardView, toContentCard } from '../../content/content-card-view';
 import { plural } from '../../content/plural';
 import { publicationDay } from '../../content/publication-day';
 import { SignInPrompt } from '../../dialogs/sign-in-prompt';
 import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ArticleState } from './article-state';
+import { readSaveFailure } from './read-save-failure';
 import { SaveStatus } from './save-status';
 
 @Component({
@@ -133,10 +134,7 @@ export class ArticlePage {
     const removing = this.saved();
     this.saveBusy.set(true);
     this.saveStatus.set({ kind: 'none' });
-    const request = removing
-      ? this.savedApi.unsave('article', article.id)
-      : this.savedApi.save('article', article.id);
-    request.subscribe({
+    this.send('article', article.id, !removing).subscribe({
       next: () => {
         this.saveBusy.set(false);
         this.saved.set(!removing);
@@ -144,13 +142,48 @@ export class ArticlePage {
       },
       error: (error: unknown) => {
         this.saveBusy.set(false);
-        const full =
-          error instanceof HttpErrorResponse &&
-          error.status === 409 &&
-          (error.error as { code?: string } | null)?.code === 'saved-limit-reached';
-        this.saveStatus.set({ kind: full ? 'full' : 'failed' });
+        this.saveStatus.set(readSaveFailure(error, article.title));
       },
     });
+  }
+
+  /** What the member changed on related cards, by item id, over what the page loaded. */
+  private readonly cardChoices = signal<Readonly<Record<string, boolean>>>({});
+
+  /** The related cards with the member's saved state; a visitor's cards have no toggle. */
+  protected readonly cards = computed(() => {
+    const member = this.session.member();
+    const choices = this.cardChoices();
+    return this.related().map((card) => {
+      const saved = choices[card.id] ?? card.saved ?? false;
+      return {
+        ...card,
+        saved: member ? saved : null,
+        saveLabel: this.saveLabel(card.title, saved),
+      };
+    });
+  });
+
+  private saveLabel(title: string, saved: boolean): string {
+    return saved
+      ? $localize`:@@article.card.saved:Saved: ${title}:title:`
+      : $localize`:@@article.card.save:Save ${title}:title:`;
+  }
+
+  /** A related card's save toggle was pressed. */
+  protected saveCard(card: ContentCardView, save: boolean): void {
+    this.saveStatus.set({ kind: 'none' });
+    this.cardChoices.update((choices) => ({ ...choices, [card.id]: save }));
+    this.send(card.type, card.id, save).subscribe({
+      error: (error: unknown) => {
+        this.cardChoices.update((choices) => ({ ...choices, [card.id]: !save }));
+        this.saveStatus.set(readSaveFailure(error, card.title));
+      },
+    });
+  }
+
+  private send(type: ContentType, id: string, save: boolean): Observable<void> {
+    return save ? this.savedApi.save(type, id) : this.savedApi.unsave(type, id);
   }
 
   protected readonly saveAnnouncement = computed(() => {
@@ -164,7 +197,8 @@ export class ArticlePage {
     }
   });
   protected readonly saveFullBody = computed(() => {
-    const title = this.article()?.title ?? '';
+    const status = this.saveStatus();
+    const title = status.kind === 'full' ? status.title : '';
     return $localize`:@@article.save.full.body:You have 1,000 saved items, the most Saved can hold, so we couldn't save ${title}:title:. Remove something you've finished with, then save it again.`;
   });
 

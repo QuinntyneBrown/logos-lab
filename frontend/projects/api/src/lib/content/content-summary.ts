@@ -28,4 +28,6 @@ export interface ContentSummary {
   /** Events. */
   readonly startsAt?: string;
   readonly attendance?: EventAttendance;
+  /** Whether the signed-in member saved it; absent for a visitor. */
+  readonly saved?: boolean;
 }

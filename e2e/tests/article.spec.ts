@@ -335,4 +335,70 @@ test.describe('Article page', () => {
     );
     await expect(article.save).toHaveText('Save');
   });
+
+  // L2-071 AC1, AC2 · content-card AC-6
+  test('a member can save and unsave related items from their cards', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.respond('GET', `/content/${augustineArticle.id}/related`, [
+      { ...content.augustineAlgorithm, saved: false },
+      { ...content.sabbath, saved: true },
+    ]);
+    api.respond('PUT', `/me/saved-items/video/${content.augustineAlgorithm.id}`, undefined, 204);
+    api.respond('DELETE', `/me/saved-items/article/${content.sabbath.id}`, undefined, 204);
+    const article = new ArticlePage(page);
+    await article.open(path);
+    const video = article.relatedSave('Augustine and the Algorithm');
+    const sabbath = article.relatedSave('Sabbath for the Always-On Mind');
+    await expect(video).toHaveAttribute('aria-pressed', 'false');
+    await expect(video).toHaveAccessibleName('Save Augustine and the Algorithm');
+    await expect(sabbath).toHaveAttribute('aria-pressed', 'true');
+    await expect(sabbath).toHaveAccessibleName('Saved: Sabbath for the Always-On Mind');
+
+    await video.click();
+    await sabbath.click();
+
+    await expect(video).toHaveAttribute('aria-pressed', 'true');
+    await expect(video).toHaveAccessibleName('Saved: Augustine and the Algorithm');
+    await expect(sabbath).toHaveAttribute('aria-pressed', 'false');
+    await expect(sabbath).toHaveAccessibleName('Save Sabbath for the Always-On Mind');
+    expect(
+      api.requestsTo('PUT', `/me/saved-items/video/${content.augustineAlgorithm.id}`),
+    ).toHaveLength(1);
+    expect(api.requestsTo('DELETE', `/me/saved-items/article/${content.sabbath.id}`)).toHaveLength(
+      1,
+    );
+  });
+
+  // L2-071 AC1 · L2-015 AC1
+  test('a visitor sees no save buttons on the related cards', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.respond('GET', `/content/${augustineArticle.id}/related`, [content.augustineAlgorithm]);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.relatedCards).toHaveCount(1);
+    await expect(article.related.getByRole('button')).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · alert AC-1
+  test('a related item that cannot be saved says so and stays unsaved', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.respond('GET', `/content/${augustineArticle.id}/related`, [
+      { ...content.augustineAlgorithm, saved: false },
+    ]);
+    api.fail('PUT', `/me/saved-items/video/${content.augustineAlgorithm.id}`, 500);
+    const article = new ArticlePage(page);
+    await article.open(path);
+
+    await article.relatedSave('Augustine and the Algorithm').click();
+
+    await expect(article.saveAlertTitle).toHaveText("We couldn't save this just now");
+    await expect(article.relatedSave('Augustine and the Algorithm')).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
 });
