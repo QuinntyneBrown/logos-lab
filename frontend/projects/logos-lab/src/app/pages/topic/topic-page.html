@@ -1,0 +1,68 @@
+@if (topic(); as topic) {
+  <div class="wrap topic">
+    <nav
+      llBreadcrumb
+      label="Breadcrumb"
+      i18n-label="@@topic.crumb.label"
+      top="md"
+      [items]="trail()"
+    ></nav>
+    <ll-page-header
+      top="md"
+      eyebrow="Topic"
+      i18n-eyebrow="@@topic.eyebrow"
+      [heading]="topic.name"
+      [sub]="sub()"
+    >
+      <p slot="lead" class="lead">{{ topic.description }}</p>
+    </ll-page-header>
+    @if (experts().length) {
+      <section class="page-block" aria-labelledby="experts-title">
+        <div class="section__head topic__head">
+          <h2 class="section__title" id="experts-title" i18n="@@topic.experts.title">
+            Experts in this topic
+          </h2>
+        </div>
+        <ul llPersonList>
+          @for (expert of experts(); track expert.path) {
+            <li
+              llPerson
+              [name]="expert.name"
+              [path]="expert.path"
+              [photoUrl]="expert.photoUrl"
+              [meta]="expert.meta"
+            ></li>
+          }
+        </ul>
+      </section>
+    }
+    <section class="page-block" aria-labelledby="content-title">
+      <div class="section__head topic__head">
+        <p class="eyebrow" i18n="@@topic.items.eyebrow">Newest first</p>
+        <h2 class="section__title" id="content-title" i18n="@@topic.items.title">
+          Published in this topic
+        </h2>
+      </div>
+      @if (range(); as range) {
+        <p llToolbarCount class="topic__count" i18n="@@topic.count">
+          Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+          <strong>{{ range.total }}</strong> {{ range.noun }}
+        </p>
+      }
+      <div class="content-grid">
+        @for (card of cards(); track card.id) {
+          <ll-content-card
+            [type]="card.type"
+            [typeLabel]="card.typeLabel"
+            [title]="card.title"
+            [path]="card.path"
+            [author]="card.author"
+            [meta]="card.meta"
+            [duration]="card.duration"
+            [coverUrl]="card.coverUrl"
+          />
+        }
+      </div>
+    </section>
+  </div>
+}

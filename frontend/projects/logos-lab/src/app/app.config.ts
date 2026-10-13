@@ -13,9 +13,11 @@ import {
   HttpMeApi,
   HttpPreferencesApi,
   HttpSearchApi,
+  HttpTopicsApi,
   ME_API,
   PREFERENCES_API,
   SEARCH_API,
+  TOPICS_API,
 } from '@logos-lab/api';
 
 import { routes } from './app.routes';
@@ -32,5 +34,6 @@ export const appConfig: ApplicationConfig = {
     { provide: AUTH_API, useClass: HttpAuthApi },
     { provide: PREFERENCES_API, useClass: HttpPreferencesApi },
     { provide: SEARCH_API, useClass: HttpSearchApi },
+    { provide: TOPICS_API, useClass: HttpTopicsApi },
   ],
 };
