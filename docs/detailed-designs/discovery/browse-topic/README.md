@@ -58,6 +58,34 @@ The slice runs from `TopicPage` in Logos Lab Web to the Logos Lab API and the Lo
   filter.
 - Activating a topic tag on any content card opens that topic's page.
 
+### Topic page decisions
+
+These settle what the design left open when `TopicPage` was built against the mocks in
+`docs/mocks/pages/topic/`.
+
+- **Route and title.** `/topics/:slug`, with `page` for the content's page. The browser title is
+  "Theology of technology - Logos Lab" once the topic is known and "Topic - Logos Lab" until then.
+- **Contract.** `TopicsApi.getTopic(slug)` calls `GET /api/v1/topics/{slug}` and returns `Topic`: `slug`,
+  `name`, `description`, `itemCount` (all published items), `byLogosLab` (whether Logos Lab itself has
+  items in the topic) and `experts` (`{ slug, name, photoUrl, headline, itemCount }`, the experts who
+  published in it and how many items each has here). `TopicsApi.getTopicContent(slug, page)` calls
+  `GET /api/v1/topics/{slug}/content?page=` and returns `TopicContent`: `items`, `total`, `page` and
+  `pageCount`. An unknown slug answers `404` to the first call.
+- **Header.** A breadcrumb "Explore › name", the eyebrow "Topic", the name as the page's heading, the
+  description as the lead and the sub line "41 published items from 5 experts and Logos Lab." (the
+  last words only when `byLogosLab`; "No published items yet." for an empty topic).
+- **Experts.** "Experts in this topic" lists each expert as a person: the name linking to
+  `/experts/{slug}` and "Church historian · 4 items here". A topic with no experts omits the section.
+- **Items.** The section "Published in this topic" (eyebrow "Newest first") shows the count line
+  "Showing 1–24 of 41 items", the cards, and the pager named "Pages of Theology of technology".
+- **States.** While the topic loads the heading reads "Loading topic…" with skeleton lines. While its
+  items load the sub says "Loading items…", the experts and the cards show skeletons and the status
+  messages are "Loading experts…" and "Loading items in Theology of technology…". An empty topic
+  shows "Nothing published in this topic yet" with "Browse the catalogue". A failed items request
+  keeps the header and says "We couldn't load this topic's items" with "Try again". An unknown slug
+  shows the not-found page and the browser title "Page not found - Logos Lab". A failed topic request
+  shows "We couldn't load this topic" with "Try again".
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
