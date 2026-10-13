@@ -1,0 +1,45 @@
+<div class="wrap events">
+  <ll-page-header
+    eyebrow="Live, online and in person"
+    i18n-eyebrow="@@events.eyebrow"
+    heading="Events"
+    i18n-heading="@@events.title"
+    [sub]="sub"
+  />
+  <div llToolbar>
+    @if (list(); as list) {
+      @if (list.total === 1) {
+        <p llToolbarCount i18n="@@events.count.upcoming.one">
+          <strong>1</strong> upcoming event, soonest first
+        </p>
+      } @else {
+        <p llToolbarCount i18n="@@events.count.upcoming.other">
+          <strong>{{ total() }}</strong> upcoming events, soonest first
+        </p>
+      }
+    }
+  </div>
+  @if (rows().length) {
+    <ul llEventList>
+      @for (row of rows(); track row.id) {
+        <li
+          llEventRow
+          [title]="row.title"
+          [path]="row.path"
+          [datetime]="row.datetime"
+          [day]="row.day"
+          [month]="row.month"
+          [when]="row.when"
+          [where]="row.where"
+          [online]="row.online"
+        >
+          @if (row.full) {
+            <span llBadge tone="warning" i18n="@@event.fullWaitlist">Full · waitlist open</span>
+          } @else if (row.going) {
+            <span class="event__going">{{ row.going }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>
