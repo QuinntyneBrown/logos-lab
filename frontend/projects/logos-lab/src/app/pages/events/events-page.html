@@ -25,6 +25,7 @@
         label="Format"
         i18n-label="@@events.filter.format"
         name="format"
+        [disabled]="filtersOff()"
         [value]="query().format ?? ''"
         (valueChange)="setFormat($event)"
       >
@@ -37,6 +38,7 @@
         label="Topic"
         i18n-label="@@events.filter.topic"
         name="topic"
+        [disabled]="filtersOff()"
         [value]="query().topic ?? ''"
         (valueChange)="setTopic($event)"
       >
@@ -49,6 +51,7 @@
         label="Host"
         i18n-label="@@events.filter.host"
         name="host"
+        [disabled]="filtersOff()"
         [value]="query().host ?? ''"
         (valueChange)="setHost($event)"
       >
@@ -63,6 +66,7 @@
             class="check__box"
             type="checkbox"
             name="recording"
+            [disabled]="filtersOff()"
             [checked]="query().recording"
             (change)="setRecording($any($event.target).checked)"
           /><span class="check__text" i18n="@@events.recording">Recording available</span></label
@@ -89,6 +93,18 @@
       } @else {
         <p llToolbarCount i18n="@@events.count.none.upcoming">
           <strong>No upcoming events</strong> match {{ none.names }}
+        </p>
+      }
+    } @else if (loading()) {
+      <p llToolbarCount>
+        <span llSkeleton shape="text-short" aria-hidden="true"></span>
+      </p>
+    } @else if (nothingScheduled()) {
+      @if (tab() === 'past') {
+        <p llToolbarCount i18n="@@events.count.empty.past"><strong>No</strong> past events</p>
+      } @else {
+        <p llToolbarCount i18n="@@events.count.empty.upcoming">
+          <strong>No</strong> upcoming events
         </p>
       }
     } @else if (list(); as list) {
@@ -118,6 +134,65 @@
       }
     }
   </div>
+  @if (failed()) {
+    <ll-empty-state
+      tone="error"
+      heading="We couldn't load events"
+      i18n-heading="@@events.failed.title"
+      icon="attention"
+      [headingLevel]="2"
+    >
+      <ng-container i18n="@@events.failed.text"
+        >This is on our side. Your registrations are safe; try again in a moment.</ng-container
+      >
+      <button
+        llButton
+        variant="primary"
+        type="button"
+        slot="actions"
+        (click)="retry()"
+        i18n="@@events.failed.retry"
+      >
+        Try again
+      </button>
+      <a
+        llButton
+        variant="text"
+        slot="actions"
+        href="mailto:help@logoslab.ca"
+        i18n="@@events.failed.support"
+        >Contact support</a
+      >
+    </ll-empty-state>
+  } @else if (nothingScheduled() && tab() === 'upcoming') {
+    <ll-empty-state
+      heading="No events scheduled right now"
+      i18n-heading="@@events.empty.title"
+      icon="calendar"
+      [headingLevel]="2"
+    >
+      <ng-container i18n="@@events.empty.text"
+        >New Q&amp;As and workshops are usually announced a month ahead. Meanwhile, past events have
+        recordings you can watch.</ng-container
+      >
+      <a
+        llButton
+        variant="primary"
+        slot="actions"
+        routerLink="/events"
+        [queryParams]="{ tab: 'past' }"
+        i18n="@@events.empty.action"
+        >See past events</a
+      >
+    </ll-empty-state>
+  } @else if (nothingScheduled()) {
+    <ll-empty-state
+      heading="No past events yet"
+      i18n-heading="@@events.empty.past.title"
+      icon="calendar"
+      [headingLevel]="2"
+    />
+  }
   @if (noMatches(); as none) {
     <ll-empty-state
       heading="No events match these filters"
@@ -138,8 +213,13 @@
       </button>
     </ll-empty-state>
   }
-  @if (rows().length) {
-    <ul llEventList>
+  @if (loading() || rows().length) {
+    <ul llEventList [loadingLabel]="loading() ? loadingLabel : null">
+      @if (loading()) {
+        @for (n of placeholders; track n) {
+          <li llEventRow loading></li>
+        }
+      }
       @for (row of rows(); track row.id) {
         <li
           llEventRow

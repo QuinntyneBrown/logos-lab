@@ -16,6 +16,9 @@ export class EventsPage {
   readonly recording: Locator;
   readonly pills: Locator;
   readonly count: Locator;
+  readonly loadingMessage: Locator;
+  readonly skeletonRows: Locator;
+  readonly tryAgain: Locator;
   readonly showMore: Locator;
   readonly moreText: Locator;
   readonly moreMeter: Locator;
@@ -47,6 +50,9 @@ export class EventsPage {
     this.moreText = main.locator('.pager__text');
     this.moreMeter = main.locator('.pager__meter');
     this.moreFailed = main.getByRole('alert').filter({ hasText: "couldn't show more events" });
+    this.loadingMessage = main.locator('[aria-busy="true"] [role="status"]');
+    this.skeletonRows = main.locator('li.event[aria-hidden="true"]');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
     this.count = main.locator('.toolbar__count');
     this.rows = main.locator('li.event');
   }
@@ -54,6 +60,11 @@ export class EventsPage {
   async open(path = '/events'): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  /** A link among the empty state's actions, such as "See past events". */
+  emptyAction(name: string): Locator {
+    return this.emptyState.getByRole('link', { name });
   }
 
   /** One event's row, by position. */

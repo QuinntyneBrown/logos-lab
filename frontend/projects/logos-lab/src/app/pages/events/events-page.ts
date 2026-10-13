@@ -36,6 +36,7 @@ import {
   PageHeader,
   SearchFilterToolbar,
   Select,
+  Skeleton,
   Tab,
   Tabs,
   ToolbarCount,
@@ -71,6 +72,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     PageHeader,
     SearchFilterToolbar,
     Select,
+    Skeleton,
     Tab,
     Tabs,
     ToolbarCount,
@@ -121,9 +123,10 @@ export class EventsPage {
         a.recording === b.recording,
     },
   );
+  private readonly attempt = signal(0);
   private readonly state = toSignal(
-    toObservable(this.query).pipe(
-      switchMap((query) =>
+    toObservable(computed(() => ({ query: this.query(), attempt: this.attempt() }))).pipe(
+      switchMap(({ query }) =>
         this.api.listEvents(query).pipe(
           map((list): EventsState => ({ kind: 'loaded', list, tab: query.tab })),
           catchError(() => of<EventsState>({ kind: 'failed' })),
@@ -133,10 +136,18 @@ export class EventsPage {
     ),
     { initialValue: { kind: 'loading' } as EventsState },
   );
+  protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
   protected readonly list = computed(() => {
     const state = this.state();
     return state.kind === 'loaded' ? state.list : null;
   });
+  protected readonly placeholders = [0, 1, 2];
+  protected readonly loadingLabel = $localize`:@@events.loading:Loading events…`;
+
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
   /** The tab the list on show was asked for, which is not the address's while a new one loads. */
   protected readonly listedTab = computed(() => {
     const state = this.state();
@@ -148,6 +159,14 @@ export class EventsPage {
     computation: (state, previous) =>
       state.kind === 'loaded' ? state.list : (previous?.value ?? null),
   });
+  /** No events at all on the tab, whatever the filters. */
+  protected readonly nothingScheduled = computed(
+    () => this.list()?.totalEvents === 0 && this.list()?.total === 0,
+  );
+  /** The filters wait for a first list, and have nothing to choose between on a failed or empty one. */
+  protected readonly filtersOff = computed(
+    () => this.failed() || this.lastList() === null || this.nothingScheduled(),
+  );
   protected readonly topics = computed(() => this.lastList()?.topics ?? []);
   protected readonly hosts = computed(() => this.lastList()?.hosts ?? []);
 

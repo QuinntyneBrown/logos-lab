@@ -367,4 +367,74 @@ test.describe('Events listing', () => {
     await expect(events.rows).toHaveCount(9);
     await expect(events.moreFailed).toHaveCount(0);
   });
+
+  // L2-127 AC3 · event-row AC-10, skeleton AC-1
+  test('while the events load the list is busy, announces it once and the filters wait', async ({
+    page,
+    api,
+  }) => {
+    const release = api.hold('GET', '/events', eventList());
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.heading).toHaveText('Events');
+    await expect(events.loadingMessage).toHaveText(['Loading events…']);
+    await expect(events.skeletonRows).toHaveCount(3);
+    await expect(events.format).toBeDisabled();
+    await expect(events.topic).toBeDisabled();
+    await expect(events.host).toBeDisabled();
+
+    release();
+
+    await expect(events.rows).toHaveCount(3);
+    await expect(events.skeletonRows).toHaveCount(0);
+    await expect(events.format).toBeEnabled();
+  });
+
+  // L2-051 AC1 · empty-state AC-1
+  test('with nothing scheduled, the page says so and points to the past events', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events', eventList({ events: [], total: 0, totalEvents: 0 }));
+    api.respond('GET', '/events?tab=past', eventList({ events: [], total: 0, totalEvents: 0 }));
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.count).toHaveText('No upcoming events');
+    await expect(events.emptyTitle).toHaveText('No events scheduled right now');
+    await expect(events.format).toBeDisabled();
+    await expect(events.emptyAction('See past events')).toHaveAttribute('href', '/events?tab=past');
+
+    await events.emptyAction('See past events').click();
+
+    await expect(events.count).toHaveText('No past events');
+    await expect(events.emptyTitle).toHaveText('No past events yet');
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('events that fail to load offer another try and the way to support', async ({
+    page,
+    api,
+  }) => {
+    api.fail('GET', '/events', 500);
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.emptyTitle).toHaveText("We couldn't load events");
+    await expect(events.format).toBeDisabled();
+    await expect(events.emptyAction('Contact support')).toHaveAttribute(
+      'href',
+      'mailto:help@logoslab.ca',
+    );
+
+    api.respond('GET', '/events', eventList());
+    await events.tryAgain.click();
+
+    await expect(events.rows).toHaveCount(3);
+    await expect(events.emptyState).toHaveCount(0);
+  });
 });
