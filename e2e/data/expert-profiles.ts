@@ -48,3 +48,22 @@ export function expertArticles() {
     total: 3,
   });
 }
+
+/** An expert who is new and has published nothing: docs/mocks/pages/expert-profile/empty. */
+export const meiLinChen = {
+  slug: 'mei-lin-chen',
+  name: 'Dr. Mei Lin Chen',
+  photoUrl: '/media/grace-liu.jpg',
+  title: 'Data scientist',
+  affiliation: null,
+  bioHtml:
+    '<p>Mei Lin Chen is a data scientist who studies fairness in machine learning and what it owes to human dignity.</p>',
+  followerCount: 12,
+  itemCount: 0,
+  expertise: [
+    { slug: 'justice-and-society', name: 'Justice and society' },
+    { slug: 'ai-ethics', name: 'AI ethics' },
+  ],
+  links: [{ label: 'Research page', url: 'https://meilinchen.example.ca' }],
+  counts: [],
+};

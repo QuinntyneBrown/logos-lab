@@ -7,6 +7,14 @@
 .expert__published {
   padding-bottom: var(--space-16);
 }
+.expert__failure {
+  padding-block: var(--space-12) var(--space-16);
+}
+.expert__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
 .expert__panel {
   padding-top: var(--space-8);
 }

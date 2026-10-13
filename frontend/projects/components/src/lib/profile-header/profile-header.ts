@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  signal,
+} from '@angular/core';
 import { Icon } from '../icon/icon';
+import { Skeleton } from '../skeleton/skeleton';
 import { ProfileMeta } from './profile-meta';
 
 const TONES = ['sage', 'clay', 'fjord', 'oat'] as const;
@@ -7,7 +15,7 @@ const TONES = ['sage', 'clay', 'fjord', 'oat'] as const;
 /** Who a person or an expert is: photo, name, line, facts and the actions that apply. */
 @Component({
   selector: 'll-profile-header',
-  imports: [Icon],
+  imports: [Icon, Skeleton],
   templateUrl: './profile-header.html',
   styleUrl: './profile-header.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +26,10 @@ export class ProfileHeader {
   readonly photoUrl = input<string | null>(null);
   readonly sub = input<string | null>(null);
   readonly meta = input<readonly ProfileMeta[]>([]);
+  /** Shows the skeleton form while the profile loads; `name` is then only the heading's text. */
+  readonly loading = input(false, { transform: booleanAttribute });
+  /** The one status message a loading header announces. */
+  readonly busyMessage = input<string | null>(null);
 
   /** True after the photo failed to load: the initials tile takes its place. */
   protected readonly photoFailed = signal(false);

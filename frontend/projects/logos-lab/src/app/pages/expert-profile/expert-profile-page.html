@@ -1,4 +1,6 @@
-@if (profile(); as profile) {
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
   <div class="wrap expert">
     <nav
       llBreadcrumb
@@ -7,88 +9,188 @@
       top="md"
       [items]="trail()"
     ></nav>
-    <ll-profile-header
-      [name]="profile.name"
-      [photoUrl]="profile.photoUrl"
-      [sub]="sub()"
-      [meta]="meta()"
-    />
-    <div class="two-col">
-      <section aria-labelledby="about-title">
-        <h2 class="vh" id="about-title" i18n="@@expert.about">About {{ profile.name }}</h2>
-        <ll-prose [html]="profile.bioHtml" />
-      </section>
-      <aside
-        llCard
-        heading="Areas of expertise"
-        i18n-heading="@@expert.expertise"
-        headingId="expertise-title"
-      >
-        <ul llChips label="Areas of expertise" i18n-label="@@expert.expertise">
-          @for (area of profile.expertise; track area.slug) {
-            <li>
-              <a llChip size="sm" [routerLink]="'/topics/' + area.slug">{{ area.name }}</a>
-            </li>
-          }
-        </ul>
-        @if (profile.links.length) {
-          <h2 class="aside-card__title" id="elsewhere-title" i18n="@@expert.elsewhere">
-            Elsewhere
-          </h2>
-          <ul llList plain aria-labelledby="elsewhere-title">
-            @for (link of profile.links; track link.url) {
+    @if (profileFailed()) {
+      <div class="expert__failure">
+        <h1 class="vh" i18n="@@expert.crumb.expert">Expert</h1>
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load this profile"
+          i18n-heading="@@expert.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@expert.failed.text"
+            >This is on our side. Try again in a moment, or meet the other experts.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@expert.failed.retry"
+          >
+            Try again
+          </button>
+        </ll-empty-state>
+        <p class="expert__help">
+          <ng-container i18n="@@expert.failed.help">Still not working? Write to</ng-container>
+          <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+        </p>
+      </div>
+    } @else if (profile(); as profile) {
+      <ll-profile-header
+        [name]="profile.name"
+        [photoUrl]="profile.photoUrl"
+        [sub]="sub()"
+        [meta]="meta()"
+      />
+      <div class="two-col">
+        <section aria-labelledby="about-title">
+          <h2 class="vh" id="about-title" i18n="@@expert.about">About {{ profile.name }}</h2>
+          <ll-prose [html]="profile.bioHtml" />
+        </section>
+        <aside
+          llCard
+          heading="Areas of expertise"
+          i18n-heading="@@expert.expertise"
+          headingId="expertise-title"
+        >
+          <ul llChips label="Areas of expertise" i18n-label="@@expert.expertise">
+            @for (area of profile.expertise; track area.slug) {
               <li>
-                <a llExternalLink [href]="link.url" [externalLabel]="externalLabel">{{
-                  link.label
-                }}</a>
+                <a llChip size="sm" [routerLink]="'/topics/' + area.slug">{{ area.name }}</a>
               </li>
             }
           </ul>
-        }
-      </aside>
-    </div>
-    @if (tabs().length) {
-      <section class="page-block expert__published" aria-labelledby="published-title">
-        <div class="section__head expert__head">
-          <h2 class="section__title" id="published-title" i18n="@@expert.published">
-            Published on Logos Lab
-          </h2>
-        </div>
-        <div llTabs label="Published content by type" i18n-label="@@expert.tabs.label">
-          @for (tab of tabs(); track tab.type) {
-            <button
-              llTab
-              [id]="'tab-' + tab.type"
-              panelId="panel-content"
-              [selected]="tab.type === selected()"
-              [count]="tab.count"
-              (activated)="select(tab.type)"
-            >
-              {{ tab.label }}
-            </button>
+          @if (profile.links.length) {
+            <h2 class="aside-card__title" id="elsewhere-title" i18n="@@expert.elsewhere">
+              Elsewhere
+            </h2>
+            <ul llList plain aria-labelledby="elsewhere-title">
+              @for (link of profile.links; track link.url) {
+                <li>
+                  <a llExternalLink [href]="link.url" [externalLabel]="externalLabel">{{
+                    link.label
+                  }}</a>
+                </li>
+              }
+            </ul>
           }
-        </div>
-        <div
-          role="tabpanel"
-          id="panel-content"
-          class="expert__panel"
-          tabindex="0"
-          [attr.aria-labelledby]="'tab-' + selected()"
-        >
-          <div class="content-grid">
-            @for (card of cards(); track card.id) {
-              <ll-content-card
-                [type]="card.type"
-                [typeLabel]="card.typeLabel"
-                [title]="card.title"
-                [path]="card.path"
-                [author]="card.author"
-                [meta]="card.meta"
-                [duration]="card.duration"
-                [coverUrl]="card.coverUrl"
-              />
+        </aside>
+      </div>
+      @if (tabs().length) {
+        <section class="page-block expert__published" aria-labelledby="published-title">
+          <div class="section__head expert__head">
+            <h2 class="section__title" id="published-title" i18n="@@expert.published">
+              Published on Logos Lab
+            </h2>
+          </div>
+          <div llTabs label="Published content by type" i18n-label="@@expert.tabs.label">
+            @for (tab of tabs(); track tab.type) {
+              <button
+                llTab
+                [id]="'tab-' + tab.type"
+                panelId="panel-content"
+                [selected]="tab.type === selected()"
+                [count]="tab.count"
+                (activated)="select(tab.type)"
+              >
+                {{ tab.label }}
+              </button>
             }
           </div>
+          <div
+            role="tabpanel"
+            id="panel-content"
+            class="expert__panel"
+            tabindex="0"
+            [attr.aria-labelledby]="'tab-' + selected()"
+          >
+            @if (itemsFailed()) {
+              <ll-empty-state
+                tone="error"
+                heading="We couldn't load these items"
+                i18n-heading="@@expert.items.failed.title"
+                icon="attention"
+                [headingLevel]="3"
+              >
+                <ng-container i18n="@@expert.items.failed.text"
+                  >This is on our side. Try again in a moment.</ng-container
+                >
+                <button
+                  llButton
+                  variant="primary"
+                  type="button"
+                  slot="actions"
+                  (click)="retry()"
+                  i18n="@@expert.failed.retry"
+                >
+                  Try again
+                </button>
+              </ll-empty-state>
+            } @else if (loadingItems()) {
+              <div class="content-grid" aria-busy="true">
+                <p class="vh" role="status" i18n="@@expert.items.loading">
+                  Loading published content…
+                </p>
+                @for (n of placeholders; track n) {
+                  <ll-skeleton-card />
+                }
+              </div>
+            } @else {
+              <div class="content-grid">
+                @for (card of cards(); track card.id) {
+                  <ll-content-card
+                    [type]="card.type"
+                    [typeLabel]="card.typeLabel"
+                    [title]="card.title"
+                    [path]="card.path"
+                    [author]="card.author"
+                    [meta]="card.meta"
+                    [duration]="card.duration"
+                    [coverUrl]="card.coverUrl"
+                  />
+                }
+              </div>
+            }
+          </div>
+        </section>
+      } @else {
+        <section class="page-block expert__published" aria-labelledby="published-title">
+          <h2 class="vh" id="published-title" i18n="@@expert.published">Published on Logos Lab</h2>
+          <ll-empty-state
+            heading="Nothing published yet"
+            i18n-heading="@@expert.empty.title"
+            icon="course"
+            [headingLevel]="3"
+          >
+            {{ emptyText() }}
+            <a
+              llButton
+              variant="primary"
+              slot="actions"
+              routerLink="/explore"
+              i18n="@@expert.empty.action"
+              >Browse the catalogue</a
+            >
+          </ll-empty-state>
+        </section>
+      }
+    } @else {
+      <ll-profile-header
+        name="Loading profile…"
+        i18n-name="@@expert.loading"
+        [loading]="true"
+        busyMessage="Loading profile…"
+        i18n-busyMessage="@@expert.loading"
+      />
+      <section class="page-block expert__published" aria-label="Published on Logos Lab">
+        <div class="content-grid" aria-busy="true">
+          <p class="vh" role="status" i18n="@@expert.items.loading">Loading published content…</p>
+          @for (n of placeholders; track n) {
+            <ll-skeleton-card />
+          }
         </div>
       </section>
     }

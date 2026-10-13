@@ -15,6 +15,11 @@ export class ExpertProfilePage {
   readonly tabs: Locator;
   readonly panel: Locator;
   readonly cards: Locator;
+  readonly loadingMessages: Locator;
+  readonly skeletonCards: Locator;
+  readonly emptyState: Locator;
+  readonly emptyTitle: Locator;
+  readonly tryAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -31,6 +36,11 @@ export class ExpertProfilePage {
     this.tabs = tablist.getByRole('tab');
     this.panel = main.getByRole('tabpanel');
     this.cards = this.panel.locator('.content-card');
+    this.loadingMessages = main.locator('[aria-busy="true"] [role="status"], [role="status"].vh');
+    this.skeletonCards = main.locator('.skeleton-card');
+    this.emptyState = main.locator('.empty');
+    this.emptyTitle = main.locator('.empty__title');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
     this.elsewhere = main
       .getByRole('heading', { name: 'Elsewhere' })
       .locator('xpath=following-sibling::ul[1]');

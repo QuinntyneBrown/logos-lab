@@ -1,40 +1,57 @@
-<header class="profile-head">
-  <div class="profile-head__who">
-    @if (photoUrl() && !photoFailed()) {
-      <img
-        class="profile-head__photo"
-        [src]="photoUrl()"
-        width="96"
-        height="96"
-        [alt]="name()"
-        (error)="photoFailed.set(true)"
-      />
-    } @else {
-      <span
-        class="profile-head__initials"
-        [class]="'profile-head__initials tile--' + tone()"
-        aria-hidden="true"
-        >{{ initials() }}</span
-      >
+@if (loading()) {
+  <header class="profile-head" aria-busy="true">
+    @if (busyMessage(); as message) {
+      <p class="vh" role="status">{{ message }}</p>
     }
-    <div class="profile-head__text">
-      <h1 class="profile-head__name">{{ name() }}</h1>
-      @if (sub(); as sub) {
-        <p class="profile-head__sub">{{ sub }}</p>
-      }
-      @if (meta().length) {
-        <p class="profile-head__meta">
-          @for (item of meta(); track $index) {
-            <span>
-              @if (item.icon; as icon) {
-                <svg llIcon [name]="icon" size="sm"></svg>
-              }
-              {{ item.text }}
-            </span>
-          }
-        </p>
-      }
+    <h1 class="vh">{{ name() }}</h1>
+    <div class="profile-head__who" aria-hidden="true">
+      <span llSkeleton shape="photo"></span>
+      <div class="profile-head__text">
+        <span llSkeleton shape="title"></span>
+        <span llSkeleton shape="text"></span>
+        <span llSkeleton shape="text-short"></span>
+      </div>
     </div>
-  </div>
-  <div class="profile-head__actions"><ng-content select="[slot=actions]" /></div>
-</header>
+  </header>
+} @else {
+  <header class="profile-head">
+    <div class="profile-head__who">
+      @if (photoUrl() && !photoFailed()) {
+        <img
+          class="profile-head__photo"
+          [src]="photoUrl()"
+          width="96"
+          height="96"
+          [alt]="name()"
+          (error)="photoFailed.set(true)"
+        />
+      } @else {
+        <span
+          class="profile-head__initials"
+          [class]="'profile-head__initials tile--' + tone()"
+          aria-hidden="true"
+          >{{ initials() }}</span
+        >
+      }
+      <div class="profile-head__text">
+        <h1 class="profile-head__name">{{ name() }}</h1>
+        @if (sub(); as sub) {
+          <p class="profile-head__sub">{{ sub }}</p>
+        }
+        @if (meta().length) {
+          <p class="profile-head__meta">
+            @for (item of meta(); track $index) {
+              <span>
+                @if (item.icon; as icon) {
+                  <svg llIcon [name]="icon" size="sm"></svg>
+                }
+                {{ item.text }}
+              </span>
+            }
+          </p>
+        }
+      </div>
+    </div>
+    <div class="profile-head__actions"><ng-content select="[slot=actions]" /></div>
+  </header>
+}

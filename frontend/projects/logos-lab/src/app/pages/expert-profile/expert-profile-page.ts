@@ -5,23 +5,28 @@ import {
   effect,
   inject,
   LOCALE_ID,
+  signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContentType, EXPERTS_API } from '@logos-lab/api';
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Button,
   Card,
   Chip,
   Chips,
   ContentCard,
+  EmptyState,
   ExternalLink,
   List,
   ProfileHeader,
   ProfileMeta,
   Prose,
+  SkeletonCard,
   Tab,
   Tabs,
 } from '@logos-lab/components';
@@ -30,21 +35,27 @@ import { toContentCard } from '../../content/content-card-view';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
 import { searchTypeLabel } from '../../content/search-type-labels';
+import { NotFoundPage } from '../not-found/not-found-page';
 import { ExpertContentState } from './expert-content-state';
+import { ExpertProfileState } from './expert-profile-state';
 
 @Component({
   selector: 'll-expert-profile-page',
   imports: [
     RouterLink,
     Breadcrumb,
+    Button,
     Card,
     Chip,
     Chips,
     ContentCard,
+    EmptyState,
     ExternalLink,
     List,
+    NotFoundPage,
     ProfileHeader,
     Prose,
+    SkeletonCard,
     Tab,
     Tabs,
   ],
@@ -59,11 +70,34 @@ export class ExpertProfilePage {
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly query = toSignal(this.route.queryParamMap, { requireSync: true });
+  private readonly attempt = signal(0);
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
+  protected readonly placeholders = [0, 1, 2];
 
-  protected readonly profile = toSignal(
-    toObservable(this.slug).pipe(switchMap((slug) => this.api.getProfile(slug))),
+  private readonly profileState = toSignal(
+    toObservable(computed(() => ({ slug: this.slug(), attempt: this.attempt() }))).pipe(
+      switchMap(({ slug }) =>
+        this.api.getProfile(slug).pipe(
+          map((profile): ExpertProfileState => ({ kind: 'loaded', profile })),
+          catchError((error: unknown) =>
+            of<ExpertProfileState>({
+              kind:
+                error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'failed',
+            }),
+          ),
+          startWith<ExpertProfileState>({ kind: 'loading' }),
+        ),
+      ),
+    ),
+    { initialValue: { kind: 'loading' } as ExpertProfileState },
   );
+
+  protected readonly profile = computed(() => {
+    const state = this.profileState();
+    return state.kind === 'loaded' ? state.profile : null;
+  });
+  protected readonly notFound = computed(() => this.profileState().kind === 'not-found');
+  protected readonly profileFailed = computed(() => this.profileState().kind === 'failed');
 
   /** The tabs: the types the expert has items of, in the tabs' order. */
   protected readonly tabs = computed(() => {
@@ -80,12 +114,11 @@ export class ExpertProfilePage {
     const tabs = this.tabs();
     return tabs.find((tab) => tab.type === wanted)?.type ?? tabs[0]?.type ?? null;
   });
-  protected readonly selectedTab = computed(() =>
-    this.tabs().find((tab) => tab.type === this.selected()),
-  );
 
-  private readonly state = toSignal(
-    toObservable(computed(() => ({ slug: this.slug(), type: this.selected() }))).pipe(
+  private readonly contentState = toSignal(
+    toObservable(
+      computed(() => ({ slug: this.slug(), type: this.selected(), attempt: this.attempt() })),
+    ).pipe(
       switchMap(({ slug, type }) =>
         type === null
           ? of<ExpertContentState>({ kind: 'loading' })
@@ -98,8 +131,10 @@ export class ExpertProfilePage {
     ),
     { initialValue: { kind: 'loading' } as ExpertContentState },
   );
+  protected readonly loadingItems = computed(() => this.contentState().kind === 'loading');
+  protected readonly itemsFailed = computed(() => this.contentState().kind === 'failed');
   protected readonly cards = computed(() => {
-    const state = this.state();
+    const state = this.contentState();
     return state.kind === 'loaded'
       ? state.content.items.map((item) => toContentCard(item, this.locale))
       : [];
@@ -114,6 +149,11 @@ export class ExpertProfilePage {
     });
   }
 
+  /** Asks again for whatever failed: the profile, or the items of the selected tab. */
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
+
   protected readonly externalLabel = $localize`:@@expert.external:(external site, opens in a new tab)`;
 
   constructor() {
@@ -121,12 +161,14 @@ export class ExpertProfilePage {
     effect(() => {
       const name = this.profile()?.name;
       if (name) title.setTitle($localize`:@@expert.pageTitle:${name}:name: - Logos Lab`);
+      else if (this.notFound())
+        title.setTitle($localize`:@@notFound.pageTitle:Page not found - Logos Lab`);
     });
   }
 
   protected readonly trail = computed<readonly BreadcrumbItem[]>(() => [
     { label: $localize`:@@expert.crumb.experts:Experts`, path: '/experts' },
-    { label: this.profile()?.name ?? '', path: null },
+    { label: this.profile()?.name ?? $localize`:@@expert.crumb.expert:Expert`, path: null },
   ]);
 
   protected readonly sub = computed(() => {
@@ -158,4 +200,9 @@ export class ExpertProfilePage {
       },
     ];
   });
+
+  protected readonly emptyText = computed(
+    () =>
+      $localize`:@@expert.empty.text:${this.profile()?.name ?? ''}:name: is new to Logos Lab. Until something is published, the catalogue has plenty to read and watch.`,
+  );
 }

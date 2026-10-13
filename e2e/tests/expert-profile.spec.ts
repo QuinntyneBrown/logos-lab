@@ -1,4 +1,4 @@
-import { abenaMensah, expertArticles, expertContent } from '../data/expert-profiles';
+import { abenaMensah, expertArticles, expertContent, meiLinChen } from '../data/expert-profiles';
 import { expect, test } from '../fixtures/test';
 import { ExpertProfilePage } from '../pages/expert-profile.page';
 
@@ -143,5 +143,85 @@ test.describe('Expert profile', () => {
 
     await profile.open('/experts/abena-mensah?type=podcast');
     await expect(profile.tab('Courses')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  // L2-127 AC3 · skeleton AC-1, profile-header AC-14
+  test('while the profile loads, the page is busy and announces it once', async ({ page, api }) => {
+    const release = api.hold('GET', '/experts/abena-mensah', abenaMensah);
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    const profile = new ExpertProfilePage(page);
+
+    await profile.open('/experts/abena-mensah');
+
+    await expect(profile.heading).toHaveText('Loading profile…');
+    await expect(profile.skeletonCards).toHaveCount(3);
+    await expect(
+      profile.loadingMessages.filter({ hasText: 'Loading published content…' }),
+    ).toHaveCount(1);
+
+    release();
+
+    await expect(profile.heading).toHaveText('Dr. Abena Mensah');
+    await expect(profile.skeletonCards).toHaveCount(0);
+    await expect(profile.cards).toHaveCount(1);
+  });
+
+  // L2-021 AC4 · empty-state AC-1
+  test('an expert with nothing published says so in place of the tabs', async ({ page, api }) => {
+    api.respond('GET', '/experts/mei-lin-chen', meiLinChen);
+    const profile = new ExpertProfilePage(page);
+
+    await profile.open('/experts/mei-lin-chen');
+
+    await expect(profile.heading).toHaveText('Dr. Mei Lin Chen');
+    await expect(profile.tabs).toHaveCount(0);
+    await expect(profile.emptyTitle).toHaveText('Nothing published yet');
+    await expect(profile.emptyState).toContainText('Dr. Mei Lin Chen is new to Logos Lab.');
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('a profile that fails to load offers another try', async ({ page, api }) => {
+    api.fail('GET', '/experts/abena-mensah', 500);
+    const profile = new ExpertProfilePage(page);
+
+    await profile.open('/experts/abena-mensah');
+
+    await expect(profile.emptyTitle).toHaveText("We couldn't load this profile");
+    await expect(profile.breadcrumb.locator('[aria-current="page"]')).toHaveText('Expert');
+
+    api.respond('GET', '/experts/abena-mensah', abenaMensah);
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    await profile.tryAgain.click();
+
+    await expect(profile.heading).toHaveText('Dr. Abena Mensah');
+    await expect(profile.cards).toHaveCount(1);
+  });
+
+  // L2-021 AC5 · error-page AC-1
+  test('a slug that is not an expert shows the not-found page', async ({ page, api }) => {
+    api.fail('GET', '/experts/nobody', 404, 'not-found');
+    const profile = new ExpertProfilePage(page);
+
+    await profile.open('/experts/nobody');
+
+    await expect(profile.heading).toHaveText("We can't find that page");
+    await expect(page).toHaveTitle('Page not found - Logos Lab');
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('items that fail to load keep the tabs and offer another try', async ({ page, api }) => {
+    api.respond('GET', '/experts/abena-mensah', abenaMensah);
+    api.fail('GET', '/experts/abena-mensah/content?type=course', 500);
+    const profile = new ExpertProfilePage(page);
+
+    await profile.open('/experts/abena-mensah');
+
+    await expect(profile.tabs).toHaveCount(5);
+    await expect(profile.emptyTitle).toHaveText("We couldn't load these items");
+
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    await profile.tryAgain.click();
+
+    await expect(profile.cards).toHaveCount(1);
   });
 });
