@@ -12,6 +12,10 @@ const path = '/events/live-qa-imago-dei-and-machine-personhood';
 
 test.describe('Event page', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
+  // The events in the data are in late October 2026; the clock stands two weeks before them.
+  test.beforeEach(async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-10-13T15:00:00Z'));
+  });
 
   // L2-052 AC1 · event-head AC-1, breadcrumb AC-1, prose AC-1
   test('shows what the event is, when and where it happens, who hosts it and what it covers', async ({
@@ -203,6 +207,7 @@ test.describe('Event page', () => {
     api,
   }) => {
     api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/me/events/e-live-qa', { registration: null });
     api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
     const event = new EventPage(page);
 
@@ -222,6 +227,7 @@ test.describe('Event page', () => {
   // L2-054 AC1 · rsvp-panel AC-4
   test('a full event says so, and how the waitlist works', async ({ page, api }) => {
     api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/me/events/e-policy-workshop', { registration: null });
     api.respond(
       'GET',
       '/events/by-slug/workshop-writing-an-ai-policy-for-your-church',
@@ -253,6 +259,113 @@ test.describe('Event page', () => {
 
     await expect(event.panelTitle).toHaveText('Sign in to register');
     await expect(event.places).toHaveCount(0);
+  });
+
+  // L2-053 AC1, L2-058 AC1 · rsvp-panel AC-5
+  test('a registered member sees they are in, and when the join link appears', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    api.respond('GET', '/me/events/e-live-qa', {
+      registration: { status: 'registered', waitlistPosition: null },
+    });
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panel).toHaveClass(/rsvp--going/);
+    await expect(event.panelTitle).toHaveText("You're registered");
+    await expect(event.panelStatus).toHaveText('Registered');
+    await expect(event.placesText).toHaveText('311 registered, including you · 189 places left');
+    await expect(event.panelHelp).toContainText(
+      /The join link appears here from 11:45.*ET on Tue.*Oct 27, 15 minutes before the start\./,
+    );
+    await expect(event.signIn).toHaveCount(0);
+  });
+
+  // L2-058 AC1 · rsvp-panel AC-6
+  test('in the quarter hour before the start the panel says how soon it begins', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(new Date('2026-10-27T15:48:00Z'));
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    api.respond('GET', '/me/events/e-live-qa', {
+      registration: { status: 'registered', waitlistPosition: null },
+    });
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panelTitle).toHaveText("You're registered");
+    await expect(event.panelStatus).toHaveText('Registered · starts in 12 minutes');
+    await expect(event.placesText).toHaveText('311 registered, including you');
+    await expect(event.panelHelp).toHaveCount(0);
+  });
+
+  // L2-052 AC1 · rsvp-panel AC-7
+  test('while the event is on, the panel says Happening now and when it ends', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(new Date('2026-10-27T16:20:00Z'));
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    api.respond('GET', '/me/events/e-live-qa', {
+      registration: { status: 'registered', waitlistPosition: null },
+    });
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panelTitle).toHaveText('Happening now');
+    await expect(event.panelBadge).toHaveText('Happening now');
+    await expect(event.panelStatus).toHaveText('Registered');
+    await expect(event.panelHelp).toContainText(/Started at 12:00.*ET\. Ends at 1:00.*ET\./);
+  });
+
+  // L2-054 AC1 · rsvp-panel AC-8
+  test('a member on the waitlist sees their number and how a place is offered', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/events/by-slug/workshop-writing-an-ai-policy-for-your-church', {
+      ...policyWorkshopPage,
+      waitlistCount: 3,
+    });
+    api.respond('GET', '/me/events/e-policy-workshop', {
+      registration: { status: 'waitlisted', waitlistPosition: 3 },
+    });
+    const event = new EventPage(page);
+
+    await event.open('/events/workshop-writing-an-ai-policy-for-your-church');
+
+    await expect(event.panel).not.toHaveClass(/rsvp--going/);
+    await expect(event.panelTitle).toHaveText("You're on the waitlist");
+    await expect(event.panelStatus).toHaveText("You're number 3 of 3");
+    await expect(event.placesText).toHaveText('40 registered · no places left');
+    await expect(event.panel).toContainText(
+      "If a place opens more than 2 hours before the start, we register you automatically and email you. Closer to the start, you'll have 30 minutes to accept.",
+    );
+  });
+
+  // L2-052 AC1
+  test('when the member state cannot be read, the member sees the panel any member would', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    api.fail('GET', '/me/events/e-live-qa', 500);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panelTitle).toHaveText('Register for this event');
   });
 });
 

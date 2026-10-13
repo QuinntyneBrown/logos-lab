@@ -13,6 +13,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EVENTS_API, EventAttendance, EventVenue } from '@logos-lab/api';
 import {
+  Badge,
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -21,8 +22,8 @@ import {
   Chips,
   EventHead,
   Icon,
-  Person,
   InlineStatus,
+  Person,
   PersonList,
   Prose,
   RsvpPanel,
@@ -35,11 +36,14 @@ import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { toEventPanel } from './to-event-panel';
 import { EventPageState } from './event-page-state';
+import { EventViewer } from './event-viewer';
+import { MyEventStatus } from './my-event-status';
 
 @Component({
   selector: 'll-event-page',
   imports: [
     RouterLink,
+    Badge,
     Breadcrumb,
     Button,
     ButtonGroup,
@@ -146,10 +150,42 @@ export class EventPage {
     return `geo:0,0?q=${encodeURIComponent(venue.address)}`;
   }
 
+  /** The member's own place in the event, asked for once the page shows and only for a member. */
+  private readonly mine = toSignal(
+    toObservable(
+      computed(() => ({ id: this.event()?.id ?? null, member: this.session.member() })),
+    ).pipe(
+      switchMap(({ id, member }) =>
+        !id || !member
+          ? of<MyEventStatus>({ kind: 'none' })
+          : this.api.getMyEvent(id).pipe(
+              map((state): MyEventStatus => ({ kind: 'loaded', state })),
+              catchError(() => of<MyEventStatus>({ kind: 'failed' })),
+              startWith<MyEventStatus>({ kind: 'pending' }),
+            ),
+      ),
+    ),
+    { initialValue: { kind: 'none' } as MyEventStatus },
+  );
+  /** Who is looking; `null` while the session or the member's own state is still coming. */
+  private readonly viewer = computed<EventViewer | null>(() => {
+    const member = this.session.member();
+    if (member === undefined) return null;
+    if (member === null) return 'visitor';
+    const mine = this.mine();
+    if (mine.kind === 'pending') return null;
+    if (mine.kind !== 'loaded') return 'member';
+    return mine.state.registration?.status ?? 'member';
+  });
+
   protected readonly returnQuery = computed(() => ({ returnUrl: this.router.url }));
   protected readonly panel = computed(() => {
     const event = this.event();
-    return event ? toEventPanel(event, this.session.member() === null, this.locale) : null;
+    const viewer = this.viewer();
+    const mine = this.mine();
+    if (!event || !viewer) return null;
+    const position = mine.kind === 'loaded' ? mine.state.registration?.waitlistPosition : null;
+    return toEventPanel(event, viewer, position ?? null, new Date(), this.locale, this.zone());
   });
 
   protected readonly head = computed(() => {

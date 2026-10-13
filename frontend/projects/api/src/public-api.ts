@@ -56,6 +56,7 @@ export * from './lib/events/event-list-tab';
 export * from './lib/events/event-page-model';
 export * from './lib/events/event-registration';
 export * from './lib/events/event-venue';
+export * from './lib/events/event-viewer-state';
 export * from './lib/events/events-api';
 export * from './lib/events/events-api-token';
 export * from './lib/events/http-events-api';

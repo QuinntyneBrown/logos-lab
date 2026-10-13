@@ -9,6 +9,10 @@
   border: var(--border-width-hairline) solid var(--color-border-default);
   overflow-wrap: break-word;
 }
+:host(.rsvp--going) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
 .rsvp__title {
   font: var(--text-h4);
 }

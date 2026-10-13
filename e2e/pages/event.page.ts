@@ -16,6 +16,7 @@ export class EventPage {
   readonly panelTitle: Locator;
   readonly panelText: Locator;
   readonly panelStatus: Locator;
+  readonly panelBadge: Locator;
   readonly places: Locator;
   readonly placesText: Locator;
   readonly panelHelp: Locator;
@@ -53,6 +54,7 @@ export class EventPage {
     this.panelTitle = this.panel.locator('.rsvp__title');
     this.panelText = this.panel.locator('p.rsvp__text');
     this.panelStatus = this.panel.locator('.inline-status');
+    this.panelBadge = this.panel.locator('.badge');
     this.places = this.panel.getByRole('progressbar', { name: 'Places taken' });
     this.placesText = this.panel.locator('.rsvp__meter p');
     this.panelHelp = this.panel.locator('p.field__help');

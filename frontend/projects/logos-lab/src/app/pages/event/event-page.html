@@ -116,13 +116,19 @@
         @if (panel(); as panel) {
           <aside
             llRsvpPanel
+            [variant]="panel.going ? 'going' : 'default'"
             [heading]="panel.heading"
             [text]="panel.text"
             [note]="panel.note"
             [places]="panel.places"
           >
-            @if (panel.status) {
-              <span llInlineStatus slot="status" tone="warning">{{ panel.status }}</span>
+            @if (panel.badge) {
+              <p slot="status">
+                <span llBadge tone="success">{{ panel.badge }}</span>
+              </p>
+            }
+            @if (panel.status; as status) {
+              <span llInlineStatus slot="status" [tone]="status.tone">{{ status.text }}</span>
             }
             @if (panel.signIn) {
               <a

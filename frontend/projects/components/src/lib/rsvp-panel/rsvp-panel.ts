@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { ProgressBar } from '../progress-bar/progress-bar';
+import { RsvpPanelVariant } from './rsvp-panel-variant';
 import { RsvpPlaces } from './rsvp-places';
 
 let nextTitleId = 0;
@@ -13,10 +14,12 @@ let nextTitleId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'rsvp',
+    '[class.rsvp--going]': "variant() === 'going'",
     '[attr.aria-labelledby]': 'titleId()',
   },
 })
 export class RsvpPanel {
+  readonly variant = input<RsvpPanelVariant>('default');
   /** The title: it changes with the state, so the panel's name says where the person stands. */
   readonly heading = input.required<string>();
   readonly headingLevel = input<2 | 3>(2);
