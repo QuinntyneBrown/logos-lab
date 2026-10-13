@@ -1,10 +1,10 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChild,
-  effect,
   ElementRef,
   inject,
   input,
@@ -41,24 +41,30 @@ export class FormField {
   protected readonly counterId = computed(() => `${this.controlId()}-counter`);
 
   constructor() {
-    // The field owns the control's descriptions and invalid state (form-field CRD D-1).
-    effect(() => {
-      const control = this.host.querySelector<HTMLElement>(`#${CSS.escape(this.controlId())}`);
+    // The field owns the control's descriptions and invalid state (form-field CRD D-1). It runs after
+    // render and reads every input before it looks for the control, so a control another component
+    // renders, such as the search pill's input, is found once it exists (form-field CRD D-8).
+    afterRenderEffect(() => {
+      const controlId = this.controlId();
+      const own = [this.helpId(), this.errorId(), this.counterId()];
+      const hasHelp = this.hasHelp();
+      const error = this.error();
+      const counter = this.counter();
+      const control = this.host.querySelector<HTMLElement>(`#${CSS.escape(controlId)}`);
       if (!control) return;
       // Keep ids the consumer set, such as a checkbox row's description (form-field CRD D-1).
-      const own = [this.helpId(), this.errorId(), this.counterId()];
       const theirs = (control.getAttribute('aria-describedby') ?? '')
         .split(/\s+/)
         .filter((id) => id && !own.includes(id));
       const describedBy = [
         ...theirs,
-        this.hasHelp() ? this.helpId() : null,
-        this.error() ? this.errorId() : null,
-        this.counter() ? this.counterId() : null,
+        hasHelp ? this.helpId() : null,
+        error ? this.errorId() : null,
+        counter ? this.counterId() : null,
       ].filter(Boolean);
       if (describedBy.length) control.setAttribute('aria-describedby', describedBy.join(' '));
       else control.removeAttribute('aria-describedby');
-      if (this.error()) control.setAttribute('aria-invalid', 'true');
+      if (error) control.setAttribute('aria-invalid', 'true');
       else control.removeAttribute('aria-invalid');
     });
   }

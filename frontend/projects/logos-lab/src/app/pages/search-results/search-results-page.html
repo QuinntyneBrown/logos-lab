@@ -5,11 +5,10 @@
     [heading]="heading()"
     [sub]="sub()"
   >
-    <ll-form-field
-      controlId="q"
-      help="Searches titles, summaries, full text, video transcripts, topics and expert names."
-      i18n-help="@@search.help"
-    >
+    @if (invalid()) {
+      <ll-form-summary [heading]="summaryHeading" [errors]="errors()" />
+    }
+    <ll-form-field controlId="q" [help]="invalid() ? null : help" [error]="fieldError()">
       <form
         llSearch
         inputId="q"
@@ -23,6 +22,25 @@
       </form>
     </ll-form-field>
   </ll-page-header>
+
+  @if (empty()) {
+    <div class="search-results__empty">
+      <ll-empty-state
+        heading="What would you like to find?"
+        i18n-heading="@@search.empty.title"
+        icon="search"
+        [headingLevel]="2"
+      >
+        <ng-container i18n="@@search.empty.text"
+          >Search courses, videos, articles, collections, events and experts. Or browse everything,
+          newest first.</ng-container
+        >
+        <a llButton variant="primary" slot="actions" routerLink="/explore" i18n="@@search.browse"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    </div>
+  }
 
   @if (tabs().length) {
     <nav llTabs label="Result types" i18n-label="@@search.tabs.label">

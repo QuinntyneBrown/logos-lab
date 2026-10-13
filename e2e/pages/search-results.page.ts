@@ -12,6 +12,9 @@ export class SearchResultsPage {
   readonly tabs: Locator;
   readonly currentTab: Locator;
   readonly groupHeadings: Locator;
+  readonly summary: Locator;
+  readonly fieldError: Locator;
+  readonly emptyTitle: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -25,6 +28,9 @@ export class SearchResultsPage {
     this.tabs = nav.getByRole('link');
     this.currentTab = nav.locator('[aria-current="page"]');
     this.groupHeadings = main.locator('section.page-block .section__title');
+    this.summary = main.getByRole('alert').filter({ hasText: 'One thing to fix' });
+    this.fieldError = main.locator('.field__error');
+    this.emptyTitle = main.locator('.empty__title');
   }
 
   async open(path: string): Promise<void> {
@@ -35,6 +41,17 @@ export class SearchResultsPage {
   /** A result group, named by its type: "Courses", "Videos", "Experts". */
   group(name: string): Locator {
     return this.shell.main.getByRole('region', { name: new RegExp(`^${name}\\b`) });
+  }
+
+  /** Types a query into the page's own search field and submits it. */
+  async submitSearch(text: string): Promise<void> {
+    await this.search.fill(text);
+    await this.search.press('Enter');
+  }
+
+  /** A link in the empty state's actions, such as "Browse the catalogue". */
+  emptyAction(name: string): Locator {
+    return this.shell.main.locator('.empty__actions').getByRole('link', { name });
   }
 
   /** Follows a result-type tab by its name: "Videos". */

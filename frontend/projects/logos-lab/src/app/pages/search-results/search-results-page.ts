@@ -5,7 +5,10 @@ import { SEARCH_API } from '@logos-lab/api';
 import {
   Button,
   ContentCard,
+  EmptyState,
+  FormError,
   FormField,
+  FormSummary,
   Icon,
   PageHeader,
   Person,
@@ -15,12 +18,15 @@ import {
   Tab,
   Tabs,
 } from '@logos-lab/components';
-import { map, startWith, switchMap } from 'rxjs';
+import { map, of, startWith, switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
 import { parseSearchType, searchCountLabel } from '../../content/search-type-labels';
 import { SearchNavigation } from '../../search-navigation';
 import { SearchResultsState } from './search-results-state';
 import { toSearchGroups, toSearchTabs } from './search-views';
+
+/** A query shorter than this, once trimmed, is not searched (L2-004 AC1). */
+const MIN_QUERY_LENGTH = 2;
 
 @Component({
   selector: 'll-search-results-page',
@@ -28,7 +34,9 @@ import { toSearchGroups, toSearchTabs } from './search-views';
     RouterLink,
     Button,
     ContentCard,
+    EmptyState,
     FormField,
+    FormSummary,
     Icon,
     PageHeader,
     Person,
@@ -55,17 +63,30 @@ export class SearchResultsPage {
 
   private readonly state = toSignal(
     toObservable(this.request).pipe(
-      switchMap(({ query, type }) =>
-        this.searchApi.search(query, type ?? undefined).pipe(
+      switchMap(({ query, type }) => {
+        if (!query) return of<SearchResultsState>({ kind: 'empty' });
+        if (query.length < MIN_QUERY_LENGTH) return of<SearchResultsState>({ kind: 'invalid' });
+        return this.searchApi.search(query, type ?? undefined).pipe(
           map((results): SearchResultsState => ({ kind: 'loaded', results })),
           startWith<SearchResultsState>({ kind: 'loading' }),
-        ),
-      ),
+        );
+      }),
     ),
     { initialValue: { kind: 'loading' } as SearchResultsState },
   );
 
   protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly empty = computed(() => this.state().kind === 'empty');
+  protected readonly invalid = computed(() => this.state().kind === 'invalid');
+
+  protected readonly help = $localize`:@@search.help:Searches titles, summaries, full text, video transcripts, topics and expert names.`;
+  protected readonly summaryHeading = $localize`:@@search.summary:One thing to fix before you search`;
+  protected readonly errors = computed<readonly FormError[]>(() =>
+    this.invalid()
+      ? [{ controlId: 'q', message: $localize`:@@search.error.short:Enter at least 2 characters` }]
+      : [],
+  );
+  protected readonly fieldError = computed(() => this.errors()[0]?.message ?? null);
   private readonly results = computed(() => {
     const state = this.state();
     return state.kind === 'loaded' ? state.results : null;
@@ -77,13 +98,16 @@ export class SearchResultsPage {
     () => $localize`:@@search.loading:Searching for “${this.query()}:query:”…`,
   );
 
-  protected readonly heading = computed(
-    () =>
-      $localize`:@@search.heading:Results for “${this.results()?.query ?? this.query()}:query:”`,
+  protected readonly heading = computed(() =>
+    this.empty() || this.invalid()
+      ? $localize`:@@search.title:Search Logos Lab`
+      : $localize`:@@search.heading:Results for “${this.results()?.query ?? this.query()}:query:”`,
   );
 
   protected readonly sub = computed(() => {
     if (this.loading()) return $localize`:@@search.sub.loading:Searching…`;
+    if (this.empty() || this.invalid())
+      return $localize`:@@search.sub.idle:Try a topic, a question, a book of the Bible or an expert's name.`;
     const results = this.results();
     if (!results) return '';
     const type = this.type();

@@ -146,3 +146,71 @@ test.describe('Search results', () => {
     await expect(results.groupHeadings).toHaveCount(7);
   });
 });
+
+test.describe('Search without a usable query', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-003 · mock search-results/empty
+  test('with no query, the page invites a search and sends no request', async ({ page, api }) => {
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search');
+
+    await expect(results.heading).toHaveText('Search Logos Lab');
+    await expect(results.sub).toHaveText(
+      "Try a topic, a question, a book of the Bible or an expert's name.",
+    );
+    await expect(results.emptyTitle).toHaveText('What would you like to find?');
+    await expect(results.emptyAction('Browse the catalogue')).toHaveAttribute('href', '/explore');
+    await expect(results.tabs).toHaveCount(0);
+    expect(api.requestsTo('GET', '/search')).toHaveLength(0);
+  });
+
+  // L2-004 AC1 · form-layout AC-1
+  test('a query under 2 characters sends no request and says why', async ({ page, api }) => {
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=a');
+
+    await expect(results.heading).toHaveText('Search Logos Lab');
+    await expect(results.summary).toContainText('One thing to fix before you search');
+    await expect(results.summary).toContainText('Enter at least 2 characters');
+    await expect(results.summary).toBeFocused();
+    await expect(results.fieldError).toHaveText('Enter at least 2 characters');
+    await expect(results.search).toHaveAttribute('aria-invalid', 'true');
+    await expect(results.search).toHaveValue('a');
+    expect(api.requestsTo('GET', '/search')).toHaveLength(0);
+  });
+
+  // L2-004 AC1
+  test('submitting one character from the page field shows the same', async ({ page, api }) => {
+    const results = new SearchResultsPage(page);
+    await results.open('/search');
+
+    await results.submitSearch('a');
+
+    await expect(page).toHaveURL('/search?q=a');
+    await expect(results.fieldError).toHaveText('Enter at least 2 characters');
+    expect(api.requestsTo('GET', '/search')).toHaveLength(0);
+  });
+
+  // L2-004 AC2
+  test('the field stops typing at 200 characters', async ({ page }) => {
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search');
+
+    await expect(results.search).toHaveAttribute('maxlength', '200');
+  });
+
+  // L2-004 AC3
+  test('markup in the query is shown as text', async ({ page, api }) => {
+    api.respond('GET', '/search', personhoodResults({ query: '<b>bold</b>' }));
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=%3Cb%3Ebold%3C%2Fb%3E');
+
+    await expect(results.heading).toHaveText('Results for “<b>bold</b>”');
+    await expect(results.search).toHaveValue('<b>bold</b>');
+  });
+});
