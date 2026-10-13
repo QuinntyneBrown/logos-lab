@@ -1,5 +1,6 @@
 import { EventAttendance } from '../content/event-attendance';
 import { TopicReference } from '../content/topic-reference';
+import { EventAgendaItem } from './event-agenda-item';
 import { EventHost } from './event-host';
 
 /** A published event as its page shows it to anyone; it never holds the join link. */
@@ -16,4 +17,6 @@ export interface EventPageModel {
   readonly timeZone: string;
   readonly hosts: readonly EventHost[];
   readonly topics: readonly TopicReference[];
+  /** The timed items of the event, in order; empty for an event with no agenda. */
+  readonly agenda: readonly EventAgendaItem[];
 }

@@ -12,6 +12,10 @@ export class EventPage {
   readonly aboutText: Locator;
   readonly topics: Locator;
   readonly hosts: Locator;
+  readonly zoneToggle: Locator;
+  readonly agenda: Locator;
+  readonly agendaItems: Locator;
+  readonly agendaNote: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -24,11 +28,20 @@ export class EventPage {
     this.about = main.getByRole('region', { name: 'About' });
     this.aboutText = this.about.locator('.prose p');
     this.topics = this.about.getByRole('list', { name: 'Topics' });
+    this.zoneToggle = this.head.getByRole('group', { name: 'Show times in' });
+    this.agenda = main.getByRole('region', { name: 'Agenda' });
+    this.agendaItems = this.agenda.locator('ol.timeline > li');
+    this.agendaNote = this.agenda.locator('.field__help');
     this.hosts = main.getByRole('region', { name: 'Host' }).locator('li.person');
   }
 
   async open(path: string): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  /** A segment of the time zone toggle, by its label: "Your time (ET)". */
+  zone(label: string): Locator {
+    return this.zoneToggle.getByRole('button', { name: label });
   }
 }

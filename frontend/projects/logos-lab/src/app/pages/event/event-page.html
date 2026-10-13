@@ -20,7 +20,34 @@
           [when]="head.when"
           [where]="head.where"
           [hosts]="head.hosts"
-        ></header>
+        >
+          <div
+            llButtonGroup
+            slot="timeZone"
+            variant="segmented"
+            label="Show times in"
+            i18n-label="@@eventPage.showTimesIn"
+          >
+            <button
+              llButton
+              size="sm"
+              type="button"
+              [pressed]="!inEventZone()"
+              (click)="inEventZone.set(false)"
+            >
+              {{ yourTimeLabel() }}
+            </button>
+            <button
+              llButton
+              size="sm"
+              type="button"
+              [pressed]="inEventZone()"
+              (click)="inEventZone.set(true)"
+            >
+              {{ eventTimeLabel() }}
+            </button>
+          </div>
+        </header>
       }
       <div class="stack stack--lg">
         <section aria-labelledby="about-title">
@@ -40,6 +67,20 @@
             </ul>
           }
         </section>
+        @if (agenda().length) {
+          <section aria-labelledby="agenda-title">
+            <h2 class="section__title" id="agenda-title" i18n="@@eventPage.agenda">Agenda</h2>
+            <ol llTimeline>
+              @for (item of agenda(); track $index) {
+                <li>
+                  <time [attr.datetime]="item.startsAt">{{ item.time }}</time>
+                  <p>{{ item.text }}</p>
+                </li>
+              }
+            </ol>
+            <p class="field__help">{{ zoneNote() }}</p>
+          </section>
+        }
         <section aria-labelledby="host-title">
           <h2 class="section__title" id="host-title" i18n="@@eventPage.host">Host</h2>
           <ul llPersonList stacked>

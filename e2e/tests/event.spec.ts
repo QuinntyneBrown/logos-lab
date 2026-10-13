@@ -86,4 +86,59 @@ test.describe('Event page', () => {
 
     await expect(event.heading).toHaveText("We can't find that page");
   });
+
+  // L2-052 AC1 · timeline AC-1
+  test('lists the agenda in order, with the zone its times are in', async ({ page, api }) => {
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.agendaItems).toHaveCount(4);
+    await expect(event.agendaItems.nth(0)).toContainText(/12:00\s?(PM|p\.m\.)/);
+    await expect(event.agendaItems.nth(0)).toContainText('Welcome and opening prayer');
+    await expect(event.agendaItems.nth(1)).toContainText(/12:05\s?(PM|p\.m\.)/);
+    await expect(event.agendaItems.nth(3)).toContainText('Closing reflection');
+    await expect(event.agendaNote).toHaveText('Times in Eastern Time (ET).');
+  });
+
+  // L2-052 AC1
+  test('an event with no agenda has no Agenda section', async ({ page, api }) => {
+    api.respond(
+      'GET',
+      '/events/by-slug/live-qa-imago-dei-and-machine-personhood',
+      eventPage({ agenda: [] }),
+    );
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.agenda).toHaveCount(0);
+  });
+});
+
+test.describe('Event page for a viewer in another time zone', () => {
+  test.use({ viewport: { width: 1440, height: 900 }, timezoneId: 'America/Vancouver' });
+
+  // L2-052 AC1 · button-group AC-1
+  test("shows times in the viewer's zone, and in the event's on request", async ({ page, api }) => {
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.zone('Your time (PT)')).toHaveAttribute('aria-pressed', 'true');
+    await expect(event.zone('Event time (ET)')).toHaveAttribute('aria-pressed', 'false');
+    await expect(event.facts.nth(0)).toContainText(/9:00.*10:00.*PT/);
+    await expect(event.agendaItems.nth(0)).toContainText(/9:00\s?(AM|a\.m\.)/);
+    await expect(event.agendaNote).toHaveText('Times in Pacific Time (PT).');
+
+    await event.zone('Event time (ET)').click();
+
+    await expect(event.zone('Event time (ET)')).toHaveAttribute('aria-pressed', 'true');
+    await expect(event.zone('Your time (PT)')).toHaveAttribute('aria-pressed', 'false');
+    await expect(event.facts.nth(0)).toContainText(/12:00.*1:00.*ET/);
+    await expect(event.agendaItems.nth(0)).toContainText(/12:00\s?(PM|p\.m\.)/);
+    await expect(event.agendaNote).toHaveText('Times in Eastern Time (ET).');
+  });
 });

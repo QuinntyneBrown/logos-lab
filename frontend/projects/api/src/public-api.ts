@@ -46,6 +46,7 @@ export * from './lib/courses/lesson-state';
 export * from './lib/courses/my-course-state';
 export * from './lib/courses/my-lesson-state';
 export * from './lib/courses/next-lesson';
+export * from './lib/events/event-agenda-item';
 export * from './lib/events/event-filter-option';
 export * from './lib/events/event-host';
 export * from './lib/events/event-list';

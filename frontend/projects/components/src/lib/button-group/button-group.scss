@@ -1,0 +1,39 @@
+// The btn-group block of docs/design-system/assets/components.css, with the pressed edge of the
+// button-group CRD (D-3). The buttons are the page's own, so their rules reach through the host.
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  inline-size: max-content;
+  max-inline-size: 100%;
+}
+:host(.btn-group--segmented) {
+  flex-wrap: nowrap;
+  gap: 0;
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+}
+:host(.btn-group--segmented) ::ng-deep .btn {
+  --ll-button-bg: var(--color-transparent);
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+:host(.btn-group--segmented) ::ng-deep .btn[aria-pressed='true'] {
+  --ll-button-bg: var(--color-bg-surface);
+  outline: 0;
+  box-shadow: var(--shadow-1);
+  border-color: var(--color-border-strong);
+}
+:host(.btn-group--segmented) ::ng-deep .btn:hover:not([aria-pressed='true']):not(:disabled) {
+  --ll-button-bg: var(--color-bg-subtle-hover);
+}
+:host(.btn-group--segmented) ::ng-deep .btn[aria-pressed='true']:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+}
+@media (forced-colors: active) {
+  :host(.btn-group--segmented) ::ng-deep .btn[aria-pressed='true'] {
+    outline: var(--border-width-thick) solid Highlight;
+  }
+}
