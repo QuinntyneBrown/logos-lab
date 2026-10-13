@@ -9,6 +9,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
   },
   {
+    path: 'search',
+    title: $localize`:@@search.pageTitle:Search - Logos Lab`,
+    loadComponent: () =>
+      import('./pages/search-results/search-results-page').then((m) => m.SearchResultsPage),
+  },
+  {
     path: 'sign-in',
     title: $localize`:@@signIn.pageTitle:Sign in - Logos Lab`,
     data: { shell: { kind: 'focused', action: 'register' } },

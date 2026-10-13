@@ -1,0 +1,100 @@
+<div class="wrap search-results">
+  <ll-page-header
+    eyebrow="Search"
+    i18n-eyebrow="@@search.eyebrow"
+    [heading]="heading()"
+    [sub]="sub()"
+  >
+    <ll-form-field
+      controlId="q"
+      help="Searches titles, summaries, full text, video transcripts, topics and expert names."
+      i18n-help="@@search.help"
+    >
+      <form
+        llSearch
+        inputId="q"
+        label="Search Logos Lab"
+        i18n-label="@@search.field.label"
+        [value]="query()"
+        [maxlength]="200"
+        (searched)="searchNavigation.search($event)"
+      >
+        <button llButton variant="primary" type="submit" i18n="@@search.action">Search</button>
+      </form>
+    </ll-form-field>
+  </ll-page-header>
+
+  @if (tabs().length) {
+    <nav llTabs label="Result types" i18n-label="@@search.tabs.label">
+      @for (tab of tabs(); track tab.label) {
+        <a
+          llTab
+          routerLink="/search"
+          [queryParams]="tab.queryParams"
+          [current]="tab.current"
+          [count]="tab.count"
+          >{{ tab.label }}</a
+        >
+      }
+    </nav>
+  }
+
+  @for (group of groups(); track group.type) {
+    <section class="page-block" [attr.aria-labelledby]="group.headingId">
+      <div class="section__head search-results__head">
+        <h2 class="section__title" [id]="group.headingId">
+          {{ group.title }} <span class="search-results__count">{{ group.count }}</span>
+        </h2>
+        @if (group.moreLabel; as more) {
+          <a class="section__more" routerLink="/search" [queryParams]="group.moreQueryParams"
+            >{{ more }} <svg llIcon name="arrow-right" size="sm"></svg
+          ></a>
+        }
+      </div>
+      @if (group.type === 'expert') {
+        <ul llPersonList>
+          @for (expert of group.experts; track expert.path) {
+            <li llPerson [name]="expert.name" [path]="expert.path" [photoUrl]="expert.photoUrl">
+              <p class="person__meta" slot="meta">
+                @for (segment of expert.headline; track $index) {
+                  @if (segment.highlighted) {
+                    <mark class="hit">{{ segment.text }}</mark>
+                  } @else {
+                    <ng-container>{{ segment.text }}</ng-container>
+                  }
+                }
+                {{ ' · ' + expert.itemsLabel }}
+              </p>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="content-grid content-grid--rows">
+          @for (hit of group.hits; track hit.card.id) {
+            <ll-content-card
+              variant="row"
+              [type]="hit.card.type"
+              [typeLabel]="hit.card.typeLabel"
+              [title]="hit.card.title"
+              [path]="hit.card.path"
+              [author]="hit.card.author"
+              [meta]="hit.card.meta"
+              [duration]="hit.card.duration"
+              [coverUrl]="hit.card.coverUrl"
+            >
+              <p class="muted" slot="snippet">
+                @for (segment of hit.snippet; track $index) {
+                  @if (segment.highlighted) {
+                    <mark class="hit">{{ segment.text }}</mark>
+                  } @else {
+                    <ng-container>{{ segment.text }}</ng-container>
+                  }
+                }
+              </p>
+            </ll-content-card>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

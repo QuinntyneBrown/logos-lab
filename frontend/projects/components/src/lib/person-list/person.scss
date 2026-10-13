@@ -36,6 +36,11 @@
   font: var(--text-body-sm);
   color: var(--color-fg-muted);
 }
+// The projected meta line (person-list CRD D-2) is the page's element, so the host reaches into it.
+:host ::ng-deep p[slot='meta'] {
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
 :host(.person--plain) {
   padding-block: 0;
   border-bottom: 0;

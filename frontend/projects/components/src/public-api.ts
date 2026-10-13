@@ -74,3 +74,6 @@ export * from './lib/photo-edit/photo-edit';
 export * from './lib/photo-edit/photo-edit-tone';
 export * from './lib/inline-message/inline-status';
 export * from './lib/inline-message/inline-status-tone';
+export * from './lib/tabs/tab';
+export * from './lib/tabs/tabs';
+export * from './lib/tabs/tabs-variant';

@@ -1,0 +1,12 @@
+.search-results {
+  padding-bottom: var(--space-16);
+}
+.search-results__head {
+  margin-bottom: var(--space-6);
+}
+// The number beside a group's title: quiet, in tabular figures.
+.search-results__count {
+  color: var(--color-fg-subtle);
+  font: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
