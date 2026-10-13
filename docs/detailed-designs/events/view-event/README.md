@@ -69,6 +69,58 @@ hydration.
 - A cancelled event shows a prominent "Cancelled" notice with the reason, and registration is unavailable
   (criterion 4).
 
+## Decisions for the web build
+
+This build is the read-only page. The actions that the registration panel and the head lead to belong to
+sibling features and are not built here: registering, joining and leaving the waitlist, cancelling a
+registration, Add to calendar and Update my calendar, the Join event button, and the recording player.
+
+- **Contract.** `EventsApi.getEvent(slug)` returns `EventPageModel`: `id`, `slug`, `title`, `description`
+  (paragraphs of plain text), `attendance`, `startsAt`, `endsAt`, `timeZone` (IANA), `hosts` (`name`, `slug`
+  or `null` for Logos Lab itself, `meta`, `photoUrl`), `topics` (`slug`, `name`), `agenda` (`startsAt`,
+  `text`), `venue` (`name`, `address`, `city`) or `null`, `registeredCount`, `capacity` or `null`, `waitlistCount`,
+  `registrationClosesAt` or `null`, `cancellation` (`cancelledOn`, `reason`) or `null`, and `change`
+  (`previousStartsAt`, `previousEndsAt`, `note`) or `null` for a changed time. It has no join link.
+  `getMyEvent(id)` returns `EventViewerState`: `status` (`none`, `registered` or `waitlisted`) and
+  `waitlistPosition`. A `404` for the slug means no published event, and shows the not-found page. The
+  member's state is requested after the page shows, and only for a signed-in member; a visitor gets the
+  sign-in panel.
+- **Times.** The head, the agenda and the closing notes show times in the viewer's zone ("Your time (PT)")
+  or in the event's ("Event time (ET)"). The toggle starts on the viewer's zone and is not remembered. The
+  zones are named in the generic short form, and the agenda's note names the zone in full.
+- **Head.** The date block, the title as the page's only h1, "Tuesday 27 October 2026, 12:00 to 1:00 pm ET",
+  the format with its venue ("In person · St. Brigid's Hall, Ottawa"; "Hybrid · online and at …"), and
+  "Hosted by". A cancelled event strikes the title and reads "Was …". A past event reads "… · ended".
+- **Sections.** About (the description, then the topics as links), Agenda (when the event has one), Where
+  (for in-person and hybrid events: the venue name and address and "Open in your maps app", a `geo:` link
+  on the address), and Host. The map is not built: its provider and the venue's coordinates are
+  `<TO SUPPLY>`, and nothing third-party loads, which satisfies `L2-052` criterion 2 on its own.
+- **The panel's state**, first match wins:
+  1. Cancelled: "Registration is unavailable", "This event was cancelled on Tue 13 Oct 2026. If you were
+     registered, there is nothing more to do." and a danger alert above the head with the reason and "See
+     other events".
+  2. Ended: "This event has ended", "This event took place on Thu 24 Sep 2026.", "See upcoming events".
+  3. Registration closed, for someone who is not registered: "Registration has closed", the cut-off, and
+     how many people are coming.
+  4. A registered member: "You're registered" with the places meter. Before the join window an online or
+     hybrid event adds "The join link appears here from 11:45 am ET on Tue 27 Oct, 15 minutes before the
+     start." From 15 minutes before the start the status reads "Registered · starts in 12 minutes", and
+     once it has started the panel is "Happening now" with a Happening now badge and "Registered".
+  5. A waitlisted member: "You're on the waitlist", "You're number 3 of 3", and how a place is offered.
+  6. A visitor: "Sign in to register" with a Sign in link that returns here and "Create an account".
+  7. A member who is not registered and the event is full: "This event is full", the number waiting and how
+     the waitlist works; otherwise "Register for this event" with the meter.
+  The panel's wording is the same for every kind of event ("this event"), not "this Q&A" or "this
+  workshop", because the model has no kind. The meter's note is "311 registered · 189 places left", "40
+  registered · no places left", or "312 registered, including you" when the member is in and capacity is
+  open.
+- **Changed time.** A warning alert above the head: "The time of this event has changed", the host's note,
+  "It now runs 1:00 to 2:00 pm ET on Tue 27 Oct (it was 12:00 to 1:00 pm)." and, for a registered member,
+  "You're still registered."
+- **States.** Loading is the skeleton head and panel with the status "Loading the event…". A failure
+  shows "We couldn't load this event" with Try again and Contact support. A failed member state leaves the
+  visitor's panel in place and says nothing, so the page is never worse than a visitor's.
+
 ## Requirements
 
 The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines the level-1 (L1) requirement cited beside it.

@@ -11,7 +11,11 @@
   }
   <div>
     <p class="person__name">
-      <a [routerLink]="path()">{{ name() }}</a>
+      @if (path()) {
+        <a [routerLink]="path()">{{ name() }}</a>
+      } @else {
+        {{ name() }}
+      }
     </p>
     @for (line of meta(); track $index) {
       <p class="person__meta">{{ line }}</p>

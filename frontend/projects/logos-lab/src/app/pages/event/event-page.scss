@@ -1,0 +1,29 @@
+.event__venue {
+  font-style: normal;
+}
+.event__maps {
+  margin-top: var(--space-2);
+}
+.event__notice {
+  padding-top: var(--space-6);
+}
+.event__failure {
+  padding-block: var(--space-12) var(--space-16);
+}
+.event__skeleton {
+  display: grid;
+  gap: var(--space-3);
+}
+.event {
+  padding-bottom: var(--space-16);
+}
+.event .section__title {
+  margin-bottom: var(--space-4);
+}
+.event .section__title + .field__help,
+.event ol + .field__help {
+  margin-top: var(--space-3);
+}
+.event ul[llChips] {
+  margin-top: var(--space-6);
+}

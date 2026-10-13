@@ -1,0 +1,78 @@
+// The .event-head rules of the event-row block of docs/design-system/assets/components.css; the
+// date block and facts share the event row's look.
+:host {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-12) var(--space-8);
+}
+.event-head__date {
+  justify-self: start;
+  display: inline-grid;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+  line-height: 1;
+}
+.event-head__date time {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+}
+.event__day {
+  font: var(--font-weight-light) var(--font-size-3xl) / 1 var(--font-family-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--letter-spacing-tight);
+}
+.event__mon {
+  white-space: nowrap;
+  font: var(--text-overline);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: inherit;
+}
+.event__main {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.event-head__title {
+  font: var(--text-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  overflow-wrap: anywhere;
+}
+.event__meta {
+  display: grid;
+  gap: var(--space-1);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+  overflow-wrap: anywhere;
+}
+.event__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.event-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.event-head__actions:empty {
+  display: none;
+}
+@media (min-width: 48rem) {
+  :host {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--space-8);
+  }
+  :host > :not(.event-head__date) {
+    grid-column: 2;
+  }
+  :host > .event-head__date {
+    grid-row: 1 / span 3;
+  }
+}

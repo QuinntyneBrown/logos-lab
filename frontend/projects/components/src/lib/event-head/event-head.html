@@ -1,0 +1,37 @@
+@if (loading()) {
+  @if (loadingLabel(); as label) {
+    <p class="vh" role="status">{{ label }}</p>
+  }
+  <h1 class="vh">{{ title() }}</h1>
+  <span llSkeleton shape="photo" aria-hidden="true"></span>
+  <div aria-hidden="true">
+    <span llSkeleton shape="title"></span>
+    <span llSkeleton shape="text-short"></span>
+    <span llSkeleton shape="text-short"></span>
+  </div>
+} @else {
+  <div class="event-head__date">
+    <time [attr.datetime]="datetime()"
+      ><span class="event__day">{{ day() }}</span
+      ><span class="event__mon">{{ month() }}</span></time
+    >
+  </div>
+  <div class="event__main">
+    <h1 class="event-head__title">
+      @if (cancelled()) {
+        <s>{{ title() }}</s>
+      } @else {
+        {{ title() }}
+      }
+    </h1>
+    <p class="event__meta">
+      <span><svg llIcon name="clock" size="sm"></svg>{{ when() }}</span>
+      <span><svg llIcon [name]="online() ? 'monitor' : 'place'" size="sm"></svg>{{ where() }}</span>
+      @if (hosts()) {
+        <span><svg llIcon name="people" size="sm"></svg>{{ hosts() }}</span>
+      }
+    </p>
+    <ng-content select="[slot=timeZone]" />
+  </div>
+  <div class="event-head__actions"><ng-content select="[slot=actions]" /></div>
+}

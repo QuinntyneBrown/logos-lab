@@ -1,0 +1,47 @@
+// The timeline block of docs/design-system/assets/components.css. The entries are the page's own
+// `li` elements, so their rules reach through the host.
+// `:host(.timeline)` outweighs the foundations' `ol[class]` reset, which would drop the padding.
+:host(.timeline) {
+  position: relative;
+  display: grid;
+  gap: var(--space-5);
+  padding-left: var(--space-6);
+}
+:host::before {
+  content: '';
+  position: absolute;
+  left: var(--space-1);
+  top: var(--space-2);
+  bottom: var(--space-2);
+  width: var(--border-width-hairline);
+  background: var(--color-border-default);
+}
+:host ::ng-deep > li {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+}
+:host ::ng-deep > li::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--space-6) + var(--space-0-5));
+  top: var(--space-2);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-canvas);
+  border: var(--border-width-thick) solid var(--color-accent);
+}
+:host ::ng-deep > li time {
+  font: var(--text-caption);
+  color: var(--color-fg-subtle);
+}
+:host ::ng-deep > li[aria-current]::before {
+  background: var(--color-accent);
+  box-shadow: 0 0 0 var(--space-1) var(--color-accent-subtle);
+}
+@media (forced-colors: active) {
+  :host ::ng-deep > li[aria-current]::before {
+    background: Highlight;
+  }
+}

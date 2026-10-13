@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EventList } from './event-list';
 import { EventListQuery } from './event-list-query';
+import { EventPageModel } from './event-page-model';
+import { EventViewerState } from './event-viewer-state';
 import { EventsApi } from './events-api';
 
 @Injectable()
@@ -19,5 +21,13 @@ export class HttpEventsApi implements EventsApi {
     if (query.recording) params['recording'] = '1';
     if (query.cursor) params['cursor'] = query.cursor;
     return this.http.get<EventList>('/api/v1/events', { params });
+  }
+
+  getMyEvent(id: string): Observable<EventViewerState> {
+    return this.http.get<EventViewerState>(`/api/v1/me/events/${encodeURIComponent(id)}`);
+  }
+
+  getEvent(slug: string): Observable<EventPageModel> {
+    return this.http.get<EventPageModel>(`/api/v1/events/by-slug/${encodeURIComponent(slug)}`);
   }
 }

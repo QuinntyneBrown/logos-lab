@@ -1,0 +1,222 @@
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
+  <div class="wrap event">
+    @if (event(); as event) {
+      @if (head(); as head) {
+        <nav
+          llBreadcrumb
+          label="Breadcrumb"
+          i18n-label="@@topic.crumb.label"
+          top="md"
+          [items]="trail()"
+        ></nav>
+        @if (notice(); as notice) {
+          <div class="event__notice">
+            <ll-alert [tone]="notice.tone" [heading]="notice.heading">
+              {{ notice.body }}
+              @if (notice.link; as link) {
+                <a llButton variant="quiet" size="sm" slot="actions" [routerLink]="link.path">{{
+                  link.label
+                }}</a>
+              }
+            </ll-alert>
+          </div>
+        }
+        <header
+          llEventHead
+          [title]="event.title"
+          [day]="head.day"
+          [month]="head.month"
+          [datetime]="event.startsAt"
+          [when]="head.when"
+          [where]="head.where"
+          [online]="head.online"
+          [hosts]="head.hosts"
+          [cancelled]="head.cancelled"
+        >
+          <div
+            llButtonGroup
+            slot="timeZone"
+            variant="segmented"
+            label="Show times in"
+            i18n-label="@@eventPage.showTimesIn"
+          >
+            <button
+              llButton
+              size="sm"
+              type="button"
+              [pressed]="!inEventZone()"
+              (click)="inEventZone.set(false)"
+            >
+              {{ yourTimeLabel() }}
+            </button>
+            <button
+              llButton
+              size="sm"
+              type="button"
+              [pressed]="inEventZone()"
+              (click)="inEventZone.set(true)"
+            >
+              {{ eventTimeLabel() }}
+            </button>
+          </div>
+        </header>
+      }
+      <div class="two-col">
+        <div class="stack stack--lg">
+          <section aria-labelledby="about-title">
+            <h2 class="section__title" id="about-title" i18n="@@eventPage.about">About</h2>
+            <ll-prose>
+              @for (paragraph of event.description; track $index) {
+                <p>{{ paragraph }}</p>
+              }
+            </ll-prose>
+            @if (event.topics.length) {
+              <ul llChips label="Topics" i18n-label="@@article.topics">
+                @for (topic of event.topics; track topic.slug) {
+                  <li>
+                    <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+          @if (agenda().length) {
+            <section aria-labelledby="agenda-title">
+              <h2 class="section__title" id="agenda-title" i18n="@@eventPage.agenda">Agenda</h2>
+              <ol llTimeline>
+                @for (item of agenda(); track $index) {
+                  <li>
+                    <time [attr.datetime]="item.startsAt">{{ item.time }}</time>
+                    <p>{{ item.text }}</p>
+                  </li>
+                }
+              </ol>
+              <p class="field__help">{{ zoneNote() }}</p>
+            </section>
+          }
+          @if (event.venue; as venue) {
+            <section aria-labelledby="where-title">
+              <h2 class="section__title" id="where-title" i18n="@@eventPage.where">Where</h2>
+              <address class="event__venue">
+                <strong>{{ venue.name }}</strong>
+                <br />{{ venue.address }}
+              </address>
+              <p class="event__maps">
+                <a class="link-standalone" [href]="mapsLink(venue)">
+                  <ng-container i18n="@@eventPage.mapsLink">Open in your maps app</ng-container>
+                  <svg llIcon name="arrow-right" size="sm"></svg>
+                </a>
+              </p>
+            </section>
+          }
+          <section aria-labelledby="host-title">
+            <h2 class="section__title" id="host-title" i18n="@@eventPage.host">Host</h2>
+            <ul llPersonList stacked>
+              @for (host of event.hosts; track $index) {
+                <li
+                  llPerson
+                  [name]="host.name"
+                  [path]="host.slug ? '/experts/' + host.slug : ''"
+                  [photoUrl]="host.photoUrl"
+                  [meta]="host.meta ? [host.meta] : []"
+                ></li>
+              }
+            </ul>
+          </section>
+        </div>
+        @if (panel(); as panel) {
+          <aside
+            llRsvpPanel
+            [variant]="panel.variant"
+            [heading]="panel.heading"
+            [text]="panel.text"
+            [note]="panel.note"
+            [places]="panel.places"
+          >
+            @if (panel.badge) {
+              <p slot="status">
+                <span llBadge tone="success">{{ panel.badge }}</span>
+              </p>
+            }
+            @if (panel.status; as status) {
+              <span llInlineStatus slot="status" [tone]="status.tone">{{ status.text }}</span>
+            }
+            @if (panel.signIn) {
+              <a
+                llButton
+                variant="primary"
+                block
+                routerLink="/sign-in"
+                [queryParams]="returnQuery()"
+                i18n="@@eventPage.signIn.action"
+                >Sign in to register</a
+              >
+              <a
+                llButton
+                variant="text"
+                block
+                routerLink="/register"
+                [queryParams]="returnQuery()"
+                i18n="@@eventPage.createAccount"
+                >Create an account</a
+              >
+            }
+            @if (panel.link; as link) {
+              <a llButton variant="quiet" block [routerLink]="link.path">{{ link.label }}</a>
+            }
+            @if (panel.help) {
+              <p class="field__help" slot="help">{{ panel.help }}</p>
+            }
+          </aside>
+        }
+      </div>
+    } @else if (failed()) {
+      <h1 class="vh" i18n="@@eventPage.failed.heading">Event</h1>
+      <div class="event__failure">
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load this event"
+          i18n-heading="@@eventPage.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@eventPage.failed.text"
+            >This is on our side. If you're registered, your place is safe. Try again in a
+            moment.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@eventPage.failed.retry"
+          >
+            Try again
+          </button>
+          <a
+            llButton
+            variant="text"
+            slot="actions"
+            href="mailto:help@logoslab.ca"
+            i18n="@@eventPage.failed.support"
+            >Contact support</a
+          >
+        </ll-empty-state>
+      </div>
+    } @else {
+      <header llEventHead loading [title]="loadingTitle" [loadingLabel]="loadingLabel"></header>
+      <div class="two-col" aria-hidden="true">
+        <div class="event__skeleton">
+          <span llSkeleton shape="title"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </div>
+        <aside llRsvpPanel loading heading=""></aside>
+      </div>
+    }
+  </div>
+}
