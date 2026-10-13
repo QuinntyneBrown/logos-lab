@@ -80,3 +80,5 @@ export * from './lib/tabs/tabs-variant';
 export * from './lib/chip/chip';
 export * from './lib/chip/chip-size';
 export * from './lib/chip/chips';
+export * from './lib/search-filter-toolbar/search-filter-toolbar';
+export * from './lib/search-filter-toolbar/toolbar-count';

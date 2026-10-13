@@ -1,0 +1,31 @@
+<div class="wrap explore">
+  <ll-page-header
+    eyebrow="The catalogue"
+    i18n-eyebrow="@@explore.eyebrow"
+    heading="Explore"
+    i18n-heading="@@explore.title"
+    [sub]="sub()"
+  />
+  @if (range(); as range) {
+    <div llToolbar>
+      <p llToolbarCount i18n="@@explore.count">
+        Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+        <strong>{{ range.total }}</strong> items, newest first
+      </p>
+    </div>
+    <div class="content-grid">
+      @for (card of cards(); track card.id) {
+        <ll-content-card
+          [type]="card.type"
+          [typeLabel]="card.typeLabel"
+          [title]="card.title"
+          [path]="card.path"
+          [author]="card.author"
+          [meta]="card.meta"
+          [duration]="card.duration"
+          [coverUrl]="card.coverUrl"
+        />
+      }
+    </div>
+  }
+</div>
