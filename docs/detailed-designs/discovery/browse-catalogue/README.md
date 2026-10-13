@@ -85,9 +85,10 @@ These settle what the design left open when `ExplorePage` was built against the 
 - **Contract.** `CatalogueApi.browse(query)` calls `GET /api/v1/catalogue` with the same parameters and
   returns `CataloguePage`: `items` (the page's `ContentSummary` values), `total` (all matches),
   `page`, `pageCount`, `facets` and `searchDegraded`. Facets are the full option lists, never narrowed
-  by the active filters: `types` and `topics` carry `{ value, label?, count }` with the count of all
-  published items; `levels`, `durations` and `contributors` carry `{ value, label? }`, and the
-  contributors list starts with Logos Lab. The page size is 24 and fixed.
+  by the active filters: `types` and `topics` carry `{ value, label, count }` with the count of all
+  published items, and `contributors` carries `{ value, label }` and starts with Logos Lab. Level and
+  length are fixed sets, so the page owns their values and labels and the API sends none. The page
+  size is 24 and fixed.
 - **Option lists.** The Topic and Contributor groups show their first 6 options and a "Show all 12
   topics" / "Show all 38 experts" button (`aria-expanded`) that reveals the rest. The totals are the
   list lengths; Logos Lab is not counted as an expert.
