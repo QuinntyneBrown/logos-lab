@@ -2,7 +2,9 @@ import { catalogueItems } from './catalogue';
 
 /** GET /api/v1/experts/abena-mensah: docs/mocks/pages/expert-profile/default. */
 export const abenaMensah = {
+  id: 'e-abena-mensah',
   slug: 'abena-mensah',
+  following: false,
   name: 'Dr. Abena Mensah',
   photoUrl: '/media/amara-osei.jpg',
   title: 'Associate Professor of Systematic Theology',
@@ -51,7 +53,9 @@ export function expertArticles() {
 
 /** An expert who is new and has published nothing: docs/mocks/pages/expert-profile/empty. */
 export const meiLinChen = {
+  id: 'e-mei-lin-chen',
   slug: 'mei-lin-chen',
+  following: false,
   name: 'Dr. Mei Lin Chen',
   photoUrl: '/media/grace-liu.jpg',
   title: 'Data scientist',

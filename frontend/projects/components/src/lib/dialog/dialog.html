@@ -1,0 +1,27 @@
+<div class="dialog" [class.dialog--sm]="size() === 'sm'" [class.dialog--lg]="size() === 'lg'">
+  <header class="dialog__header">
+    @if (icon(); as icon) {
+      <span class="dialog__icon" [class.dialog__icon--danger]="iconTone() === 'danger'">
+        <svg llIcon [name]="icon"></svg>
+      </span>
+    }
+    <h1 class="dialog__title" [id]="headingId()">{{ heading() }}</h1>
+    @if (closeLabel(); as label) {
+      <button
+        llIconButton
+        type="button"
+        [attr.aria-label]="label"
+        [disabled]="closeDisabled()"
+        (click)="closeRequested.emit()"
+      >
+        <svg llIcon name="close"></svg>
+      </button>
+    }
+  </header>
+  <div #body class="dialog__body" [attr.tabindex]="scrolls() ? 0 : null">
+    <ng-content />
+  </div>
+  <footer class="dialog__footer">
+    <ng-content select="[slot=footer]" />
+  </footer>
+</div>

@@ -44,7 +44,64 @@
         [photoUrl]="profile.photoUrl"
         [sub]="sub()"
         [meta]="meta()"
-      />
+      >
+        @if (session.member() !== undefined) {
+          <button
+            llButton
+            slot="actions"
+            [variant]="following() ? 'quiet' : 'primary'"
+            [pressed]="following()"
+            [paused]="pausedUntil() !== null"
+            [attr.aria-describedby]="pausedUntil() ? 'follow-limit' : null"
+            (click)="press()"
+          >
+            @if (following()) {
+              <svg llIcon name="check" size="sm"></svg>
+              <ng-container i18n="@@expert.following">Following</ng-container>
+            } @else {
+              <ng-container i18n="@@expert.follow">Follow</ng-container>
+            }
+          </button>
+        }
+        @if (followStatus().kind === 'unfollowed') {
+          <p llInlineStatus slot="actions" tone="success" live="polite">
+            <ng-container i18n="@@expert.unfollow.done"
+              >Unfollowed. You can follow again at any time.</ng-container
+            >
+          </p>
+        }
+        @if (followStatus().kind === 'followed') {
+          <p llInlineStatus slot="actions" tone="success" live="polite">
+            <ng-container i18n="@@expert.follow.done"
+              >Following. You'll hear when {{ profile.name }} publishes or announces an
+              event.</ng-container
+            >
+          </p>
+        }
+      </ll-profile-header>
+      @if (followStatus().kind === 'failed') {
+        <ll-alert
+          class="expert__follow-alert"
+          tone="danger"
+          heading="We couldn't follow just now"
+          i18n-heading="@@expert.follow.failed.title"
+        >
+          <ng-container i18n="@@expert.follow.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      } @else if (pausedUntil()) {
+        <ll-alert
+          id="follow-limit"
+          class="expert__follow-alert"
+          tone="warning"
+          role="alert"
+          heading="Give it a minute"
+          i18n-heading="@@expert.follow.paused.title"
+        >
+          {{ pausedBody() }}
+        </ll-alert>
+      }
       <div class="two-col">
         <section aria-labelledby="about-title">
           <h2 class="vh" id="about-title" i18n="@@expert.about">About {{ profile.name }}</h2>

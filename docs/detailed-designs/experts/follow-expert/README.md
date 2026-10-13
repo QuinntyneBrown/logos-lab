@@ -63,6 +63,39 @@ Lab database, the Job queue, the Worker and Amazon SES.
   sent.
 - More than 10 follow and unfollow requests for the same expert in a minute are refused with `429`.
 
+## Decisions for the web build
+
+- **Who may follow.** `Session.member` decides. A signed-in member sees the Follow toggle. A visitor sees
+  the same "Follow" button, and pressing it opens the sign-in dialog (`dialogs/sign-in-required`) instead
+  of sending a request.
+- **Returning after sign-in (`L2-015`).** The dialog's "Sign in" and "Create account" links carry the
+  profile's address as `returnUrl`. The member lands back on the profile, where Follow is one press away.
+  The follow is not replayed on return, so nothing changes until the member presses the button.
+- **Contract.** `ExpertProfile` gains `id` and `following` (`false` for a visitor). `FollowsApi` has
+  `followExpert(expertId)` and `unfollowExpert(expertId)`, each returning `FollowResult { followerCount }`.
+  The page shows the returned count, so two tabs cannot drift.
+- **Follow.** The button is `aria-pressed="false"` "Follow". On success it becomes the quiet
+  `aria-pressed="true"` "Following", the count in the header changes, and a polite status line says
+  "Following. You'll hear when Dr. Abena Mensah publishes or announces an event." The mock's "Dr. Mensah"
+  needs a short name the profile does not carry, so the status names the expert in full. While the request runs the
+  button is `aria-disabled` and the count is unchanged. A failure keeps "Follow" and shows a danger alert
+  "We couldn't follow just now" with the reason to try again.
+- **Unfollow.** Pressing "Following" opens `UnfollowDialog` (focus on "Keep following", the safe choice).
+  "Unfollow" shows "Unfollowing…" and disables both buttons and Escape. On success the dialog closes,
+  focus returns to the button, which reads "Follow", and the status line says "Unfollowed. You can follow
+  again at any time." On failure the dialog stays open with the danger alert from the `failed` mock and
+  "Try again".
+- **Rate limit.** `429` with `Retry-After` keeps the button `aria-disabled` and `aria-describedby` the
+  warning alert "Give it a minute", which names the time Follow works again, in the member's locale and
+  time zone. The button is not removed from the tab order. After that time the alert clears on the next
+  press. Counting is per member and expert, as in the API rules above.
+- **Undo toast deferred.** The `success` mock confirms an unfollow with a toast and "Undo". The toast
+  component and its live region belong to the notification work (Phase 2). Until then the status line
+  above carries the confirmation, and following again is one press. The toast and its Undo are added when
+  that component exists.
+- **Dialog frame.** `UnfollowDialog` and the sign-in dialog use the shared `ll-dialog` frame
+  (`docs/specs/components/dialog.md`).
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |

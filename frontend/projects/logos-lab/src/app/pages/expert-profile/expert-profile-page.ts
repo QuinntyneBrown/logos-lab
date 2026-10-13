@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
   LOCALE_ID,
   signal,
 } from '@angular/core';
@@ -11,8 +12,9 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ContentType, EXPERTS_API } from '@logos-lab/api';
+import { ContentType, EXPERTS_API, FOLLOWS_API } from '@logos-lab/api';
 import {
+  Alert,
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -22,6 +24,8 @@ import {
   ContentCard,
   EmptyState,
   ExternalLink,
+  Icon,
+  InlineStatus,
   List,
   ProfileHeader,
   ProfileMeta,
@@ -32,17 +36,23 @@ import {
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { FollowDialogs } from '../../dialogs/follow-dialogs';
+import { clockTime } from '../../content/clock-time';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
 import { searchTypeLabel } from '../../content/search-type-labels';
+import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ExpertContentState } from './expert-content-state';
 import { ExpertProfileState } from './expert-profile-state';
+import { FollowStatus } from './follow-status';
+import { readFollowFailure } from './read-follow-failure';
 
 @Component({
   selector: 'll-expert-profile-page',
   imports: [
     RouterLink,
+    Alert,
     Breadcrumb,
     Button,
     Card,
@@ -51,6 +61,8 @@ import { ExpertProfileState } from './expert-profile-state';
     ContentCard,
     EmptyState,
     ExternalLink,
+    Icon,
+    InlineStatus,
     List,
     NotFoundPage,
     ProfileHeader,
@@ -66,6 +78,9 @@ import { ExpertProfileState } from './expert-profile-state';
 export class ExpertProfilePage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EXPERTS_API);
+  private readonly followsApi = inject(FOLLOWS_API);
+  private readonly followDialogs = inject(FollowDialogs);
+  protected readonly session = inject(Session);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
@@ -98,6 +113,68 @@ export class ExpertProfilePage {
   });
   protected readonly notFound = computed(() => this.profileState().kind === 'not-found');
   protected readonly profileFailed = computed(() => this.profileState().kind === 'failed');
+
+  /** Whether the member follows the expert; the profile's answer until they press the button. */
+  protected readonly following = linkedSignal(() => this.profile()?.following ?? false);
+  protected readonly followerCount = linkedSignal(() => this.profile()?.followerCount ?? 0);
+  protected readonly followStatus = linkedSignal<FollowStatus>(() => {
+    this.profile();
+    return { kind: 'none' };
+  });
+  protected readonly followBusy = signal(false);
+  /** When Follow works again, as the member's clock shows it, while the page has paused it. */
+  protected readonly pausedUntil = computed(() => {
+    const status = this.followStatus();
+    return status.kind === 'paused' ? clockTime(this.locale, status.until) : null;
+  });
+  protected readonly pausedBody = computed(() => {
+    const name = this.profile()?.name ?? '';
+    const time = this.pausedUntil() ?? '';
+    return $localize`:@@expert.follow.paused.body:You've followed and unfollowed ${name}:name: more than 10 times in a minute, so Follow is paused. You can try again at ${time}:time:.`;
+  });
+
+  /** The follow button: a visitor is asked to sign in, a follower is asked to confirm, anyone else follows. */
+  protected press(): void {
+    const profile = this.profile();
+    if (!profile || this.followBusy()) return;
+    if (this.session.member() === null) {
+      const name = profile.name;
+      void this.followDialogs.askToSignIn({
+        title: $localize`:@@expert.signIn.title:Sign in to follow ${name}:name:`,
+        description: $localize`:@@expert.signIn.description:Following is free. Sign in, or create an account in about a minute, and we'll bring you straight back to ${name}:name:.`,
+        returnUrl: this.router.url,
+      });
+    } else if (this.following()) {
+      void this.followDialogs
+        .confirmUnfollow({ expertId: profile.id, expertName: profile.name })
+        .then((result) => {
+          if (!result) return;
+          this.following.set(false);
+          this.followerCount.set(result.followerCount);
+          this.followStatus.set({ kind: 'unfollowed' });
+        });
+    } else {
+      this.follow(profile.id);
+    }
+  }
+
+  /** Follows the expert and shows the count the server answers with. */
+  private follow(expertId: string): void {
+    this.followBusy.set(true);
+    this.followStatus.set({ kind: 'none' });
+    this.followsApi.followExpert(expertId).subscribe({
+      next: (result) => {
+        this.followBusy.set(false);
+        this.following.set(true);
+        this.followerCount.set(result.followerCount);
+        this.followStatus.set({ kind: 'followed' });
+      },
+      error: (error: unknown) => {
+        this.followBusy.set(false);
+        this.followStatus.set(readFollowFailure(error, new Date()));
+      },
+    });
+  }
 
   /** The tabs: the types the expert has items of, in the tabs' order. */
   protected readonly tabs = computed(() => {
@@ -183,12 +260,13 @@ export class ExpertProfilePage {
     const profile = this.profile();
     if (!profile) return [];
     const format = new Intl.NumberFormat(this.locale);
+    const count = this.followerCount();
     return [
       {
         icon: 'people',
-        text: plural(this.locale, profile.followerCount, {
-          one: $localize`:@@expert.followers.one:${format.format(profile.followerCount)}:count: follower`,
-          other: $localize`:@@expert.followers.other:${format.format(profile.followerCount)}:count: followers`,
+        text: plural(this.locale, count, {
+          one: $localize`:@@expert.followers.one:${format.format(count)}:count: follower`,
+          other: $localize`:@@expert.followers.other:${format.format(count)}:count: followers`,
         }),
       },
       {

@@ -85,6 +85,9 @@
   outline: var(--border-width-thick) solid var(--color-accent);
   outline-offset: var(--space-0-5);
 }
+:host([data-paused]) {
+  cursor: not-allowed;
+}
 :host([aria-busy='true']) {
   cursor: progress;
   gap: var(--space-3);
@@ -93,7 +96,7 @@
 // colours under the pointer. A busy button keeps its variant's own colours (CRD D-5): its
 // aria-disabled only blocks activation.
 :host(.btn[disabled]),
-:host(.btn[aria-disabled='true']:not([aria-busy='true'])) {
+:host(.btn[aria-disabled='true']:not([aria-busy='true']):not([data-paused])) {
   background: var(--color-bg-subtle);
   color: var(--color-fg-disabled);
   border-color: transparent;

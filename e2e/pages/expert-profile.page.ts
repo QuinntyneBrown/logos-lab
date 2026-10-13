@@ -20,6 +20,10 @@ export class ExpertProfilePage {
   readonly emptyState: Locator;
   readonly emptyTitle: Locator;
   readonly tryAgain: Locator;
+  readonly follow: Locator;
+  readonly followStatus: Locator;
+  readonly followAlert: Locator;
+  readonly followAlertTitle: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -41,6 +45,10 @@ export class ExpertProfilePage {
     this.emptyState = main.locator('.empty');
     this.emptyTitle = main.locator('.empty__title');
     this.tryAgain = main.getByRole('button', { name: 'Try again' });
+    this.follow = this.header.getByRole('button', { name: /^Follow(ing)?$/ });
+    this.followStatus = this.header.getByRole('status');
+    this.followAlert = main.locator('.alert');
+    this.followAlertTitle = this.followAlert.locator('.alert__title');
     this.elsewhere = main
       .getByRole('heading', { name: 'Elsewhere' })
       .locator('xpath=following-sibling::ul[1]');

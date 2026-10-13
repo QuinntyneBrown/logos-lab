@@ -1,0 +1,30 @@
+<ll-dialog
+  size="sm"
+  icon="lock"
+  [heading]="data.title"
+  headingId="sign-in-title"
+  closeLabel="Close"
+  i18n-closeLabel="@@dialog.close"
+  (closeRequested)="close()"
+>
+  <p id="sign-in-desc">{{ data.description }}</p>
+  <a
+    llButton
+    slot="footer"
+    variant="quiet"
+    routerLink="/register"
+    [queryParams]="returnQuery"
+    i18n="@@signInRequired.create"
+    >Create account</a
+  >
+  <a
+    llButton
+    slot="footer"
+    variant="primary"
+    routerLink="/sign-in"
+    [queryParams]="returnQuery"
+    cdkFocusInitial
+    i18n="@@signInRequired.signIn"
+    >Sign in</a
+  >
+</ll-dialog>
