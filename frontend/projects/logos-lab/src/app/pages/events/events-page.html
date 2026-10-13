@@ -12,6 +12,11 @@
         <p llToolbarCount i18n="@@events.count.upcoming.one">
           <strong>1</strong> upcoming event, soonest first
         </p>
+      } @else if (happeningNow()) {
+        <p llToolbarCount i18n="@@events.count.upcoming.live">
+          <strong>{{ total() }}</strong> upcoming events, soonest first ·
+          <strong>{{ happeningNow() }}</strong> happening now
+        </p>
       } @else {
         <p llToolbarCount i18n="@@events.count.upcoming.other">
           <strong>{{ total() }}</strong> upcoming events, soonest first
@@ -33,7 +38,15 @@
           [where]="row.where"
           [online]="row.online"
         >
-          @if (row.full) {
+          @if (row.happeningNow) {
+            <span llBadge tone="success" i18n="@@events.happeningNow">Happening now</span>
+          }
+          @if (row.registered) {
+            <span llInlineStatus tone="success" i18n="@@events.registered">You're registered</span>
+          }
+          @if (row.waitlist) {
+            <span llBadge tone="warning">{{ row.waitlist }}</span>
+          } @else if (row.full) {
             <span llBadge tone="warning" i18n="@@event.fullWaitlist">Full · waitlist open</span>
           } @else if (row.going) {
             <span class="event__going">{{ row.going }}</span>

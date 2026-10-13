@@ -13,7 +13,6 @@ const upcoming = [
 ].map((event) => ({
   ...event,
   happeningNow: false,
-  hasRecording: false,
   registration: null,
 }));
 
@@ -42,4 +41,5 @@ export function eventList(overrides: Record<string, unknown> = {}) {
   };
 }
 
-export { upcoming as upcomingEvents };
+/** The home page's three events with their listing extras, to adjust one at a time. */
+export const upcomingEvents = upcoming;

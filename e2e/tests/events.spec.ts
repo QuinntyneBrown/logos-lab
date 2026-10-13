@@ -1,4 +1,5 @@
-import { eventList } from '../data/events-listing';
+import { eventList, upcomingEvents } from '../data/events-listing';
+import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { EventsPage } from '../pages/events.page';
 
@@ -44,5 +45,60 @@ test.describe('Events listing', () => {
       'Hybrid · online and in Ottawa · hosted by Rev. Dr. Thomas Hale',
     );
     await expect(events.row(2)).toContainText('Full · waitlist open');
+  });
+
+  // L2-051 AC4 · badge AC-1
+  test('an event that has started but not ended is labelled Happening now', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(new Date('2026-10-27T16:20:00Z'));
+    const [, liveQa, workshop] = upcomingEvents;
+    api.respond(
+      'GET',
+      '/events',
+      eventList({
+        events: [{ ...liveQa, happeningNow: true }, workshop],
+        total: 2,
+        totalEvents: 2,
+      }),
+    );
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.count).toHaveText('2 upcoming events, soonest first · 1 happening now');
+    await expect(events.row(0)).toContainText('Happening now');
+    await expect(events.row(0)).toContainText('started 20 minutes ago');
+    await expect(events.row(1)).not.toContainText('Happening now');
+    await expect(events.row(1)).not.toContainText('started');
+  });
+
+  // L2-051 AC1 · event-row AC-2
+  test('a signed-in member sees which events they are registered for or waiting on', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    const [creativity, liveQa, workshop] = upcomingEvents;
+    api.respond(
+      'GET',
+      '/events',
+      eventList({
+        events: [
+          creativity,
+          { ...liveQa, registration: { status: 'registered', waitlistPosition: null } },
+          { ...workshop, registration: { status: 'waitlisted', waitlistPosition: 3 } },
+        ],
+      }),
+    );
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.row(0)).not.toContainText("You're registered");
+    await expect(events.row(1)).toContainText("You're registered");
+    await expect(events.row(2)).toContainText("Full · you're number 3 on the waitlist");
+    await expect(events.row(2)).not.toContainText('waitlist open');
   });
 });

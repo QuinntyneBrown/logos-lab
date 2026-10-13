@@ -12,6 +12,7 @@ import {
   Badge,
   EventList,
   EventRow,
+  InlineStatus,
   PageHeader,
   SearchFilterToolbar,
   ToolbarCount,
@@ -23,7 +24,15 @@ import { EventsState } from './events-state';
 
 @Component({
   selector: 'll-events-page',
-  imports: [Badge, EventList, EventRow, PageHeader, SearchFilterToolbar, ToolbarCount],
+  imports: [
+    Badge,
+    EventList,
+    EventRow,
+    InlineStatus,
+    PageHeader,
+    SearchFilterToolbar,
+    ToolbarCount,
+  ],
   templateUrl: './events-page.html',
   styleUrl: './events-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +68,10 @@ export class EventsPage {
     new Intl.NumberFormat(this.locale).format(this.list()?.total ?? 0),
   );
   protected readonly rows = computed(() =>
-    (this.list()?.events ?? []).map((event) => toEventListingRow(event, this.locale)),
+    (this.list()?.events ?? []).map((event) => toEventListingRow(event, this.locale, new Date())),
+  );
+  protected readonly happeningNow = computed(
+    () => (this.list()?.events ?? []).filter((event) => event.happeningNow).length,
   );
 
   private readonly zone = viewerZone(this.locale, new Date());
