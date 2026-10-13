@@ -16,77 +16,10 @@
         [canClear]="pills().length > 0"
         (cleared)="clearAll()"
       >
-        <fieldset llFilterGroup label="Type" i18n-label="@@explore.filters.type" name="type">
-          @for (option of typeOptions(); track option.value) {
-            <li
-              llFilterOption
-              [label]="option.label"
-              [count]="option.count"
-              [checked]="option.checked"
-              (changed)="toggle('types', option.value, $event)"
-            ></li>
-          }
-        </fieldset>
-        <fieldset
-          llFilterGroup
-          label="Topic"
-          i18n-label="@@explore.filters.topic"
-          name="topic"
-          [limit]="optionLimit"
-          [moreLabel]="topicsMore()"
-        >
-          @for (option of topicOptions(); track option.value) {
-            <li
-              llFilterOption
-              [label]="option.label"
-              [count]="option.count"
-              [checked]="option.checked"
-              (changed)="toggle('topics', option.value, $event)"
-            ></li>
-          }
-        </fieldset>
-        <fieldset llFilterGroup label="Level" i18n-label="@@explore.filters.level" name="level">
-          @for (option of levelOptions(); track option.value) {
-            <li
-              llFilterOption
-              [label]="option.label"
-              [checked]="option.checked"
-              (changed)="toggle('levels', option.value, $event)"
-            ></li>
-          }
-        </fieldset>
-        <fieldset
-          llFilterGroup
-          label="Contributor"
-          i18n-label="@@explore.filters.contributor"
-          name="contributor"
-          [limit]="optionLimit"
-          [moreLabel]="contributorsMore()"
-        >
-          @for (option of contributorOptions(); track option.value) {
-            <li
-              llFilterOption
-              [label]="option.label"
-              [checked]="option.checked"
-              (changed)="toggle('contributors', option.value, $event)"
-            ></li>
-          }
-        </fieldset>
-        <fieldset
-          llFilterGroup
-          label="Length"
-          i18n-label="@@explore.filters.length"
-          name="duration"
-        >
-          @for (option of durationOptions(); track option.value) {
-            <li
-              llFilterOption
-              [label]="option.label"
-              [checked]="option.checked"
-              (changed)="toggle('durations', option.value, $event)"
-            ></li>
-          }
-        </fieldset>
+        <ll-explore-filter-groups
+          [options]="options()"
+          (toggled)="toggle($event.key, $event.value, $event.checked)"
+        />
       </ll-filter-panel>
     }
     <div>

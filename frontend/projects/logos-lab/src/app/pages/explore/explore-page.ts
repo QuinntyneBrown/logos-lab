@@ -18,8 +18,6 @@ import {
   Button,
   ContentCard,
   EmptyState,
-  FilterGroup,
-  FilterOption,
   FilterPanel,
   PageHeader,
   Pagination,
@@ -31,26 +29,18 @@ import {
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { catalogueNoun } from '../../content/catalogue-noun';
-import {
-  CATALOGUE_DURATIONS,
-  CATALOGUE_LEVELS,
-  catalogueDurationLabel,
-  catalogueLevelLabel,
-} from '../../content/catalogue-labels';
 import { toContentCard } from '../../content/content-card-view';
-import { contentTypeLabel } from '../../content/content-labels';
 import { plural } from '../../content/plural';
 import { catalogueAddress, readCatalogueQuery } from './catalogue-address';
+import { ExploreFilterGroups } from './explore-filter-groups';
 import { ExploreOption } from './explore-option';
+import { exploreOptions } from './explore-options';
 import { ExplorePill } from './explore-pill';
 import { ExploreState } from './explore-state';
 import { FilterKey } from './filter-key';
 
 /** Items on a catalogue page (the API's fixed page size). */
 const PAGE_SIZE = 24;
-
-/** The topic and contributor lists show this many options before "Show all". */
-const OPTION_LIMIT = 6;
 
 const NO_FILTERS: Pick<
   CatalogueQuery,
@@ -74,8 +64,7 @@ const NO_FILTERS: Pick<
     Button,
     ContentCard,
     EmptyState,
-    FilterGroup,
-    FilterOption,
+    ExploreFilterGroups,
     FilterPanel,
     PageHeader,
     Pagination,
@@ -90,7 +79,6 @@ const NO_FILTERS: Pick<
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExplorePage {
-  protected readonly optionLimit = OPTION_LIMIT;
   /** Skeleton cards shown while the catalogue loads. */
   protected readonly placeholders = [0, 1, 2, 3, 4, 5];
 
@@ -150,79 +138,20 @@ export class ExplorePage {
     });
   });
 
-  protected readonly typeOptions = computed<readonly ExploreOption[]>(() =>
-    (this.facets()?.types ?? []).map((facet) => ({
-      value: facet.value,
-      label: contentTypeLabel(facet.value),
-      count: facet.count,
-      checked: this.query().types.includes(facet.value),
-    })),
-  );
-
-  protected readonly topicOptions = computed<readonly ExploreOption[]>(() =>
-    (this.facets()?.topics ?? []).map((facet) => ({
-      value: facet.value,
-      label: facet.label,
-      count: facet.count,
-      checked: this.query().topics.includes(facet.value),
-    })),
-  );
-
-  protected readonly levelOptions = computed<readonly ExploreOption[]>(() =>
-    CATALOGUE_LEVELS.map((level) => ({
-      value: level,
-      label: catalogueLevelLabel(level),
-      count: null,
-      checked: this.query().levels.includes(level),
-    })),
-  );
-
-  protected readonly contributorOptions = computed<readonly ExploreOption[]>(() =>
-    (this.facets()?.contributors ?? []).map((facet) => ({
-      value: facet.value,
-      label: facet.label,
-      count: null,
-      checked: this.query().contributors.includes(facet.value),
-    })),
-  );
-
-  protected readonly durationOptions = computed<readonly ExploreOption[]>(() =>
-    CATALOGUE_DURATIONS.map((duration) => ({
-      value: duration,
-      label: catalogueDurationLabel(duration),
-      count: null,
-      checked: this.query().durations.includes(duration),
-    })),
-  );
-
-  protected readonly topicsMore = computed(() => {
-    const count = this.topicOptions().length;
-    return plural(this.locale, count, {
-      one: $localize`:@@explore.topics.more.one:Show all ${count}:count: topic`,
-      other: $localize`:@@explore.topics.more.other:Show all ${count}:count: topics`,
-    });
-  });
-
-  protected readonly contributorsMore = computed(() => {
-    const count = this.experts().length;
-    return plural(this.locale, count, {
-      one: $localize`:@@explore.experts.more.one:Show all ${count}:count: expert`,
-      other: $localize`:@@explore.experts.more.other:Show all ${count}:count: experts`,
-    });
-  });
+  protected readonly options = computed(() => exploreOptions(this.facets(), this.query()));
 
   /** One removable pill per selected option, in group order. */
   protected readonly pills = computed<readonly ExplorePill[]>(() => {
     const groups: [FilterKey, string, readonly ExploreOption[]][] = [
-      ['types', $localize`:@@explore.filters.type:Type`, this.typeOptions()],
-      ['topics', $localize`:@@explore.filters.topic:Topic`, this.topicOptions()],
-      ['levels', $localize`:@@explore.filters.level:Level`, this.levelOptions()],
+      ['types', $localize`:@@explore.filters.type:Type`, this.options().types],
+      ['topics', $localize`:@@explore.filters.topic:Topic`, this.options().topics],
+      ['levels', $localize`:@@explore.filters.level:Level`, this.options().levels],
       [
         'contributors',
         $localize`:@@explore.filters.contributor:Contributor`,
-        this.contributorOptions(),
+        this.options().contributors,
       ],
-      ['durations', $localize`:@@explore.filters.length:Length`, this.durationOptions()],
+      ['durations', $localize`:@@explore.filters.length:Length`, this.options().durations],
     ];
     return groups.flatMap(([key, group, options]) =>
       options
