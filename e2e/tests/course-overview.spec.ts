@@ -2,6 +2,7 @@ import { imagoDeiCourse, notEnrolled } from '../data/courses';
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { CourseOverviewPage } from '../pages/course-overview.page';
+import { VerifyEmailPromptDialog } from '../pages/verify-email-prompt.dialog';
 
 const path = '/courses/imago-dei-in-an-age-of-machines';
 
@@ -153,5 +154,142 @@ test.describe('Course overview', () => {
     await expect(course.enrolAlertTitle).toHaveText("We couldn't enrol you just now");
     await expect(course.enrol).toBeVisible();
     await expect(page).toHaveURL(path);
+  });
+
+  // L2-027 AC4 · L2-007 · dialog AC-1
+  test('an unverified member who presses Enrol is asked to verify their email, and nothing is sent', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.ethan);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    const course = new CourseOverviewPage(page);
+    const prompt = new VerifyEmailPromptDialog(page);
+    await course.open(path);
+
+    await course.enrol.click();
+
+    await expect(prompt.title).toHaveText('Verify your email to enrol');
+    await expect(prompt.dialog).toHaveAccessibleDescription(
+      /^We sent a link to ethan\.wu@example\.ca when you joined\./,
+    );
+    await expect(prompt.changeAddress).toHaveAttribute('href', '/settings/account');
+    expect(
+      api.requestsTo('POST', '/courses/imago-dei-in-an-age-of-machines/enrolment'),
+    ).toHaveLength(0);
+
+    await prompt.notNow.click();
+
+    await expect(prompt.dialog).toHaveCount(0);
+    await expect(course.enrol).toBeFocused();
+  });
+
+  // L2-027 AC4 · L2-007
+  test('the server refusing an unverified email opens the same prompt', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    api.fail('POST', '/courses/imago-dei-in-an-age-of-machines/enrolment', 403, 'email-unverified');
+    const course = new CourseOverviewPage(page);
+    const prompt = new VerifyEmailPromptDialog(page);
+    await course.open(path);
+
+    await course.enrol.click();
+
+    await expect(prompt.title).toHaveText('Verify your email to enrol');
+    await expect(course.enrolAlertTitle).toHaveCount(0);
+  });
+
+  // L2-007 · dialog AC-9
+  test('Resend email sends a new link and says where, then waits before another', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.ethan);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    const release = api.hold('POST', '/auth/email-verifications/resend', {
+      sentTo: 'ethan.wu@example.ca',
+      retryAfterSeconds: 60,
+      remainingToday: 4,
+    });
+    const course = new CourseOverviewPage(page);
+    const prompt = new VerifyEmailPromptDialog(page);
+    await course.open(path);
+    await course.enrol.click();
+
+    await prompt.resend.click();
+
+    await expect(prompt.sending).toHaveText('Sending…');
+    await expect(prompt.sending).toHaveAttribute('aria-busy', 'true');
+
+    release();
+
+    await expect(prompt.title).toHaveText('Check your inbox');
+    await expect(prompt.dialog).toHaveAccessibleDescription(
+      /^We sent a new link to ethan\.wu@example\.ca\. It works for 24 hours\./,
+    );
+    await expect(prompt.resend).toHaveText(/^Resend in \d+ s$/);
+    await expect(prompt.resend).toBeDisabled();
+    await expect(prompt.back).toHaveText('Back to the course');
+  });
+
+  // L2-007 · dialog AC-9
+  test('a resend asked for too soon waits for the time the server gives', async ({ page, api }) => {
+    api.respond('GET', '/me', members.ethan);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    api.fail(
+      'POST',
+      '/auth/email-verifications/resend',
+      429,
+      'rate_limited',
+      {},
+      {
+        'Retry-After': '42',
+      },
+    );
+    const course = new CourseOverviewPage(page);
+    const prompt = new VerifyEmailPromptDialog(page);
+    await course.open(path);
+    await course.enrol.click();
+
+    await prompt.resend.click();
+
+    await expect(prompt.resend).toHaveText(/^Resend in (4[0-2]|3\d) s$/);
+    await expect(prompt.resend).toBeDisabled();
+    await expect(prompt.title).toHaveText('Verify your email to enrol');
+  });
+
+  // L2-007 · dialog AC-10
+  test('after five emails in a day the prompt says so and keeps the last link working', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.ethan);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    api.fail(
+      'POST',
+      '/auth/email-verifications/resend',
+      429,
+      'rate_limited',
+      {},
+      {
+        'Retry-After': '80000',
+      },
+    );
+    const course = new CourseOverviewPage(page);
+    const prompt = new VerifyEmailPromptDialog(page);
+    await course.open(path);
+    await course.enrol.click();
+
+    await prompt.resend.click();
+
+    await expect(prompt.alertTitle).toHaveText('That’s 5 emails today, the daily limit');
+    await expect(prompt.alert).toContainText('The most recent link still works until');
+    await expect(prompt.resend).toBeDisabled();
+    await expect(prompt.back).toHaveText('Back to the course');
   });
 });

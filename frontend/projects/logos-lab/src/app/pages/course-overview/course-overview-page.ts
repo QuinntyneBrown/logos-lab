@@ -30,6 +30,7 @@ import {
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { VerifyEmailPrompt } from '../../dialogs/verify-email-prompt';
 import { hoursAndMinutes } from '../../content/content-facts';
 import { OutlineViewer, toCourseOutline } from '../../content/course-outline-view';
 import { plural } from '../../content/plural';
@@ -67,6 +68,7 @@ export class CourseOverviewPage {
   protected readonly session = inject(Session);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly verifyEmailPrompt = inject(VerifyEmailPrompt);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly attempt = signal(0);
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
@@ -166,16 +168,28 @@ export class CourseOverviewPage {
   protected enrol(): void {
     const course = this.course();
     if (!course || this.enrolling()) return;
+    if (this.session.member()?.emailVerified === false) {
+      this.askToVerify();
+      return;
+    }
     this.enrolling.set(true);
     this.enrolFailed.set(false);
     this.api.enrol(course.slug).subscribe({
       next: (result) => {
         void this.router.navigate(['/courses', course.slug, 'lessons', result.firstLessonId]);
       },
-      error: () => {
+      error: (error: unknown) => {
         this.enrolling.set(false);
-        this.enrolFailed.set(true);
+        if (error instanceof HttpErrorResponse && error.status === 403) this.askToVerify();
+        else this.enrolFailed.set(true);
       },
+    });
+  }
+
+  private askToVerify(): void {
+    void this.verifyEmailPrompt.ask({
+      title: $localize`:@@course.verify.title:Verify your email to enrol`,
+      backLabel: $localize`:@@course.verify.back:Back to the course`,
     });
   }
 
