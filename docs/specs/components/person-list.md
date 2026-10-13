@@ -5,7 +5,7 @@
 | Selector | `ul[llPersonList]`, `li[llPerson]` |
 | Library path | `frontend/projects/components/src/lib/person-list/` |
 | Status | built |
-| Traces to | L2-001, L2-022, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 |
+| Traces to | L2-001, L2-003, L2-022, L2-120, L2-127, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`person-list.html`](../../design-system/components/person-list.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/experts/default`](../../mocks/pages/experts/default.html), [`pages/course-overview/default`](../../mocks/pages/course-overview/default.html), [`pages/event-page/default`](../../mocks/pages/event-page/default.html), [`pages/module-page/default`](../../mocks/pages/module-page/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/topic/default`](../../mocks/pages/topic/default.html) |
 | Rendering | [`person-list.html`](person-list.html) |
@@ -27,7 +27,8 @@ Out of scope:
 | Where | Configuration | Slots / content | States seen | Surface |
 |---|---|---|---|---|
 | `pages/home/*` Experts | stacked, 3 people | "Dr. Abena Mensah" · "Theological anthropology · 7 items" | default, hover | canvas |
-| `pages/experts/*`, `pages/topic/*`, `pages/search-results/*` | grid | name; "Theologian · theological anthropology and the image of God"; "7 published items" | default | canvas |
+| `pages/experts/*`, `pages/topic/*` | grid | name; "Theologian · theological anthropology and the image of God"; "7 published items" | default | canvas |
+| `pages/search-results/*` Experts | stacked rows | name; one `[slot=meta]` line "Theologian · theological anthropology, the image of God and personhood · 7 items" with the matched word highlighted | default | canvas |
 | `pages/home/loading`, `pages/experts/loading` | 3 skeleton people, list busy | status "Loading experts…" | loading | canvas |
 | `pages/course-overview/*`, `pages/module-page/*`, `pages/event-page/*` | stacked | instructor or hosts with one meta line | default | canvas |
 
@@ -37,7 +38,7 @@ Out of scope:
 2. **Person** — `li.person` (+ `.person--plain`): photo beside text, bottom hairline.
 3. **Photo** — `img.person__photo`, `alt=""`, 64 px (48 px stacked), `--radius-md`.
 4. **Name** — `p.person__name > a`.
-5. **Meta** — one or two `p.person__meta`.
+5. **Meta** — one or two `p.person__meta`, then any projected `p.person__meta[slot=meta]` lines.
 
 Host: the consumer's own `ul` and `li`; the components add the classes and render the person's parts.
 
@@ -62,7 +63,9 @@ None.
 
 ### Content slots
 
-None.
+| Slot | Accepts | Rule |
+|---|---|---|
+| `[slot=meta]` | one or more `p.person__meta` | Rendered after the `meta` lines. For a line that needs markup the library must not build from a string, such as a match highlighted with `mark.hit` in a search result. The page creates the paragraph. |
 
 ## Variants and sizes
 
@@ -168,6 +171,7 @@ The photo zoom is removed under reduced motion.
 - **AC-2** Given the expert directory, when it renders, then each expert shows two meta lines. (L2-022)
 - **AC-3** Given a person, when it is inspected, then the photo has empty `alt` and the name is a link. (L2-127)
 - **AC-4** Given a photo, when it loads, then its width and height are reserved. (L2-120)
+- **AC-10** Given the search results for "personhood", when the expert "Dr. Abena Mensah" renders with a projected meta line, then the line follows the name and the word "personhood" in it is a `mark.hit`. (L2-003)
 - **AC-9** Given the home page while its sections load, when the experts list renders, then it is busy, announces "Loading experts…" once and shows three skeleton people hidden from assistive technology. (L2-127)
 
 ### Theming
@@ -189,3 +193,6 @@ The photo zoom is removed under reduced motion.
 
 - **D-1** *What shows without a photo?* The person's initials on the oat tile, as the cast's photo-less
   learners appear elsewhere in the mocks.
+- **D-2** *How does a search result highlight words in an expert's line?* Through a projected
+  `[slot=meta]` paragraph, not through `meta` strings. The page builds each `mark.hit` itself so API
+  text is never bound as HTML (`L2-003` AC6), and the library stays free of the API's segment type.

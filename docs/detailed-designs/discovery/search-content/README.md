@@ -92,6 +92,43 @@ Lab API, the Cache and the Logos Lab database.
 - When search is unavailable, the results page shows an inline error and offers the catalogue
   (`L2-141`).
 
+### Results page decisions
+
+These settle what the design left open when `SearchResultsPage` was built against the mocks in
+`docs/mocks/pages/search-results/`.
+
+- **Contract.** `SearchApi.search(query, type?)` calls `GET /api/v1/search?q=&type=` and returns
+  `SearchResults`: `query`; `correctedFrom` (the original text, present only when the API corrected
+  the query); `total`; `counts` (one `{ type, count }` per type with matches, always for every type
+  so the tabs keep their numbers while one type is selected); `groups` (best match first; every type
+  in the "All" view, one group when `type` is set); `unavailable` (parts of the index that were not
+  searched, today `transcripts`); and `popularTopics` (the 5 topics, present only when `total` is 0).
+  A content group holds `hits` of `{ item: ContentSummary, snippet }`; the expert group holds
+  `experts` of `{ slug, name, photoUrl, headline, itemCount }`. The `page` parameter is not used by the
+  page: the mocks show no paging.
+- **Snippets.** `SnippetSegment` is the existing `TextSegment` (`text`, `highlighted`) that the
+  suggestions already use. The page creates one `mark.hit` per highlighted segment and projects the
+  paragraph into the content card's `[slot=snippet]`. The mocks draw matches with `strong`; `mark.hit`
+  replaces it because the design system styles it and assistive technology can announce it.
+- **Route.** `/search?q=&type=`. The `type` values are the content types and `expert`; an unknown
+  value is ignored and the "All" view shows. The page title is "Search - Logos Lab".
+- **Tabs.** One link tab per type with matches, in the fixed order Courses, Modules, Videos,
+  Articles, Collections, Events, Experts, after "All"; each carries its count. A tab is a link to the
+  same route with `type`, so the browser back button and a shared URL both work. There are no tabs
+  when `total` is 0.
+- **"All" view.** Each group shows the hits the API sent. When a group's `count` is greater than the
+  hits shown, its heading carries "All n <types>" linking to that type's tab. The groups follow the
+  order the API sent.
+- **Search field.** The page repeats the search field (a search pill with a Search button and help
+  text). Submitting fewer than 2 trimmed characters sends no request and shows the summary "One thing
+  to fix before you search" and the field error "Enter at least 2 characters". The field stops typing
+  at 200 characters. No `q` shows the empty state "What would you like to find?".
+- **Failures.** `429` shows "Too many searches in a minute" until `Retry-After` has passed, and the
+  "Search again" button is disabled until then. Any other failure shows "Search isn't working right
+  now" with "Try again" and a link to the catalogue. A non-empty `unavailable` list shows the warning
+  "Some results may be missing".
+- **Long queries.** The heading wraps; the page never scrolls sideways.
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |

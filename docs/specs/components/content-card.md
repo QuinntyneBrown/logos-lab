@@ -5,7 +5,7 @@
 | Selector | `ll-content-card` |
 | Library path | `frontend/projects/components/src/lib/content-card/` |
 | Status | built |
-| Traces to | L2-001, L2-071, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 |
+| Traces to | L2-001, L2-003, L2-071, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 |
 | Design system | [`content-card.html`](../../design-system/components/content-card.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/explore/default`](../../mocks/pages/explore/default.html), [`pages/article-page/default`](../../mocks/pages/article-page/default.html), [`pages/my-learning/default`](../../mocks/pages/my-learning/default.html), [`pages/collection-page/default`](../../mocks/pages/collection-page/default.html), [`pages/saved/default`](../../mocks/pages/saved/default.html), [`pages/search-results/default`](../../mocks/pages/search-results/default.html), [`pages/gone/default`](../../mocks/pages/gone/default.html) |
 | Rendering | [`content-card.html`](content-card.html) |
@@ -38,7 +38,8 @@ Out of scope:
 | `pages/my-learning/*`, `pages/dashboard/*` | row with progress | "42% · 10 of 24 lessons · Next: 3.2 Representing, not resembling · Opened today, 9:58 am" | in progress | canvas |
 | `pages/my-learning/*`, `pages/following/*`, `pages/my-events/*` | row with status | success "Completed" with check; plain "Not started"; warning | default | canvas |
 | `pages/collection-page/*` | row, numbered type label "3 · Module" | status, progress | default | canvas |
-| `pages/search-results/*`, `pages/video-page/*` | row | meta | default | canvas |
+| `pages/search-results/*` | row | `[slot=snippet]` with the matched words highlighted, meta | default | canvas |
+| `pages/video-page/*` | row | meta | default | canvas |
 | `pages/saved/*` | card, unavailable | badge "No longer available", action "Remove" | unavailable | subtle surface |
 
 ## Anatomy
@@ -54,6 +55,8 @@ Out of scope:
    - **Title** — `h3.content-card__title > a`, whose `::after` stretches over the whole card;
    - **By-line** — `p.content-card__by` with a 24 px photo (`alt=""`) or the Logos Lab mark
      (`span.content-card__mark`) and the name;
+   - **Snippet (optional)** — a projected `p.muted[slot=snippet]` between the by-line and the meta: an
+     excerpt in which the page marks matched words with `mark.hit`;
    - **Meta** — `p.content-card__meta` of `span`s;
    - **Progress** — `div.content-card__progress` with a [progress bar](progress-bar.md) and a caption;
    - **Status** — `p.content-card__status` of [badges](badge.md);
@@ -94,6 +97,7 @@ Host: `ll-content-card` is `display: contents`; it renders the `article`.
 | Slot | Accepts | Rule |
 |---|---|---|
 | `[slot=actions]` | buttons | Rendered at the end of the body (the unavailable card's "Remove"). |
+| `[slot=snippet]` | one `p.muted` | Rendered between the by-line and the meta. The page builds it, text nodes and `mark.hit` only; the card adds nothing when the slot is empty. |
 
 ## Variants and sizes
 
@@ -136,6 +140,18 @@ Card width comes from the grid: `.content-grid` columns of at least `--size-cont
   <div class="content-card__cover tile--fjord"><svg class="icon content-card__glyph" …></svg><span class="content-card__duration">24:18</span></div>
   <button class="icon-btn content-card__save" type="button" aria-pressed="false" aria-label="Save Can a Machine Pray?"><svg class="icon" …></svg></button>
   <div class="content-card__body">…</div>
+</article>
+
+<!-- rendered: row with a search snippet -->
+<article class="content-card content-card--row">
+  <div class="content-card__cover tile--sage">…</div>
+  <div class="content-card__body">
+    <p class="content-card__type">Course</p>
+    <h3 class="content-card__title"><a href="/courses/imago-dei-in-an-age-of-machines">Imago Dei in an Age of Machines</a></h3>
+    <p class="content-card__by">…Dr. Abena Mensah</p>
+    <p class="muted">…why <mark class="hit">personhood</mark> is a calling we receive…</p>
+    <p class="content-card__meta"><span>24 lessons</span><span>5 h 40 min</span></p>
+  </div>
 </article>
 
 <!-- rendered: Logos Lab author -->
@@ -264,6 +280,11 @@ The lift and the image zoom are removed under reduced motion.
 
 - **AC-14** Given a card with a cover image, when it loads, then the image has `width` and `height` and causes no layout shift. (L2-120)
 
+### Snippet
+
+- **AC-15** Given the search results for "personhood", when the row for "Imago Dei in an Age of Machines" renders with a projected snippet, then the snippet paragraph sits between "Dr. Abena Mensah" and "24 lessons" and the word "personhood" in it is a `mark.hit`. (L2-003)
+- **AC-16** Given a card with nothing projected into the snippet slot, when it renders, then no empty snippet paragraph is in the body. (L2-003)
+
 ## Implementation notes
 
 - Folder `frontend/projects/components/src/lib/content-card/`: `content-card.ts` (`ContentCard`),
@@ -281,3 +302,8 @@ The lift and the image zoom are removed under reduced motion.
   grid and the component renders one card.
 - **D-3** *Does the card format numbers and dates?* No; the page formats them for the locale (`L2-148`)
   and passes strings, so the card stays free of locale logic.
+- **D-4** *How does a card show a search snippet?* Through a projected `[slot=snippet]`, not an input. The
+  snippet is text with highlighted runs, the library must not know the API's segment type, and the page
+  must create each `mark` itself so that no API text is ever bound as HTML (`L2-003` AC6). The mock's
+  `strong` around matches is replaced by `mark.hit`, which the design system already styles
+  (`components.css`) and which assistive technology can announce as a highlight.
