@@ -1,0 +1,47 @@
+@for (section of sections(); track section.id) {
+  <details
+    class="outline__section"
+    [open]="section.open"
+    (toggle)="toggled(section.id, section.open, $event)"
+  >
+    <summary>
+      <span class="outline__name">{{ section.name }}</span>
+      <span class="outline__count"
+        >{{ section.countLabel }}<span class="vh">{{ hintText(section.countHint) }}</span></span
+      >
+    </summary>
+    <ol class="outline__lessons">
+      @for (lesson of section.lessons; track lesson.id) {
+        <li>
+          @if (lesson.state === 'locked') {
+            <span class="outline__lesson is-locked" aria-disabled="true">
+              <ng-container *ngTemplateOutlet="row; context: { $implicit: lesson }" />
+            </span>
+          } @else if (lesson.path) {
+            <a
+              class="outline__lesson"
+              [class.is-done]="lesson.state === 'done'"
+              [routerLink]="lesson.path"
+              [attr.aria-current]="lesson.current ? currentToken() : null"
+              (click)="lessonChosen.emit(lesson.id)"
+            >
+              <ng-container *ngTemplateOutlet="row; context: { $implicit: lesson }" />
+            </a>
+          } @else {
+            <span class="outline__lesson" [class.is-done]="lesson.state === 'done'">
+              <ng-container *ngTemplateOutlet="row; context: { $implicit: lesson }" />
+            </span>
+          }
+        </li>
+      }
+    </ol>
+  </details>
+}
+
+<ng-template #row let-lesson>
+  <span class="outline__mark"><svg llIcon [name]="iconFor(lesson)" size="sm"></svg></span>
+  <span
+    >{{ lesson.title }}<span class="vh">{{ stateText(lesson.stateLabel) }}</span></span
+  >
+  <span class="outline__time">{{ timeFor(lesson) }}</span>
+</ng-template>

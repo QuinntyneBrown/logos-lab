@@ -1,0 +1,103 @@
+<ll-dialog
+  size="sm"
+  icon="mail"
+  [heading]="heading()"
+  headingId="verify-title"
+  closeLabel="Close"
+  i18n-closeLabel="@@dialog.close"
+  (closeRequested)="close()"
+>
+  @if (dailyLimit(); as limit) {
+    <ll-alert
+      tone="warning"
+      role="alert"
+      heading="That’s 5 emails today, the daily limit"
+      i18n-heading="@@verify.limit.title"
+    >
+      <ng-container i18n="@@verify.limit.body"
+        >The most recent link still works until {{ limitUntil() }}. You can ask for another after
+        that, or write to <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a> and we’ll
+        help.</ng-container
+      >
+    </ll-alert>
+  }
+  @if (resend().kind === 'failed') {
+    <ll-alert
+      tone="danger"
+      heading="We couldn’t send that email"
+      i18n-heading="@@verify.failed.title"
+    >
+      <ng-container i18n="@@verify.failed.body">Check your connection and try again.</ng-container>
+    </ll-alert>
+  }
+  @if (sent()) {
+    <p id="verify-desc" i18n="@@verify.sent">
+      We sent a new link to <strong>{{ email() }}</strong
+      >. It works for 24 hours. If it isn’t there in a few minutes, look in your spam or junk
+      folder.
+    </p>
+  } @else {
+    <p id="verify-desc" i18n="@@verify.desc">
+      We sent a link to <strong>{{ email() }}</strong> when you joined. Open it to comment, enrol in
+      courses, register for events and send messages. You can keep reading while you wait.
+    </p>
+    @if (resend().kind === 'idle') {
+      <p class="field__help">
+        <ng-container i18n="@@verify.wrong">Wrong address?</ng-container>
+        <a routerLink="/settings/account" i18n="@@verify.change">Change it in Settings</a>.
+      </p>
+    }
+  }
+  @if (sent() || dailyLimit()) {
+    <ng-container ngProjectAs="[slot=footer]">
+      <button
+        llButton
+        slot="footer"
+        variant="quiet"
+        type="button"
+        disabled
+        aria-describedby="resend-wait"
+      >
+        @if (sent()) {
+          <ng-container i18n="@@verify.resendIn">Resend in {{ waitSeconds() }} s</ng-container>
+        } @else {
+          <ng-container i18n="@@verify.resend">Resend email</ng-container>
+        }
+      </button>
+      <button
+        llButton
+        slot="footer"
+        variant="primary"
+        type="button"
+        cdkFocusInitial
+        (click)="close()"
+      >
+        {{ data.backLabel }}
+      </button>
+    </ng-container>
+  } @else {
+    <ng-container ngProjectAs="[slot=footer]">
+      <button llButton slot="footer" variant="quiet" type="button" (click)="close()">
+        <ng-container i18n="@@verify.notNow">Not now</ng-container>
+      </button>
+      <button
+        llButton
+        slot="footer"
+        variant="primary"
+        type="button"
+        cdkFocusInitial
+        [busy]="resend().kind === 'sending'"
+        [disabled]="waitSeconds() > 0"
+        (click)="send()"
+      >
+        @if (resend().kind === 'sending') {
+          <ng-container i18n="@@verify.sending">Sending…</ng-container>
+        } @else if (waitSeconds() > 0) {
+          <ng-container i18n="@@verify.resendIn">Resend in {{ waitSeconds() }} s</ng-container>
+        } @else {
+          <ng-container i18n="@@verify.resend">Resend email</ng-container>
+        }
+      </button>
+    </ng-container>
+  }
+</ll-dialog>

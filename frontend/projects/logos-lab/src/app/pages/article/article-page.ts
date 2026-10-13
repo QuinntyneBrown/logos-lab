@@ -29,6 +29,8 @@ import {
   Skeleton,
 } from '@logos-lab/components';
 import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { readSaveFailure } from '../../content/read-save-failure';
+import { SaveStatus } from '../../content/save-status';
 import { ContentCardView, toContentCard } from '../../content/content-card-view';
 import { plural } from '../../content/plural';
 import { publicationDay } from '../../content/publication-day';
@@ -36,8 +38,6 @@ import { SignInPrompt } from '../../dialogs/sign-in-prompt';
 import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ArticleState } from './article-state';
-import { readSaveFailure } from './read-save-failure';
-import { SaveStatus } from './save-status';
 
 @Component({
   selector: 'll-article-page',
