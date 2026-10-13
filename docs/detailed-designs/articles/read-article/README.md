@@ -93,6 +93,46 @@ Logos Lab database and Media storage.
 - Submission is refused for an image without alt text that is not marked decorative, and for a
   skipped heading level.
 
+## Decisions for the web build
+
+- **Contract.** `ArticlesApi.getArticle(slug)` returns `Article`: `id`, `slug`, `title`, `subtitle`,
+  `coverUrl` and `coverAlt` (both `null` when there is no cover), `contributors` (name, profile slug or
+  `null` for Logos Lab, photo), `publishedAt`, `updatedAt` (`null` unless the article changed after
+  publication), `readingMinutes`, `bodyHtml` (already sanitized by the server), `topics`, `commentCount`,
+  `saved` (`false` for a visitor) and `correction` (`{ date, note }` or `null`). A `404` problem means no
+  published article has that slug. Related items come from `RelatedContentApi.getRelated(contentId)`
+  (`show-related-content`), so a failed related request omits that section and nothing else.
+- **Header.** The eyebrow reads "Article · 12 min read". The byline sits under the subtitle: each
+  contributor's avatar and name linking to their profile (a name without a profile is plain text), joined
+  by "with" when there are several, then "Published" and, only when `updatedAt` is set, "Updated" with
+  dates in the member's locale. The breadcrumb is Explore, the article's first topic, then "Article".
+- **Body.** The cover (`coverUrl` with `coverAlt`) comes first, then `ll-prose` in its article variant
+  with `bodyHtml`. The measure rule (75 characters) is the prose component's. Headings, Scripture
+  references, footnotes and figures need nothing from the page.
+- **Correction.** A non-null `correction` shows a `role="note"` alert "Corrected on {date}" above the body
+  with its note, as in `updated`.
+- **Related.** Up to 4 `ll-content-card` items under "Related" with the eyebrow "Shares a topic". A
+  member sees each card's save toggle; a visitor sees none. An empty list or a failed request omits the
+  section (`L2-047` AC3).
+- **Comments.** The section shows "Comments" with the count and the line from the mock: "Dr. Ortega
+  replies to questions on Fridays." is the expert's own note and is not in the contract, so the page
+  shows "Sign in to join the conversation. Anyone can read it." to a visitor and nothing else for a
+  member. The "Read the N comments" link and the thread itself arrive with the comments feature, which
+  owns the `#comments` section; until then the count in the header's comments button links to it.
+- **Save.** The Save button in the actions is a toggle. A member presses it: `PUT` to the saved-items
+  route, the button reads "Saved" with `aria-pressed="true"`, and a polite status says "Saved". Pressing
+  again removes it and says "Removed from Saved". A visitor sees the sign-in prompt (dialog
+  `sign-in-required`) that returns to the article. A failure keeps the previous state and shows a danger
+  alert; the `saved-limit-reached` problem shows the "Saved is full" warning from `pages/saved/limit`.
+  While the request runs the button is `aria-busy`.
+- **Toast deferred.** The design pairs the "Saved" status with a toast and Undo. The toast waits for the
+  notification work, so the status line carries the confirmation and pressing the button again undoes it.
+- **Loading and failure.** `loading` shows the busy header and body skeleton and announces "Loading the
+  article…" once. A failed load shows the error state with "Try again" and the help address. A `404`
+  shows the not-found page.
+- **Saved flag.** `ContentSummary` gains an optional `saved` flag, which the API sets for a signed-in
+  member on list and page responses (`save-items`).
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |
