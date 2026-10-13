@@ -71,8 +71,10 @@ These settle what the design left open when `ExpertsPage` was built against the 
 - **Toolbar.** A name search (a search pill named "Search experts by name", placeholder "Name, at least
   2 characters", button "Search") and the select "Topic" with "Any topic" first. Choosing a topic or
   searching replaces the address and returns to page 1.
-- **Count line.** "Showing 1–24 of 38 experts". With only a topic: "2 experts in Philosophy of mind".
-  With a search, "No experts match “Bonhoeffer” in Pastoral care" when nothing matches.
+- **Count line.** "Showing 1–24 of 38 experts". With a topic or a search and one page: "2 experts in
+  Philosophy of mind", "1 expert matching “Ortega”" or "1 expert matching “Ortega” in Philosophy of
+  mind"; with more pages the same note follows "Showing 1–24 of 30 experts". When nothing matches it
+  reads "No experts match “Bonhoeffer” in Pastoral care".
 - **Experts.** Each expert is a person row: the name linking to `/experts/{slug}`, the line
   "Christian ethicist · technology and moral formation" and "11 published items".
 - **Validation.** A trimmed search of one character sends no request and shows the summary "One thing
