@@ -11,9 +11,10 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { EVENTS_API, EventAttendance, EventVenue } from '@logos-lab/api';
+import { EVENTS_API, EventAttendance, EventPageModel, EventVenue } from '@logos-lab/api';
 import {
   Badge,
+  Alert,
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -34,6 +35,7 @@ import { eventDay, eventTime, eventWhen } from '../../content/event-when';
 import { viewerZone } from '../../content/viewer-zone';
 import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
+import { toEventNotice } from './to-event-notice';
 import { toEventPanel } from './to-event-panel';
 import { EventPageState } from './event-page-state';
 import { EventViewer } from './event-viewer';
@@ -43,6 +45,7 @@ import { MyEventStatus } from './my-event-status';
   selector: 'll-event-page',
   imports: [
     RouterLink,
+    Alert,
     Badge,
     Breadcrumb,
     Button,
@@ -128,6 +131,15 @@ export class EventPage {
     })),
   );
 
+  /** The head's first fact: the time, "Was …" once cancelled, and "· ended" once over. */
+  private when(event: EventPageModel): string {
+    const when = eventWhen(this.locale, event.startsAt, event.endsAt, this.zone());
+    if (event.cancellation) return $localize`:@@eventPage.when.was:Was ${when}:when:`;
+    return new Date() >= new Date(event.endsAt)
+      ? $localize`:@@eventPage.when.ended:${when}:when: · ended`
+      : when;
+  }
+
   /** "Hybrid · online and at St. Brigid's Hall, Ottawa". */
   private where(attendance: EventAttendance, venue: EventVenue | null): string {
     const place = venue ? `${venue.name}, ${venue.city}` : null;
@@ -185,7 +197,21 @@ export class EventPage {
     const mine = this.mine();
     if (!event || !viewer) return null;
     const position = mine.kind === 'loaded' ? mine.state.registration?.waitlistPosition : null;
-    return toEventPanel(event, viewer, position ?? null, new Date(), this.locale, this.zone());
+    return toEventPanel({
+      event,
+      viewer,
+      waitlistPosition: position ?? null,
+      now: new Date(),
+      locale: this.locale,
+      timeZone: this.zone(),
+    });
+  });
+
+  protected readonly notice = computed(() => {
+    const event = this.event();
+    return event
+      ? toEventNotice(event, this.viewer() === 'registered', this.locale, this.zone())
+      : null;
   });
 
   protected readonly head = computed(() => {
@@ -196,7 +222,8 @@ export class EventPage {
     );
     return {
       ...eventDay(this.locale, event.startsAt, this.zone()),
-      when: eventWhen(this.locale, event.startsAt, event.endsAt, this.zone()),
+      when: this.when(event),
+      cancelled: event.cancellation !== null,
       where: this.where(event.attendance, event.venue),
       online: event.attendance === 'online',
       hosts: hosts ? $localize`:@@eventPage.hostedBy:Hosted by ${hosts}:hosts:` : '',

@@ -24,6 +24,7 @@ export * from './lib/hero/hero';
 export * from './lib/skip-link/skip-link';
 export * from './lib/text-field/search';
 export * from './lib/rsvp-panel/rsvp-panel';
+export * from './lib/rsvp-panel/rsvp-panel-variant';
 export * from './lib/rsvp-panel/rsvp-places';
 export * from './lib/timeline/timeline';
 export * from './lib/top-bar/top-bar';

@@ -13,6 +13,9 @@
   border-color: var(--color-accent);
   background: var(--color-accent-subtle);
 }
+:host(.rsvp--closed) {
+  background: var(--color-bg-subtle);
+}
 .rsvp__title {
   font: var(--text-h4);
 }

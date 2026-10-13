@@ -17,6 +17,11 @@ export class EventPage {
   readonly panelText: Locator;
   readonly panelStatus: Locator;
   readonly panelBadge: Locator;
+  readonly notice: Locator;
+  readonly noticeTitle: Locator;
+  readonly noticeBody: Locator;
+  readonly noticeLink: Locator;
+  readonly panelLink: Locator;
   readonly places: Locator;
   readonly placesText: Locator;
   readonly panelHelp: Locator;
@@ -55,6 +60,11 @@ export class EventPage {
     this.panelText = this.panel.locator('p.rsvp__text');
     this.panelStatus = this.panel.locator('.inline-status');
     this.panelBadge = this.panel.locator('.badge');
+    this.notice = main.locator('.event__notice .alert');
+    this.noticeTitle = this.notice.locator('.alert__title');
+    this.noticeBody = this.notice.locator('.alert__body');
+    this.noticeLink = this.notice.getByRole('link');
+    this.panelLink = this.panel.getByRole('link');
     this.places = this.panel.getByRole('progressbar', { name: 'Places taken' });
     this.placesText = this.panel.locator('.rsvp__meter p');
     this.panelHelp = this.panel.locator('p.field__help');

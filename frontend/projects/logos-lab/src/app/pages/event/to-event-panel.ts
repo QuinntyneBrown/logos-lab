@@ -1,22 +1,16 @@
-import { EventPageModel } from '@logos-lab/api';
-import { eventClock, eventDate } from '../../content/event-moment';
+import { dayWithWeekday } from '../../content/day-with-weekday';
+import { eventClock, eventDate, eventDateWithYear } from '../../content/event-moment';
 import { plural } from '../../content/plural';
+import { EventPanelInput } from './event-panel-input';
 import { EventPanelView } from './event-panel-view';
-import { EventViewer } from './event-viewer';
 
 const MINUTE = 60_000;
 /** The join link shows this long before the start. */
 const JOIN_WINDOW = 15 * MINUTE;
 
 /** The panel for this viewer and this event, as it stands at `now`. */
-export function toEventPanel(
-  event: EventPageModel,
-  viewer: EventViewer,
-  waitlistPosition: number | null,
-  now: Date,
-  locale: string,
-  timeZone: string | undefined,
-): EventPanelView {
+export function toEventPanel(input: EventPanelInput): EventPanelView {
+  const { event, viewer, waitlistPosition, now, locale, timeZone } = input;
   const number = new Intl.NumberFormat(locale);
   const full = event.capacity !== null && event.registeredCount >= event.capacity;
   const left = event.capacity === null ? null : event.capacity - event.registeredCount;
@@ -55,7 +49,7 @@ export function toEventPanel(
           text: placesText(),
         };
   const base = {
-    going: false,
+    variant: 'default' as const,
     text: null,
     note: null,
     places,
@@ -63,8 +57,48 @@ export function toEventPanel(
     badge: null,
     help: null,
     signIn: false,
+    link: null,
   };
 
+  if (event.cancellation) {
+    const on = dayWithWeekday(locale, event.cancellation.cancelledOn);
+    return {
+      ...base,
+      variant: 'closed',
+      places: null,
+      heading: $localize`:@@eventPage.cancelled.title:Registration is unavailable`,
+      text: $localize`:@@eventPage.cancelled.text:This event was cancelled on ${on}:date:. If you were registered, there is nothing more to do.`,
+    };
+  }
+  if (now >= end) {
+    const on = eventDateWithYear(locale, start, timeZone);
+    return {
+      ...base,
+      variant: 'closed',
+      places: null,
+      heading: $localize`:@@eventPage.ended.title:This event has ended`,
+      text: $localize`:@@eventPage.ended.text:This event took place on ${on}:date:.`,
+      link: { label: $localize`:@@eventPage.ended.link:See upcoming events`, path: '/events' },
+    };
+  }
+  const closesAt = event.registrationClosesAt ? new Date(event.registrationClosesAt) : null;
+  const closed = closesAt !== null && now >= closesAt;
+  if (closed && viewer !== 'registered' && viewer !== 'waitlisted') {
+    const time = eventClock(locale, closesAt, timeZone);
+    const day = eventDate(locale, closesAt, timeZone);
+    const coming = number.format(event.registeredCount);
+    return {
+      ...base,
+      variant: 'closed',
+      places: null,
+      heading: $localize`:@@eventPage.closed.title:Registration has closed`,
+      text: plural(locale, event.registeredCount, {
+        one: $localize`:@@eventPage.closed.text.one:Registration closed at ${time}:time: on ${day}:day:. ${coming}:count: person is coming.`,
+        other: $localize`:@@eventPage.closed.text.other:Registration closed at ${time}:time: on ${day}:day:. ${coming}:count: people are coming.`,
+      }),
+      link: { label: $localize`:@@eventPage.closed.link:See other events`, path: '/events' },
+    };
+  }
   if (viewer === 'visitor') {
     return {
       ...base,
@@ -80,7 +114,7 @@ export function toEventPanel(
       const until = eventClock(locale, end, timeZone);
       return {
         ...base,
-        going: true,
+        variant: 'going' as const,
         heading: $localize`:@@eventPage.live.title:Happening now`,
         badge: $localize`:@@eventPage.live.badge:Happening now`,
         status: { tone: 'success', text: $localize`:@@eventPage.registered.status:Registered` },
@@ -97,7 +131,7 @@ export function toEventPanel(
       );
       return {
         ...base,
-        going: true,
+        variant: 'going' as const,
         heading: $localize`:@@eventPage.registered.title:You're registered`,
         status: {
           tone: 'success',
@@ -110,7 +144,7 @@ export function toEventPanel(
     const day = eventDate(locale, opens, timeZone);
     return {
       ...base,
-      going: true,
+      variant: 'going' as const,
       heading: $localize`:@@eventPage.registered.title:You're registered`,
       status: { tone: 'success', text: $localize`:@@eventPage.registered.status:Registered` },
       help: online

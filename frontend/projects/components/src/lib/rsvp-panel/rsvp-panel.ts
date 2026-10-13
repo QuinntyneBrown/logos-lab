@@ -15,6 +15,7 @@ let nextTitleId = 0;
   host: {
     class: 'rsvp',
     '[class.rsvp--going]': "variant() === 'going'",
+    '[class.rsvp--closed]': "variant() === 'closed'",
     '[attr.aria-labelledby]': 'titleId()',
   },
 })

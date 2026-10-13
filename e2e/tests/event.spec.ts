@@ -367,6 +367,173 @@ test.describe('Event page', () => {
 
     await expect(event.panelTitle).toHaveText('Register for this event');
   });
+
+  // L2-052 AC4 · alert AC-1, rsvp-panel AC-9
+  test('a cancelled event says so with its reason, and offers no registration', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond(
+      'GET',
+      '/events/by-slug/faith-and-ai-evening-is-creativity-sacred',
+      eventPage({
+        ...creativityEveningPage,
+        cancellation: {
+          cancelledOn: '2026-10-13',
+          reason:
+            "St. Brigid's Hall had a burst pipe and is closed for repairs, so the evening can't go ahead.",
+        },
+      }),
+    );
+    api.respond('GET', '/me/events/e-creativity', { registration: null });
+    const event = new EventPage(page);
+
+    await event.open('/events/faith-and-ai-evening-is-creativity-sacred');
+
+    await expect(event.notice).toHaveAttribute('role', 'alert');
+    await expect(event.noticeTitle).toHaveText('This event is cancelled');
+    await expect(event.noticeBody).toContainText('had a burst pipe');
+    await expect(event.noticeLink).toHaveAttribute('href', '/events');
+    await expect(event.heading.locator('s')).toHaveText(
+      'Faith and AI Evening: Is Creativity Sacred?',
+    );
+    await expect(event.facts.nth(0)).toContainText(/^Was Thursday/);
+    await expect(event.panel).toHaveClass(/rsvp--closed/);
+    await expect(event.panelTitle).toHaveText('Registration is unavailable');
+    await expect(event.panelText).toHaveText(
+      'This event was cancelled on Tue, Oct 13, 2026. If you were registered, there is nothing more to do.',
+    );
+    await expect(event.places).toHaveCount(0);
+    await expect(event.panelLink).toHaveCount(0);
+  });
+
+  // L2-052 AC1 · rsvp-panel AC-10
+  test('an event that has ended says so and points to the upcoming ones', async ({ page, api }) => {
+    await page.clock.setFixedTime(new Date('2026-10-28T15:00:00Z'));
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.facts.nth(0)).toContainText(/ended$/);
+    await expect(event.panel).toHaveClass(/rsvp--closed/);
+    await expect(event.panelTitle).toHaveText('This event has ended');
+    await expect(event.panelText).toHaveText('This event took place on Tue, Oct 27, 2026.');
+    await expect(event.panelLink).toHaveText('See upcoming events');
+    await expect(event.panelLink).toHaveAttribute('href', '/events');
+    await expect(event.places).toHaveCount(0);
+  });
+
+  // L2-053 AC3 · rsvp-panel AC-11
+  test('once registration has closed, someone who is not registered cannot register', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(new Date('2026-10-21T20:00:00Z'));
+    api.respond('GET', '/me', members.miriam);
+    api.respond(
+      'GET',
+      '/events/by-slug/faith-and-ai-evening-is-creativity-sacred',
+      eventPage({ ...creativityEveningPage, registrationClosesAt: '2026-10-21T16:00:00Z' }),
+    );
+    api.respond('GET', '/me/events/e-creativity', { registration: null });
+    const event = new EventPage(page);
+
+    await event.open('/events/faith-and-ai-evening-is-creativity-sacred');
+
+    await expect(event.panel).toHaveClass(/rsvp--closed/);
+    await expect(event.panelTitle).toHaveText('Registration has closed');
+    await expect(event.panelText).toContainText(
+      /Registration closed at 12:00.*ET on Wed, Oct 21\./,
+    );
+    await expect(event.panelText).toContainText('87 people are coming.');
+    await expect(event.panelLink).toHaveText('See other events');
+  });
+
+  // L2-053 AC3
+  test('a member who registered before the cut-off keeps their place after it', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.setFixedTime(new Date('2026-10-21T20:00:00Z'));
+    api.respond('GET', '/me', members.miriam);
+    api.respond(
+      'GET',
+      '/events/by-slug/faith-and-ai-evening-is-creativity-sacred',
+      eventPage({ ...creativityEveningPage, registrationClosesAt: '2026-10-21T16:00:00Z' }),
+    );
+    api.respond('GET', '/me/events/e-creativity', {
+      registration: { status: 'registered', waitlistPosition: null },
+    });
+    const event = new EventPage(page);
+
+    await event.open('/events/faith-and-ai-evening-is-creativity-sacred');
+
+    await expect(event.panelTitle).toHaveText("You're registered");
+  });
+
+  // L2-055 AC3 · alert AC-1
+  test('a changed time is announced with the old time, and a registered member is told they keep their place', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond(
+      'GET',
+      '/events/by-slug/live-qa-imago-dei-and-machine-personhood',
+      eventPage({
+        startsAt: '2026-10-27T17:00:00Z',
+        endsAt: '2026-10-27T18:00:00Z',
+        change: {
+          previousStartsAt: '2026-10-27T16:00:00Z',
+          previousEndsAt: '2026-10-27T17:00:00Z',
+          note: 'Dr. Abena Mensah moved it one hour later.',
+        },
+      }),
+    );
+    api.respond('GET', '/me/events/e-live-qa', {
+      registration: { status: 'registered', waitlistPosition: null },
+    });
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.notice).toHaveAttribute('role', 'status');
+    await expect(event.noticeTitle).toHaveText('The time of this event has changed');
+    await expect(event.noticeBody).toContainText('Dr. Abena Mensah moved it one hour later.');
+    await expect(event.noticeBody).toContainText(
+      /It now runs 1:00.*2:00.*ET on Tue, Oct 27 \(it was 12:00.*1:00.*\)\./,
+    );
+    await expect(event.noticeBody).toContainText("You're still registered.");
+    await expect(event.facts.nth(0)).toContainText(/1:00.*2:00.*ET/);
+  });
+
+  // L2-055 AC3
+  test('a visitor reads the same notice without being told about a registration', async ({
+    page,
+    api,
+  }) => {
+    api.respond(
+      'GET',
+      '/events/by-slug/live-qa-imago-dei-and-machine-personhood',
+      eventPage({
+        startsAt: '2026-10-27T17:00:00Z',
+        endsAt: '2026-10-27T18:00:00Z',
+        change: {
+          previousStartsAt: '2026-10-27T16:00:00Z',
+          previousEndsAt: '2026-10-27T17:00:00Z',
+          note: null,
+        },
+      }),
+    );
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.noticeTitle).toHaveText('The time of this event has changed');
+    await expect(event.noticeBody).not.toContainText('still registered');
+  });
 });
 
 test.describe('Event page for a viewer in another time zone', () => {

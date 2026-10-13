@@ -11,6 +11,18 @@
           top="md"
           [items]="trail()"
         ></nav>
+        @if (notice(); as notice) {
+          <div class="event__notice">
+            <ll-alert [tone]="notice.tone" [heading]="notice.heading">
+              {{ notice.body }}
+              @if (notice.link; as link) {
+                <a llButton variant="quiet" size="sm" slot="actions" [routerLink]="link.path">{{
+                  link.label
+                }}</a>
+              }
+            </ll-alert>
+          </div>
+        }
         <header
           llEventHead
           [title]="event.title"
@@ -21,6 +33,7 @@
           [where]="head.where"
           [online]="head.online"
           [hosts]="head.hosts"
+          [cancelled]="head.cancelled"
         >
           <div
             llButtonGroup
@@ -116,7 +129,7 @@
         @if (panel(); as panel) {
           <aside
             llRsvpPanel
-            [variant]="panel.going ? 'going' : 'default'"
+            [variant]="panel.variant"
             [heading]="panel.heading"
             [text]="panel.text"
             [note]="panel.note"
@@ -149,6 +162,9 @@
                 i18n="@@eventPage.createAccount"
                 >Create an account</a
               >
+            }
+            @if (panel.link; as link) {
+              <a llButton variant="quiet" block [routerLink]="link.path">{{ link.label }}</a>
             }
             @if (panel.help) {
               <p class="field__help" slot="help">{{ panel.help }}</p>

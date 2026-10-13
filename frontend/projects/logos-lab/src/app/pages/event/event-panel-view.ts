@@ -1,9 +1,8 @@
-import { RsvpPlaces } from '@logos-lab/components';
+import { RsvpPanelVariant, RsvpPlaces } from '@logos-lab/components';
 
 /** What the registration panel says for the viewer and the event. */
 export interface EventPanelView {
-  /** The panel is washed for someone who is in. */
-  readonly going: boolean;
+  readonly variant: RsvpPanelVariant;
   readonly heading: string;
   readonly text: string | null;
   readonly note: string | null;
@@ -16,4 +15,6 @@ export interface EventPanelView {
   readonly help: string | null;
   /** Offers to sign in or create an account. */
   readonly signIn: boolean;
+  /** A way on for someone the event is over for. */
+  readonly link: { readonly label: string; readonly path: string } | null;
 }
