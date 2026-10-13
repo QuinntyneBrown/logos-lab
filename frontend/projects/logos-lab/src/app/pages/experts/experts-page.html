@@ -6,7 +6,31 @@
     i18n-heading="@@experts.title"
     [sub]="sub()"
   />
+  @if (invalid()) {
+    <ll-form-summary [heading]="summaryHeading" [errors]="errors()" />
+  }
   <div llToolbar>
+    <ll-form-field
+      class="experts__search"
+      controlId="name-search"
+      [error]="errors()[0]?.message ?? null"
+    >
+      <form
+        llSearch
+        inputId="name-search"
+        label="Search experts by name"
+        i18n-label="@@experts.search.label"
+        placeholder="Name, at least 2 characters"
+        i18n-placeholder="@@experts.search.placeholder"
+        [value]="typed()"
+        [maxlength]="200"
+        (searched)="search($event)"
+      >
+        <button llButton variant="quiet" size="sm" type="submit" i18n="@@experts.search.action">
+          Search
+        </button>
+      </form>
+    </ll-form-field>
     <div llToolbarTools>
       <ll-select
         label="Topic"
@@ -23,14 +47,14 @@
     </div>
   </div>
   @if (range(); as range) {
-    @if (range.topic && !range.paged) {
-      <p llToolbarCount class="experts__count" i18n="@@experts.count.topic">
-        <strong>{{ range.total }}</strong> {{ range.noun }} in {{ range.topic }}
+    @if (range.note && !range.paged) {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count.note">
+        <strong>{{ range.total }}</strong> {{ range.noun }} {{ range.note }}
       </p>
-    } @else if (range.topic) {
-      <p llToolbarCount class="experts__count" i18n="@@experts.count.topic.paged">
+    } @else if (range.note) {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count.note.paged">
         Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
-        <strong>{{ range.total }}</strong> {{ range.noun }} in {{ range.topic }}
+        <strong>{{ range.total }}</strong> {{ range.noun }} {{ range.note }}
       </p>
     } @else {
       <p llToolbarCount class="experts__count" i18n="@@experts.count">
@@ -38,6 +62,24 @@
         <strong>{{ range.total }}</strong> {{ range.noun }}
       </p>
     }
+  }
+  @if (noMatches(); as none) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.none">
+      <strong>No experts</strong> match {{ none.what }}
+    </p>
+    <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">
+      {{ none.text }}
+      <button
+        llButton
+        variant="primary"
+        type="button"
+        slot="actions"
+        (click)="clearFilters()"
+        i18n="@@experts.none.action"
+      >
+        Clear filters
+      </button>
+    </ll-empty-state>
   }
   <ul llPersonList>
     @for (row of rows(); track row.path) {

@@ -2,11 +2,17 @@ import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from 
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EXPERTS_API, ExpertsQuery } from '@logos-lab/api';
+import { FormError } from '@logos-lab/components';
 import {
+  Button,
+  EmptyState,
+  FormField,
+  FormSummary,
   PageHeader,
   Pagination,
   Person,
   PersonList,
+  Search,
   SearchFilterToolbar,
   Select,
   ToolbarCount,
@@ -18,16 +24,24 @@ import { plural } from '../../content/plural';
 /** Experts on a directory page (the API's fixed page size). */
 const PAGE_SIZE = 24;
 
+/** A name search shorter than this is refused (L2-004 AC1's rule for the directory). */
+const MIN_NAME = 2;
+
 /** A topic slug: lower-case words joined by hyphens. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 @Component({
   selector: 'll-experts-page',
   imports: [
+    Button,
+    EmptyState,
+    FormField,
+    FormSummary,
     PageHeader,
     Pagination,
     Person,
     PersonList,
+    Search,
     SearchFilterToolbar,
     Select,
     ToolbarCount,
@@ -43,16 +57,34 @@ export class ExpertsPage {
   private readonly router = inject(Router);
   private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
+  /** The name as typed, trimmed; a search shorter than two characters is never sent. */
+  protected readonly typed = computed(() => (this.params().get('q') ?? '').trim());
+  protected readonly invalid = computed(() => this.typed().length === 1);
+  protected readonly errors = computed<readonly FormError[]>(() =>
+    this.invalid()
+      ? [
+          {
+            controlId: 'name-search',
+            message: $localize`:@@experts.search.error:Enter at least 2 characters of a name`,
+          },
+        ]
+      : [],
+  );
+  protected readonly summaryHeading = $localize`:@@experts.search.summary:One thing to fix before you search`;
+
   /** What the address asks for. */
-  protected readonly query = computed<ExpertsQuery>(() => {
-    const page = Number(this.params().get('page'));
-    const topic = this.params().get('topic') ?? '';
-    return {
-      q: '',
-      topic: SLUG.test(topic) ? topic : null,
-      page: Number.isInteger(page) && page >= 1 ? page : 1,
-    };
-  });
+  protected readonly query = computed<ExpertsQuery>(
+    () => {
+      const page = Number(this.params().get('page'));
+      const topic = this.params().get('topic') ?? '';
+      return {
+        q: this.typed().length >= MIN_NAME ? this.typed() : '',
+        topic: SLUG.test(topic) ? topic : null,
+        page: Number.isInteger(page) && page >= 1 ? page : 1,
+      };
+    },
+    { equal: (a, b) => a.q === b.q && a.topic === b.topic && a.page === b.page },
+  );
   private readonly directory = toSignal(
     toObservable(this.query).pipe(switchMap((query) => this.api.listExperts(query))),
   );
@@ -93,11 +125,51 @@ export class ExpertsPage {
 
   protected setTopic(slug: string): void {
     // A narrower list starts again at its first page; the address replaces the last one.
-    void this.router.navigate(['/experts'], {
-      queryParams: { topic: slug || null },
-      replaceUrl: true,
-    });
+    this.go({ q: this.typed() || null, topic: slug || null });
   }
+
+  protected search(text: string): void {
+    this.go({ q: text.trim() || null, topic: this.query().topic });
+  }
+
+  protected clearFilters(): void {
+    this.go({ q: null, topic: null });
+  }
+
+  private go(params: { q: string | null; topic: string | null }): void {
+    void this.router.navigate(['/experts'], { queryParams: params, replaceUrl: true });
+  }
+
+  /** Nothing matched the search and topic that were asked for. */
+  protected readonly noMatches = computed(() => {
+    const directory = this.directory();
+    if (!directory || directory.total > 0) return null;
+    const q = this.query().q;
+    const topic = this.topicName();
+    const total = new Intl.NumberFormat(this.locale).format(directory.totalExperts);
+    const what =
+      q && topic
+        ? $localize`:@@experts.none.both:“${q}:q:” in ${topic}:topic:`
+        : q
+          ? $localize`:@@experts.none.q:“${q}:q:”`
+          : topic;
+    if (!what) return null;
+    return {
+      what,
+      heading: $localize`:@@experts.none.title:No experts match ${what}:what:`,
+      text: $localize`:@@experts.none.text:Check the spelling, or clear the filters to see all ${total}:count: experts.`,
+    };
+  });
+
+  /** The search and topic the count line names after the number: "matching “Ortega” in …". */
+  private readonly note = computed(() => {
+    const q = this.query().q;
+    const topic = this.topicName();
+    if (q && topic) return $localize`:@@experts.note.both:matching “${q}:q:” in ${topic}:topic:`;
+    if (q) return $localize`:@@experts.note.q:matching “${q}:q:”`;
+    if (topic) return $localize`:@@experts.note.topic:in ${topic}:topic:`;
+    return null;
+  });
 
   protected readonly pageCount = computed(() => this.directory()?.pageCount ?? 0);
   protected readonly pagerLabels = {
@@ -123,7 +195,7 @@ export class ExpertsPage {
       from: format.format(first),
       to: format.format(first + directory.experts.length - 1),
       total: format.format(directory.total),
-      topic: this.topicName(),
+      note: this.note(),
       paged: directory.pageCount > 1,
       noun: plural(this.locale, directory.total, {
         one: $localize`:@@experts.noun.one:expert`,

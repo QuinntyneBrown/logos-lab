@@ -12,6 +12,11 @@ export class ExpertsPage {
   readonly topic: Locator;
   readonly pager: Locator;
   readonly pagerText: Locator;
+  readonly summary: Locator;
+  readonly fieldError: Locator;
+  readonly emptyTitle: Locator;
+  readonly emptyState: Locator;
+  readonly clearFilters: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -25,6 +30,11 @@ export class ExpertsPage {
     this.topic = main.getByLabel('Topic');
     this.pager = main.getByRole('navigation', { name: 'Pages of experts' });
     this.pagerText = this.pager.locator('.pager__text');
+    this.summary = main.getByRole('alert').filter({ hasText: 'One thing to fix' });
+    this.fieldError = main.locator('.field__error');
+    this.emptyState = main.locator('.empty');
+    this.emptyTitle = main.locator('.empty__title');
+    this.clearFilters = this.emptyState.getByRole('button', { name: 'Clear filters' });
   }
 
   async open(path = '/experts'): Promise<void> {
@@ -35,6 +45,12 @@ export class ExpertsPage {
   /** Picks a topic by its visible name: "Philosophy of mind". */
   async chooseTopic(name: string): Promise<void> {
     await this.topic.selectOption({ label: name });
+  }
+
+  /** Types a name into the search field and submits it. */
+  async searchFor(text: string): Promise<void> {
+    await this.search.fill(text);
+    await this.search.press('Enter');
   }
 
   async goToPage(number: number): Promise<void> {

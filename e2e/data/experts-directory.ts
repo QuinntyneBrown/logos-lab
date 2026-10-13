@@ -66,3 +66,8 @@ export function expertDirectory(overrides: Partial<Record<string, unknown>> = {}
     ...overrides,
   };
 }
+
+/** GET /api/v1/experts when nothing matches the search and topic: docs/mocks/pages/experts/no-results. */
+export function noExperts() {
+  return expertDirectory({ experts: [], total: 0, pageCount: 0 });
+}

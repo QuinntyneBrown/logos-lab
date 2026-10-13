@@ -1,4 +1,4 @@
-import { expertDirectory, expertPage } from '../data/experts-directory';
+import { expertDirectory, expertPage, noExperts } from '../data/experts-directory';
 import { expect, test } from '../fixtures/test';
 import { ExpertsPage } from '../pages/experts.page';
 
@@ -86,5 +86,69 @@ test.describe('Experts directory', () => {
 
     await expect(experts.topic).toHaveValue('philosophy-of-mind');
     expect(api.queriesTo('GET', '/experts')).toEqual(['?topic=philosophy-of-mind']);
+  });
+
+  // L2-022 AC3 · search-filter-toolbar AC-1
+  test('searching by name asks for it and says what was searched', async ({ page, api }) => {
+    api.respond('GET', '/experts', expertDirectory());
+    api.respond(
+      'GET',
+      '/experts?q=Ortega',
+      expertDirectory({ experts: expertPage.slice(0, 1), total: 1, pageCount: 1 }),
+    );
+    const experts = new ExpertsPage(page);
+    await experts.open();
+
+    await experts.searchFor('Ortega');
+
+    await expect(page).toHaveURL('/experts?q=Ortega');
+    await expect(experts.search).toHaveValue('Ortega');
+    await expect(experts.count).toHaveText('1 expert matching “Ortega”');
+    await expect(experts.rows).toHaveCount(1);
+  });
+
+  // L2-022 AC3 · form-layout AC-1
+  test('a one-letter search is refused before any request', async ({ page, api }) => {
+    api.respond('GET', '/experts', expertDirectory());
+    const experts = new ExpertsPage(page);
+    await experts.open();
+
+    await experts.searchFor('M');
+
+    await expect(experts.summary).toContainText('One thing to fix before you search');
+    await expect(experts.summary).toContainText('Enter at least 2 characters of a name');
+    await expect(experts.fieldError).toHaveText('Enter at least 2 characters of a name');
+    await expect(experts.search).toHaveAttribute('aria-invalid', 'true');
+    await expect(experts.search).toHaveValue('M');
+    await expect(experts.rows).toHaveCount(24);
+    expect(api.queriesTo('GET', '/experts')).toEqual(['']);
+  });
+
+  // L2-022 AC3 · empty-state AC-10
+  test('a search that matches nobody names it and offers to clear the filters', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/experts', expertDirectory());
+    api.respond('GET', '/experts?q=Bonhoeffer&topic=pastoral-care', noExperts());
+    const experts = new ExpertsPage(page);
+
+    await experts.open('/experts?q=Bonhoeffer&topic=pastoral-care');
+
+    await expect(experts.count).toHaveText(
+      /^\s*No experts match “Bonhoeffer” in Pastoral care\s*$/,
+    );
+    await expect(experts.emptyTitle).toHaveText('No experts match “Bonhoeffer” in Pastoral care');
+    await expect(experts.emptyState).toContainText(
+      'Check the spelling, or clear the filters to see all 38 experts.',
+    );
+    await expect(experts.rows).toHaveCount(0);
+
+    await experts.clearFilters.click();
+
+    await expect(page).toHaveURL('/experts');
+    await expect(experts.rows).toHaveCount(24);
+    await expect(experts.search).toHaveValue('');
+    await expect(experts.topic).toHaveValue('');
   });
 });
