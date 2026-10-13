@@ -32,6 +32,11 @@ export class ExpertsPage {
     await this.heading.waitFor();
   }
 
+  /** Picks a topic by its visible name: "Philosophy of mind". */
+  async chooseTopic(name: string): Promise<void> {
+    await this.topic.selectOption({ label: name });
+  }
+
   async goToPage(number: number): Promise<void> {
     await this.pager.getByRole('link', { name: `Page ${number}`, exact: true }).click();
   }

@@ -6,11 +6,38 @@
     i18n-heading="@@experts.title"
     [sub]="sub()"
   />
+  <div llToolbar>
+    <div llToolbarTools>
+      <ll-select
+        label="Topic"
+        i18n-label="@@experts.topic.label"
+        name="topic"
+        [value]="query().topic ?? ''"
+        (valueChange)="setTopic($event)"
+      >
+        <option value="" i18n="@@experts.topic.any">Any topic</option>
+        @for (topic of topics(); track topic.slug) {
+          <option [value]="topic.slug">{{ topic.name }}</option>
+        }
+      </ll-select>
+    </div>
+  </div>
   @if (range(); as range) {
-    <p llToolbarCount class="experts__count" i18n="@@experts.count">
-      Showing <strong>{{ range.from }}–{{ range.to }}</strong> of <strong>{{ range.total }}</strong>
-      {{ range.noun }}
-    </p>
+    @if (range.topic && !range.paged) {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count.topic">
+        <strong>{{ range.total }}</strong> {{ range.noun }} in {{ range.topic }}
+      </p>
+    } @else if (range.topic) {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count.topic.paged">
+        Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+        <strong>{{ range.total }}</strong> {{ range.noun }} in {{ range.topic }}
+      </p>
+    } @else {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count">
+        Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+        <strong>{{ range.total }}</strong> {{ range.noun }}
+      </p>
+    }
   }
   <ul llPersonList>
     @for (row of rows(); track row.path) {

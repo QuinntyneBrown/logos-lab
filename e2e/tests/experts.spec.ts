@@ -51,4 +51,40 @@ test.describe('Experts directory', () => {
     await expect(experts.count).toHaveText('Showing 25–38 of 38 experts');
     await expect(experts.rows).toHaveCount(14);
   });
+
+  // L2-022 AC2 · select AC-4, search-filter-toolbar AC-1
+  test('choosing a topic narrows the directory and goes back to the first page', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/experts', expertDirectory());
+    api.respond(
+      'GET',
+      '/experts?topic=philosophy-of-mind',
+      expertDirectory({ experts: expertPage.slice(0, 2), total: 2, pageCount: 1 }),
+    );
+    const experts = new ExpertsPage(page);
+    await experts.open('/experts?page=2');
+    await expect(experts.topic).toHaveValue('');
+    await expect(experts.topic.locator('option').first()).toHaveText('Any topic');
+
+    await experts.chooseTopic('Philosophy of mind');
+
+    await expect(page).toHaveURL('/experts?topic=philosophy-of-mind');
+    await expect(experts.topic).toHaveValue('philosophy-of-mind');
+    await expect(experts.count).toHaveText('2 experts in Philosophy of mind');
+    await expect(experts.rows).toHaveCount(2);
+    await expect(experts.pager).toHaveCount(0);
+  });
+
+  // L2-022 AC2 · search-filter-toolbar AC-12
+  test('an address with a topic opens with it chosen', async ({ page, api }) => {
+    api.respond('GET', '/experts', expertDirectory({ total: 2, pageCount: 1 }));
+    const experts = new ExpertsPage(page);
+
+    await experts.open('/experts?topic=philosophy-of-mind');
+
+    await expect(experts.topic).toHaveValue('philosophy-of-mind');
+    expect(api.queriesTo('GET', '/experts')).toEqual(['?topic=philosophy-of-mind']);
+  });
 });

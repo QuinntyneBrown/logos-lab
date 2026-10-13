@@ -1,17 +1,38 @@
 import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EXPERTS_API, ExpertsQuery } from '@logos-lab/api';
-import { PageHeader, Pagination, Person, PersonList, ToolbarCount } from '@logos-lab/components';
+import {
+  PageHeader,
+  Pagination,
+  Person,
+  PersonList,
+  SearchFilterToolbar,
+  Select,
+  ToolbarCount,
+  ToolbarTools,
+} from '@logos-lab/components';
 import { switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
 
 /** Experts on a directory page (the API's fixed page size). */
 const PAGE_SIZE = 24;
 
+/** A topic slug: lower-case words joined by hyphens. */
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 @Component({
   selector: 'll-experts-page',
-  imports: [PageHeader, Pagination, Person, PersonList, ToolbarCount],
+  imports: [
+    PageHeader,
+    Pagination,
+    Person,
+    PersonList,
+    SearchFilterToolbar,
+    Select,
+    ToolbarCount,
+    ToolbarTools,
+  ],
   templateUrl: './experts-page.html',
   styleUrl: './experts-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,12 +40,18 @@ const PAGE_SIZE = 24;
 export class ExpertsPage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EXPERTS_API);
+  private readonly router = inject(Router);
   private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
   /** What the address asks for. */
   protected readonly query = computed<ExpertsQuery>(() => {
     const page = Number(this.params().get('page'));
-    return { q: '', topic: null, page: Number.isInteger(page) && page >= 1 ? page : 1 };
+    const topic = this.params().get('topic') ?? '';
+    return {
+      q: '',
+      topic: SLUG.test(topic) ? topic : null,
+      page: Number.isInteger(page) && page >= 1 ? page : 1,
+    };
   });
   private readonly directory = toSignal(
     toObservable(this.query).pipe(switchMap((query) => this.api.listExperts(query))),
@@ -59,6 +86,19 @@ export class ExpertsPage {
     }),
   );
 
+  protected readonly topics = computed(() => this.directory()?.topics ?? []);
+  protected readonly topicName = computed(
+    () => this.topics().find((topic) => topic.slug === this.query().topic)?.name ?? null,
+  );
+
+  protected setTopic(slug: string): void {
+    // A narrower list starts again at its first page; the address replaces the last one.
+    void this.router.navigate(['/experts'], {
+      queryParams: { topic: slug || null },
+      replaceUrl: true,
+    });
+  }
+
   protected readonly pageCount = computed(() => this.directory()?.pageCount ?? 0);
   protected readonly pagerLabels = {
     label: $localize`:@@experts.pager.label:Pages of experts`,
@@ -83,6 +123,8 @@ export class ExpertsPage {
       from: format.format(first),
       to: format.format(first + directory.experts.length - 1),
       total: format.format(directory.total),
+      topic: this.topicName(),
+      paged: directory.pageCount > 1,
       noun: plural(this.locale, directory.total, {
         one: $localize`:@@experts.noun.one:expert`,
         other: $localize`:@@experts.noun.other:experts`,
