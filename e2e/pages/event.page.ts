@@ -12,6 +12,10 @@ export class EventPage {
   readonly aboutText: Locator;
   readonly topics: Locator;
   readonly hosts: Locator;
+  readonly where: Locator;
+  readonly venueName: Locator;
+  readonly venueAddress: Locator;
+  readonly mapsLink: Locator;
   readonly zoneToggle: Locator;
   readonly agenda: Locator;
   readonly agendaItems: Locator;
@@ -32,6 +36,10 @@ export class EventPage {
     this.agenda = main.getByRole('region', { name: 'Agenda' });
     this.agendaItems = this.agenda.locator('ol.timeline > li');
     this.agendaNote = this.agenda.locator('.field__help');
+    this.where = main.getByRole('region', { name: 'Where' });
+    this.venueName = this.where.locator('strong');
+    this.venueAddress = this.where.locator('address');
+    this.mapsLink = this.where.getByRole('link', { name: 'Open in your maps app' });
     this.hosts = main.getByRole('region', { name: 'Host' }).locator('li.person');
   }
 

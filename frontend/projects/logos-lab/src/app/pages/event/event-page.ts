@@ -11,7 +11,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { EVENTS_API } from '@logos-lab/api';
+import { EVENTS_API, EventAttendance, EventVenue } from '@logos-lab/api';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,6 +20,7 @@ import {
   Chip,
   Chips,
   EventHead,
+  Icon,
   Person,
   PersonList,
   Prose,
@@ -41,6 +42,7 @@ import { EventPageState } from './event-page-state';
     Chip,
     Chips,
     EventHead,
+    Icon,
     NotFoundPage,
     Person,
     PersonList,
@@ -114,6 +116,28 @@ export class EventPage {
     })),
   );
 
+  /** "Hybrid · online and at St. Brigid's Hall, Ottawa". */
+  private where(attendance: EventAttendance, venue: EventVenue | null): string {
+    const place = venue ? `${venue.name}, ${venue.city}` : null;
+    switch (attendance) {
+      case 'online':
+        return $localize`:@@eventPage.where.online:Online`;
+      case 'hybrid':
+        return place
+          ? $localize`:@@eventPage.where.hybrid:Hybrid · online and at ${place}:place:`
+          : $localize`:@@eventPage.where.hybridNoVenue:Hybrid · online and in person`;
+      default:
+        return place
+          ? $localize`:@@eventPage.where.inPerson:In person · ${place}:place:`
+          : $localize`:@@eventPage.where.inPersonNoVenue:In person`;
+    }
+  }
+
+  /** The address in the maps app of the viewer's device. */
+  protected mapsLink(venue: EventVenue): string {
+    return `geo:0,0?q=${encodeURIComponent(venue.address)}`;
+  }
+
   protected readonly head = computed(() => {
     const event = this.event();
     if (!event) return null;
@@ -123,7 +147,8 @@ export class EventPage {
     return {
       ...eventDay(this.locale, event.startsAt, this.zone()),
       when: eventWhen(this.locale, event.startsAt, event.endsAt, this.zone()),
-      where: $localize`:@@eventPage.where.online:Online`,
+      where: this.where(event.attendance, event.venue),
+      online: event.attendance === 'online',
       hosts: hosts ? $localize`:@@eventPage.hostedBy:Hosted by ${hosts}:hosts:` : '',
     };
   });

@@ -19,6 +19,7 @@
           [datetime]="event.startsAt"
           [when]="head.when"
           [where]="head.where"
+          [online]="head.online"
           [hosts]="head.hosts"
         >
           <div
@@ -79,6 +80,21 @@
               }
             </ol>
             <p class="field__help">{{ zoneNote() }}</p>
+          </section>
+        }
+        @if (event.venue; as venue) {
+          <section aria-labelledby="where-title">
+            <h2 class="section__title" id="where-title" i18n="@@eventPage.where">Where</h2>
+            <address class="event__venue">
+              <strong>{{ venue.name }}</strong>
+              <br />{{ venue.address }}
+            </address>
+            <p class="event__maps">
+              <a class="link-standalone" [href]="mapsLink(venue)">
+                <ng-container i18n="@@eventPage.mapsLink">Open in your maps app</ng-container>
+                <svg llIcon name="arrow-right" size="sm"></svg>
+              </a>
+            </p>
           </section>
         }
         <section aria-labelledby="host-title">

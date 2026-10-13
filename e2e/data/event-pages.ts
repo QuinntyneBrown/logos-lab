@@ -42,3 +42,22 @@ export const liveQaPage = {
 export function eventPage(overrides: Record<string, unknown> = {}) {
   return { ...liveQaPage, ...overrides };
 }
+
+/** The in-person evening hosted by Logos Lab itself, which has no expert profile. */
+export const creativityEveningPage = eventPage({
+  id: 'e-creativity',
+  slug: 'faith-and-ai-evening-is-creativity-sacred',
+  title: 'Faith and AI Evening: Is Creativity Sacred?',
+  description: ['An evening of conversation about making things: art, music, writing and code.'],
+  attendance: 'in-person',
+  startsAt: '2026-10-22T23:00:00Z',
+  endsAt: '2026-10-23T01:00:00Z',
+  hosts: [
+    { name: 'Logos Lab', slug: null, meta: 'Organised by the Logos Lab editors', photoUrl: null },
+  ],
+  topics: [{ slug: 'creativity-and-the-arts', name: 'Creativity and the arts' }],
+  agenda: [],
+  venue: { name: "St. Brigid's Hall", address: '210 Bank Street, Ottawa', city: 'Ottawa' },
+  registeredCount: 87,
+  capacity: 120,
+});

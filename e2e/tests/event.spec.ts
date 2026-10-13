@@ -1,4 +1,4 @@
-import { eventPage, liveQaPage } from '../data/event-pages';
+import { creativityEveningPage, eventPage, liveQaPage } from '../data/event-pages';
 import { expect, test } from '../fixtures/test';
 import { EventPage } from '../pages/event.page';
 
@@ -114,6 +114,55 @@ test.describe('Event page', () => {
     await event.open(path);
 
     await expect(event.agenda).toHaveCount(0);
+  });
+
+  // L2-052 AC2 · event-head AC-3
+  test('an in-person event shows its venue and a link to the maps app, and loads no map', async ({
+    page,
+    api,
+  }) => {
+    api.respond(
+      'GET',
+      '/events/by-slug/faith-and-ai-evening-is-creativity-sacred',
+      creativityEveningPage,
+    );
+    const event = new EventPage(page);
+
+    await event.open('/events/faith-and-ai-evening-is-creativity-sacred');
+
+    await expect(event.facts.nth(1)).toHaveText("In person · St. Brigid's Hall, Ottawa");
+    await expect(event.venueName).toHaveText("St. Brigid's Hall");
+    await expect(event.venueAddress).toContainText('210 Bank Street, Ottawa');
+    await expect(event.mapsLink).toHaveAttribute(
+      'href',
+      'geo:0,0?q=210%20Bank%20Street%2C%20Ottawa',
+    );
+    await expect(page.locator('iframe')).toHaveCount(0);
+  });
+
+  // L2-052 AC2
+  test('a hybrid event names both ways to attend', async ({ page, api }) => {
+    api.respond(
+      'GET',
+      '/events/by-slug/live-qa-imago-dei-and-machine-personhood',
+      eventPage({ attendance: 'hybrid', venue: creativityEveningPage.venue }),
+    );
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.facts.nth(1)).toHaveText("Hybrid · online and at St. Brigid's Hall, Ottawa");
+    await expect(event.venueName).toHaveText("St. Brigid's Hall");
+  });
+
+  // L2-052 AC2
+  test('an online event has no Where section', async ({ page, api }) => {
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.where).toHaveCount(0);
   });
 });
 

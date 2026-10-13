@@ -78,7 +78,7 @@ registration, Add to calendar and Update my calendar, the Join event button, and
 - **Contract.** `EventsApi.getEvent(slug)` returns `EventPageModel`: `id`, `slug`, `title`, `description`
   (paragraphs of plain text), `attendance`, `startsAt`, `endsAt`, `timeZone` (IANA), `hosts` (`name`, `slug`
   or `null` for Logos Lab itself, `meta`, `photoUrl`), `topics` (`slug`, `name`), `agenda` (`startsAt`,
-  `text`), `venue` (`name`, `address`) or `null`, `registeredCount`, `capacity` or `null`, `waitlistCount`,
+  `text`), `venue` (`name`, `address`, `city`) or `null`, `registeredCount`, `capacity` or `null`, `waitlistCount`,
   `registrationClosesAt` or `null`, `cancellation` (`cancelledOn`, `reason`) or `null`, and `change`
   (`previousStartsAt`, `previousEndsAt`, `note`) or `null` for a changed time. It has no join link.
   `getMyEvent(id)` returns `EventViewerState`: `status` (`none`, `registered` or `waitlisted`) and
