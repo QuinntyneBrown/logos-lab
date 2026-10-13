@@ -40,6 +40,11 @@
           }
         </p>
       </ll-page-header>
+      @if (article.correction; as correction) {
+        <ll-alert class="article-page__correction" role="note" [heading]="correctionTitle()">
+          {{ correction.note }}
+        </ll-alert>
+      }
       <article class="article" aria-labelledby="body-title">
         <h2 class="vh" id="body-title" i18n="@@article.body">The article</h2>
         @if (article.coverUrl) {

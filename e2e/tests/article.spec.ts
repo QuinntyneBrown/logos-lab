@@ -1,4 +1,5 @@
 import { augustineArticle } from '../data/articles';
+import { people } from '../data/people';
 import { expect, test } from '../fixtures/test';
 import { ArticlePage } from '../pages/article.page';
 
@@ -60,5 +61,59 @@ test.describe('Article page', () => {
       'href',
       '/topics/theology-of-technology',
     );
+  });
+
+  // L2-045 AC1 · alert AC-1
+  test('a corrected article says what was corrected, above the body', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, {
+      ...augustineArticle,
+      correction: {
+        date: '2026-10-06',
+        note: 'An earlier version said Augustine wrote the Confessions in 387. He began them around 397.',
+      },
+    });
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.correction).toHaveAttribute('role', 'note');
+    await expect(article.correctionTitle).toHaveText('Corrected on Oct 6, 2026');
+    await expect(article.correction).toContainText('He began them around 397.');
+  });
+
+  // L2-045 AC1
+  test('an article that never changed shows no updated date and no correction', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, {
+      ...augustineArticle,
+      updatedAt: null,
+    });
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.dates).toHaveCount(1);
+    await expect(article.byline).not.toContainText('Updated');
+    await expect(article.correction).toHaveCount(0);
+  });
+
+  // L2-045 AC1 · page-header AC-1
+  test('several contributors are joined by "with", and Logos Lab has no profile link', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, {
+      ...augustineArticle,
+      contributors: [people.lucia, people.thomas, people.logosLab],
+    });
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.contributors).toHaveText(['Dr. Lucía Ortega', 'Rev. Dr. Thomas Hale']);
+    await expect(article.byline).toContainText('with');
+    await expect(article.byline).toContainText('Logos Lab');
   });
 });

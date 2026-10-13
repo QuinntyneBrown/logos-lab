@@ -13,6 +13,8 @@ export class ArticlePage {
   readonly cover: Locator;
   readonly body: Locator;
   readonly topics: Locator;
+  readonly correction: Locator;
+  readonly correctionTitle: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -27,6 +29,8 @@ export class ArticlePage {
     this.cover = main.locator('.article__cover');
     this.body = main.getByRole('article');
     this.topics = main.getByRole('list', { name: 'Topics' });
+    this.correction = main.locator('.alert');
+    this.correctionTitle = this.correction.locator('.alert__title');
   }
 
   async bodyScriptRan(): Promise<boolean> {

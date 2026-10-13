@@ -13,6 +13,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ARTICLES_API } from '@logos-lab/api';
 import {
+  Alert,
   Avatar,
   Breadcrumb,
   BreadcrumbItem,
@@ -28,7 +29,7 @@ import { ArticleState } from './article-state';
 
 @Component({
   selector: 'll-article-page',
-  imports: [RouterLink, Avatar, Breadcrumb, Chip, Chips, NotFoundPage, PageHeader, Prose],
+  imports: [RouterLink, Alert, Avatar, Breadcrumb, Chip, Chips, NotFoundPage, PageHeader, Prose],
   templateUrl: './article-page.html',
   styleUrl: './article-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -91,6 +92,11 @@ export class ArticlePage {
   protected readonly published = computed(() =>
     publicationDay(this.locale, this.article()?.publishedAt ?? ''),
   );
+  protected readonly correctionTitle = computed(() => {
+    const day = this.article()?.correction?.date;
+    const date = day ? publicationDay(this.locale, day) : '';
+    return $localize`:@@article.correction.title:Corrected on ${date}:date:`;
+  });
   protected readonly updated = computed(() => {
     const day = this.article()?.updatedAt;
     return day ? publicationDay(this.locale, day) : null;

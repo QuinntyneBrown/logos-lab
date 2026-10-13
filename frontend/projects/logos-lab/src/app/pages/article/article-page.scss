@@ -1,6 +1,11 @@
 .article-page {
   padding-bottom: var(--space-16);
 }
+.article-page__correction {
+  display: block;
+  margin-top: var(--space-6);
+  max-width: var(--layout-measure-article);
+}
 .article {
   padding-top: var(--space-6);
   max-width: var(--layout-measure-article);
