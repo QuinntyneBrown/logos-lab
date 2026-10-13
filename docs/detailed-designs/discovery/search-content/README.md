@@ -127,6 +127,14 @@ These settle what the design left open when `SearchResultsPage` was built agains
   "Search again" button is disabled until then. Any other failure shows "Search isn't working right
   now" with "Try again" and a link to the catalogue. A non-empty `unavailable` list shows the warning
   "Some results may be missing".
+- **Corrected queries.** When the API corrected the query it sets `correctedFrom`. The heading names the
+  corrected query, the field keeps the text as typed, and a notice reads "Showing results for
+  “theology”" with "Search instead for theolgy". That link opens the same address with `exact=true`;
+  the page sends `exact=true` as `GET /api/v1/search?q=&exact=true`, and the API then skips spelling
+  correction. The tabs keep linking to the query as typed.
+- **No results.** A `total` of 0 shows "Nothing matches “…”" with the `popularTopics` as link chips to
+  their topic pages and a link to the catalogue. There are no tabs and the count line reads "No
+  results."
 - **Long queries.** The heading wraps; the page never scrolls sideways.
 
 ## Requirements
