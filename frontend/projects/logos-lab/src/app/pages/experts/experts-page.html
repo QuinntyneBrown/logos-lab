@@ -1,0 +1,26 @@
+<div class="wrap experts">
+  <ll-page-header
+    eyebrow="Who teaches here"
+    i18n-eyebrow="@@experts.eyebrow"
+    heading="Experts"
+    i18n-heading="@@experts.title"
+    [sub]="sub()"
+  />
+  @if (range(); as range) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count">
+      Showing <strong>{{ range.from }}–{{ range.to }}</strong> of <strong>{{ range.total }}</strong>
+      {{ range.noun }}
+    </p>
+  }
+  <ul llPersonList>
+    @for (row of rows(); track row.path) {
+      <li
+        llPerson
+        [name]="row.name"
+        [path]="row.path"
+        [photoUrl]="row.photoUrl"
+        [meta]="row.meta"
+      ></li>
+    }
+  </ul>
+</div>

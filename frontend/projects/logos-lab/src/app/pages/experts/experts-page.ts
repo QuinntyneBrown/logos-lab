@@ -1,0 +1,72 @@
+import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { EXPERTS_API, ExpertsQuery } from '@logos-lab/api';
+import { PageHeader, Person, PersonList, ToolbarCount } from '@logos-lab/components';
+import { switchMap } from 'rxjs';
+import { plural } from '../../content/plural';
+
+/** Experts on a directory page (the API's fixed page size). */
+const PAGE_SIZE = 24;
+
+@Component({
+  selector: 'll-experts-page',
+  imports: [PageHeader, Person, PersonList, ToolbarCount],
+  templateUrl: './experts-page.html',
+  styleUrl: './experts-page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ExpertsPage {
+  private readonly locale = inject(LOCALE_ID);
+  private readonly api = inject(EXPERTS_API);
+
+  /** What the address asks for. */
+  protected readonly query = computed<ExpertsQuery>(() => ({ q: '', topic: null, page: 1 }));
+  private readonly directory = toSignal(
+    toObservable(this.query).pipe(switchMap((query) => this.api.listExperts(query))),
+  );
+
+  protected readonly sub = computed(() => {
+    const total = this.directory()?.totalExperts;
+    if (total === undefined) return '';
+    const count = new Intl.NumberFormat(this.locale).format(total);
+    return plural(this.locale, total, {
+      one: $localize`:@@experts.sub.one:${count}:count: theologian, ethicist, historian, philosopher or engineer, sorted by surname.`,
+      other: $localize`:@@experts.sub.other:${count}:count: theologians, ethicists, historians, philosophers and engineers, sorted by surname.`,
+    });
+  });
+
+  protected readonly rows = computed(() =>
+    (this.directory()?.experts ?? []).map((expert) => {
+      const line = expert.focus
+        ? $localize`:@@experts.row.line:${expert.title}:title: · ${expert.focus}:focus:`
+        : expert.title;
+      const count = new Intl.NumberFormat(this.locale).format(expert.itemCount);
+      const items = plural(this.locale, expert.itemCount, {
+        one: $localize`:@@experts.row.items.one:${count}:count: published item`,
+        other: $localize`:@@experts.row.items.other:${count}:count: published items`,
+      });
+      return {
+        name: expert.name,
+        path: `/experts/${expert.slug}`,
+        photoUrl: expert.photoUrl,
+        meta: [line, items],
+      };
+    }),
+  );
+
+  protected readonly range = computed(() => {
+    const directory = this.directory();
+    if (!directory || directory.total === 0) return null;
+    const format = new Intl.NumberFormat(this.locale);
+    const first = (directory.page - 1) * PAGE_SIZE + 1;
+    return {
+      from: format.format(first),
+      to: format.format(first + directory.experts.length - 1),
+      total: format.format(directory.total),
+      noun: plural(this.locale, directory.total, {
+        one: $localize`:@@experts.noun.one:expert`,
+        other: $localize`:@@experts.noun.other:experts`,
+      }),
+    };
+  });
+}
