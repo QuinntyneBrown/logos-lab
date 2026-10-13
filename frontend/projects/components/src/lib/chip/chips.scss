@@ -1,0 +1,9 @@
+// The .chips rule of the chip block of docs/design-system/assets/components.css; the host is the list.
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

@@ -17,6 +17,7 @@ export class NavDrawerDialog {
   }
 
   async groupLabels(): Promise<string[]> {
+    await this.dialog.waitFor();
     const labels = await this.dialog
       .locator('.sidebar-nav__group, .menu__label, .nav-drawer__group')
       .allTextContents();
@@ -24,11 +25,13 @@ export class NavDrawerDialog {
   }
 
   async linkNames(): Promise<string[]> {
+    await this.dialog.waitFor();
     return this.siteNav.getByRole('link').allInnerTexts();
   }
 
   /** Every row of the drawer's navigation, links and actions, as their visible text. */
   async rowNames(): Promise<string[]> {
+    await this.dialog.waitFor();
     const rows = await this.dialog.locator('.sidebar-nav a, .sidebar-nav button').allInnerTexts();
     return rows.map((row) => row.trim());
   }

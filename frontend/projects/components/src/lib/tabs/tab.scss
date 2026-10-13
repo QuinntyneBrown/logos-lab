@@ -1,0 +1,47 @@
+// The .tab rules of the tabs block of docs/design-system/assets/components.css; the host is the .tab.
+:host {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target-comfortable);
+  max-width: 100%;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-fg-muted);
+  font: var(--text-label);
+  text-decoration: none;
+  cursor: pointer;
+}
+// The list scrolls sideways, which would clip an outside ring: draw it inside the tab.
+:host(:focus-visible) {
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+:host(:hover) {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+}
+:host([aria-current='page']) {
+  color: var(--color-fg-default);
+}
+:host([aria-current='page'])::after {
+  content: '';
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: calc(-1 * var(--border-width-hairline));
+  height: var(--border-width-thick);
+  background: var(--color-accent);
+}
+:host(.tab--pill) {
+  border-radius: var(--radius-full);
+}
+:host(.tab--pill[aria-current='page']) {
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+:host(.tab--pill[aria-current='page'])::after {
+  display: none;
+}

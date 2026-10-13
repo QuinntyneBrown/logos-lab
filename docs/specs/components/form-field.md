@@ -5,7 +5,7 @@
 | Selector | `ll-form-field` |
 | Library path | `frontend/projects/components/src/lib/form-field/` |
 | Status | built |
-| Traces to | L2-013, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
+| Traces to | L2-004, L2-013, L2-126, L2-127, L2-128, L2-129, L2-130, L2-134, L2-150 |
 | Design system | [`form-field.html`](../../design-system/components/form-field.html) |
 | Source mocks | [`pages/sign-in/default`](../../mocks/pages/sign-in/default.html), [`pages/sign-in/invalid`](../../mocks/pages/sign-in/invalid.html), [`pages/register/invalid`](../../mocks/pages/register/invalid.html), [`pages/settings-profile/default`](../../mocks/pages/settings-profile/default.html), [`pages/studio-editor/default`](../../mocks/pages/studio-editor/default.html), [`dialogs/report-content/default`](../../mocks/dialogs/report-content/default.html) |
 | Rendering | [`form-field.html`](form-field.html) |
@@ -200,7 +200,8 @@ None.
 
 ## Performance
 
-- `OnPush`; ARIA updates in an effect, no layout work. Page budgets per `L2-120` and `L2-123`.
+- `OnPush`; ARIA updates in an after-render effect (D-8), no layout work. Page budgets per `L2-120` and
+  `L2-123`.
 
 ## Acceptance criteria
 
@@ -214,6 +215,7 @@ None.
 - **AC-11** Given the terms field with help containing the links "Terms of Use" and "Privacy Policy", when it renders, then the links show inside the help and the checkbox's `aria-describedby` names the help. (L2-127)
 - **AC-13** Given Miriam's profile settings, when the Photo field renders with `labelAs="span"`, then "Photo" is a `span.field__label` with the id `photo-label` and the photo group is named "Photo" by it. (L2-013)
 - **AC-14** Given Miriam's bio with help after it and the counter "136 / 500", when it renders, then the help and the counter sit on one row, the counter at the end. (L2-013)
+- **AC-15** Given the search results page opened with the query "a", when the field shows the error "Enter at least 2 characters", then the search input is `aria-invalid="true"` and `aria-describedby` lists the error, although the input is rendered by the search pill inside the field. (L2-004)
 - **AC-12** Given the news checkbox with `aria-describedby="news-desc"` in a field without help or error, when it renders, then its `aria-describedby` is still `news-desc`. (L2-127)
 
 ### Keyboard and focus
@@ -255,3 +257,7 @@ None.
   counter stays end-aligned on its own row.
 - **D-5** *Help with links?* A projected `[llFieldHelp]` element rather than an HTML string input, so
   links keep their router bindings and the copy stays in the page's translated template.
+- **D-8** *What if the control is rendered by another component?* The search results page puts the search
+  pill inside a field, and the pill's input exists only after the pill's own template renders. The field
+  therefore updates `aria-describedby` and `aria-invalid` in an after-render effect that reads its inputs
+  before it looks for the control, so it runs again whenever they change and once the control exists.

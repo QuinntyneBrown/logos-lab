@@ -1,0 +1,237 @@
+<div class="wrap search-results">
+  <ll-page-header
+    eyebrow="Search"
+    i18n-eyebrow="@@search.eyebrow"
+    [heading]="heading()"
+    [sub]="sub()"
+  >
+    @if (correctedFrom(); as original) {
+      <ll-alert [heading]="correctedHeading()">
+        <ng-container i18n="@@search.corrected.body"
+          >No results matched “{{ original }}”, so we searched for the closest word.
+        </ng-container>
+        <a
+          routerLink="/search"
+          [queryParams]="{ q: original, exact: true }"
+          i18n="@@search.corrected.link"
+          >Search instead for {{ original }}</a
+        >
+      </ll-alert>
+    }
+    @if (invalid()) {
+      <ll-form-summary [heading]="summaryHeading" [errors]="errors()" />
+    }
+    <ll-form-field controlId="q" [help]="invalid() ? null : help" [error]="fieldError()">
+      <form
+        llSearch
+        inputId="q"
+        label="Search Logos Lab"
+        i18n-label="@@search.field.label"
+        [value]="query()"
+        [maxlength]="200"
+        (searched)="searchNavigation.search($event)"
+      >
+        <button llButton variant="primary" type="submit" i18n="@@search.action">Search</button>
+      </form>
+    </ll-form-field>
+  </ll-page-header>
+
+  @if (empty()) {
+    <div class="search-results__empty">
+      <ll-empty-state
+        heading="What would you like to find?"
+        i18n-heading="@@search.empty.title"
+        icon="search"
+        [headingLevel]="2"
+      >
+        <ng-container i18n="@@search.empty.text"
+          >Search courses, videos, articles, collections, events and experts. Or browse everything,
+          newest first.</ng-container
+        >
+        <a llButton variant="primary" slot="actions" routerLink="/explore" i18n="@@search.browse"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    </div>
+  }
+
+  @if (paused()) {
+    <div class="search-results__notice">
+      <ll-alert
+        tone="warning"
+        role="alert"
+        heading="Too many searches in a minute"
+        i18n-heading="@@search.paused.title"
+      >
+        {{ pausedBody() }}
+        <button
+          llButton
+          variant="quiet"
+          size="sm"
+          type="button"
+          slot="actions"
+          [disabled]="!retryReady()"
+          (click)="retry()"
+          i18n="@@search.paused.action"
+        >
+          Search again
+        </button>
+      </ll-alert>
+    </div>
+  }
+
+  @if (failed()) {
+    <div class="search-results__empty">
+      <ll-empty-state
+        tone="error"
+        heading="Search isn't working right now"
+        i18n-heading="@@search.failed.title"
+        icon="attention"
+        [headingLevel]="2"
+      >
+        <ng-container i18n="@@search.failed.text"
+          >This is on our side. The catalogue still lists everything, and search should be back
+          shortly.</ng-container
+        >
+        <button
+          llButton
+          variant="primary"
+          type="button"
+          slot="actions"
+          (click)="retry()"
+          i18n="@@search.failed.retry"
+        >
+          Try again
+        </button>
+        <a llButton variant="quiet" slot="actions" routerLink="/explore" i18n="@@search.browse"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    </div>
+    <p class="search-results__help">
+      <ng-container i18n="@@search.failed.help">Still not working? Write to</ng-container>
+      <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+    </p>
+  }
+
+  @if (transcriptsMissing()) {
+    <div class="search-results__notice">
+      <ll-alert
+        tone="warning"
+        heading="Some results may be missing"
+        i18n-heading="@@search.partial.title"
+      >
+        {{ partialBody() }}
+      </ll-alert>
+    </div>
+  }
+
+  @if (noMatch(); as none) {
+    <div class="search-results__empty">
+      <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">
+        <ng-container i18n="@@search.none.text"
+          >Try fewer or different words, or start from one of the most popular topics.</ng-container
+        >
+        <ul llChips slot="suggestions" label="Popular topics" i18n-label="@@search.topics.label">
+          @for (topic of none.topics; track topic.path) {
+            <li>
+              <a llChip [routerLink]="topic.path" [count]="topic.count">{{ topic.name }}</a>
+            </li>
+          }
+        </ul>
+        <a llButton variant="quiet" slot="actions" routerLink="/explore" i18n="@@search.browse"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    </div>
+  }
+
+  @if (tabs().length) {
+    <nav llTabs label="Result types" i18n-label="@@search.tabs.label">
+      @for (tab of tabs(); track tab.label) {
+        <a
+          llTab
+          routerLink="/search"
+          [queryParams]="tab.queryParams"
+          [current]="tab.current"
+          [count]="tab.count"
+          >{{ tab.label }}</a
+        >
+      }
+    </nav>
+  }
+
+  @if (loading()) {
+    <div class="content-grid content-grid--rows search-results__loading" aria-busy="true">
+      <p class="vh" role="status">{{ loadingLabel() }}</p>
+      @for (n of placeholderCards; track n) {
+        <ll-skeleton-card />
+      }
+    </div>
+  }
+
+  @for (group of groups(); track group.type) {
+    <section
+      class="page-block"
+      [attr.aria-labelledby]="type() ? null : group.headingId"
+      [attr.aria-label]="type() ? group.title : null"
+    >
+      @if (!type()) {
+        <div class="section__head search-results__head">
+          <h2 class="section__title" [id]="group.headingId">
+            {{ group.title }} <span class="search-results__count">{{ group.count }}</span>
+          </h2>
+          @if (group.moreLabel; as more) {
+            <a class="section__more" routerLink="/search" [queryParams]="group.moreQueryParams"
+              >{{ more }} <svg llIcon name="arrow-right" size="sm"></svg
+            ></a>
+          }
+        </div>
+      }
+      @if (group.type === 'expert') {
+        <ul llPersonList>
+          @for (expert of group.experts; track expert.path) {
+            <li llPerson [name]="expert.name" [path]="expert.path" [photoUrl]="expert.photoUrl">
+              <p class="person__meta" slot="meta">
+                @for (segment of expert.headline; track $index) {
+                  @if (segment.highlighted) {
+                    <mark class="hit">{{ segment.text }}</mark>
+                  } @else {
+                    <ng-container>{{ segment.text }}</ng-container>
+                  }
+                }
+                {{ ' · ' + expert.itemsLabel }}
+              </p>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="content-grid content-grid--rows">
+          @for (hit of group.hits; track hit.card.id) {
+            <ll-content-card
+              variant="row"
+              [type]="hit.card.type"
+              [typeLabel]="hit.card.typeLabel"
+              [title]="hit.card.title"
+              [path]="hit.card.path"
+              [author]="hit.card.author"
+              [meta]="hit.card.meta"
+              [duration]="hit.card.duration"
+              [coverUrl]="hit.card.coverUrl"
+            >
+              <p class="muted" slot="snippet">
+                @for (segment of hit.snippet; track $index) {
+                  @if (segment.highlighted) {
+                    <mark class="hit">{{ segment.text }}</mark>
+                  } @else {
+                    <ng-container>{{ segment.text }}</ng-container>
+                  }
+                }
+              </p>
+            </ll-content-card>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

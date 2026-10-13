@@ -1,0 +1,27 @@
+.search-results {
+  padding-bottom: var(--space-16);
+}
+.search-results__head {
+  margin-bottom: var(--space-6);
+}
+.search-results__empty {
+  padding-top: var(--space-6);
+}
+.search-results__notice {
+  margin-bottom: var(--space-6);
+  padding-top: var(--space-6);
+}
+.search-results__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+.search-results__loading {
+  padding-top: var(--space-10);
+}
+// The number beside a group's title: quiet, in tabular figures.
+.search-results__count {
+  color: var(--color-fg-subtle);
+  font: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}

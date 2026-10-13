@@ -16,5 +16,6 @@
     @for (line of meta(); track $index) {
       <p class="person__meta">{{ line }}</p>
     }
+    <ng-content select="[slot=meta]" />
   </div>
 }

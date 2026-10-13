@@ -5,7 +5,7 @@
 | Selector | `ll-empty-state` |
 | Library path | `frontend/projects/components/src/lib/empty-state/` |
 | Status | built |
-| Traces to | L2-001, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 |
+| Traces to | L2-001, L2-003, L2-127, L2-129, L2-130, L2-134, L2-141, L2-150 |
 | Design system | [`empty-state.html`](../../design-system/components/empty-state.html) |
 | Source mocks | [`pages/home/empty`](../../mocks/pages/home/empty.html), [`pages/home/partial`](../../mocks/pages/home/partial.html), [`pages/home/error`](../../mocks/pages/home/error.html), [`pages/my-learning/empty`](../../mocks/pages/my-learning/empty.html), [`pages/search-results/no-results`](../../mocks/pages/search-results/no-results.html), [`pages/admin-users/error`](../../mocks/pages/admin-users/error.html), [`dialogs/notification-centre/empty`](../../mocks/dialogs/notification-centre/empty.html) |
 | Rendering | [`empty-state.html`](empty-state.html) |
@@ -31,7 +31,7 @@ Out of scope:
 | `pages/home/partial` events | error, compact, no icon, `h3` | "Events didn't load"; "Everything else on this page is up to date…"; quiet sm "Try again" | failed | canvas |
 | `pages/home/error` | error, attention icon, `h2` | "We couldn't load what's new"; "This is on our side. Search and the catalogue still work…"; primary "Try again" | failed | canvas |
 | `pages/my-learning/empty`, `pages/saved/empty`, `pages/following/empty` | default, course or bookmark icon | "Nothing in progress yet"; primary "Browse the catalogue" | empty | canvas |
-| `pages/search-results/no-results` | default, search icon | "No results for “quantum grace”"; suggestions | no results | canvas |
+| `pages/search-results/no-results` | default, search icon, `h2` | "Nothing matches “transhumanist liturgy”"; "Try fewer or different words…"; `[slot=suggestions]` the five popular topics as link chips; quiet "Browse the catalogue" | no results | canvas |
 | admin, studio and moderation lists | default or error, with icons | "No reports waiting", "We couldn't load the users" | empty, failed | surface |
 | dialogs (`dialogs/notification-centre/empty`, `dialogs/item-picker/*`) | compact | "You're all caught up" | empty | dialog surface |
 
@@ -67,6 +67,7 @@ None.
 | Slot | Accepts | Rule |
 |---|---|---|
 | default | text | The explanation, rendered in a `p`. |
+| `[slot=suggestions]` | a `ul[llChips]` | Rendered after the explanation and before the actions: topics to try instead of the search that found nothing. The page owns the list and its label. |
 | `[slot=actions]` | buttons and links | Rendered in `.empty__actions`; omitted when empty. |
 
 ## Variants and sizes
@@ -178,6 +179,7 @@ None.
 
 ### Theming
 
+- **AC-9** Given a search for "transhumanist liturgy" that matches nothing, when the results page renders, then "Nothing matches “transhumanist liturgy”" is the title, the list "Popular topics" of five link chips sits between the explanation and "Browse the catalogue". (L2-003)
 - **AC-5** Given the dark theme, when empty and error states render, then frame, tile and text use dark token values. (L2-134)
 - **AC-6** Given both themes, when contrast is measured, then title and text meet 4.5:1 and the icon 3:1 on its tile. (L2-129)
 
@@ -194,3 +196,6 @@ None.
 ## Decisions
 
 - **D-1** *Is the icon optional?* Yes; the compact partial error in the mocks has none.
+- **D-2** *How does an empty state offer other places to go?* Through a `[slot=suggestions]` between the
+  text and the actions, because the search results mock puts its popular-topic chips there and a list
+  cannot live inside the explanation's `p`.

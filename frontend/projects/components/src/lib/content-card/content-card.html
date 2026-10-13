@@ -58,6 +58,7 @@
         {{ author.name }}
       </p>
     }
+    <ng-content select="[slot=snippet]" />
     @if (meta().length) {
       <p class="content-card__meta">
         @for (fact of meta(); track $index) {

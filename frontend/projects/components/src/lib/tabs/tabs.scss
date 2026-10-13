@@ -1,0 +1,11 @@
+// The .tabs rules of the tabs block of docs/design-system/assets/components.css; the host is the
+// .tabs list. The list never wraps its tabs; it scrolls inside itself (tabs CRD D-3).
+:host {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+}
+:host(.tabs--pill) {
+  border: 0;
+}

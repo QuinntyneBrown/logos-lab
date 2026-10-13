@@ -8,5 +8,6 @@
     <h3 class="empty__title">{{ heading() }}</h3>
   }
   <p><ng-content /></p>
+  <ng-content select="[slot=suggestions]" />
   <div class="empty__actions"><ng-content select="[slot=actions]" /></div>
 </div>

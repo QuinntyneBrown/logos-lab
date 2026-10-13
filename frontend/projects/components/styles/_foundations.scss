@@ -131,6 +131,14 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* A matched word in a search result: the page creates the mark, never the API text */
+mark.hit {
+  padding: 0 var(--space-0-5);
+  border-radius: var(--radius-xs);
+  background: var(--color-warning-bg);
+  color: inherit;
+}
+
 /* Tiles behind initials and marks */
 .tile--sage {
   background: var(--color-tile-sage);
