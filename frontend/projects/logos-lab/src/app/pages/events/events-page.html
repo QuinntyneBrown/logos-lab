@@ -6,9 +6,32 @@
     i18n-heading="@@events.title"
     [sub]="sub"
   />
-  <div llToolbar>
+  <nav llTabs label="When" i18n-label="@@events.when">
+    <a llTab routerLink="/events" [current]="tab() === 'upcoming'" i18n="@@events.tab.upcoming"
+      >Upcoming</a
+    >
+    <a
+      llTab
+      routerLink="/events"
+      [queryParams]="{ tab: 'past' }"
+      [current]="tab() === 'past'"
+      i18n="@@events.tab.past"
+      >Past</a
+    >
+  </nav>
+  <div llToolbar class="events__toolbar">
     @if (list(); as list) {
-      @if (list.total === 1) {
+      @if (listedTab() === 'past') {
+        @if (list.total === 1) {
+          <p llToolbarCount i18n="@@events.count.past.one">
+            <strong>1</strong> past event, newest first
+          </p>
+        } @else {
+          <p llToolbarCount i18n="@@events.count.past.other">
+            <strong>{{ total() }}</strong> past events, newest first
+          </p>
+        }
+      } @else if (list.total === 1) {
         <p llToolbarCount i18n="@@events.count.upcoming.one">
           <strong>1</strong> upcoming event, soonest first
         </p>
@@ -37,18 +60,26 @@
           [when]="row.when"
           [where]="row.where"
           [online]="row.online"
+          [past]="row.past"
         >
           @if (row.happeningNow) {
             <span llBadge tone="success" i18n="@@events.happeningNow">Happening now</span>
+          }
+          @if (row.hasRecording) {
+            <span llBadge tone="success" i18n="@@events.recording">Recording available</span>
+            <a llButton variant="quiet" size="sm" [routerLink]="row.path">
+              <svg llIcon name="video" size="sm"></svg>
+              <ng-container i18n="@@events.watch">Watch</ng-container>
+            </a>
           }
           @if (row.registered) {
             <span llInlineStatus tone="success" i18n="@@events.registered">You're registered</span>
           }
           @if (row.waitlist) {
             <span llBadge tone="warning">{{ row.waitlist }}</span>
-          } @else if (row.full) {
+          } @else if (row.full && !row.past) {
             <span llBadge tone="warning" i18n="@@event.fullWaitlist">Full · waitlist open</span>
-          } @else if (row.going) {
+          } @else if (row.going && !row.past) {
             <span class="event__going">{{ row.going }}</span>
           }
         </li>

@@ -6,6 +6,9 @@ export class EventsPage {
   readonly eyebrow: Locator;
   readonly heading: Locator;
   readonly sub: Locator;
+  readonly tabs: Locator;
+  readonly upcomingTab: Locator;
+  readonly pastTab: Locator;
   readonly count: Locator;
   readonly rows: Locator;
 
@@ -15,6 +18,9 @@ export class EventsPage {
     this.eyebrow = main.locator('.page-head .eyebrow');
     this.heading = page.getByRole('heading', { level: 1 });
     this.sub = main.locator('.page-head__sub');
+    this.tabs = main.getByRole('navigation', { name: 'When' });
+    this.upcomingTab = this.tabs.getByRole('link', { name: 'Upcoming' });
+    this.pastTab = this.tabs.getByRole('link', { name: 'Past' });
     this.count = main.locator('.toolbar__count');
     this.rows = main.locator('li.event');
   }

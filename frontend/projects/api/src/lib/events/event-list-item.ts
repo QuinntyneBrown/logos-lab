@@ -7,6 +7,8 @@ export interface EventListItem extends EventSummary {
   readonly hosts: readonly string[];
   /** Started and not yet ended when the list was made. */
   readonly happeningNow: boolean;
+  /** A recording of it is attached. */
+  readonly hasRecording: boolean;
   /** The caller's place in it; `null` for a visitor or someone who has not registered. */
   readonly registration: EventRegistration | null;
 }

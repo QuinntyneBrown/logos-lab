@@ -14,7 +14,9 @@ export interface EventListingRow {
   readonly online: boolean;
   readonly going: string | null;
   readonly full: boolean;
+  readonly past: boolean;
   readonly happeningNow: boolean;
+  readonly hasRecording: boolean;
   readonly registered: boolean;
   /** "Full · you're number 3 on the waitlist" for a member waiting on a place. */
   readonly waitlist: string | null;
@@ -25,6 +27,7 @@ export function toEventListingRow(
   event: EventListItem,
   locale: string,
   now: Date,
+  past: boolean,
 ): EventListingRow {
   const base = toEventRow(event, locale);
   const start = new Date(event.startsAt);
@@ -36,7 +39,11 @@ export function toEventListingRow(
     minute: '2-digit',
     timeZoneName: 'shortGeneric',
   }).formatRange(start, new Date(event.endsAt));
-  const when = event.happeningNow ? `${range} · ${startedAgo(start, now, locale)}` : range;
+  const when = past
+    ? $localize`:@@events.ended:${endedOn(start, locale)}:date: · ended`
+    : event.happeningNow
+      ? `${range} · ${startedAgo(start, now, locale)}`
+      : range;
   const position = event.registration?.waitlistPosition;
   return {
     ...base,
@@ -44,13 +51,25 @@ export function toEventListingRow(
     where: where(event, locale),
     // Capacity shows only when it is limited; an open event has no count to give.
     going: event.placesLeft === null ? null : base.going,
+    past,
     happeningNow: event.happeningNow,
+    hasRecording: event.hasRecording,
     registered: event.registration?.status === 'registered',
     waitlist:
       event.registration?.status === 'waitlisted' && position
         ? $localize`:@@events.waitlisted:Full · you're number ${new Intl.NumberFormat(locale).format(position)}:position: on the waitlist`
         : null,
   };
+}
+
+/** "Thu, Sep 24, 2026": a past event shows the day it was held, not its hours. */
+function endedOn(start: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(start);
 }
 
 /** "started 20 minutes ago", worked out when the list was made. */

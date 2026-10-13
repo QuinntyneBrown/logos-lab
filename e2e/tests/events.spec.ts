@@ -1,4 +1,4 @@
-import { eventList, upcomingEvents } from '../data/events-listing';
+import { eventList, pastEvents, upcomingEvents } from '../data/events-listing';
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { EventsPage } from '../pages/events.page';
@@ -100,5 +100,55 @@ test.describe('Events listing', () => {
     await expect(events.row(1)).toContainText("You're registered");
     await expect(events.row(2)).toContainText("Full · you're number 3 on the waitlist");
     await expect(events.row(2)).not.toContainText('waitlist open');
+  });
+
+  // L2-051 AC2 · tabs AC-7
+  test('the Past tab lists the events that ended, newest first', async ({ page, api }) => {
+    api.respond('GET', '/events', eventList());
+    api.respond(
+      'GET',
+      '/events?tab=past',
+      eventList({ events: pastEvents, total: 2, totalEvents: 2 }),
+    );
+    const events = new EventsPage(page);
+    await events.open();
+    await expect(events.upcomingTab).toHaveAttribute('aria-current', 'page');
+    await expect(events.pastTab).not.toHaveAttribute('aria-current', 'page');
+
+    await events.pastTab.click();
+
+    await expect(page).toHaveURL('/events?tab=past');
+    await expect(events.pastTab).toHaveAttribute('aria-current', 'page');
+    await expect(events.upcomingTab).not.toHaveAttribute('aria-current', 'page');
+    await expect(events.count).toHaveText('2 past events, newest first');
+    await expect(events.rows).toHaveCount(2);
+    await expect(events.row(0)).toHaveClass(/is-past/);
+    await expect(events.row(0)).toContainText('Panel: Work, Rest and Automation');
+    await expect(events.row(0)).toContainText('Thu, Sep 24, 2026 · ended');
+
+    await events.upcomingTab.click();
+
+    await expect(page).toHaveURL('/events');
+    await expect(events.count).toHaveText('3 upcoming events, soonest first');
+  });
+
+  // L2-051 AC2 · event-row AC-4
+  test('a past event with a recording says so and offers to watch it', async ({ page, api }) => {
+    api.respond(
+      'GET',
+      '/events?tab=past',
+      eventList({ events: pastEvents, total: 2, totalEvents: 2 }),
+    );
+    const events = new EventsPage(page);
+
+    await events.open('/events?tab=past');
+
+    await expect(events.row(0)).toContainText('Recording available');
+    await expect(events.row(0).getByRole('link', { name: 'Watch' })).toHaveAttribute(
+      'href',
+      '/events/panel-work-rest-and-automation',
+    );
+    await expect(events.row(1)).not.toContainText('Recording available');
+    await expect(events.row(1).getByRole('link', { name: 'Watch' })).toHaveCount(0);
   });
 });
