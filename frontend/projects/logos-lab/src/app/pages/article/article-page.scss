@@ -1,0 +1,19 @@
+.article-page {
+  padding-bottom: var(--space-16);
+}
+.article {
+  padding-top: var(--space-6);
+  max-width: var(--layout-measure-article);
+  display: grid;
+  gap: var(--space-6);
+}
+.article__cover {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+.article-page__topics {
+  padding-top: var(--space-8);
+}

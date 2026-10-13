@@ -1,0 +1,70 @@
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
+  <div class="wrap article-page">
+    @if (article(); as article) {
+      <nav
+        llBreadcrumb
+        label="Breadcrumb"
+        i18n-label="@@topic.crumb.label"
+        top="md"
+        [items]="trail()"
+      ></nav>
+      <ll-page-header
+        top="md"
+        [eyebrow]="eyebrow()"
+        [heading]="article.title"
+        [sub]="article.subtitle"
+      >
+        <p class="cluster">
+          @for (contributor of article.contributors; track $index) {
+            @if (!$first) {
+              <span class="muted" i18n="@@article.with">with</span>
+            }
+            <ll-avatar size="sm" [name]="contributor.name" [photoUrl]="contributor.photoUrl" />
+            @if (contributor.slug) {
+              <a [routerLink]="'/experts/' + contributor.slug">{{ contributor.name }}</a>
+            } @else {
+              <span>{{ contributor.name }}</span>
+            }
+          }
+          <span class="muted"
+            ><ng-container i18n="@@article.published">Published</ng-container>
+            <time [attr.datetime]="article.publishedAt">{{ published() }}</time></span
+          >
+          @if (updated(); as updated) {
+            <span class="muted"
+              ><ng-container i18n="@@article.updated">Updated</ng-container>
+              <time [attr.datetime]="article.updatedAt">{{ updated }}</time></span
+            >
+          }
+        </p>
+      </ll-page-header>
+      <article class="article" aria-labelledby="body-title">
+        <h2 class="vh" id="body-title" i18n="@@article.body">The article</h2>
+        @if (article.coverUrl) {
+          <img
+            class="article__cover"
+            [src]="article.coverUrl"
+            [alt]="article.coverAlt ?? ''"
+            width="1200"
+            height="675"
+          />
+        }
+        <ll-prose variant="article" [html]="article.bodyHtml" />
+      </article>
+      <div class="article-page__topics">
+        <div class="cluster">
+          <span class="field__label" id="topics-label" i18n="@@article.topics">Topics</span>
+          <ul llChips aria-labelledby="topics-label">
+            @for (topic of article.topics; track topic.slug) {
+              <li>
+                <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+  </div>
+}

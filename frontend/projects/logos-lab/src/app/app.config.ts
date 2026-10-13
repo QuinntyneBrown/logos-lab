@@ -2,12 +2,14 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {
+  ARTICLES_API,
   AUTH_API,
   ACCOUNT_API,
   CATALOGUE_API,
   EXPERTS_API,
   FOLLOWS_API,
   HOME_API,
+  HttpArticlesApi,
   HttpAuthApi,
   HttpAccountApi,
   HttpCatalogueApi,
@@ -32,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withFetch()),
     { provide: ACCOUNT_API, useClass: HttpAccountApi },
+    { provide: ARTICLES_API, useClass: HttpArticlesApi },
     { provide: CATALOGUE_API, useClass: HttpCatalogueApi },
     { provide: EXPERTS_API, useClass: HttpExpertsApi },
     { provide: FOLLOWS_API, useClass: HttpFollowsApi },
