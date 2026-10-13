@@ -47,5 +47,50 @@
         }
       </aside>
     </div>
+    @if (tabs().length) {
+      <section class="page-block expert__published" aria-labelledby="published-title">
+        <div class="section__head expert__head">
+          <h2 class="section__title" id="published-title" i18n="@@expert.published">
+            Published on Logos Lab
+          </h2>
+        </div>
+        <div llTabs label="Published content by type" i18n-label="@@expert.tabs.label">
+          @for (tab of tabs(); track tab.type) {
+            <button
+              llTab
+              [id]="'tab-' + tab.type"
+              panelId="panel-content"
+              [selected]="tab.type === selected()"
+              [count]="tab.count"
+              (activated)="select(tab.type)"
+            >
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+        <div
+          role="tabpanel"
+          id="panel-content"
+          class="expert__panel"
+          tabindex="0"
+          [attr.aria-labelledby]="'tab-' + selected()"
+        >
+          <div class="content-grid">
+            @for (card of cards(); track card.id) {
+              <ll-content-card
+                [type]="card.type"
+                [typeLabel]="card.typeLabel"
+                [title]="card.title"
+                [path]="card.path"
+                [author]="card.author"
+                [meta]="card.meta"
+                [duration]="card.duration"
+                [coverUrl]="card.coverUrl"
+              />
+            }
+          </div>
+        </div>
+      </section>
+    }
   </div>
 }

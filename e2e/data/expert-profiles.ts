@@ -40,3 +40,11 @@ export function expertContent(overrides: Partial<Record<string, unknown>> = {}) 
     ...overrides,
   };
 }
+
+/** The three articles of GET /api/v1/experts/abena-mensah/content?type=article. */
+export function expertArticles() {
+  return expertContent({
+    items: catalogueItems.filter((item) => item.type === 'article').slice(0, 3),
+    total: 3,
+  });
+}
