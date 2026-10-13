@@ -27,6 +27,18 @@
 .article-page__head {
   margin-bottom: var(--space-6);
 }
+.article-page__failure {
+  padding-block: var(--space-12) var(--space-16);
+}
+.article-page__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+.article__skeleton {
+  display: grid;
+  gap: var(--space-3);
+}
 .article-page__topics {
   padding-top: var(--space-8);
 }

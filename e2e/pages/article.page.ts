@@ -18,6 +18,11 @@ export class ArticlePage {
   readonly commentsLink: Locator;
   readonly comments: Locator;
   readonly save: Locator;
+  readonly loadingMessages: Locator;
+  readonly skeletons: Locator;
+  readonly emptyState: Locator;
+  readonly emptyTitle: Locator;
+  readonly tryAgain: Locator;
   readonly saveStatus: Locator;
   readonly saveAlert: Locator;
   readonly saveAlertTitle: Locator;
@@ -43,6 +48,13 @@ export class ArticlePage {
       .locator('.page-head__actions')
       .getByRole('link', { name: /comments?$/ });
     this.comments = main.getByRole('region', { name: /^Comments/ });
+    this.loadingMessages = main
+      .locator('[aria-busy="true"] [role="status"], [role="status"].vh')
+      .filter({ hasText: 'Loading' });
+    this.skeletons = main.locator('.skeleton');
+    this.emptyState = main.locator('.empty');
+    this.emptyTitle = main.locator('.empty__title');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
     const actions = main.locator('.page-head__actions');
     this.save = actions.getByRole('button', { name: /^Save(d)?$/ });
     this.saveStatus = actions.getByRole('status');

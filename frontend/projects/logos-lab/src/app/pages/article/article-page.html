@@ -155,6 +155,59 @@
           </ul>
         </div>
       </div>
+    } @else if (failed()) {
+      <div class="article-page__failure">
+        <h1 class="vh" i18n="@@article.crumb.article">Article</h1>
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load this article"
+          i18n-heading="@@article.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@article.failed.text"
+            >This is on our side. Try again in a moment; your saved items and progress are
+            safe.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@article.failed.retry"
+          >
+            Try again
+          </button>
+        </ll-empty-state>
+        <p class="article-page__help">
+          <ng-container i18n="@@article.failed.help">Still not working? Write to</ng-container>
+          <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+        </p>
+      </div>
+    } @else {
+      <ll-page-header
+        top="md"
+        heading="Article"
+        i18n-heading="@@article.crumb.article"
+        busy="all"
+        busyMessage="Loading the article…"
+        i18n-busyMessage="@@article.loading"
+      />
+      <div class="article" aria-hidden="true">
+        <span llSkeleton shape="block"></span>
+        <div class="article__skeleton">
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </div>
+        <div class="article__skeleton">
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </div>
+      </div>
     }
   </div>
 }

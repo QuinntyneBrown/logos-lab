@@ -401,4 +401,51 @@ test.describe('Article page', () => {
       'false',
     );
   });
+
+  // L2-127 AC3 · skeleton AC-1, page-header AC-5
+  test('while the article loads the page is busy and announces it once', async ({ page, api }) => {
+    const release = api.hold('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.heading).toHaveText('Article');
+    await expect(article.loadingMessages).toHaveText(['Loading the article…']);
+    await expect(article.skeletons.first()).toBeVisible();
+
+    release();
+
+    await expect(article.heading).toHaveText(augustineArticle.title);
+    await expect(article.skeletons).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('an article that fails to load offers another try', async ({ page, api }) => {
+    api.fail('GET', `/articles/${augustineArticle.slug}`, 500);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.emptyTitle).toHaveText("We couldn't load this article");
+    await expect(article.emptyState).toContainText('your saved items and progress are safe');
+    await expect(
+      article.shell.main.getByRole('link', { name: 'help@logoslab.ca' }),
+    ).toHaveAttribute('href', 'mailto:help@logoslab.ca');
+
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    await article.tryAgain.click();
+
+    await expect(article.heading).toHaveText(augustineArticle.title);
+  });
+
+  // L2-045 · error-page AC-1
+  test('a slug that is not a published article shows the not-found page', async ({ page, api }) => {
+    api.fail('GET', '/articles/nothing-here', 404, 'not-found');
+    const article = new ArticlePage(page);
+
+    await article.open('/articles/nothing-here');
+
+    await expect(article.heading).toHaveText("We can't find that page");
+    await expect(page).toHaveTitle('Page not found - Logos Lab');
+  });
 });

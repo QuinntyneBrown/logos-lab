@@ -22,9 +22,11 @@ import {
   Chip,
   Chips,
   ContentCard,
+  EmptyState,
   Icon,
   PageHeader,
   Prose,
+  Skeleton,
 } from '@logos-lab/components';
 import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { ContentCardView, toContentCard } from '../../content/content-card-view';
@@ -48,10 +50,12 @@ import { SaveStatus } from './save-status';
     Chip,
     Chips,
     ContentCard,
+    EmptyState,
     Icon,
     NotFoundPage,
     PageHeader,
     Prose,
+    Skeleton,
   ],
   templateUrl: './article-page.html',
   styleUrl: './article-page.scss',
@@ -93,6 +97,12 @@ export class ArticlePage {
     return state.kind === 'loaded' ? state.article : null;
   });
   protected readonly notFound = computed(() => this.state().kind === 'not-found');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+
+  /** Asks again for the article after a failure. */
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
 
   /** The related items as cards; a failed request is the same as nothing related. */
   protected readonly related = toSignal(
