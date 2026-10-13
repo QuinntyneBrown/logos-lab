@@ -5,7 +5,7 @@
 | Selector | `button[llButton]`, `a[llButton]`, `button[llIconButton]`, `a[llIconButton]` |
 | Library path | `frontend/projects/components/src/lib/button/` |
 | Status | built |
-| Traces to | L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 |
+| Traces to | L2-024, L2-126, L2-127, L2-129, L2-132, L2-134, L2-150 |
 | Design system | [`button.html`](../../design-system/components/button.html) |
 | Source mocks | [`pages/home/default`](../../mocks/pages/home/default.html), [`pages/course-overview/visitor`](../../mocks/pages/course-overview/visitor.html), [`dialogs/nav-drawer/default`](../../mocks/dialogs/nav-drawer/default.html), [`dialogs/delete-account/default`](../../mocks/dialogs/delete-account/default.html), [`notifications/toast/default`](../../mocks/notifications/toast/default.html) |
 | Rendering | [`button.html`](button.html) |
@@ -27,6 +27,8 @@ Out of scope:
 - Form validation, submission and the busy copy ("Sending…"): the page sets `busy` and the label.
 - Where focus goes after the action: the page or dialog decides.
 - Toggle state logic: the page owns the value and binds `pressed`.
+- Deciding that an action is paused, and the alert that says why: the page sets `paused` and renders
+  the alert, linked to the button with `aria-describedby`.
 
 ## Usage
 
@@ -37,6 +39,7 @@ Out of scope:
 | `pages/home/*` hero | `a`, quiet, lg, trailing arrow | "Browse the catalogue" + `.btn__arrow` | default, hover | canvas |
 | `pages/home/*` hero search | `button type=submit`, primary | "Search" | default, hover, focus | inside `.search` |
 | `pages/course-overview/*` hero | `a`, primary, lg / quiet, lg | "Sign in to enrol", "Create a free account", "Enrol" | default, busy "Enrolling…" | canvas |
+| `pages/expert-profile/rate-limited` | `button`, primary, toggle (`pressed` false), extra `aria-describedby="limit-alert"` | "Follow" | default, paused | canvas |
 | every dialog footer | `button`, primary or danger + quiet | "Delete account", "Cancel", "Send report" | default, busy "Sending…", disabled | dialog surface |
 | `dialogs/nav-drawer/*` | `a`, primary with `sheet__done`; `a`, quiet, block | "Create account", "Sign in" | default | drawer surface |
 | top-bar sheet (every page) | `button`, quiet, extra class `nav__close` | "Close menu" | default | raised surface |
@@ -50,7 +53,7 @@ Out of scope:
 | sortable rows | icon button sm with `sortable__handle` | grip glyph | default, focus | surface |
 | dialogs | icon button `button`, sm | close glyph; "Close dialog" | default, hover | dialog head |
 
-Every row is buildable with the API below: variant, size, block, the `busy`/`disabled`/`pressed`
+Every row is buildable with the API below: variant, size, block, the `busy`/`paused`/`disabled`/`pressed`
 inputs, extra classes from the consumer, and projected label and icons.
 
 ## Anatomy
@@ -78,6 +81,7 @@ component adds the classes to it and renders the spinner and the projected conte
 | `size` (`llButton`) | `'sm' \| 'md' \| 'lg'` | `'md'` | no | `sm` adds `.btn--sm`, `lg` adds `.btn--lg`; `md` adds nothing. |
 | `block` (`llButton`) | `boolean` | `false` | no | Adds `.btn--block`. |
 | `busy` (`llButton`) | `boolean` | `false` | no | Sets `aria-busy="true"` and `aria-disabled="true"`, renders the spinner, and stops click and submit events. Never sets native `disabled`, so focus stays. |
+| `paused` (`llButton`) | `boolean` | `false` | no | Sets `aria-disabled="true"`, shows no spinner, and stops click and submit events (`preventDefault` and `stopImmediatePropagation`, as `busy` does). Never sets native `disabled`, so the button keeps its focus and its variant's own appearance. The page explains why with `aria-describedby` on the element, pointing at a nearby alert. When `busy` is also set, `busy` wins and the spinner shows. |
 | `disabled` (`llButton` on `button`) | `boolean` | `false` | no | Native `disabled`. On an `<a>` the consumer removes the link instead; a disabled link is not used. |
 | `pressed` (`llButton`, `llIconButton`) | `boolean \| null` | `null` | no | `null` renders no `aria-pressed`; a boolean renders `aria-pressed="true\|false"` (toggle buttons). |
 | `size` (`llIconButton`) | `'md' \| 'sm'` | `'md'` | no | `sm` adds `.icon-btn--sm` (32 px, used only where a larger hit area surrounds it). |
@@ -89,8 +93,8 @@ component adds the classes to it and renders the spinner and the projected conte
 
 ### Outputs
 
-None. The host is a native element, so consumers listen to its native `click`. While `busy`, the
-component stops the click (and the form submit it would cause) before it reaches listeners.
+None. The host is a native element, so consumers listen to its native `click`. While `busy` or
+`paused`, the component stops the click (and the form submit it would cause) before it reaches listeners.
 
 ### Content slots
 
@@ -129,6 +133,7 @@ component stops the click (and the form submit it would cause) before it reaches
 | Active | `:active` | Presses down by `--space-0-5`; primary uses `--color-accent-active` | — |
 | Pressed | `aria-pressed="true"` | `--border-width-thick` accent outline | "pressed" / "not pressed" |
 | Busy | `aria-busy="true"` + `aria-disabled="true"` | Spinner before the label; the variant's own fill and label, with no hover change (D-5); `cursor: progress` | Name kept, focus kept, activation ignored |
+| Paused | `aria-disabled="true"` without `aria-busy` (`paused`) | The variant's own fill and label, with `cursor: not-allowed` and no hover change (D-6); no spinner | Name kept, focus kept, activation ignored; the reason is read from the page's `aria-describedby` alert |
 | Disabled | `disabled` | `--color-bg-subtle` fill, `--color-fg-disabled` label | Removed from the tab order |
 | Count | `.icon-btn__count` present | Accent badge at the top right | Badge hidden; the count is in the name |
 
@@ -144,6 +149,10 @@ component stops the click (and the form submit it would cause) before it reaches
 <!-- rendered: busy submit -->
 <button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="spinner" aria-hidden="true"></span>Sending…</button>
 
+<!-- rendered: paused toggle, the reason in a nearby alert -->
+<button class="btn btn--primary" type="button" aria-pressed="false" aria-disabled="true" aria-describedby="limit-alert">Follow</button>
+<div class="alert alert--warning" role="alert" id="limit-alert">…</div>
+
 <!-- rendered: icon button with count -->
 <a class="icon-btn" href="/notifications" aria-label="Notifications, 3 unread"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">…</svg><span class="icon-btn__count" aria-hidden="true">3</span></a>
 
@@ -155,6 +164,7 @@ component stops the click (and the form submit it would cause) before it reaches
 <!-- consumer -->
 <a llButton variant="primary" size="sm" class="header__cta" routerLink="/register" i18n>Create account</a>
 <button llButton variant="primary" type="submit" [busy]="sending()">{{ sending() ? sendingLabel : sendLabel }}</button>
+<button llButton variant="primary" type="button" [pressed]="following()" [paused]="limited()" aria-describedby="limit-alert" i18n>Follow</button>
 <a llIconButton routerLink="/notifications" [count]="unread()" [attr.aria-label]="notificationsLabel()"><svg class="icon" …></svg></a>
 ```
 
@@ -218,14 +228,14 @@ Native `<button>` (APG Button) or native `<a href>` for navigation. Toggle butto
 
 | Key | Action |
 |---|---|
-| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus to and from the button, including while busy. |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus to and from the button, including while busy or paused. |
 | <kbd>Enter</kbd> | Activates a button or follows a link. |
 | <kbd>Space</kbd> | Activates a `<button>`. |
 
 ### Focus
 
 The `--color-focus-ring` outline, `--focus-ring-width` thick and offset `--focus-ring-offset`, shows on
-keyboard focus. A busy button keeps focus.
+keyboard focus. A busy or paused button keeps focus.
 
 ### Labelling
 
@@ -235,7 +245,8 @@ never from the badge.
 
 ### Announcements
 
-None by the button. A page announces the result of the action through its polite live region.
+None by the button. A paused button is conveyed by `aria-disabled="true"` and by the page's
+`aria-describedby` alert, which a screen reader reads with the name; the button itself announces nothing. A page announces the result of the action through its polite live region.
 
 ### Motion
 
@@ -274,6 +285,10 @@ colour changes are instant.
 - **AC-6** Given a "Save Imago Dei in an Age of Machines" icon toggle with `pressed` false, when the page sets it to true, then it renders `aria-pressed="true"` and the accent outline. (L2-127)
 - **AC-7** Given a notifications icon button with `count` 3 and the label "Notifications, 3 unread", when it renders, then the badge reads "3", has `aria-hidden="true"`, and the accessible name is "Notifications, 3 unread". (L2-127)
 
+- **AC-16** Given the "Follow" button of Dr. Abena Mensah's profile with `paused` set and `aria-describedby="limit-alert"`, when it renders, then it has `aria-disabled="true"` and no `aria-busy`, shows no `.spinner`, is not natively disabled, keeps the primary fill and label colours with `cursor: not-allowed`, and its accessible description is the alert's text. (L2-024)
+- **AC-17** Given a paused "Follow" button, when the user clicks it or presses Enter or Space on it, then no click or submit reaches the page, no request is sent, and focus stays on the button. (L2-024)
+- **AC-18** Given a paused "Follow" toggle with `pressed` false, when it renders and the user activates it, then it keeps `aria-pressed="false"`; and given the same toggle with `pressed` true, it keeps `aria-pressed="true"`. (L2-127)
+
 ### Keyboard and focus
 
 - **AC-8** Given any button or button-styled link, when it receives keyboard focus, then a `--color-focus-ring` outline at least 2 CSS px thick is visible with at least 3:1 contrast against the surface. (L2-126)
@@ -303,6 +318,10 @@ colour changes are instant.
   `button[llIconButton], a[llIconButton]`), each with its own `.html` and `.scss`.
 - Styles: the `button` and `spinner` blocks of `components.css`, rewritten so the host selectors read
   `:host(.btn…)`; projected children are styled under `:host ::ng-deep`.
+- The design-system rule `.btn[aria-disabled="true"]:not([aria-busy="true"])` greys the button out, and its
+  primary and danger hover rules do not exclude `aria-disabled`. Paused (D-6) needs the variant's own
+  colours and no hover change, so the design-system stylesheet changes first (the paused mock currently
+  inherits the grey look); the HTML rendering shows the required look with a labelled specimen style.
 - Classes are applied with host bindings, so the consumer's own `class` attribute is kept.
 
 ## Decisions
@@ -321,3 +340,11 @@ colour changes are instant.
   its label and width, adds a spinner") and the submitting mocks show. `aria-disabled` on a busy button
   only blocks activation, so it neither greys the button out nor lets hover darken it under the pointer
   that pressed it. A natively `disabled` button keeps the disabled colours, under the pointer too.
+- **D-6** *Why is `paused` separate from `busy`?* They tell the user opposite things. `busy` means "working,
+  wait": a spinner shows and the action will finish by itself. `paused` means "refused for now, see the
+  message": no spinner, and the reason (for example the 429 of L2-024 AC4, "Give it a minute") sits in an
+  alert that the button points to with `aria-describedby`. Both use `aria-disabled` rather than native
+  `disabled` so the button stays in the tab order and keeps its name, and both ignore activation. A paused
+  button wears its variant's own colours, as a busy one does (D-5), because greying it out would hide the
+  name the alert refers to; the `not-allowed` cursor and the alert say it is refused. `busy` wins when both
+  are set, since a request in flight is the more specific fact.
