@@ -134,6 +134,9 @@ persists the order.
 
 ### Behaviour — change route
 
-After single-page navigation, the title updates and focus moves to the new page's main heading.
+After single-page navigation, the title updates and focus moves to the new page's main heading. A
+navigation that only changes the query string of the same page, such as choosing a filter, changing
+the sort or going to another page of a list, leaves focus where it is: the control the member used
+stays focused and the page owns any announcement of the new results.
 
 ![Sequence diagram for moving focus on a route change](diagrams/sequence-change-route.png)

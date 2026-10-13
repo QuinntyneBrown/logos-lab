@@ -1,0 +1,10 @@
+// The .filters-btn rule of docs/design-system/assets/components.css: the panel is beside the results
+// from LG, so the button is only for narrower windows.
+:host {
+  display: contents;
+}
+@media (min-width: 64rem) {
+  .filters-btn {
+    display: none;
+  }
+}

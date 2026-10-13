@@ -1,4 +1,5 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { Dialog } from '@angular/cdk/dialog';
+import { Overlay } from '@angular/cdk/overlay';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,6 +20,7 @@ import {
   ContentCard,
   EmptyState,
   FilterPanel,
+  FiltersButton,
   PageHeader,
   Pagination,
   SearchFilterToolbar,
@@ -33,6 +35,7 @@ import { toContentCard } from '../../content/content-card-view';
 import { plural } from '../../content/plural';
 import { catalogueAddress, readCatalogueQuery } from './catalogue-address';
 import { ExploreFilterGroups } from './explore-filter-groups';
+import { ExploreFiltersDialogData } from './explore-filters-dialog-data';
 import { ExploreOption } from './explore-option';
 import { exploreOptions } from './explore-options';
 import { ExplorePill } from './explore-pill';
@@ -56,7 +59,6 @@ const NO_FILTERS: Pick<
 @Component({
   selector: 'll-explore-page',
   imports: [
-    NgTemplateOutlet,
     RouterLink,
     ActiveFilter,
     ActiveFilters,
@@ -66,6 +68,7 @@ const NO_FILTERS: Pick<
     EmptyState,
     ExploreFilterGroups,
     FilterPanel,
+    FiltersButton,
     PageHeader,
     Pagination,
     SearchFilterToolbar,
@@ -84,8 +87,11 @@ export class ExplorePage {
 
   private readonly locale = inject(LOCALE_ID);
   private readonly router = inject(Router);
+  private readonly dialog = inject(Dialog);
+  private readonly overlay = inject(Overlay);
   private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
   private readonly attempt = signal(0);
+  private filtersOpen = false;
 
   /** What the address asks for; it is the only state of the page. */
   protected readonly query = computed(() => readCatalogueQuery(this.params()));
@@ -190,7 +196,26 @@ export class ExplorePage {
       : $localize`:@@explore.sort.newest.note:newest first`,
   );
 
-  protected readonly pageCount = computed(() => this.catalogue()?.pageCount ?? 0);
+  /** The filters and sort without the page: what a page-only change keeps. */
+  private readonly listKey = computed(() => JSON.stringify({ ...this.query(), page: 0 }));
+
+  /** The last page count seen, with the list it belongs to, so a page change keeps its pager. */
+  private readonly lastPager = linkedSignal<ExploreState, { count: number; key: string } | null>({
+    source: this.state,
+    computation: (state, previous) =>
+      state.kind === 'loaded'
+        ? { count: state.page.pageCount, key: this.listKey() }
+        : (previous?.value ?? null),
+  });
+
+  /** The pager stays on screen while the next page of the same list loads, so focus stays on it. */
+  protected readonly pageCount = computed(() => {
+    const state = this.state();
+    // Read on every pass: a linked signal remembers a value only once it has been read with it.
+    const last = this.lastPager();
+    if (state.kind === 'loaded') return state.page.pageCount;
+    return state.kind === 'loading' && last?.key === this.listKey() ? last.count : 0;
+  });
   protected readonly pagerLabels = {
     label: $localize`:@@explore.pager.label:Pages of the catalogue`,
     // The pager fills in the number, so the translation keeps the placeholder.
@@ -253,6 +278,30 @@ export class ExplorePage {
 
   protected clearAll(): void {
     this.apply({ ...this.query(), ...NO_FILTERS, page: 1 });
+  }
+
+  /** Opens the filters as a sheet below LG; its draft reaches the address only when applied. */
+  protected async openFilters(): Promise<void> {
+    const facets = this.facets();
+    if (!facets || this.filtersOpen) return;
+    this.filtersOpen = true;
+    const { ExploreFiltersDialog } = await import('./explore-filters-dialog');
+    const ref = this.dialog.open<CatalogueQuery | undefined, ExploreFiltersDialogData>(
+      ExploreFiltersDialog,
+      {
+        data: { query: this.query(), facets, total: this.catalogue()?.total ?? 0 },
+        ariaLabelledBy: 'filters-title',
+        ariaModal: true,
+        backdropClass: 'll-backdrop',
+        panelClass: 'll-drawer-panel--bottom',
+        maxWidth: '100vw',
+        positionStrategy: this.overlay.position().global().bottom('0').centerHorizontally(),
+      },
+    );
+    ref.closed.subscribe((query) => {
+      this.filtersOpen = false;
+      if (query) this.apply({ ...query, page: 1 });
+    });
   }
 
   /** Asks again for the same address. */

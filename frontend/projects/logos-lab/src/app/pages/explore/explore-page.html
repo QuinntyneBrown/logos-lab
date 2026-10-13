@@ -48,45 +48,47 @@
           </ll-alert>
         </div>
       }
-      <ng-template #countLine>
-        @if (range(); as range) {
-          <p llToolbarCount i18n="@@explore.count">
-            Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
-            <strong>{{ range.total }}</strong> {{ noun() }}, {{ sortNote() }}
-          </p>
-        } @else if (noMatches(); as none) {
-          <p llToolbarCount i18n="@@explore.count.none">
-            <strong>No items</strong> match {{ none.names }}
-          </p>
-        } @else if (emptyCatalogue()) {
-          <p llToolbarCount i18n="@@explore.count.empty"><strong>No items</strong> published yet</p>
-        } @else if (failed()) {
-          <p llToolbarCount i18n="@@explore.count.failed">Results unavailable</p>
-        } @else {
-          <p llToolbarCount i18n="@@explore.count.loading">Loading the catalogue…</p>
-        }
-      </ng-template>
-      <ng-template #tools>
-        <div llToolbarTools>
-          <ll-select
-            label="Sort by"
-            i18n-label="@@explore.sort.label"
-            name="sort"
-            [value]="query().sort"
-            [disabled]="!loaded() || emptyCatalogue()"
-            (valueChange)="setSort($event)"
-          >
-            <option value="newest" i18n="@@explore.sort.newest">Newest</option>
-            <option value="popular" i18n="@@explore.sort.popular">Most popular</option>
-          </ll-select>
-        </div>
-      </ng-template>
       <div llToolbar [stacked]="pills().length > 0">
-        @if (pills().length) {
-          <div class="cluster cluster--between">
-            <ng-container [ngTemplateOutlet]="countLine" />
-            <ng-container [ngTemplateOutlet]="tools" />
+        <div class="cluster cluster--between explore__row">
+          @if (range(); as range) {
+            <p llToolbarCount i18n="@@explore.count">
+              Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+              <strong>{{ range.total }}</strong> {{ noun() }}, {{ sortNote() }}
+            </p>
+          } @else if (noMatches(); as none) {
+            <p llToolbarCount i18n="@@explore.count.none">
+              <strong>No items</strong> match {{ none.names }}
+            </p>
+          } @else if (emptyCatalogue()) {
+            <p llToolbarCount i18n="@@explore.count.empty">
+              <strong>No items</strong> published yet
+            </p>
+          } @else if (failed()) {
+            <p llToolbarCount i18n="@@explore.count.failed">Results unavailable</p>
+          } @else {
+            <p llToolbarCount i18n="@@explore.count.loading">Loading the catalogue…</p>
+          }
+          <div llToolbarTools>
+            <ll-filters-button
+              [activeCount]="pills().length"
+              (click)="openFilters()"
+              i18n="@@explore.filters.open"
+              >Filters</ll-filters-button
+            >
+            <ll-select
+              label="Sort by"
+              i18n-label="@@explore.sort.label"
+              name="sort"
+              [value]="query().sort"
+              [disabled]="!loaded() || emptyCatalogue()"
+              (valueChange)="setSort($event)"
+            >
+              <option value="newest" i18n="@@explore.sort.newest">Newest</option>
+              <option value="popular" i18n="@@explore.sort.popular">Most popular</option>
+            </ll-select>
           </div>
+        </div>
+        @if (pills().length) {
           <ul
             llActiveFilters
             label="Active filters"
@@ -104,9 +106,6 @@
               ></li>
             }
           </ul>
-        } @else {
-          <ng-container [ngTemplateOutlet]="countLine" />
-          <ng-container [ngTemplateOutlet]="tools" />
         }
       </div>
       @if (loading()) {
@@ -191,17 +190,17 @@
             />
           }
         </div>
-        <nav
-          llPagination
-          [label]="pagerLabels.label"
-          [page]="query().page"
-          [pageCount]="pageCount()"
-          [summary]="pagerSummary()"
-          [pageLabel]="pagerLabels.page"
-          [previousLabel]="pagerLabels.previous"
-          [nextLabel]="pagerLabels.next"
-        ></nav>
       }
+      <nav
+        llPagination
+        [label]="pagerLabels.label"
+        [page]="query().page"
+        [pageCount]="pageCount()"
+        [summary]="pagerSummary()"
+        [pageLabel]="pagerLabels.page"
+        [previousLabel]="pagerLabels.previous"
+        [nextLabel]="pagerLabels.next"
+      ></nav>
     </div>
   </div>
 </div>

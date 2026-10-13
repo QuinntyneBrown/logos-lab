@@ -15,6 +15,11 @@
   height: 100dvh;
 }
 
+.ll-drawer-panel--bottom {
+  width: 100vw;
+  max-height: 86vh;
+}
+
 .cdk-dialog-container:focus {
   outline: none;
 }

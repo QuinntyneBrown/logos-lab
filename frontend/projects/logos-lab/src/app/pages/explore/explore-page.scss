@@ -9,3 +9,8 @@
   font: var(--text-body-sm);
   color: var(--color-fg-muted);
 }
+// The count line and the tools share one row, whether or not filters are on.
+.explore__row {
+  flex: 1 1 auto;
+  min-width: 0;
+}

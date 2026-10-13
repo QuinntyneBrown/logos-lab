@@ -18,6 +18,7 @@ export class ExplorePage {
   readonly emptyState: Locator;
   readonly tryAgain: Locator;
   readonly clearFilters: Locator;
+  readonly filtersButton: Locator;
   readonly warning: Locator;
   readonly checkAgain: Locator;
   readonly pagerText: Locator;
@@ -43,6 +44,7 @@ export class ExplorePage {
     this.emptyTitle = main.locator('.empty__title');
     this.tryAgain = main.getByRole('button', { name: 'Try again' });
     this.clearFilters = this.emptyState.getByRole('button', { name: 'Clear filters' });
+    this.filtersButton = main.getByRole('button', { name: /^Filters/ });
     this.warning = main.locator('.alert--warning');
     this.checkAgain = main.getByRole('button', { name: 'Check again' });
     this.pagerText = this.pager.locator('.pager__text');

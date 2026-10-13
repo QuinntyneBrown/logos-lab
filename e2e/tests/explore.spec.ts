@@ -1,5 +1,6 @@
 import { cataloguePage, coursesAndVideosPage, coursesPage, popularPage } from '../data/catalogue';
 import { expect, test } from '../fixtures/test';
+import { ExploreFiltersDialog } from '../pages/explore-filters.dialog';
 import { ExplorePage } from '../pages/explore.page';
 
 test.describe('Explore', () => {
@@ -429,5 +430,129 @@ test.describe('Explore', () => {
     await expect(explore.emptyTitle).toHaveText('Nothing is published yet');
     await expect(explore.emptyAction('Meet the experts')).toHaveAttribute('href', '/experts');
     await expect(explore.cards).toHaveCount(0);
+  });
+});
+
+test.describe('Explore keeps focus where the member is', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-126 AC5 · search-filter-toolbar AC-34
+  test('choosing a filter leaves focus on its checkbox', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    await explore.open();
+
+    await explore.choose('Type', 'Course');
+
+    await expect(page).toHaveURL('/explore?type=course');
+    await expect(explore.option('Type', 'Course')).toBeFocused();
+  });
+
+  // L2-126 AC5 · pagination AC-23
+  test('going to another page leaves focus on the pager link', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    await explore.open();
+
+    await explore.goToPage(2);
+
+    await expect(page).toHaveURL('/explore?page=2');
+    await expect(explore.pageLink(2)).toBeFocused();
+  });
+});
+
+test.describe('Explore filters on a phone', () => {
+  test.use({ viewport: { width: 375, height: 800 } });
+
+  // L2-130 AC1 · search-filter-toolbar AC-28
+  test('the panel gives way to a Filters button that opens a sheet', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    const sheet = new ExploreFiltersDialog(page);
+    await explore.open();
+
+    await expect(explore.filters).toBeHidden();
+    await expect(explore.filtersButton).toHaveText('Filters');
+
+    await explore.filtersButton.click();
+
+    await expect(sheet.dialog).toBeVisible();
+    await expect(sheet.summary).toHaveText(
+      'Choose as many as you like. The count updates as you go.',
+    );
+    await expect(sheet.primary).toHaveText('Show 212 items');
+    await expect(sheet.cancel).toBeVisible();
+    await expect(sheet.option('Type', 'Course')).not.toBeChecked();
+  });
+
+  // L2-002 AC2 · search-filter-toolbar AC-29, AC-30, AC-31, AC-32
+  test('choosing in the sheet counts the result first and applies it when asked', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const release = api.hold('GET', '/catalogue?type=course', coursesPage());
+    const explore = new ExplorePage(page);
+    const sheet = new ExploreFiltersDialog(page);
+    await explore.open();
+    await explore.filtersButton.click();
+
+    await sheet.choose('Type', 'Course');
+
+    await expect(sheet.primary).toHaveText('Counting courses…');
+    await expect(sheet.primary).toHaveAttribute('aria-busy', 'true');
+    await expect(sheet.summary).toHaveText('1 filter on. The count updates as you go.');
+    await expect(sheet.clearAll).toBeVisible();
+    await expect(page).toHaveURL('/explore');
+
+    release();
+
+    await expect(sheet.primary).toHaveText('Show 24 courses');
+    await sheet.primary.click();
+
+    await expect(sheet.dialog).toBeHidden();
+    await expect(page).toHaveURL('/explore?type=course');
+    await expect(explore.filtersButton).toHaveText('Filters · 1');
+    await expect(explore.filtersButton).toBeFocused();
+    await expect(explore.count).toHaveText('Showing 1–24 of 24 courses, newest first');
+  });
+
+  // L2-126 · search-filter-toolbar AC-33
+  test('cancel throws the draft away', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    const sheet = new ExploreFiltersDialog(page);
+    await explore.open();
+    await explore.filtersButton.click();
+    await sheet.choose('Type', 'Course');
+
+    await sheet.cancel.click();
+
+    await expect(sheet.dialog).toBeHidden();
+    await expect(page).toHaveURL('/explore');
+    await expect(explore.filtersButton).toBeFocused();
+
+    await explore.filtersButton.click();
+
+    await expect(sheet.option('Type', 'Course')).not.toBeChecked();
+    await expect(sheet.primary).toHaveText('Show 212 items');
+  });
+
+  // L2-130 AC1 · search-filter-toolbar AC-25
+  test('widening the window past LG closes the sheet and brings the panel back', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    const sheet = new ExploreFiltersDialog(page);
+    await explore.open();
+    await explore.filtersButton.click();
+
+    await explore.shell.resizeTo(1440);
+
+    await expect(sheet.dialog).toBeHidden();
+    await expect(explore.filters).toBeVisible();
+    await expect(explore.filtersButton).toBeHidden();
   });
 });

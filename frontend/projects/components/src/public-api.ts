@@ -93,3 +93,5 @@ export * from './lib/select/select-size';
 export * from './lib/pagination/pagination';
 export * from './lib/pagination/pagination-item';
 export * from './lib/pagination/pagination-items';
+export * from './lib/search-filter-toolbar/filter-panel-presentation';
+export * from './lib/search-filter-toolbar/filters-button';
