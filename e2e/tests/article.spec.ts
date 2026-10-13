@@ -32,7 +32,8 @@ test.describe('Article page', () => {
     await expect(article.subtitle).toHaveText(augustineArticle.subtitle);
     await expect(article.contributors).toHaveText(['Dr. Lucía Ortega']);
     await expect(article.contributors.first()).toHaveAttribute('href', '/experts/lucia-ortega');
-    await expect(article.byline).toContainText('Published');
+    await expect(article.byline).toContainText('Published Sep 29, 2026');
+    await expect(article.byline).toContainText('Updated Oct 6, 2026');
     await expect(article.dates).toHaveCount(2);
     await expect(article.dates.first()).toHaveAttribute('datetime', '2026-09-29');
     await expect(article.dates.last()).toHaveAttribute('datetime', '2026-10-06');

@@ -30,13 +30,17 @@
             }
           }
           <span class="muted"
-            ><ng-container i18n="@@article.published">Published</ng-container>
-            <time [attr.datetime]="article.publishedAt">{{ published() }}</time></span
+            ><ng-container i18n="@@article.published">Published</ng-container>&ngsp;<time
+              [attr.datetime]="article.publishedAt"
+              >{{ published() }}</time
+            ></span
           >
           @if (updated(); as updated) {
             <span class="muted"
-              ><ng-container i18n="@@article.updated">Updated</ng-container>
-              <time [attr.datetime]="article.updatedAt">{{ updated }}</time></span
+              ><ng-container i18n="@@article.updated">Updated</ng-container>&ngsp;<time
+                [attr.datetime]="article.updatedAt"
+                >{{ updated }}</time
+              ></span
             >
           }
         </p>
@@ -133,8 +137,10 @@
       <section class="page-block" id="comments" aria-labelledby="comments-title">
         <div class="section__head article-page__head">
           <h2 class="section__title" id="comments-title">
-            <ng-container i18n="@@article.comments.title">Comments</ng-container>
-            <span class="chip__count">{{ commentCount() }}</span>
+            <ng-container i18n="@@article.comments.title">Comments</ng-container>&ngsp;<span
+              class="chip__count"
+              >{{ commentCount() }}</span
+            >
           </h2>
         </div>
         @if (session.member() === null) {
