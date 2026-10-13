@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { ProgressBar } from '../progress-bar/progress-bar';
+import { Skeleton } from '../skeleton/skeleton';
 import { RsvpPanelVariant } from './rsvp-panel-variant';
 import { RsvpPlaces } from './rsvp-places';
 
@@ -8,7 +15,7 @@ let nextTitleId = 0;
 /** The registration panel of an event page: where the viewer stands, the places, and what they can do. */
 @Component({
   selector: 'aside[llRsvpPanel]',
-  imports: [ProgressBar],
+  imports: [ProgressBar, Skeleton],
   templateUrl: './rsvp-panel.html',
   styleUrl: './rsvp-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +23,9 @@ let nextTitleId = 0;
     class: 'rsvp',
     '[class.rsvp--going]': "variant() === 'going'",
     '[class.rsvp--closed]': "variant() === 'closed'",
-    '[attr.aria-labelledby]': 'titleId()',
+    '[attr.aria-labelledby]': 'loading() ? null : titleId()',
+    '[attr.aria-busy]': "loading() ? 'true' : null",
+    '[attr.aria-hidden]': "loading() ? 'true' : null",
   },
 })
 export class RsvpPanel {
@@ -30,6 +39,8 @@ export class RsvpPanel {
   /** What happens next, after the meter. */
   readonly note = input<string | null>(null);
   readonly places = input<RsvpPlaces | null>(null);
+  /** Shows a skeleton in place of the content; the page announces the loading. */
+  readonly loading = input(false, { transform: booleanAttribute });
 
   private readonly generatedId = `ll-rsvp-title-${nextTitleId++}`;
   protected readonly titleId = computed(() => this.headingId() ?? this.generatedId);

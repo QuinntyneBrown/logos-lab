@@ -17,6 +17,10 @@ export class EventPage {
   readonly panelText: Locator;
   readonly panelStatus: Locator;
   readonly panelBadge: Locator;
+  readonly loadingMessages: Locator;
+  readonly emptyTitle: Locator;
+  readonly tryAgain: Locator;
+  readonly support: Locator;
   readonly notice: Locator;
   readonly noticeTitle: Locator;
   readonly noticeBody: Locator;
@@ -65,6 +69,10 @@ export class EventPage {
     this.noticeBody = this.notice.locator('.alert__body');
     this.noticeLink = this.notice.getByRole('link');
     this.panelLink = this.panel.getByRole('link');
+    this.loadingMessages = main.locator('[role="status"].vh');
+    this.emptyTitle = main.locator('.empty__title');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
+    this.support = main.getByRole('link', { name: 'Contact support' });
     this.places = this.panel.getByRole('progressbar', { name: 'Places taken' });
     this.placesText = this.panel.locator('.rsvp__meter p');
     this.panelHelp = this.panel.locator('p.field__help');

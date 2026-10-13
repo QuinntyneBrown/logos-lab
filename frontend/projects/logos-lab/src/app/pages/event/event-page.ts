@@ -21,6 +21,7 @@ import {
   ButtonGroup,
   Chip,
   Chips,
+  EmptyState,
   EventHead,
   Icon,
   InlineStatus,
@@ -28,6 +29,7 @@ import {
   PersonList,
   Prose,
   RsvpPanel,
+  Skeleton,
   Timeline,
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
@@ -52,6 +54,7 @@ import { MyEventStatus } from './my-event-status';
     ButtonGroup,
     Chip,
     Chips,
+    EmptyState,
     EventHead,
     Icon,
     NotFoundPage,
@@ -60,6 +63,7 @@ import { MyEventStatus } from './my-event-status';
     PersonList,
     Prose,
     RsvpPanel,
+    Skeleton,
     Timeline,
   ],
   templateUrl: './event-page.html',
@@ -73,10 +77,11 @@ export class EventPage {
   private readonly router = inject(Router);
   private readonly params = toSignal(inject(ActivatedRoute).paramMap, { requireSync: true });
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
+  private readonly attempt = signal(0);
 
   private readonly state = toSignal(
-    toObservable(this.slug).pipe(
-      switchMap((slug) =>
+    toObservable(computed(() => ({ slug: this.slug(), attempt: this.attempt() }))).pipe(
+      switchMap(({ slug }) =>
         this.api.getEvent(slug).pipe(
           map((event): EventPageState => ({ kind: 'loaded', event })),
           catchError((error: unknown) =>
@@ -96,6 +101,11 @@ export class EventPage {
     return state.kind === 'loaded' ? state.event : null;
   });
   protected readonly notFound = computed(() => this.state().kind === 'not-found');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
 
   protected readonly trail = computed<readonly BreadcrumbItem[]>(() => [
     { label: $localize`:@@eventPage.crumb.events:Events`, path: '/events' },
@@ -190,6 +200,8 @@ export class EventPage {
     return mine.state.registration?.status ?? 'member';
   });
 
+  protected readonly loadingLabel = $localize`:@@eventPage.loading:Loading the event…`;
+  protected readonly loadingTitle = $localize`:@@eventPage.loading.title:Loading event`;
   protected readonly returnQuery = computed(() => ({ returnUrl: this.router.url }));
   protected readonly panel = computed(() => {
     const event = this.event();

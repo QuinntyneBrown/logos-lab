@@ -7,6 +7,13 @@
 .event__notice {
   padding-top: var(--space-6);
 }
+.event__failure {
+  padding-block: var(--space-12) var(--space-16);
+}
+.event__skeleton {
+  display: grid;
+  gap: var(--space-3);
+}
 .event {
   padding-bottom: var(--space-16);
 }

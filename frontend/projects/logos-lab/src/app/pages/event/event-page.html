@@ -172,6 +172,51 @@
           </aside>
         }
       </div>
+    } @else if (failed()) {
+      <h1 class="vh" i18n="@@eventPage.failed.heading">Event</h1>
+      <div class="event__failure">
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load this event"
+          i18n-heading="@@eventPage.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@eventPage.failed.text"
+            >This is on our side. If you're registered, your place is safe. Try again in a
+            moment.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@eventPage.failed.retry"
+          >
+            Try again
+          </button>
+          <a
+            llButton
+            variant="text"
+            slot="actions"
+            href="mailto:help@logoslab.ca"
+            i18n="@@eventPage.failed.support"
+            >Contact support</a
+          >
+        </ll-empty-state>
+      </div>
+    } @else {
+      <header llEventHead loading [title]="loadingTitle" [loadingLabel]="loadingLabel"></header>
+      <div class="two-col" aria-hidden="true">
+        <div class="event__skeleton">
+          <span llSkeleton shape="title"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </div>
+        <aside llRsvpPanel loading heading=""></aside>
+      </div>
     }
   </div>
 }

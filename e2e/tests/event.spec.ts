@@ -534,6 +534,52 @@ test.describe('Event page', () => {
     await expect(event.noticeTitle).toHaveText('The time of this event has changed');
     await expect(event.noticeBody).not.toContainText('still registered');
   });
+
+  // L2-127 AC3 · skeleton AC-1, event-head AC-12, rsvp-panel AC-12
+  test('while the event loads the head and the panel are busy and the page announces it once', async ({
+    page,
+    api,
+  }) => {
+    const release = api.hold(
+      'GET',
+      '/events/by-slug/live-qa-imago-dei-and-machine-personhood',
+      liveQaPage,
+    );
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.head).toHaveAttribute('aria-busy', 'true');
+    await expect(event.heading).toHaveText('Loading event');
+    await expect(event.loadingMessages).toHaveText(['Loading the event…']);
+    await expect(event.panel).toHaveAttribute('aria-busy', 'true');
+    await expect(event.panel).toHaveAttribute('aria-hidden', 'true');
+
+    release();
+
+    await expect(event.heading).toHaveText('Live Q&A: Imago Dei and Machine Personhood');
+    await expect(event.head).not.toHaveAttribute('aria-busy', 'true');
+    await expect(event.panelTitle).toHaveText('Sign in to register');
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('an event that fails to load offers another try and the way to support', async ({
+    page,
+    api,
+  }) => {
+    api.fail('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', 500);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.emptyTitle).toHaveText("We couldn't load this event");
+    await expect(event.support).toHaveAttribute('href', 'mailto:help@logoslab.ca');
+
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    await event.tryAgain.click();
+
+    await expect(event.heading).toHaveText('Live Q&A: Imago Dei and Machine Personhood');
+  });
 });
 
 test.describe('Event page for a viewer in another time zone', () => {

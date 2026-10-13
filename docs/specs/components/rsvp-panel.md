@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `aside[llRsvpPanel]` |
 | Library path | `frontend/projects/components/src/lib/rsvp-panel/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-052, L2-053, L2-054, L2-055, L2-058, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-147, L2-150 |
 | Design system | [`rsvp-panel.html`](../../design-system/components/rsvp-panel.html) |
 | Source mocks | [`pages/event-page/default`](../../mocks/pages/event-page/default.html), [`pages/event-page/visitor`](../../mocks/pages/event-page/visitor.html), [`pages/event-page/in-person`](../../mocks/pages/event-page/in-person.html), [`pages/event-page/full`](../../mocks/pages/event-page/full.html), [`pages/event-page/closed`](../../mocks/pages/event-page/closed.html), [`pages/event-page/registered`](../../mocks/pages/event-page/registered.html), [`pages/event-page/waitlisted`](../../mocks/pages/event-page/waitlisted.html), [`pages/event-page/join-open`](../../mocks/pages/event-page/join-open.html), [`pages/event-page/live`](../../mocks/pages/event-page/live.html), [`pages/event-page/changed`](../../mocks/pages/event-page/changed.html), [`pages/event-page/cancelled`](../../mocks/pages/event-page/cancelled.html), [`pages/event-page/past`](../../mocks/pages/event-page/past.html), [`pages/event-page/loading`](../../mocks/pages/event-page/loading.html) |
