@@ -273,3 +273,88 @@ test.describe('Search results that need help', () => {
     await expect(results.notice).toHaveCount(0);
   });
 });
+
+test.describe('Search results when search is struggling', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-141 · alert AC-1
+  test('a search that skipped the transcripts says results may be missing', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/search', personhoodResults({ unavailable: ['transcripts'] }));
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=personhood');
+
+    await expect(results.warning).toContainText('Some results may be missing');
+    await expect(results.warning).toContainText(
+      "Video transcripts aren't being searched right now, so a video that mentions “personhood” only when spoken may not appear.",
+    );
+    await expect(results.tabs.first()).toHaveText('All 14');
+  });
+
+  // L2-004 AC6 · alert AC-1
+  test('too many searches pause the page until the time the server gives', async ({
+    page,
+    api,
+  }) => {
+    await page.clock.install({ time: new Date('2026-10-12T14:24:00Z') });
+    api.fail('GET', '/search', 429, 'too-many-requests', {}, { 'Retry-After': '40' });
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=personhood');
+
+    await expect(results.heading).toHaveText('Results for “personhood”');
+    await expect(results.sub).toHaveText('Search is paused for a moment.');
+    await expect(results.warning).toContainText('Too many searches in a minute');
+    await expect(results.warning).toContainText('You can search again in 40 seconds.');
+    await expect(results.searchAgain).toBeDisabled();
+
+    api.respond('GET', '/search', personhoodResults());
+    await page.clock.runFor('00:41');
+
+    await expect(results.searchAgain).toBeEnabled();
+    await results.searchAgain.click();
+
+    await expect(results.tabs.first()).toHaveText('All 14');
+    await expect(results.warning).toHaveCount(0);
+  });
+
+  // L2-141 · empty-state AC-2
+  test('a search that fails says so and can be tried again', async ({ page, api }) => {
+    api.fail('GET', '/search', 500);
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=personhood');
+
+    await expect(results.sub).toHaveText("We couldn't run this search.");
+    await expect(results.emptyTitle).toHaveText("Search isn't working right now");
+    await expect(results.emptyAction('Browse the catalogue')).toHaveAttribute('href', '/explore');
+    await expect(results.tabs).toHaveCount(0);
+
+    api.respond('GET', '/search', personhoodResults());
+    await results.tryAgain.click();
+
+    await expect(results.tabs.first()).toHaveText('All 14');
+    await expect(results.emptyTitle).toHaveCount(0);
+  });
+});
+
+test.describe('Search results on a phone', () => {
+  test.use({ viewport: { width: 320, height: 800 } });
+
+  // L2-130 AC1 · L2-150 · mock search-results/long
+  test('a very long query wraps and the page does not scroll sideways', async ({ page, api }) => {
+    const query =
+      'how should a small rural congregation think about using large language models to draft sermons, prayers and pastoral letters without losing the voice of its own minister';
+    api.respond('GET', '/search', personhoodResults({ query }));
+    const results = new SearchResultsPage(page);
+
+    await results.open(`/search?q=${encodeURIComponent(query)}`);
+
+    await expect(results.heading).toHaveText(`Results for “${query}”`);
+    await expect(results.tabs.first()).toHaveText('All 14');
+    expect(await results.shell.hasHorizontalScroll()).toBe(false);
+  });
+});

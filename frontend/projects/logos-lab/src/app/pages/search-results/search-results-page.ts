@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  LOCALE_ID,
+  signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SEARCH_API, SearchOptions } from '@logos-lab/api';
@@ -21,10 +29,11 @@ import {
   Tab,
   Tabs,
 } from '@logos-lab/components';
-import { map, of, startWith, switchMap } from 'rxjs';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
 import { parseSearchType, searchCountLabel } from '../../content/search-type-labels';
 import { SearchNavigation } from '../../search-navigation';
+import { readSearchFailure } from './read-search-failure';
 import { SearchResultsState } from './search-results-state';
 import { toSearchGroups, toSearchTabs } from './search-views';
 
@@ -67,10 +76,12 @@ export class SearchResultsPage {
   protected readonly type = computed(() => parseSearchType(this.params().get('type')));
   /** `exact=true` searches the text as typed, without spelling correction. */
   private readonly exact = computed(() => this.params().get('exact') === 'true');
+  private readonly attempt = signal(0);
   private readonly request = computed(() => ({
     query: this.query(),
     type: this.type(),
     exact: this.exact(),
+    attempt: this.attempt(),
   }));
 
   private readonly state = toSignal(
@@ -81,6 +92,7 @@ export class SearchResultsPage {
         const options: SearchOptions = { ...(type && { type }), ...(exact && { exact }) };
         return this.searchApi.search(query, options).pipe(
           map((results): SearchResultsState => ({ kind: 'loaded', results })),
+          catchError((error: unknown) => of(readSearchFailure(error, new Date()))),
           startWith<SearchResultsState>({ kind: 'loading' }),
         );
       }),
@@ -89,6 +101,13 @@ export class SearchResultsPage {
   );
 
   protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+  protected readonly paused = computed(() => {
+    const state = this.state();
+    return state.kind === 'paused' ? state : null;
+  });
+  /** False while a paused search waits for `Retry-After` to pass. */
+  protected readonly retryReady = signal(true);
   protected readonly empty = computed(() => this.state().kind === 'empty');
   protected readonly invalid = computed(() => this.state().kind === 'invalid');
 
@@ -111,6 +130,43 @@ export class SearchResultsPage {
     () => $localize`:@@search.loading:Searching for “${this.query()}:query:”…`,
   );
 
+  protected readonly pausedBody = computed(() => {
+    const seconds = this.paused()?.seconds ?? 0;
+    const duration = plural(this.locale, seconds, {
+      one: $localize`:@@search.paused.seconds.one:${seconds}:count: second`,
+      other: $localize`:@@search.paused.seconds.other:${seconds}:count: seconds`,
+    });
+    return $localize`:@@search.paused.body:To keep Logos Lab fast for everyone, searches pause briefly after 60 in a minute. You can search again in ${duration}:duration:.`;
+  });
+  protected readonly transcriptsMissing = computed(
+    () => this.results()?.unavailable.includes('transcripts') ?? false,
+  );
+  protected readonly partialBody = computed(
+    () =>
+      $localize`:@@search.partial.body:Video transcripts aren't being searched right now, so a video that mentions “${this.results()?.query ?? ''}:query:” only when spoken may not appear. Everything else is searched as usual.`,
+  );
+
+  constructor() {
+    effect((onCleanup) => {
+      const paused = this.paused();
+      if (!paused) {
+        this.retryReady.set(true);
+        return;
+      }
+      // The button opens by itself once `Retry-After` has passed (L2-004 AC6).
+      this.retryReady.set(false);
+      const timer = setTimeout(
+        () => this.retryReady.set(true),
+        Math.max(0, paused.until.getTime() - Date.now()),
+      );
+      onCleanup(() => clearTimeout(timer));
+    });
+  }
+
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
+
   protected readonly heading = computed(() =>
     this.empty() || this.invalid()
       ? $localize`:@@search.title:Search Logos Lab`
@@ -119,6 +175,8 @@ export class SearchResultsPage {
 
   protected readonly sub = computed(() => {
     if (this.loading()) return $localize`:@@search.sub.loading:Searching…`;
+    if (this.paused()) return $localize`:@@search.sub.paused:Search is paused for a moment.`;
+    if (this.failed()) return $localize`:@@search.sub.failed:We couldn't run this search.`;
     if (this.empty() || this.invalid())
       return $localize`:@@search.sub.idle:Try a topic, a question, a book of the Bible or an expert's name.`;
     const results = this.results();

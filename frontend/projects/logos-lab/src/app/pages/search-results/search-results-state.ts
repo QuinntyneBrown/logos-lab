@@ -6,4 +6,5 @@ export type SearchResultsState =
   | { readonly kind: 'invalid' }
   | { readonly kind: 'loading' }
   | { readonly kind: 'loaded'; readonly results: SearchResults }
+  | { readonly kind: 'paused'; readonly until: Date; readonly seconds: number }
   | { readonly kind: 'failed' };

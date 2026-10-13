@@ -17,6 +17,9 @@ export class SearchResultsPage {
   readonly emptyTitle: Locator;
   readonly popularTopics: Locator;
   readonly notice: Locator;
+  readonly warning: Locator;
+  readonly searchAgain: Locator;
+  readonly tryAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -35,6 +38,9 @@ export class SearchResultsPage {
     this.emptyTitle = main.locator('.empty__title');
     this.popularTopics = main.getByRole('list', { name: 'Popular topics' }).getByRole('link');
     this.notice = main.locator('.page-head .alert');
+    this.warning = main.locator('.alert--warning');
+    this.searchAgain = main.getByRole('button', { name: 'Search again' });
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
   }
 
   async open(path: string): Promise<void> {

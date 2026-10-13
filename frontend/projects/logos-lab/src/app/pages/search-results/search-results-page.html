@@ -55,6 +55,77 @@
     </div>
   }
 
+  @if (paused()) {
+    <div class="search-results__notice">
+      <ll-alert
+        tone="warning"
+        role="alert"
+        heading="Too many searches in a minute"
+        i18n-heading="@@search.paused.title"
+      >
+        {{ pausedBody() }}
+        <button
+          llButton
+          variant="quiet"
+          size="sm"
+          type="button"
+          slot="actions"
+          [disabled]="!retryReady()"
+          (click)="retry()"
+          i18n="@@search.paused.action"
+        >
+          Search again
+        </button>
+      </ll-alert>
+    </div>
+  }
+
+  @if (failed()) {
+    <div class="search-results__empty">
+      <ll-empty-state
+        tone="error"
+        heading="Search isn't working right now"
+        i18n-heading="@@search.failed.title"
+        icon="attention"
+        [headingLevel]="2"
+      >
+        <ng-container i18n="@@search.failed.text"
+          >This is on our side. The catalogue still lists everything, and search should be back
+          shortly.</ng-container
+        >
+        <button
+          llButton
+          variant="primary"
+          type="button"
+          slot="actions"
+          (click)="retry()"
+          i18n="@@search.failed.retry"
+        >
+          Try again
+        </button>
+        <a llButton variant="quiet" slot="actions" routerLink="/explore" i18n="@@search.browse"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    </div>
+    <p class="search-results__help">
+      <ng-container i18n="@@search.failed.help">Still not working? Write to</ng-container>
+      <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+    </p>
+  }
+
+  @if (transcriptsMissing()) {
+    <div class="search-results__notice">
+      <ll-alert
+        tone="warning"
+        heading="Some results may be missing"
+        i18n-heading="@@search.partial.title"
+      >
+        {{ partialBody() }}
+      </ll-alert>
+    </div>
+  }
+
   @if (noMatch(); as none) {
     <div class="search-results__empty">
       <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">

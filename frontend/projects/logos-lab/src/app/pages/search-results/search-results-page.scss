@@ -7,6 +7,15 @@
 .search-results__empty {
   padding-top: var(--space-6);
 }
+.search-results__notice {
+  margin-bottom: var(--space-6);
+  padding-top: var(--space-6);
+}
+.search-results__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
 .search-results__loading {
   padding-top: var(--space-10);
 }
