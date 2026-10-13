@@ -17,6 +17,7 @@ export class ExplorePage {
   readonly emptyTitle: Locator;
   readonly emptyState: Locator;
   readonly tryAgain: Locator;
+  readonly clearFilters: Locator;
   readonly warning: Locator;
   readonly checkAgain: Locator;
   readonly pagerText: Locator;
@@ -41,6 +42,7 @@ export class ExplorePage {
     this.emptyState = main.locator('.empty');
     this.emptyTitle = main.locator('.empty__title');
     this.tryAgain = main.getByRole('button', { name: 'Try again' });
+    this.clearFilters = this.emptyState.getByRole('button', { name: 'Clear filters' });
     this.warning = main.locator('.alert--warning');
     this.checkAgain = main.getByRole('button', { name: 'Check again' });
     this.pagerText = this.pager.locator('.pager__text');
@@ -63,6 +65,11 @@ export class ExplorePage {
 
   async goToPage(number: number): Promise<void> {
     await this.pageLink(number).click();
+  }
+
+  /** A link among the empty state's actions, such as "Meet the experts". */
+  emptyAction(name: string): Locator {
+    return this.emptyState.getByRole('link', { name });
   }
 
   /** Picks a sort by its visible name: "Most popular". */

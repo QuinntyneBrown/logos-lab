@@ -373,4 +373,61 @@ test.describe('Explore', () => {
 
     await expect(explore.warning).toHaveCount(0);
   });
+
+  // L2-002 AC5 · empty-state AC-10
+  test('filters that match nothing are named, with one way to clear them', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    api.respond(
+      'GET',
+      '/catalogue?type=video&topic=creativity-and-the-arts&duration=over-60',
+      cataloguePage({ items: [], total: 0, pageCount: 0 }),
+    );
+    const explore = new ExplorePage(page);
+
+    await explore.open('/explore?type=video&topic=creativity-and-the-arts&duration=over-60');
+
+    await expect(explore.count).toHaveText(
+      // The list is the locale's own: CLDR versions differ on the serial comma.
+      /^\s*No items match Video, Creativity and the arts,? and Over 60 min\s*$/,
+    );
+    await expect(explore.pills).toHaveCount(3);
+    await expect(explore.emptyTitle).toHaveText('No videos match these filters');
+    await expect(explore.emptyState).toContainText('Clear the filters to see all 212 items.');
+    await expect(explore.clearFilters).toHaveCount(1);
+    await expect(explore.pager).toBeHidden();
+
+    await explore.clearFilters.click();
+
+    await expect(page).toHaveURL('/explore');
+    await expect(explore.cards).toHaveCount(24);
+  });
+
+  // L2-002 · empty-state AC-1
+  test('a catalogue with nothing published says so and points to the experts', async ({
+    page,
+    api,
+  }) => {
+    api.respond(
+      'GET',
+      '/catalogue',
+      cataloguePage({
+        items: [],
+        total: 0,
+        pageCount: 0,
+        facets: { types: [], topics: [], contributors: [] },
+      }),
+    );
+    const explore = new ExplorePage(page);
+
+    await explore.open();
+
+    await expect(explore.count).toHaveText('No items published yet');
+    await expect(explore.sort).toBeDisabled();
+    await expect(explore.emptyTitle).toHaveText('Nothing is published yet');
+    await expect(explore.emptyAction('Meet the experts')).toHaveAttribute('href', '/experts');
+    await expect(explore.cards).toHaveCount(0);
+  });
 });

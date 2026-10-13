@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CATALOGUE_API, CatalogueFacets, CatalogueQuery } from '@logos-lab/api';
 import {
   ActiveFilter,
@@ -67,6 +67,7 @@ const NO_FILTERS: Pick<
   selector: 'll-explore-page',
   imports: [
     NgTemplateOutlet,
+    RouterLink,
     ActiveFilter,
     ActiveFilters,
     Alert,
@@ -230,6 +231,7 @@ export class ExplorePage {
           const label = $localize`:@@explore.pill:${group}:group:: ${option.label}:value:`;
           return {
             label,
+            value: option.label,
             removeLabel: $localize`:@@explore.pill.remove:Remove filter ${label}:pill:`,
             remove: () => this.toggle(key, option.value, false),
           };
@@ -274,9 +276,33 @@ export class ExplorePage {
     return $localize`:@@explore.pager.summary:Page ${page}:page: of ${count}:count:`;
   });
 
+  /** Nothing published at all: no filters are on and nothing came back. */
+  protected readonly emptyCatalogue = computed(
+    () => this.catalogue()?.total === 0 && this.pills().length === 0,
+  );
+
+  /** Filters are on and nothing matches them. */
+  protected readonly noMatches = computed(() => {
+    const none = this.catalogue()?.total === 0 && this.pills().length > 0;
+    if (!none) return null;
+    const names = new Intl.ListFormat(this.locale, { style: 'long', type: 'conjunction' }).format(
+      this.pills().map((pill) => pill.value),
+    );
+    const query = this.query();
+    const noun = catalogueNoun(this.locale, query.types.length === 1 ? query.types[0] : null, 2);
+    const all = new Intl.NumberFormat(this.locale).format(
+      (this.facets()?.types ?? []).reduce((sum, facet) => sum + facet.count, 0),
+    );
+    return {
+      names,
+      heading: $localize`:@@explore.none.title:No ${noun}:noun: match these filters`,
+      text: $localize`:@@explore.none.text:Nothing matches ${names}:filters: together. Clear the filters to see all ${all}:count: items.`,
+    };
+  });
+
   protected readonly range = computed(() => {
     const page = this.catalogue();
-    if (!page) return null;
+    if (!page || page.total === 0) return null;
     const format = new Intl.NumberFormat(this.locale);
     const first = (page.page - 1) * PAGE_SIZE + 1;
     return {

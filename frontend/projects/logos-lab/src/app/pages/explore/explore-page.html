@@ -121,6 +121,12 @@
             Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
             <strong>{{ range.total }}</strong> {{ noun() }}, {{ sortNote() }}
           </p>
+        } @else if (noMatches(); as none) {
+          <p llToolbarCount i18n="@@explore.count.none">
+            <strong>No items</strong> match {{ none.names }}
+          </p>
+        } @else if (emptyCatalogue()) {
+          <p llToolbarCount i18n="@@explore.count.empty"><strong>No items</strong> published yet</p>
         } @else if (failed()) {
           <p llToolbarCount i18n="@@explore.count.failed">Results unavailable</p>
         } @else {
@@ -134,7 +140,7 @@
             i18n-label="@@explore.sort.label"
             name="sort"
             [value]="query().sort"
-            [disabled]="!loaded()"
+            [disabled]="!loaded() || emptyCatalogue()"
             (valueChange)="setSort($event)"
           >
             <option value="newest" i18n="@@explore.sort.newest">Newest</option>
@@ -203,6 +209,40 @@
           <ng-container i18n="@@explore.failed.help">Still not working? Write to</ng-container>
           <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
         </p>
+      } @else if (noMatches(); as none) {
+        <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">
+          {{ none.text }}
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="clearAll()"
+            i18n="@@explore.none.action"
+          >
+            Clear filters
+          </button>
+        </ll-empty-state>
+      } @else if (emptyCatalogue()) {
+        <ll-empty-state
+          heading="Nothing is published yet"
+          i18n-heading="@@explore.empty.title"
+          icon="search"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@explore.empty.text"
+            >The first courses and articles are with the editors now. Experts are already here, and
+            you can read about them while you wait.</ng-container
+          >
+          <a
+            llButton
+            variant="primary"
+            slot="actions"
+            routerLink="/experts"
+            i18n="@@explore.empty.action"
+            >Meet the experts</a
+          >
+        </ll-empty-state>
       } @else {
         <div class="content-grid">
           @for (card of cards(); track card.id) {
