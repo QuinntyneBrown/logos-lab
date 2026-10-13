@@ -49,17 +49,23 @@
   }
 
   @for (group of groups(); track group.type) {
-    <section class="page-block" [attr.aria-labelledby]="group.headingId">
-      <div class="section__head search-results__head">
-        <h2 class="section__title" [id]="group.headingId">
-          {{ group.title }} <span class="search-results__count">{{ group.count }}</span>
-        </h2>
-        @if (group.moreLabel; as more) {
-          <a class="section__more" routerLink="/search" [queryParams]="group.moreQueryParams"
-            >{{ more }} <svg llIcon name="arrow-right" size="sm"></svg
-          ></a>
-        }
-      </div>
+    <section
+      class="page-block"
+      [attr.aria-labelledby]="type() ? null : group.headingId"
+      [attr.aria-label]="type() ? group.title : null"
+    >
+      @if (!type()) {
+        <div class="section__head search-results__head">
+          <h2 class="section__title" [id]="group.headingId">
+            {{ group.title }} <span class="search-results__count">{{ group.count }}</span>
+          </h2>
+          @if (group.moreLabel; as more) {
+            <a class="section__more" routerLink="/search" [queryParams]="group.moreQueryParams"
+              >{{ more }} <svg llIcon name="arrow-right" size="sm"></svg
+            ></a>
+          }
+        </div>
+      }
       @if (group.type === 'expert') {
         <ul llPersonList>
           @for (expert of group.experts; track expert.path) {

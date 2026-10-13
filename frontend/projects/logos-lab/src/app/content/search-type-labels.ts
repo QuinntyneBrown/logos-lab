@@ -12,6 +12,11 @@ export const SEARCH_TYPE_ORDER: readonly SearchResultType[] = [
   'expert',
 ];
 
+/** The type a `type` query parameter names, or null when it is absent or unknown. */
+export function parseSearchType(value: string | null): SearchResultType | null {
+  return SEARCH_TYPE_ORDER.find((type) => type === value) ?? null;
+}
+
 /** The plural name of a result type: a tab label or a group heading. */
 export function searchTypeLabel(type: SearchResultType): string {
   switch (type) {

@@ -1,4 +1,9 @@
-import { SearchExpertHit, SearchResultGroup, SearchResults } from '@logos-lab/api';
+import {
+  SearchExpertHit,
+  SearchResultGroup,
+  SearchResults,
+  SearchResultType,
+} from '@logos-lab/api';
 import { toContentCard } from '../../content/content-card-view';
 import { plural } from '../../content/plural';
 import {
@@ -11,7 +16,11 @@ import { SearchGroupView } from './search-group-view';
 import { SearchTab } from './search-tab';
 
 /** "All", then one tab for each type with matches, in the fixed type order. */
-export function toSearchTabs(results: SearchResults, query: string): SearchTab[] {
+export function toSearchTabs(
+  results: SearchResults,
+  query: string,
+  selected: SearchResultType | null,
+): SearchTab[] {
   const counts = SEARCH_TYPE_ORDER.flatMap((type) =>
     results.counts.filter((entry) => entry.type === type && entry.count > 0),
   );
@@ -20,14 +29,14 @@ export function toSearchTabs(results: SearchResults, query: string): SearchTab[]
       type: null,
       label: $localize`:@@search.type.all:All`,
       count: results.total,
-      current: true,
+      current: selected === null,
       queryParams: { q: query },
     },
     ...counts.map((entry) => ({
       type: entry.type,
       label: searchTypeLabel(entry.type),
       count: entry.count,
-      current: false,
+      current: entry.type === selected,
       queryParams: { q: query, type: entry.type },
     })),
   ];

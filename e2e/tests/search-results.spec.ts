@@ -1,4 +1,4 @@
-import { personhoodResults } from '../data/searches';
+import { personhoodResults, personhoodVideos } from '../data/searches';
 import { expect, test } from '../fixtures/test';
 import { SearchResultsPage } from '../pages/search-results.page';
 
@@ -102,5 +102,47 @@ test.describe('Search results', () => {
 
     await expect(results.tabs.first()).toHaveText('All 14');
     await expect(results.skeletonCards()).toHaveCount(0);
+  });
+
+  // L2-003 AC2 · tabs AC-2
+  test('choosing a type narrows the results to it', async ({ page, api }) => {
+    api.respond('GET', '/search?q=personhood', personhoodResults());
+    api.respond('GET', '/search?q=personhood&type=video', personhoodVideos());
+    const results = new SearchResultsPage(page);
+    await results.open('/search?q=personhood');
+
+    await results.chooseTab('Videos');
+
+    await expect(page).toHaveURL('/search?q=personhood&type=video');
+    await expect(results.currentTab).toHaveText('Videos 3');
+    await expect(results.sub).toHaveText('3 videos, best matches first.');
+    await expect(results.tabs).toHaveCount(8);
+    await expect(results.groupHeadings).toHaveCount(0);
+    await expect(results.cards(results.group('Videos'))).toHaveCount(3);
+    await expect(results.card(results.group('Videos'), 2).titleLink).toHaveText(
+      'Inside a Neural Network in Ten Minutes',
+    );
+  });
+
+  // L2-003 AC2 · tabs AC-2
+  test('a type in the address is selected when the page opens', async ({ page, api }) => {
+    api.respond('GET', '/search?q=personhood&type=video', personhoodVideos());
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=personhood&type=video');
+
+    await expect(results.currentTab).toHaveText('Videos 3');
+    await expect(results.cards(results.group('Videos'))).toHaveCount(3);
+  });
+
+  // L2-003 AC2 · tabs AC-2
+  test('an unknown type in the address is ignored', async ({ page, api }) => {
+    api.respond('GET', '/search?q=personhood', personhoodResults());
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=personhood&type=podcast');
+
+    await expect(results.currentTab).toHaveText('All 14');
+    await expect(results.groupHeadings).toHaveCount(7);
   });
 });

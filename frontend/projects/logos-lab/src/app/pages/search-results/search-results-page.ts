@@ -17,6 +17,7 @@ import {
 } from '@logos-lab/components';
 import { map, startWith, switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
+import { parseSearchType, searchCountLabel } from '../../content/search-type-labels';
 import { SearchNavigation } from '../../search-navigation';
 import { SearchResultsState } from './search-results-state';
 import { toSearchGroups, toSearchTabs } from './search-views';
@@ -48,11 +49,14 @@ export class SearchResultsPage {
   private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
   protected readonly query = computed(() => (this.params().get('q') ?? '').trim());
+  /** The selected result type; an unknown one is ignored. */
+  protected readonly type = computed(() => parseSearchType(this.params().get('type')));
+  private readonly request = computed(() => ({ query: this.query(), type: this.type() }));
 
   private readonly state = toSignal(
-    toObservable(this.query).pipe(
-      switchMap((query) =>
-        this.searchApi.search(query).pipe(
+    toObservable(this.request).pipe(
+      switchMap(({ query, type }) =>
+        this.searchApi.search(query, type ?? undefined).pipe(
           map((results): SearchResultsState => ({ kind: 'loaded', results })),
           startWith<SearchResultsState>({ kind: 'loading' }),
         ),
@@ -82,6 +86,12 @@ export class SearchResultsPage {
     if (this.loading()) return $localize`:@@search.sub.loading:Searching…`;
     const results = this.results();
     if (!results) return '';
+    const type = this.type();
+    if (type) {
+      const count = results.counts.find((entry) => entry.type === type)?.count ?? 0;
+      const label = searchCountLabel(this.locale, type, count);
+      return $localize`:@@search.sub.type:${label}:count:, best matches first.`;
+    }
     const format = new Intl.NumberFormat(this.locale);
     const total = format.format(results.total);
     const types = format.format(results.counts.length);
@@ -98,7 +108,7 @@ export class SearchResultsPage {
 
   protected readonly tabs = computed(() => {
     const results = this.results();
-    return results ? toSearchTabs(results, this.query()) : [];
+    return results ? toSearchTabs(results, this.query(), this.type()) : [];
   });
 
   protected readonly groups = computed(() => {

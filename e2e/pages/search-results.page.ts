@@ -37,6 +37,11 @@ export class SearchResultsPage {
     return this.shell.main.getByRole('region', { name: new RegExp(`^${name}\\b`) });
   }
 
+  /** Follows a result-type tab by its name: "Videos". */
+  async chooseTab(name: string): Promise<void> {
+    await this.tabs.filter({ hasText: name }).click();
+  }
+
   card(group: Locator, index: number): ContentCard {
     return new ContentCard(group.locator('.content-card').nth(index));
   }

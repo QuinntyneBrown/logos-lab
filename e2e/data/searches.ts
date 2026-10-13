@@ -163,3 +163,43 @@ export function personhoodResults(overrides: Partial<Record<string, unknown>> = 
     ...overrides,
   };
 }
+
+/** GET /api/v1/search?q=personhood&type=video: the narrowed view of docs/mocks/pages/search-results/selected. */
+export function personhoodVideos() {
+  const all = personhoodResults();
+  return {
+    ...all,
+    groups: [
+      {
+        type: 'video',
+        count: 3,
+        hits: [
+          {
+            item: content.canAMachinePray,
+            snippet: [
+              plain('In the transcript at 14:02: “…prayer is an act of a person before God, and '),
+              match('personhood'),
+              plain(' is exactly what we are unsure of here…”'),
+            ],
+          },
+          {
+            item: content.augustineAlgorithm,
+            snippet: [
+              plain('…Augustine’s account of memory gives '),
+              match('personhood'),
+              plain(' a history that no model has…'),
+            ],
+          },
+          {
+            item: content.neuralNetwork,
+            snippet: [
+              plain('…a neural network has no '),
+              match('personhood'),
+              plain(' to speak of…'),
+            ],
+          },
+        ],
+      },
+    ],
+  };
+}
