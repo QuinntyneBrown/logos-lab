@@ -95,3 +95,7 @@ export * from './lib/pagination/pagination-item';
 export * from './lib/pagination/pagination-items';
 export * from './lib/search-filter-toolbar/filter-panel-presentation';
 export * from './lib/search-filter-toolbar/filters-button';
+export * from './lib/breadcrumb/breadcrumb';
+export * from './lib/breadcrumb/breadcrumb-bottom';
+export * from './lib/breadcrumb/breadcrumb-item';
+export * from './lib/breadcrumb/breadcrumb-top';

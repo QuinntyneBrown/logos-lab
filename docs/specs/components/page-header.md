@@ -13,7 +13,7 @@
 ## Purpose and scope
 
 The page header is the top of a page's content, directly under the top bar or the start of a layout
-column. It holds an eyebrow naming the area (or a breadcrumb), the page's only `h1` in the light
+column. It holds an eyebrow naming the area, the page's only `h1` in the light
 display style, one muted line of context ("13 topics. Names are unique…"), and the actions that apply
 to the whole page ("New topic", "Export CSV"). Content that belongs under the line, such as a search
 form, a row of meta badges or an inline status, follows in the default slot.
@@ -48,7 +48,8 @@ Out of scope:
 
 1. **Container** — `div.page-head` (+ `.page-head--actions` when actions sit to the side), a
    one-column grid with `--space-5` gaps.
-2. **Context** — `p.eyebrow` with the area or item kind, or a projected breadcrumb.
+2. **Context** — `p.eyebrow` with the area or item kind. A breadcrumb is not part of the header: it is
+   the [breadcrumb](breadcrumb.md) component above it (breadcrumb CRD D-1).
 3. **Title** — `h1.page-head__title`, the page's only `h1`.
 4. **Lead (optional)** — a projected paragraph between the title and the sub line.
 5. **Sub** — `p.page-head__sub`, one muted sentence in the large body style.
@@ -67,7 +68,7 @@ Host: `ll-page-header` is `display: contents` and renders the container.
 | Input | Type | Default | Required | Rule |
 |---|---|---|---|---|
 | `heading` | `string` | — | yes | The `h1` text. While `busy` is `all`, it is rendered visually hidden ("Article"). |
-| `eyebrow` | `string \| null` | `null` | no | Renders `p.eyebrow`. Ignored when `[slot=context]` is filled. |
+| `eyebrow` | `string \| null` | `null` | no | Renders `p.eyebrow`. |
 | `sub` | `string \| null` | `null` | no | Renders `p.page-head__sub` as text. `[slot=sub]` replaces it for a sub line with links or `strong`. |
 | `actions` | `'none' \| 'side' \| 'below'` | `'none'` | no | `side` adds `.page-head--actions` and renders `div.page-head__actions` beside the text from 48rem; `below` renders the actions div in the flow, under the sub line. |
 | `top` | `'lg' \| 'md' \| 'sm' \| 'xs'` | `'lg'` | no | Space above: `lg` `--space-16` (a standalone page), `md` `--space-8` (under a back link, band or breadcrumb), `sm` `--space-6` (two-column review pages), `xs` `--space-2` (the first thing in a sidebar layout's column). Adds `.page-head--top-md`, `--top-sm` or `--top-xs`. |
@@ -82,7 +83,6 @@ None. Actions are the consumer's buttons and links.
 
 | Slot | Accepts | Rule |
 |---|---|---|
-| `[slot=context]` | a breadcrumb `nav` | Replaces the eyebrow on pages two or more levels deep. |
 | `[slot=lead]` | a paragraph (`p.lead`) | Rendered between the title and the sub line (topic pages). |
 | `[slot=sub]` | text and inline elements | Rendered inside `p.page-head__sub` in place of the `sub` input. |
 | default | search form, meta cluster, alert, form summary, inline status | Rendered after the sub line. |
@@ -96,7 +96,6 @@ None. Actions are the consumer's buttons and links.
 | With actions (side) | `.page-head--actions` | Lists and items with page-wide actions; actions trail from 48rem. |
 | With actions (below) | — | A single back action under the sub (comments). |
 | With search / extra | — | Search results, directories, meta rows. |
-| With breadcrumb | — | Deep pages: the breadcrumb replaces the eyebrow. |
 
 | Top | Modifier | Padding top | Padding bottom |
 |---|---|---|---|

@@ -1,0 +1,15 @@
+.topic {
+  padding-bottom: var(--space-16);
+}
+.topic__head {
+  margin-bottom: var(--space-6);
+}
+.topic__count {
+  display: block;
+  margin-bottom: var(--space-6);
+}
+.topic__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
