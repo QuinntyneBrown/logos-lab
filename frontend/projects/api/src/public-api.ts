@@ -40,6 +40,7 @@ export * from './lib/search/search-content-group';
 export * from './lib/search/search-content-hit';
 export * from './lib/search/search-expert-group';
 export * from './lib/search/search-expert-hit';
+export * from './lib/search/search-options';
 export * from './lib/search/search-result-count';
 export * from './lib/search/search-result-group';
 export * from './lib/search/search-result-type';

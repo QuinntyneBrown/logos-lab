@@ -77,3 +77,6 @@ export * from './lib/inline-message/inline-status-tone';
 export * from './lib/tabs/tab';
 export * from './lib/tabs/tabs';
 export * from './lib/tabs/tabs-variant';
+export * from './lib/chip/chip';
+export * from './lib/chip/chip-size';
+export * from './lib/chip/chips';

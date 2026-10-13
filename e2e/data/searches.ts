@@ -203,3 +203,74 @@ export function personhoodVideos() {
     ],
   };
 }
+
+/** GET /api/v1/search for a query nothing matches: docs/mocks/pages/search-results/no-results. */
+export function noResults(query: string) {
+  return {
+    query,
+    total: 0,
+    counts: [],
+    groups: [],
+    unavailable: [],
+    popularTopics: [
+      { name: 'Theology of technology', slug: 'theology-of-technology', itemCount: 41 },
+      { name: 'AI ethics', slug: 'ai-ethics', itemCount: 37 },
+      { name: 'Church and ministry', slug: 'church-and-ministry', itemCount: 33 },
+      {
+        name: 'The image of God and personhood',
+        slug: 'the-image-of-god-and-personhood',
+        itemCount: 28,
+      },
+      { name: 'Formation and education', slug: 'formation-and-education', itemCount: 22 },
+    ],
+  };
+}
+
+/** GET /api/v1/search?q=theolgy: the API searched for "theology" instead (mock search-results/corrected). */
+export function correctedResults() {
+  return {
+    query: 'theology',
+    correctedFrom: 'theolgy',
+    total: 37,
+    counts: [
+      { type: 'course', count: 14 },
+      { type: 'article', count: 23 },
+    ],
+    groups: [
+      {
+        type: 'course',
+        count: 14,
+        hits: [
+          {
+            item: content.imagoDei,
+            snippet: [
+              plain('A theological anthropology for the age of '),
+              match('theology'),
+              plain('…'),
+            ],
+          },
+          {
+            item: content.faithWork,
+            snippet: [plain('…the '), match('theology'), plain(' of work, rest and vocation…')],
+          },
+        ],
+      },
+      {
+        type: 'article',
+        count: 23,
+        hits: [
+          {
+            item: content.augustineLlms,
+            snippet: [plain('…a '), match('theology'), plain(' of speech and silence…')],
+          },
+          {
+            item: content.sabbath,
+            snippet: [plain('…a '), match('theology'), plain(' of rest for the always-on mind…')],
+          },
+        ],
+      },
+    ],
+    unavailable: [],
+    popularTopics: [],
+  };
+}

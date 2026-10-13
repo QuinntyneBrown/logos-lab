@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SearchApi } from './search-api';
-import { SearchResultType } from './search-result-type';
+import { SearchOptions } from './search-options';
 import { SearchResults } from './search-results';
 import { SearchSuggestions } from './search-suggestions';
 
@@ -10,8 +10,10 @@ import { SearchSuggestions } from './search-suggestions';
 export class HttpSearchApi implements SearchApi {
   private readonly http = inject(HttpClient);
 
-  search(query: string, type?: SearchResultType): Observable<SearchResults> {
-    const params: Record<string, string> = type ? { q: query, type } : { q: query };
+  search(query: string, options: SearchOptions = {}): Observable<SearchResults> {
+    const params: Record<string, string> = { q: query };
+    if (options.type) params['type'] = options.type;
+    if (options.exact) params['exact'] = 'true';
     return this.http.get<SearchResults>('/api/v1/search', { params });
   }
 

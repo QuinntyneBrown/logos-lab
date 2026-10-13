@@ -15,6 +15,8 @@ export class SearchResultsPage {
   readonly summary: Locator;
   readonly fieldError: Locator;
   readonly emptyTitle: Locator;
+  readonly popularTopics: Locator;
+  readonly notice: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -31,6 +33,8 @@ export class SearchResultsPage {
     this.summary = main.getByRole('alert').filter({ hasText: 'One thing to fix' });
     this.fieldError = main.locator('.field__error');
     this.emptyTitle = main.locator('.empty__title');
+    this.popularTopics = main.getByRole('list', { name: 'Popular topics' }).getByRole('link');
+    this.notice = main.locator('.page-head .alert');
   }
 
   async open(path: string): Promise<void> {

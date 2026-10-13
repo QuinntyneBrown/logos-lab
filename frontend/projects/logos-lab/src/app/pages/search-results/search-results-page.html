@@ -5,6 +5,19 @@
     [heading]="heading()"
     [sub]="sub()"
   >
+    @if (correctedFrom(); as original) {
+      <ll-alert [heading]="correctedHeading()">
+        <ng-container i18n="@@search.corrected.body"
+          >No results matched “{{ original }}”, so we searched for the closest word.
+        </ng-container>
+        <a
+          routerLink="/search"
+          [queryParams]="{ q: original, exact: true }"
+          i18n="@@search.corrected.link"
+          >Search instead for {{ original }}</a
+        >
+      </ll-alert>
+    }
     @if (invalid()) {
       <ll-form-summary [heading]="summaryHeading" [errors]="errors()" />
     }
@@ -36,6 +49,26 @@
           newest first.</ng-container
         >
         <a llButton variant="primary" slot="actions" routerLink="/explore" i18n="@@search.browse"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    </div>
+  }
+
+  @if (noMatch(); as none) {
+    <div class="search-results__empty">
+      <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">
+        <ng-container i18n="@@search.none.text"
+          >Try fewer or different words, or start from one of the most popular topics.</ng-container
+        >
+        <ul llChips slot="suggestions" label="Popular topics" i18n-label="@@search.topics.label">
+          @for (topic of none.topics; track topic.path) {
+            <li>
+              <a llChip [routerLink]="topic.path" [count]="topic.count">{{ topic.name }}</a>
+            </li>
+          }
+        </ul>
+        <a llButton variant="quiet" slot="actions" routerLink="/explore" i18n="@@search.browse"
           >Browse the catalogue</a
         >
       </ll-empty-state>

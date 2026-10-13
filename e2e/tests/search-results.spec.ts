@@ -1,4 +1,4 @@
-import { personhoodResults, personhoodVideos } from '../data/searches';
+import { correctedResults, noResults, personhoodResults, personhoodVideos } from '../data/searches';
 import { expect, test } from '../fixtures/test';
 import { SearchResultsPage } from '../pages/search-results.page';
 
@@ -212,5 +212,64 @@ test.describe('Search without a usable query', () => {
 
     await expect(results.heading).toHaveText('Results for “<b>bold</b>”');
     await expect(results.search).toHaveValue('<b>bold</b>');
+  });
+});
+
+test.describe('Search results that need help', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  // L2-003 AC4 · empty-state AC-9, chip AC-1
+  test('a query that matches nothing names it and suggests the popular topics', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/search', noResults('transhumanist liturgy'));
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=transhumanist%20liturgy');
+
+    await expect(results.heading).toHaveText('Results for “transhumanist liturgy”');
+    await expect(results.sub).toHaveText('No results.');
+    await expect(results.emptyTitle).toHaveText('Nothing matches “transhumanist liturgy”');
+    await expect(results.popularTopics).toHaveText([
+      'Theology of technology 41',
+      'AI ethics 37',
+      'Church and ministry 33',
+      'The image of God and personhood 28',
+      'Formation and education 22',
+    ]);
+    await expect(results.popularTopics.first()).toHaveAttribute(
+      'href',
+      '/topics/theology-of-technology',
+    );
+    await expect(results.emptyAction('Browse the catalogue')).toHaveAttribute('href', '/explore');
+    await expect(results.tabs).toHaveCount(0);
+  });
+
+  // L2-003 AC3 · alert AC-1
+  test('a corrected query says what was searched and offers the original', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/search?q=theolgy', correctedResults());
+    api.respond('GET', '/search?q=theolgy&exact=true', noResults('theolgy'));
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=theolgy');
+
+    await expect(results.heading).toHaveText('Results for “theology”');
+    await expect(results.notice).toContainText('Showing results for “theology”');
+    await expect(results.notice).toContainText(
+      'No results matched “theolgy”, so we searched for the closest word.',
+    );
+    await expect(results.search).toHaveValue('theolgy');
+    await expect(results.tabs.first()).toHaveText('All 37');
+
+    await results.notice.getByRole('link', { name: 'Search instead for theolgy' }).click();
+
+    await expect(page).toHaveURL('/search?q=theolgy&exact=true');
+    await expect(results.heading).toHaveText('Results for “theolgy”');
+    await expect(results.emptyTitle).toHaveText('Nothing matches “theolgy”');
+    await expect(results.notice).toHaveCount(0);
   });
 });
