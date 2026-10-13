@@ -9,6 +9,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/home/home-page').then((m) => m.HomePage),
   },
   {
+    path: 'explore',
+    title: $localize`:@@explore.pageTitle:Explore - Logos Lab`,
+    loadComponent: () => import('./pages/explore/explore-page').then((m) => m.ExplorePage),
+  },
+  {
     path: 'search',
     title: $localize`:@@search.pageTitle:Search - Logos Lab`,
     loadComponent: () =>

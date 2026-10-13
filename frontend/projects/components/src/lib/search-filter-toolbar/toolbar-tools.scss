@@ -1,0 +1,7 @@
+// The .toolbar__tools rule of docs/design-system/assets/components.css; the host is the row.
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}

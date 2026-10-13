@@ -247,8 +247,9 @@ the pill shape identify the control, and every state change is carried by tokens
   (24 × 24 CSS px), the WCAG 2.2 AA minimum. Filter chips are not primary actions, so the 44 px
   touch target does not apply; the 8 px gap keeps neighbours from being hit by mistake.
 - At 320 px nothing scrolls horizontally or clips; at 200 % zoom every chip stays reachable.
-- The filters collapse into a "Filters" drawer on narrow screens, and the applied filters show as
-  removable chips above the list. That layout belongs to the page; the chip does not change.
+- The filters collapse into a "Filters" dialog on narrow screens, and the applied filters show as
+  removable pills above the list (the active-filter pill of the search and filter toolbar, not a chip).
+  That layout belongs to the page; the chip does not change.
 
 ## Accessibility
 
@@ -415,7 +416,8 @@ Under `prefers-reduced-motion: reduce` the colour transitions are removed and ch
   label is read as text and the button is named by `removeLabel`, as the mocks and the design-system
   page ("Removable chips are plain text with a real remove button") show.
 - **D-7** *May a link or toggle chip be removable?* No. A control inside a `button` or `a` is invalid
-  nesting, so `removeLabel` is ignored there; an applied filter is a static chip with a remove button.
+  nesting, so `removeLabel` is ignored there. A removable chip is a choice the author made, such as the
+  topics of an item; an applied catalogue filter is a pill of the search and filter toolbar.
 - **D-8** *Who owns focus after a removal?* The page. The design-system page says focus moves to the
   next chip or the heading; the studio mocks give the group `tabindex="-1"` as the fallback target.
   The chip emits `removed` only.

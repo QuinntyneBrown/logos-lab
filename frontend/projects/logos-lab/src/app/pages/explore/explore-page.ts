@@ -1,0 +1,319 @@
+import { Dialog } from '@angular/cdk/dialog';
+import { Overlay } from '@angular/cdk/overlay';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  LOCALE_ID,
+  signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CATALOGUE_API, CatalogueFacets, CatalogueQuery } from '@logos-lab/api';
+import {
+  ActiveFilter,
+  ActiveFilters,
+  Alert,
+  Button,
+  ContentCard,
+  EmptyState,
+  FilterPanel,
+  FiltersButton,
+  PageHeader,
+  Pagination,
+  SearchFilterToolbar,
+  Select,
+  SkeletonCard,
+  ToolbarCount,
+  ToolbarTools,
+} from '@logos-lab/components';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
+import { catalogueNoun } from '../../content/catalogue-noun';
+import { toContentCard } from '../../content/content-card-view';
+import { plural } from '../../content/plural';
+import { catalogueAddress, readCatalogueQuery } from './catalogue-address';
+import { ExploreFilterGroups } from './explore-filter-groups';
+import { ExploreFiltersDialogData } from './explore-filters-dialog-data';
+import { ExploreOption } from './explore-option';
+import { exploreOptions } from './explore-options';
+import { ExplorePill } from './explore-pill';
+import { ExploreState } from './explore-state';
+import { FilterKey } from './filter-key';
+
+/** Items on a catalogue page (the API's fixed page size). */
+const PAGE_SIZE = 24;
+
+const NO_FILTERS: Pick<
+  CatalogueQuery,
+  'types' | 'topics' | 'levels' | 'contributors' | 'durations'
+> = {
+  types: [],
+  topics: [],
+  levels: [],
+  contributors: [],
+  durations: [],
+};
+
+@Component({
+  selector: 'll-explore-page',
+  imports: [
+    RouterLink,
+    ActiveFilter,
+    ActiveFilters,
+    Alert,
+    Button,
+    ContentCard,
+    EmptyState,
+    ExploreFilterGroups,
+    FilterPanel,
+    FiltersButton,
+    PageHeader,
+    Pagination,
+    SearchFilterToolbar,
+    Select,
+    SkeletonCard,
+    ToolbarCount,
+    ToolbarTools,
+  ],
+  templateUrl: './explore-page.html',
+  styleUrl: './explore-page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ExplorePage {
+  /** Skeleton cards shown while the catalogue loads. */
+  protected readonly placeholders = [0, 1, 2, 3, 4, 5];
+
+  private readonly locale = inject(LOCALE_ID);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(Dialog);
+  private readonly overlay = inject(Overlay);
+  private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
+  private readonly attempt = signal(0);
+  private filtersOpen = false;
+
+  /** What the address asks for; it is the only state of the page. */
+  protected readonly query = computed(() => readCatalogueQuery(this.params()));
+  private readonly catalogueApi = inject(CATALOGUE_API);
+  private readonly state = toSignal(
+    toObservable(computed(() => ({ query: this.query(), attempt: this.attempt() }))).pipe(
+      switchMap(({ query }) =>
+        this.catalogueApi.browse(query).pipe(
+          map((page): ExploreState => ({ kind: 'loaded', page })),
+          catchError(() => of<ExploreState>({ kind: 'failed' })),
+          startWith<ExploreState>({ kind: 'loading' }),
+        ),
+      ),
+    ),
+    { initialValue: { kind: 'loading' } as ExploreState },
+  );
+
+  protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+  private readonly catalogue = computed(() => {
+    const state = this.state();
+    return state.kind === 'loaded' ? state.page : null;
+  });
+  protected readonly loaded = computed(() => this.catalogue() !== null);
+  protected readonly degraded = computed(() => this.catalogue()?.searchDegraded ?? false);
+
+  /** The last option lists seen, so the panel keeps its options while a request is out. */
+  protected readonly facets = linkedSignal<ExploreState, CatalogueFacets | null>({
+    source: this.state,
+    computation: (state, previous) =>
+      state.kind === 'loaded' ? state.page.facets : (previous?.value ?? null),
+  });
+
+  protected readonly cards = computed(
+    () => this.catalogue()?.items.map((item) => toContentCard(item, this.locale)) ?? [],
+  );
+
+  private readonly experts = computed(
+    () => this.facets()?.contributors.filter((entry) => entry.value !== 'logos-lab') ?? [],
+  );
+
+  protected readonly sub = computed(() => {
+    if (!this.facets())
+      return $localize`:@@explore.sub.unknown:Every published course, module, video, article, collection and event, from our experts and the Logos Lab editors.`;
+    const experts = this.experts().length;
+    const count = new Intl.NumberFormat(this.locale).format(experts);
+    return plural(this.locale, experts, {
+      one: $localize`:@@explore.sub.one:Every published course, module, video, article, collection and event, from ${count}:count: expert and the Logos Lab editors.`,
+      other: $localize`:@@explore.sub.other:Every published course, module, video, article, collection and event, from ${count}:count: experts and the Logos Lab editors.`,
+    });
+  });
+
+  protected readonly options = computed(() => exploreOptions(this.facets(), this.query()));
+
+  /** One removable pill per selected option, in group order. */
+  protected readonly pills = computed<readonly ExplorePill[]>(() => {
+    const groups: [FilterKey, string, readonly ExploreOption[]][] = [
+      ['types', $localize`:@@explore.filters.type:Type`, this.options().types],
+      ['topics', $localize`:@@explore.filters.topic:Topic`, this.options().topics],
+      ['levels', $localize`:@@explore.filters.level:Level`, this.options().levels],
+      [
+        'contributors',
+        $localize`:@@explore.filters.contributor:Contributor`,
+        this.options().contributors,
+      ],
+      ['durations', $localize`:@@explore.filters.length:Length`, this.options().durations],
+    ];
+    return groups.flatMap(([key, group, options]) =>
+      options
+        .filter((option) => option.checked)
+        .map((option) => {
+          const label = $localize`:@@explore.pill:${group}:group:: ${option.label}:value:`;
+          return {
+            label,
+            value: option.label,
+            removeLabel: $localize`:@@explore.pill.remove:Remove filter ${label}:pill:`,
+            remove: () => this.toggle(key, option.value, false),
+          };
+        }),
+    );
+  });
+
+  /** One selected type names what the count line counts; otherwise it counts items. */
+  protected readonly noun = computed(() => {
+    const query = this.query();
+    const total = this.catalogue()?.total ?? 0;
+    const noun = catalogueNoun(
+      this.locale,
+      query.types.length === 1 ? query.types[0] : null,
+      total,
+    );
+    const filters = this.pills().length;
+    return filters > 1
+      ? $localize`:@@explore.count.matching:${noun}:noun: that match all ${filters}:count: filters`
+      : noun;
+  });
+
+  /** How the list is ordered, as the count line ends. */
+  protected readonly sortNote = computed(() =>
+    this.query().sort === 'popular'
+      ? $localize`:@@explore.sort.popular.note:most popular first`
+      : $localize`:@@explore.sort.newest.note:newest first`,
+  );
+
+  /** The filters and sort without the page: what a page-only change keeps. */
+  private readonly listKey = computed(() => JSON.stringify({ ...this.query(), page: 0 }));
+
+  /** The last page count seen, with the list it belongs to, so a page change keeps its pager. */
+  private readonly lastPager = linkedSignal<ExploreState, { count: number; key: string } | null>({
+    source: this.state,
+    computation: (state, previous) =>
+      state.kind === 'loaded'
+        ? { count: state.page.pageCount, key: this.listKey() }
+        : (previous?.value ?? null),
+  });
+
+  /** The pager stays on screen while the next page of the same list loads, so focus stays on it. */
+  protected readonly pageCount = computed(() => {
+    const state = this.state();
+    // Read on every pass: a linked signal remembers a value only once it has been read with it.
+    const last = this.lastPager();
+    if (state.kind === 'loaded') return state.page.pageCount;
+    return state.kind === 'loading' && last?.key === this.listKey() ? last.count : 0;
+  });
+  protected readonly pagerLabels = {
+    label: $localize`:@@explore.pager.label:Pages of the catalogue`,
+    // The pager fills in the number, so the translation keeps the placeholder.
+    page: $localize`:@@explore.pager.page:Page ${'{page}'}:page:`,
+    previous: $localize`:@@explore.pager.previous:Previous page`,
+    next: $localize`:@@explore.pager.next:Next page`,
+  };
+  protected readonly pagerSummary = computed(() => {
+    const format = new Intl.NumberFormat(this.locale);
+    const page = format.format(this.query().page);
+    const count = format.format(this.pageCount());
+    return $localize`:@@explore.pager.summary:Page ${page}:page: of ${count}:count:`;
+  });
+
+  /** Nothing published at all: no filters are on and nothing came back. */
+  protected readonly emptyCatalogue = computed(
+    () => this.catalogue()?.total === 0 && this.pills().length === 0,
+  );
+
+  /** Filters are on and nothing matches them. */
+  protected readonly noMatches = computed(() => {
+    const none = this.catalogue()?.total === 0 && this.pills().length > 0;
+    if (!none) return null;
+    const names = new Intl.ListFormat(this.locale, { style: 'long', type: 'conjunction' }).format(
+      this.pills().map((pill) => pill.value),
+    );
+    const query = this.query();
+    const noun = catalogueNoun(this.locale, query.types.length === 1 ? query.types[0] : null, 2);
+    const all = new Intl.NumberFormat(this.locale).format(
+      (this.facets()?.types ?? []).reduce((sum, facet) => sum + facet.count, 0),
+    );
+    return {
+      names,
+      heading: $localize`:@@explore.none.title:No ${noun}:noun: match these filters`,
+      text: $localize`:@@explore.none.text:Nothing matches ${names}:filters: together. Clear the filters to see all ${all}:count: items.`,
+    };
+  });
+
+  protected readonly range = computed(() => {
+    const page = this.catalogue();
+    if (!page || page.total === 0) return null;
+    const format = new Intl.NumberFormat(this.locale);
+    const first = (page.page - 1) * PAGE_SIZE + 1;
+    return {
+      from: format.format(first),
+      to: format.format(first + page.items.length - 1),
+      total: format.format(page.total),
+    };
+  });
+
+  protected toggle(key: FilterKey, value: string, checked: boolean): void {
+    const query = this.query();
+    const selected = (query[key] as readonly string[]).filter((entry) => entry !== value);
+    this.apply({ ...query, [key]: checked ? [...selected, value] : selected, page: 1 });
+  }
+
+  protected setSort(value: string): void {
+    this.apply({ ...this.query(), sort: value === 'popular' ? 'popular' : 'newest', page: 1 });
+  }
+
+  protected clearAll(): void {
+    this.apply({ ...this.query(), ...NO_FILTERS, page: 1 });
+  }
+
+  /** Opens the filters as a sheet below LG; its draft reaches the address only when applied. */
+  protected async openFilters(): Promise<void> {
+    const facets = this.facets();
+    if (!facets || this.filtersOpen) return;
+    this.filtersOpen = true;
+    const { ExploreFiltersDialog } = await import('./explore-filters-dialog');
+    const ref = this.dialog.open<CatalogueQuery | undefined, ExploreFiltersDialogData>(
+      ExploreFiltersDialog,
+      {
+        data: { query: this.query(), facets, total: this.catalogue()?.total ?? 0 },
+        ariaLabelledBy: 'filters-title',
+        ariaModal: true,
+        backdropClass: 'll-backdrop',
+        panelClass: 'll-drawer-panel--bottom',
+        maxWidth: '100vw',
+        positionStrategy: this.overlay.position().global().bottom('0').centerHorizontally(),
+      },
+    );
+    ref.closed.subscribe((query) => {
+      this.filtersOpen = false;
+      if (query) this.apply({ ...query, page: 1 });
+    });
+  }
+
+  /** Asks again for the same address. */
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
+
+  private apply(query: CatalogueQuery): void {
+    // A filter change replaces the address, so the back button does not step through checkboxes.
+    void this.router.navigate(['/explore'], {
+      queryParams: catalogueAddress(query),
+      replaceUrl: true,
+    });
+  }
+}

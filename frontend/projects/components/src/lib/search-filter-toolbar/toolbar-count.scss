@@ -1,0 +1,10 @@
+// The .toolbar__count rules of docs/design-system/assets/components.css; the host is the line.
+:host {
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+// The numbers are the page's `strong` elements, so the host reaches into its content.
+:host ::ng-deep strong {
+  color: var(--color-fg-default);
+  font-weight: var(--font-weight-semibold);
+}

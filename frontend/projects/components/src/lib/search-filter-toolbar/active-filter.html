@@ -1,0 +1,12 @@
+<span class="pill pill--accent"
+  >{{ label() }}
+  <button
+    llIconButton
+    size="sm"
+    type="button"
+    [attr.aria-label]="removeLabel()"
+    (click)="removed.emit()"
+  >
+    <svg llIcon name="close" size="sm"></svg>
+  </button>
+</span>

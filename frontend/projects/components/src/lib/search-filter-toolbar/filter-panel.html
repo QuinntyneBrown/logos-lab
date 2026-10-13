@@ -1,0 +1,26 @@
+<ng-template #body><ng-content /></ng-template>
+@if (presentation() === 'inline') {
+  <aside class="filters" [attr.aria-labelledby]="titleId">
+    <div class="filters__head">
+      <h2 class="filters__title" [id]="titleId">{{ heading() }}</h2>
+      @if (canClear()) {
+        <button llButton variant="text" size="sm" type="button" (click)="cleared.emit()">
+          {{ clearLabel() }}
+        </button>
+      }
+    </div>
+    <ng-container [ngTemplateOutlet]="body" />
+  </aside>
+} @else {
+  <div class="filters filters--dialog">
+    <div class="cluster cluster--between">
+      <p class="field__help" [attr.id]="summaryId()">{{ summary() }}</p>
+      @if (canClear()) {
+        <button llButton variant="text" size="sm" type="button" (click)="cleared.emit()">
+          {{ clearLabel() }}
+        </button>
+      }
+    </div>
+    <ng-container [ngTemplateOutlet]="body" />
+  </div>
+}

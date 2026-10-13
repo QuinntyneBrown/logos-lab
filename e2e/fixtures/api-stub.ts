@@ -29,7 +29,7 @@ interface Stub {
  */
 export class ApiStub {
   private readonly stubs: Stub[] = [];
-  readonly requests: { method: string; path: string; body: unknown }[] = [];
+  readonly requests: { method: string; path: string; query: string; body: unknown }[] = [];
 
   constructor(private readonly page: Page) {}
 
@@ -88,13 +88,18 @@ export class ApiStub {
     return this.requests.filter((r) => r.method === method && r.path === path);
   }
 
+  /** The query strings the page sent to `method path`, in order: "", "?type=course". */
+  queriesTo(method: Method, path: string): string[] {
+    return this.requestsTo(method, path).map((r) => r.query);
+  }
+
   private async handle(route: Route): Promise<void> {
     const request: Request = route.request();
     const url = new URL(request.url());
     const path = url.pathname.replace(/^\/api\/v1/, '') + url.search;
     const pathOnly = url.pathname.replace(/^\/api\/v1/, '');
     const method = request.method() as Method;
-    this.requests.push({ method, path: pathOnly, body: parseBody(request) });
+    this.requests.push({ method, path: pathOnly, query: url.search, body: parseBody(request) });
     const stub = this.stubs.find(
       (s) => s.method === method && (s.path === path || s.path === pathOnly),
     );

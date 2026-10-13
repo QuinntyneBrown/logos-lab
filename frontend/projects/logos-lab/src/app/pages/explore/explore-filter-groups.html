@@ -1,0 +1,66 @@
+<fieldset llFilterGroup label="Type" i18n-label="@@explore.filters.type" name="type">
+  @for (option of options().types; track option.value) {
+    <li
+      llFilterOption
+      [label]="option.label"
+      [count]="option.count"
+      [checked]="option.checked"
+      (changed)="toggled.emit({ key: 'types', value: option.value, checked: $event })"
+    ></li>
+  }
+</fieldset>
+<fieldset
+  llFilterGroup
+  label="Topic"
+  i18n-label="@@explore.filters.topic"
+  name="topic"
+  [limit]="optionLimit"
+  [moreLabel]="topicsMore()"
+>
+  @for (option of options().topics; track option.value) {
+    <li
+      llFilterOption
+      [label]="option.label"
+      [count]="option.count"
+      [checked]="option.checked"
+      (changed)="toggled.emit({ key: 'topics', value: option.value, checked: $event })"
+    ></li>
+  }
+</fieldset>
+<fieldset llFilterGroup label="Level" i18n-label="@@explore.filters.level" name="level">
+  @for (option of options().levels; track option.value) {
+    <li
+      llFilterOption
+      [label]="option.label"
+      [checked]="option.checked"
+      (changed)="toggled.emit({ key: 'levels', value: option.value, checked: $event })"
+    ></li>
+  }
+</fieldset>
+<fieldset
+  llFilterGroup
+  label="Contributor"
+  i18n-label="@@explore.filters.contributor"
+  name="contributor"
+  [limit]="optionLimit"
+  [moreLabel]="contributorsMore()"
+>
+  @for (option of options().contributors; track option.value) {
+    <li
+      llFilterOption
+      [label]="option.label"
+      [checked]="option.checked"
+      (changed)="toggled.emit({ key: 'contributors', value: option.value, checked: $event })"
+    ></li>
+  }
+</fieldset>
+<fieldset llFilterGroup label="Length" i18n-label="@@explore.filters.length" name="duration">
+  @for (option of options().durations; track option.value) {
+    <li
+      llFilterOption
+      [label]="option.label"
+      [checked]="option.checked"
+      (changed)="toggled.emit({ key: 'durations', value: option.value, checked: $event })"
+    ></li>
+  }
+</fieldset>

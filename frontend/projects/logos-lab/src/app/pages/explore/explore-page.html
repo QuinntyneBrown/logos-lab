@@ -1,0 +1,206 @@
+<div class="wrap explore">
+  <ll-page-header
+    eyebrow="The catalogue"
+    i18n-eyebrow="@@explore.eyebrow"
+    heading="Explore"
+    i18n-heading="@@explore.title"
+    [sub]="sub()"
+  />
+  <div class="sidebar-layout">
+    @if (facets()) {
+      <ll-filter-panel
+        heading="Filters"
+        i18n-heading="@@explore.filters.title"
+        clearLabel="Clear all"
+        i18n-clearLabel="@@explore.clearAll"
+        [canClear]="pills().length > 0"
+        (cleared)="clearAll()"
+      >
+        <ll-explore-filter-groups
+          [options]="options()"
+          (toggled)="toggle($event.key, $event.value, $event.checked)"
+        />
+      </ll-filter-panel>
+    }
+    <div>
+      @if (degraded()) {
+        <div class="explore__notice">
+          <ll-alert
+            tone="warning"
+            heading="Search is limited for now"
+            i18n-heading="@@explore.degraded.title"
+          >
+            <ng-container i18n="@@explore.degraded.body"
+              >Keyword search is having trouble, so results may be incomplete. Browsing and filters
+              here still show everything published.</ng-container
+            >
+            <button
+              llButton
+              variant="quiet"
+              size="sm"
+              type="button"
+              slot="actions"
+              (click)="retry()"
+              i18n="@@explore.degraded.action"
+            >
+              Check again
+            </button>
+          </ll-alert>
+        </div>
+      }
+      <div llToolbar [stacked]="pills().length > 0">
+        <div class="cluster cluster--between explore__row">
+          @if (range(); as range) {
+            <p llToolbarCount i18n="@@explore.count">
+              Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+              <strong>{{ range.total }}</strong> {{ noun() }}, {{ sortNote() }}
+            </p>
+          } @else if (noMatches(); as none) {
+            <p llToolbarCount i18n="@@explore.count.none">
+              <strong>No items</strong> match {{ none.names }}
+            </p>
+          } @else if (emptyCatalogue()) {
+            <p llToolbarCount i18n="@@explore.count.empty">
+              <strong>No items</strong> published yet
+            </p>
+          } @else if (failed()) {
+            <p llToolbarCount i18n="@@explore.count.failed">Results unavailable</p>
+          } @else {
+            <p llToolbarCount i18n="@@explore.count.loading">Loading the catalogue…</p>
+          }
+          <div llToolbarTools>
+            <ll-filters-button
+              [activeCount]="pills().length"
+              (click)="openFilters()"
+              i18n="@@explore.filters.open"
+              >Filters</ll-filters-button
+            >
+            <ll-select
+              label="Sort by"
+              i18n-label="@@explore.sort.label"
+              name="sort"
+              [value]="query().sort"
+              [disabled]="!loaded() || emptyCatalogue()"
+              (valueChange)="setSort($event)"
+            >
+              <option value="newest" i18n="@@explore.sort.newest">Newest</option>
+              <option value="popular" i18n="@@explore.sort.popular">Most popular</option>
+            </ll-select>
+          </div>
+        </div>
+        @if (pills().length) {
+          <ul
+            llActiveFilters
+            label="Active filters"
+            i18n-label="@@explore.active.label"
+            clearLabel="Clear all"
+            i18n-clearLabel="@@explore.clearAll"
+            (cleared)="clearAll()"
+          >
+            @for (pill of pills(); track pill.label) {
+              <li
+                llActiveFilter
+                [label]="pill.label"
+                [removeLabel]="pill.removeLabel"
+                (removed)="pill.remove()"
+              ></li>
+            }
+          </ul>
+        }
+      </div>
+      @if (loading()) {
+        <div class="content-grid" aria-busy="true">
+          <p class="vh" role="status" i18n="@@explore.loading">Loading the catalogue…</p>
+          @for (n of placeholders; track n) {
+            <ll-skeleton-card />
+          }
+        </div>
+      } @else if (failed()) {
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load the catalogue"
+          i18n-heading="@@explore.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@explore.failed.text"
+            >This is on our side, and your filters are kept. Try again in a moment.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@explore.failed.retry"
+          >
+            Try again
+          </button>
+        </ll-empty-state>
+        <p class="explore__help">
+          <ng-container i18n="@@explore.failed.help">Still not working? Write to</ng-container>
+          <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+        </p>
+      } @else if (noMatches(); as none) {
+        <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">
+          {{ none.text }}
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="clearAll()"
+            i18n="@@explore.none.action"
+          >
+            Clear filters
+          </button>
+        </ll-empty-state>
+      } @else if (emptyCatalogue()) {
+        <ll-empty-state
+          heading="Nothing is published yet"
+          i18n-heading="@@explore.empty.title"
+          icon="search"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@explore.empty.text"
+            >The first courses and articles are with the editors now. Experts are already here, and
+            you can read about them while you wait.</ng-container
+          >
+          <a
+            llButton
+            variant="primary"
+            slot="actions"
+            routerLink="/experts"
+            i18n="@@explore.empty.action"
+            >Meet the experts</a
+          >
+        </ll-empty-state>
+      } @else {
+        <div class="content-grid">
+          @for (card of cards(); track card.id) {
+            <ll-content-card
+              [type]="card.type"
+              [typeLabel]="card.typeLabel"
+              [title]="card.title"
+              [path]="card.path"
+              [author]="card.author"
+              [meta]="card.meta"
+              [duration]="card.duration"
+              [coverUrl]="card.coverUrl"
+            />
+          }
+        </div>
+      }
+      <nav
+        llPagination
+        [label]="pagerLabels.label"
+        [page]="query().page"
+        [pageCount]="pageCount()"
+        [summary]="pagerSummary()"
+        [pageLabel]="pagerLabels.page"
+        [previousLabel]="pagerLabels.previous"
+        [nextLabel]="pagerLabels.next"
+      ></nav>
+    </div>
+  </div>
+</div>

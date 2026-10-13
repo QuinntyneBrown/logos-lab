@@ -1,0 +1,16 @@
+.explore {
+  padding-bottom: var(--space-16);
+}
+.explore__notice {
+  margin-bottom: var(--space-6);
+}
+.explore__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+// The count line and the tools share one row, whether or not filters are on.
+.explore__row {
+  flex: 1 1 auto;
+  min-width: 0;
+}

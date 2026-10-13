@@ -1,0 +1,6 @@
+<button class="filters-btn" llButton variant="quiet" size="sm" type="button" aria-haspopup="dialog">
+  <svg llIcon name="sliders" size="sm"></svg><ng-content />
+  @if (countText(); as count) {
+    &ngsp;·&ngsp;{{ count }}
+  }
+</button>

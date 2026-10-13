@@ -1,0 +1,35 @@
+<ll-drawer
+  side="bottom"
+  heading="Filters"
+  i18n-heading="@@explore.filters.title"
+  headingId="filters-title"
+  closeLabel="Close filters"
+  i18n-closeLabel="@@explore.dialog.close"
+  (closeRequested)="cancel()"
+>
+  <ll-filter-panel
+    presentation="dialog"
+    clearLabel="Clear all"
+    i18n-clearLabel="@@explore.clearAll"
+    summaryId="filters-summary"
+    [summary]="summary()"
+    [canClear]="selected() > 0"
+    (cleared)="clear()"
+  >
+    <ll-explore-filter-groups [options]="options()" (toggled)="toggle($event)" />
+  </ll-filter-panel>
+  <div class="explore-filters__footer">
+    <button
+      llButton
+      variant="quiet"
+      type="button"
+      (click)="cancel()"
+      i18n="@@explore.dialog.cancel"
+    >
+      Cancel
+    </button>
+    <button llButton variant="primary" type="button" [busy]="counting()" (click)="apply()">
+      {{ primary() }}
+    </button>
+  </div>
+</ll-drawer>

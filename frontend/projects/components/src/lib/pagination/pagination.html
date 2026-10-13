@@ -1,0 +1,56 @@
+<div class="pager__meter" aria-hidden="true" [style.--ll-pager-progress]="progress()">
+  <span></span>
+</div>
+<p class="pager__text" aria-live="polite">{{ summary() }}</p>
+<div class="pager__pages">
+  @if (current() > 1) {
+    <a
+      llButton
+      variant="quiet"
+      size="sm"
+      rel="prev"
+      [routerLink]="[]"
+      [queryParams]="paramsFor(current() - 1)"
+      queryParamsHandling="merge"
+      >{{ previousLabel() }}</a
+    >
+  } @else {
+    <a llButton variant="quiet" size="sm" role="link" aria-disabled="true" rel="prev">{{
+      previousLabel()
+    }}</a>
+  }
+  @for (item of items(); track $index) {
+    @if (item.kind === 'gap') {
+      <span class="pager__gap" aria-hidden="true">…</span>
+    } @else {
+      <a
+        class="pager__page"
+        llButton
+        size="sm"
+        [variant]="item.page === current() ? 'secondary' : 'quiet'"
+        [routerLink]="[]"
+        [queryParams]="paramsFor(item.page)"
+        queryParamsHandling="merge"
+        [attr.aria-label]="nameOf(item.page)"
+        [attr.aria-current]="item.page === current() ? 'page' : null"
+        >{{ item.page }}</a
+      >
+    }
+  }
+  @if (current() < count()) {
+    <a
+      llButton
+      variant="quiet"
+      size="sm"
+      rel="next"
+      [routerLink]="[]"
+      [queryParams]="paramsFor(current() + 1)"
+      queryParamsHandling="merge"
+      >{{ nextLabel() }}</a
+    >
+  } @else {
+    <a llButton variant="quiet" size="sm" role="link" aria-disabled="true" rel="next">{{
+      nextLabel()
+    }}</a>
+  }
+</div>

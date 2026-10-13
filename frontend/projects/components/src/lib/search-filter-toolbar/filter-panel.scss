@@ -1,0 +1,37 @@
+// The .filters rules of the search-filter-toolbar block of docs/design-system/assets/components.css.
+// The inline panel shows beside the results from LG; below LG the filters dialog replaces it (CRD
+// D-6). The dialog presentation is always shown: it is the dialog's body.
+:host {
+  display: none;
+}
+:host(.filter-panel--dialog) {
+  display: block;
+}
+@media (min-width: 64rem) {
+  :host {
+    display: block;
+  }
+  .filters:not(.filters--dialog) {
+    position: sticky;
+    top: var(--space-6);
+  }
+}
+.filters {
+  margin: 0;
+  border: 0;
+  color: var(--color-fg-default);
+}
+.filters__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.filters__title {
+  font: var(--text-h4);
+}
+.field__help {
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
