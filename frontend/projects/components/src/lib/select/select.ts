@@ -37,12 +37,19 @@ export class Select {
 
   constructor() {
     // The native control shows `value`; a value no option has leaves the first option showing.
-    afterRenderEffect(() => {
+    afterRenderEffect((onCleanup) => {
       const element = this.control()?.nativeElement;
       const value = this.value();
       if (!element) return;
-      element.value = value;
-      if (element.value !== value) element.selectedIndex = 0;
+      const show = () => {
+        element.value = value;
+        if (element.value !== value) element.selectedIndex = 0;
+      };
+      show();
+      // Options that arrive after the value was set re-apply it (select CRD AC-17).
+      const observer = new MutationObserver(show);
+      observer.observe(element, { childList: true, subtree: true });
+      onCleanup(() => observer.disconnect());
     });
   }
 

@@ -1,0 +1,170 @@
+<div class="wrap experts">
+  <ll-page-header
+    eyebrow="Who teaches here"
+    i18n-eyebrow="@@experts.eyebrow"
+    heading="Experts"
+    i18n-heading="@@experts.title"
+    [sub]="sub()"
+  />
+  @if (invalid()) {
+    <ll-form-summary [heading]="summaryHeading" [errors]="errors()" />
+  }
+  <div llToolbar>
+    <ll-form-field
+      class="experts__search"
+      controlId="name-search"
+      [error]="errors()[0]?.message ?? null"
+    >
+      <form
+        llSearch
+        inputId="name-search"
+        label="Search experts by name"
+        i18n-label="@@experts.search.label"
+        placeholder="Name, at least 2 characters"
+        i18n-placeholder="@@experts.search.placeholder"
+        [value]="typed()"
+        [maxlength]="200"
+        (searched)="search($event)"
+      >
+        <button llButton variant="quiet" size="sm" type="submit" i18n="@@experts.search.action">
+          Search
+        </button>
+      </form>
+    </ll-form-field>
+    <div llToolbarTools>
+      <ll-select
+        label="Topic"
+        i18n-label="@@experts.topic.label"
+        name="topic"
+        [value]="query().topic ?? ''"
+        (valueChange)="setTopic($event)"
+      >
+        <option value="" i18n="@@experts.topic.any">Any topic</option>
+        @for (topic of topics(); track topic.slug) {
+          <option [value]="topic.slug">{{ topic.name }}</option>
+        }
+      </ll-select>
+    </div>
+  </div>
+  @if (loading()) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.loading">Loading experts…</p>
+  } @else if (failed()) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.failed">Experts unavailable</p>
+  } @else if (nobodyYet()) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.empty">
+      <strong>No experts</strong> yet
+    </p>
+  }
+  @if (range(); as range) {
+    @if (range.note && !range.paged) {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count.note">
+        <strong>{{ range.total }}</strong> {{ range.noun }} {{ range.note }}
+      </p>
+    } @else if (range.note) {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count.note.paged">
+        Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+        <strong>{{ range.total }}</strong> {{ range.noun }} {{ range.note }}
+      </p>
+    } @else {
+      <p llToolbarCount class="experts__count" i18n="@@experts.count">
+        Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+        <strong>{{ range.total }}</strong> {{ range.noun }}
+      </p>
+    }
+  }
+  @if (noMatches(); as none) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.none">
+      <strong>No experts</strong> match {{ none.what }}
+    </p>
+    <ll-empty-state [heading]="none.heading" icon="search" [headingLevel]="2">
+      {{ none.text }}
+      <button
+        llButton
+        variant="primary"
+        type="button"
+        slot="actions"
+        (click)="clearFilters()"
+        i18n="@@experts.none.action"
+      >
+        Clear filters
+      </button>
+    </ll-empty-state>
+  }
+  @if (failed()) {
+    <ll-empty-state
+      tone="error"
+      heading="We couldn't load the experts"
+      i18n-heading="@@experts.failed.title"
+      icon="attention"
+      [headingLevel]="2"
+    >
+      <ng-container i18n="@@experts.failed.text"
+        >This is on our side. Try again in a moment.</ng-container
+      >
+      <button
+        llButton
+        variant="primary"
+        type="button"
+        slot="actions"
+        (click)="retry()"
+        i18n="@@experts.failed.retry"
+      >
+        Try again
+      </button>
+    </ll-empty-state>
+    <p class="experts__help">
+      <ng-container i18n="@@experts.failed.help">Still not working? Write to</ng-container>
+      <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+    </p>
+  } @else if (nobodyYet()) {
+    <ll-empty-state
+      heading="Our first experts are finishing their profiles"
+      i18n-heading="@@experts.empty.title"
+      icon="search"
+      [headingLevel]="2"
+    >
+      <ng-container i18n="@@experts.empty.text"
+        >Profiles appear here as soon as they're complete. In the meantime, the catalogue shows
+        what's been published.</ng-container
+      >
+      <a
+        llButton
+        variant="primary"
+        slot="actions"
+        routerLink="/explore"
+        i18n="@@experts.empty.action"
+        >Browse the catalogue</a
+      >
+    </ll-empty-state>
+  }
+  @if (loading() || rows().length) {
+    <ul llPersonList [loadingLabel]="loading() ? loadingLabel : null">
+      @if (loading()) {
+        @for (n of placeholders; track n) {
+          <li llPerson loading></li>
+        }
+      }
+      @for (row of rows(); track row.path) {
+        <li
+          llPerson
+          [name]="row.name"
+          [path]="row.path"
+          [photoUrl]="row.photoUrl"
+          [meta]="row.meta"
+        ></li>
+      }
+    </ul>
+  }
+  @if (pageCount() > 1) {
+    <nav
+      llPagination
+      [label]="pagerLabels.label"
+      [page]="query().page"
+      [pageCount]="pageCount()"
+      [summary]="pagerSummary()"
+      [pageLabel]="pagerLabels.page"
+      [previousLabel]="pagerLabels.previous"
+      [nextLabel]="pagerLabels.next"
+    ></nav>
+  }
+</div>
