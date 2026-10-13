@@ -1,4 +1,5 @@
 import { augustineArticle } from '../data/articles';
+import { content } from '../data/content';
 import { people } from '../data/people';
 import { expect, test } from '../fixtures/test';
 import { ArticlePage } from '../pages/article.page';
@@ -115,5 +116,57 @@ test.describe('Article page', () => {
     await expect(article.contributors).toHaveText(['Dr. Lucía Ortega', 'Rev. Dr. Thomas Hale']);
     await expect(article.byline).toContainText('with');
     await expect(article.byline).toContainText('Logos Lab');
+  });
+
+  // L2-047 AC1 · content-card AC-1
+  test('shows up to four related items under Related', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.respond('GET', `/content/${augustineArticle.id}/related`, [
+      content.augustineAlgorithm,
+      content.imagoDei,
+      content.sabbath,
+      content.canAMachinePray,
+    ]);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.related).toBeVisible();
+    await expect(article.related.getByRole('heading', { level: 2 })).toHaveText('Related');
+    await expect(article.relatedCards).toHaveCount(4);
+    await expect(article.relatedCards.first().locator('.content-card__title a')).toHaveText(
+      'Augustine and the Algorithm',
+    );
+    await expect(article.relatedCards.first().locator('.content-card__title a')).toHaveAttribute(
+      'href',
+      '/videos/augustine-and-the-algorithm',
+    );
+  });
+
+  // L2-047 AC3
+  test('with nothing related the section is left out', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.respond('GET', `/content/${augustineArticle.id}/related`, []);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.body).toBeVisible();
+    await expect(article.related).toHaveCount(0);
+  });
+
+  // L2-047 AC3 · L2-141 AC2
+  test('related items that fail to load leave the section out and the article readable', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.fail('GET', `/content/${augustineArticle.id}/related`, 500);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.body).toBeVisible();
+    await expect(article.related).toHaveCount(0);
   });
 });

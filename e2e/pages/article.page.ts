@@ -14,6 +14,8 @@ export class ArticlePage {
   readonly body: Locator;
   readonly topics: Locator;
   readonly correction: Locator;
+  readonly related: Locator;
+  readonly relatedCards: Locator;
   readonly correctionTitle: Locator;
 
   constructor(private readonly page: Page) {
@@ -30,6 +32,8 @@ export class ArticlePage {
     this.body = main.getByRole('article');
     this.topics = main.getByRole('list', { name: 'Topics' });
     this.correction = main.locator('.alert');
+    this.related = main.getByRole('region', { name: 'Related' });
+    this.relatedCards = this.related.locator('.content-card');
     this.correctionTitle = this.correction.locator('.alert__title');
   }
 

@@ -19,6 +19,9 @@
   object-fit: cover;
   border-radius: var(--radius-lg);
 }
+.article-page__head {
+  margin-bottom: var(--space-6);
+}
 .article-page__topics {
   padding-top: var(--space-8);
 }

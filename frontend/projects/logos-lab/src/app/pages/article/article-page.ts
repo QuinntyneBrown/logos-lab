@@ -11,7 +11,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ARTICLES_API } from '@logos-lab/api';
+import { ARTICLES_API, RELATED_CONTENT_API } from '@logos-lab/api';
 import {
   Alert,
   Avatar,
@@ -19,17 +19,30 @@ import {
   BreadcrumbItem,
   Chip,
   Chips,
+  ContentCard,
   PageHeader,
   Prose,
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
+import { toContentCard } from '../../content/content-card-view';
 import { publicationDay } from '../../content/publication-day';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ArticleState } from './article-state';
 
 @Component({
   selector: 'll-article-page',
-  imports: [RouterLink, Alert, Avatar, Breadcrumb, Chip, Chips, NotFoundPage, PageHeader, Prose],
+  imports: [
+    RouterLink,
+    Alert,
+    Avatar,
+    Breadcrumb,
+    Chip,
+    Chips,
+    ContentCard,
+    NotFoundPage,
+    PageHeader,
+    Prose,
+  ],
   templateUrl: './article-page.html',
   styleUrl: './article-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +50,7 @@ import { ArticleState } from './article-state';
 export class ArticlePage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(ARTICLES_API);
+  private readonly relatedApi = inject(RELATED_CONTENT_API);
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly attempt = signal(0);
@@ -65,6 +79,21 @@ export class ArticlePage {
     return state.kind === 'loaded' ? state.article : null;
   });
   protected readonly notFound = computed(() => this.state().kind === 'not-found');
+
+  /** The related items as cards; a failed request is the same as nothing related. */
+  protected readonly related = toSignal(
+    toObservable(computed(() => this.article()?.id ?? null)).pipe(
+      switchMap((id) =>
+        id === null
+          ? of([])
+          : this.relatedApi.getRelated(id).pipe(
+              map((items) => items.slice(0, 4).map((item) => toContentCard(item, this.locale))),
+              catchError(() => of([])),
+            ),
+      ),
+    ),
+    { initialValue: [] },
+  );
 
   constructor() {
     const title = inject(Title);

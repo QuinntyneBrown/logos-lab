@@ -58,6 +58,30 @@
         }
         <ll-prose variant="article" [html]="article.bodyHtml" />
       </article>
+      @if (related().length) {
+        <section class="page-block" aria-labelledby="related-title">
+          <div class="section__head article-page__head">
+            <p class="eyebrow" i18n="@@article.related.eyebrow">Shares a topic</p>
+            <h2 class="section__title" id="related-title" i18n="@@article.related.title">
+              Related
+            </h2>
+          </div>
+          <div class="content-grid">
+            @for (card of related(); track card.id) {
+              <ll-content-card
+                [type]="card.type"
+                [typeLabel]="card.typeLabel"
+                [title]="card.title"
+                [path]="card.path"
+                [author]="card.author"
+                [meta]="card.meta"
+                [duration]="card.duration"
+                [coverUrl]="card.coverUrl"
+              />
+            }
+          </div>
+        </section>
+      }
       <div class="article-page__topics">
         <div class="cluster">
           <span class="field__label" id="topics-label" i18n="@@article.topics">Topics</span>
