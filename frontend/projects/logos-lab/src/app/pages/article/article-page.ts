@@ -17,15 +17,19 @@ import {
   Avatar,
   Breadcrumb,
   BreadcrumbItem,
+  Button,
   Chip,
   Chips,
   ContentCard,
+  Icon,
   PageHeader,
   Prose,
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { plural } from '../../content/plural';
 import { publicationDay } from '../../content/publication-day';
+import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ArticleState } from './article-state';
 
@@ -36,9 +40,11 @@ import { ArticleState } from './article-state';
     Alert,
     Avatar,
     Breadcrumb,
+    Button,
     Chip,
     Chips,
     ContentCard,
+    Icon,
     NotFoundPage,
     PageHeader,
     Prose,
@@ -51,6 +57,7 @@ export class ArticlePage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(ARTICLES_API);
   private readonly relatedApi = inject(RELATED_CONTENT_API);
+  protected readonly session = inject(Session);
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly attempt = signal(0);
@@ -125,6 +132,17 @@ export class ArticlePage {
     const day = this.article()?.correction?.date;
     const date = day ? publicationDay(this.locale, day) : '';
     return $localize`:@@article.correction.title:Corrected on ${date}:date:`;
+  });
+  protected readonly commentCount = computed(() =>
+    new Intl.NumberFormat(this.locale).format(this.article()?.commentCount ?? 0),
+  );
+  protected readonly commentsLabel = computed(() => {
+    const count = this.article()?.commentCount ?? 0;
+    const formatted = this.commentCount();
+    return plural(this.locale, count, {
+      one: $localize`:@@article.comments.one:${formatted}:count: comment`,
+      other: $localize`:@@article.comments.other:${formatted}:count: comments`,
+    });
   });
   protected readonly updated = computed(() => {
     const day = this.article()?.updatedAt;

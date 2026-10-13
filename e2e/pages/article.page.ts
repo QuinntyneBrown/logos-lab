@@ -15,6 +15,8 @@ export class ArticlePage {
   readonly topics: Locator;
   readonly correction: Locator;
   readonly related: Locator;
+  readonly commentsLink: Locator;
+  readonly comments: Locator;
   readonly relatedCards: Locator;
   readonly correctionTitle: Locator;
 
@@ -33,6 +35,10 @@ export class ArticlePage {
     this.topics = main.getByRole('list', { name: 'Topics' });
     this.correction = main.locator('.alert');
     this.related = main.getByRole('region', { name: 'Related' });
+    this.commentsLink = main
+      .locator('.page-head__actions')
+      .getByRole('link', { name: /comments?$/ });
+    this.comments = main.getByRole('region', { name: /^Comments/ });
     this.relatedCards = this.related.locator('.content-card');
     this.correctionTitle = this.correction.locator('.alert__title');
   }

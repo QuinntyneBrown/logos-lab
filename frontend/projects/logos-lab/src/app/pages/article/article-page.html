@@ -15,6 +15,7 @@
         [eyebrow]="eyebrow()"
         [heading]="article.title"
         [sub]="article.subtitle"
+        actions="side"
       >
         <p class="cluster">
           @for (contributor of article.contributors; track $index) {
@@ -39,6 +40,10 @@
             >
           }
         </p>
+        <a llButton slot="actions" variant="quiet" routerLink="." fragment="comments">
+          <svg llIcon name="message" size="sm"></svg>
+          {{ commentsLabel() }}
+        </a>
       </ll-page-header>
       @if (article.correction; as correction) {
         <ll-alert class="article-page__correction" role="note" [heading]="correctionTitle()">
@@ -82,6 +87,19 @@
           </div>
         </section>
       }
+      <section class="page-block" id="comments" aria-labelledby="comments-title">
+        <div class="section__head article-page__head">
+          <h2 class="section__title" id="comments-title">
+            <ng-container i18n="@@article.comments.title">Comments</ng-container>
+            <span class="chip__count">{{ commentCount() }}</span>
+          </h2>
+        </div>
+        @if (session.member() === null) {
+          <p class="muted" i18n="@@article.comments.visitor">
+            Sign in to join the conversation. Anyone can read it.
+          </p>
+        }
+      </section>
       <div class="article-page__topics">
         <div class="cluster">
           <span class="field__label" id="topics-label" i18n="@@article.topics">Topics</span>

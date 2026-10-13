@@ -1,5 +1,6 @@
 import { augustineArticle } from '../data/articles';
 import { content } from '../data/content';
+import { members } from '../data/members';
 import { people } from '../data/people';
 import { expect, test } from '../fixtures/test';
 import { ArticlePage } from '../pages/article.page';
@@ -168,5 +169,48 @@ test.describe('Article page', () => {
 
     await expect(article.body).toBeVisible();
     await expect(article.related).toHaveCount(0);
+  });
+
+  // L2-045 AC1 · page-header AC-2
+  test('the header counts the comments and links to them', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.commentsLink).toHaveText('23 comments');
+    await expect(article.commentsLink).toHaveAttribute('href', /#comments$/);
+    await expect(article.comments.getByRole('heading', { level: 2 })).toContainText('Comments');
+    await expect(article.comments.getByRole('heading', { level: 2 })).toContainText('23');
+  });
+
+  // L2-045 AC1
+  test('one comment is counted in the singular', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, {
+      ...augustineArticle,
+      commentCount: 1,
+    });
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.commentsLink).toHaveText('1 comment');
+  });
+
+  // L2-060 AC1 · L2-015 AC1
+  test('a visitor is told how to join the conversation, a member is not', async ({ page, api }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    const article = new ArticlePage(page);
+    await article.open(path);
+    await expect(article.comments).toContainText(
+      'Sign in to join the conversation. Anyone can read it.',
+    );
+
+    api.respond('GET', '/me', members.miriam);
+    await page.reload();
+    await article.heading.waitFor();
+
+    await expect(article.comments).toBeVisible();
+    await expect(article.comments).not.toContainText('Sign in to join the conversation');
   });
 });
