@@ -1,0 +1,219 @@
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
+  <div class="wrap article-page">
+    @if (article(); as article) {
+      <nav
+        llBreadcrumb
+        label="Breadcrumb"
+        i18n-label="@@topic.crumb.label"
+        top="md"
+        [items]="trail()"
+      ></nav>
+      <ll-page-header
+        top="md"
+        [eyebrow]="eyebrow()"
+        [heading]="article.title"
+        [sub]="article.subtitle"
+        actions="side"
+      >
+        <p class="cluster">
+          @for (contributor of article.contributors; track $index) {
+            @if (!$first) {
+              <span class="muted" i18n="@@article.with">with</span>
+            }
+            <ll-avatar size="sm" [name]="contributor.name" [photoUrl]="contributor.photoUrl" />
+            @if (contributor.slug) {
+              <a [routerLink]="'/experts/' + contributor.slug">{{ contributor.name }}</a>
+            } @else {
+              <span>{{ contributor.name }}</span>
+            }
+          }
+          <span class="muted"
+            ><ng-container i18n="@@article.published">Published</ng-container>&ngsp;<time
+              [attr.datetime]="article.publishedAt"
+              >{{ published() }}</time
+            ></span
+          >
+          @if (updated(); as updated) {
+            <span class="muted"
+              ><ng-container i18n="@@article.updated">Updated</ng-container>&ngsp;<time
+                [attr.datetime]="article.updatedAt"
+                >{{ updated }}</time
+              ></span
+            >
+          }
+        </p>
+        @if (session.member() !== undefined) {
+          <button
+            llButton
+            slot="actions"
+            variant="quiet"
+            [pressed]="saved()"
+            [busy]="saveBusy()"
+            (click)="toggleSave()"
+          >
+            <svg llIcon name="bookmark" size="sm"></svg>
+            @if (saved()) {
+              <ng-container i18n="@@article.save.on">Saved</ng-container>
+            } @else {
+              <ng-container i18n="@@article.save.off">Save</ng-container>
+            }
+          </button>
+        }
+        <p class="vh" slot="actions" role="status">{{ saveAnnouncement() }}</p>
+        <a llButton slot="actions" variant="quiet" routerLink="." fragment="comments">
+          <svg llIcon name="message" size="sm"></svg>
+          {{ commentsLabel() }}
+        </a>
+      </ll-page-header>
+      @if (saveStatus().kind === 'failed') {
+        <ll-alert
+          class="article-page__save-alert"
+          tone="danger"
+          heading="We couldn't save this just now"
+          i18n-heading="@@article.save.failed.title"
+        >
+          <ng-container i18n="@@article.save.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      } @else if (saveStatus().kind === 'full') {
+        <ll-alert
+          class="article-page__save-alert"
+          tone="warning"
+          role="alert"
+          heading="Saved is full"
+          i18n-heading="@@article.save.full.title"
+        >
+          {{ saveFullBody() }}
+        </ll-alert>
+      }
+      @if (article.correction; as correction) {
+        <ll-alert class="article-page__correction" role="note" [heading]="correctionTitle()">
+          {{ correction.note }}
+        </ll-alert>
+      }
+      <article class="article" aria-labelledby="body-title">
+        <h2 class="vh" id="body-title" i18n="@@article.body">The article</h2>
+        @if (article.coverUrl) {
+          <img
+            class="article__cover"
+            [src]="article.coverUrl"
+            [alt]="article.coverAlt ?? ''"
+            width="1200"
+            height="675"
+          />
+        }
+        <ll-prose variant="article" [html]="article.bodyHtml" />
+      </article>
+      @if (cards().length) {
+        <section class="page-block" aria-labelledby="related-title">
+          <div class="section__head article-page__head">
+            <p class="eyebrow" i18n="@@article.related.eyebrow">Shares a topic</p>
+            <h2 class="section__title" id="related-title" i18n="@@article.related.title">
+              Related
+            </h2>
+          </div>
+          <div class="content-grid">
+            @for (card of cards(); track card.id) {
+              <ll-content-card
+                [type]="card.type"
+                [typeLabel]="card.typeLabel"
+                [title]="card.title"
+                [path]="card.path"
+                [author]="card.author"
+                [meta]="card.meta"
+                [duration]="card.duration"
+                [coverUrl]="card.coverUrl"
+                [saved]="card.saved"
+                [saveLabel]="card.saveLabel"
+                (saveToggled)="saveCard(card, $event)"
+              />
+            }
+          </div>
+        </section>
+      }
+      <section class="page-block" id="comments" aria-labelledby="comments-title">
+        <div class="section__head article-page__head">
+          <h2 class="section__title" id="comments-title">
+            <ng-container i18n="@@article.comments.title">Comments</ng-container>&ngsp;<span
+              class="chip__count"
+              >{{ commentCount() }}</span
+            >
+          </h2>
+        </div>
+        @if (session.member() === null) {
+          <p class="muted" i18n="@@article.comments.visitor">
+            Sign in to join the conversation. Anyone can read it.
+          </p>
+        }
+      </section>
+      <div class="article-page__topics">
+        <div class="cluster">
+          <span class="field__label" id="topics-label" i18n="@@article.topics">Topics</span>
+          <ul llChips aria-labelledby="topics-label">
+            @for (topic of article.topics; track topic.slug) {
+              <li>
+                <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    } @else if (failed()) {
+      <div class="article-page__failure">
+        <h1 class="vh" i18n="@@article.crumb.article">Article</h1>
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load this article"
+          i18n-heading="@@article.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@article.failed.text"
+            >This is on our side. Try again in a moment; your saved items and progress are
+            safe.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@article.failed.retry"
+          >
+            Try again
+          </button>
+        </ll-empty-state>
+        <p class="article-page__help">
+          <ng-container i18n="@@article.failed.help">Still not working? Write to</ng-container>
+          <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+        </p>
+      </div>
+    } @else {
+      <ll-page-header
+        top="md"
+        heading="Article"
+        i18n-heading="@@article.crumb.article"
+        busy="all"
+        busyMessage="Loading the article…"
+        i18n-busyMessage="@@article.loading"
+      />
+      <div class="article" aria-hidden="true">
+        <span llSkeleton shape="block"></span>
+        <div class="article__skeleton">
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </div>
+        <div class="article__skeleton">
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </div>
+      </div>
+    }
+  </div>
+}
