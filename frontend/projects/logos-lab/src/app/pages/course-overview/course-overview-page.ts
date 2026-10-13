@@ -5,6 +5,7 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
   LOCALE_ID,
   signal,
 } from '@angular/core';
@@ -32,6 +33,7 @@ import {
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
 import { approximateLength } from '../../content/approximate-length';
+import { CourseDialogs } from '../../dialogs/course-dialogs';
 import { VerifyEmailPrompt } from '../../dialogs/verify-email-prompt';
 import { dayWithWeekday } from '../../content/day-with-weekday';
 import { hoursAndMinutes } from '../../content/content-facts';
@@ -73,6 +75,7 @@ export class CourseOverviewPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly verifyEmailPrompt = inject(VerifyEmailPrompt);
+  private readonly courseDialogs = inject(CourseDialogs);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly attempt = signal(0);
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
@@ -143,6 +146,12 @@ export class CourseOverviewPage {
     return status.kind === 'loaded' ? status.state : null;
   });
 
+  /** True once the member left the course from this page, until the course changes. */
+  private readonly left = linkedSignal(() => {
+    this.slug();
+    return false;
+  });
+
   /** Who is looking: decides the hero's actions and how the outline reads. */
   protected readonly viewer = computed<'visitor' | 'pending' | 'member' | 'enrolled' | 'completed'>(
     () => {
@@ -150,6 +159,7 @@ export class CourseOverviewPage {
       if (member === null) return 'visitor';
       const mine = this.mine();
       if (member === undefined || mine === null) return 'pending';
+      if (this.left()) return 'member';
       return mine.status === 'not-enrolled' ? 'member' : mine.status;
     },
   );
@@ -195,6 +205,24 @@ export class CourseOverviewPage {
         else this.enrolFailed.set(true);
       },
     });
+  }
+
+  /** Asks first, then leaves the course and shows what was kept. */
+  protected leaveCourse(): void {
+    const course = this.course();
+    const mine = this.mine();
+    if (!course || !mine) return;
+    const done = mine.completedLessons;
+    const total = mine.totalLessons;
+    void this.courseDialogs
+      .confirmLeave({
+        courseTitle: course.title,
+        progress: $localize`:@@course.leave.progress:${done}:done: of ${total}:total: lessons`,
+        leave: () => this.api.leave(course.slug),
+      })
+      .then((result) => {
+        if (result) this.left.set(true);
+      });
   }
 
   private askToVerify(): void {

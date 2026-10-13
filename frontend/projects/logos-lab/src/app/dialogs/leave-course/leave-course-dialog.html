@@ -1,0 +1,79 @@
+<ll-dialog
+  size="sm"
+  [heading]="title()"
+  headingId="leave-title"
+  closeLabel="Close"
+  i18n-closeLabel="@@dialog.close"
+  [closeDisabled]="busy()"
+  (closeRequested)="dismiss()"
+>
+  @if (result()) {
+    <ll-alert tone="success" heading="You’ve left the course" i18n-heading="@@leave.done.alert">
+      <span id="leave-desc">{{ doneText() }}</span>
+    </ll-alert>
+    <ng-container ngProjectAs="[slot=footer]">
+      <a
+        llButton
+        slot="footer"
+        variant="quiet"
+        routerLink="/explore"
+        [queryParams]="{ type: 'course' }"
+        i18n="@@leave.explore"
+        >Explore courses</a
+      >
+      <a
+        llButton
+        slot="footer"
+        variant="primary"
+        routerLink="/my-learning"
+        cdkFocusInitial
+        i18n="@@leave.myLearning"
+        >Go to My learning</a
+      >
+    </ng-container>
+  } @else {
+    @if (failed()) {
+      <ll-alert
+        tone="danger"
+        heading="We couldn’t remove the course"
+        i18n-heading="@@leave.failed.title"
+      >
+        <ng-container i18n="@@leave.failed.body"
+          >Nothing has changed: you’re still enrolled. Check your connection and try
+          again.</ng-container
+        >
+      </ll-alert>
+    }
+    <p id="leave-desc">{{ description }}</p>
+    <ng-container ngProjectAs="[slot=footer]">
+      <button
+        llButton
+        slot="footer"
+        variant="quiet"
+        type="button"
+        cdkFocusInitial
+        [disabled]="busy()"
+        (click)="dismiss()"
+        i18n="@@leave.stay"
+      >
+        Stay enrolled
+      </button>
+      <button
+        llButton
+        slot="footer"
+        variant="primary"
+        type="button"
+        [busy]="busy()"
+        (click)="leave()"
+      >
+        @if (busy()) {
+          <ng-container i18n="@@leave.busy">Leaving…</ng-container>
+        } @else if (failed()) {
+          <ng-container i18n="@@leave.retry">Try again</ng-container>
+        } @else {
+          <ng-container i18n="@@leave.confirm">Leave course</ng-container>
+        }
+      </button>
+    </ng-container>
+  }
+</ll-dialog>

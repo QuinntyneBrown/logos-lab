@@ -73,7 +73,13 @@
                   >Continue</a
                 >
               }
-              <button llButton variant="quiet" type="button" i18n="@@course.leave">
+              <button
+                llButton
+                variant="quiet"
+                type="button"
+                (click)="leaveCourse()"
+                i18n="@@course.leave"
+              >
                 Leave course
               </button>
             }

@@ -2,6 +2,7 @@ import { completedState, enrolledAt42, imagoDeiCourse, notEnrolled } from '../da
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { CourseOverviewPage } from '../pages/course-overview.page';
+import { LeaveCourseDialog } from '../pages/leave-course.dialog';
 import { VerifyEmailPromptDialog } from '../pages/verify-email-prompt.dialog';
 
 const path = '/courses/imago-dei-in-an-age-of-machines';
@@ -416,5 +417,102 @@ test.describe('Course overview', () => {
       'href',
       '/cohorts/imago-dei-autumn-2026',
     );
+  });
+
+  // L2-027 AC3 · dialog AC-2
+  test('Leave course asks first, and Stay enrolled leaves the enrolment alone', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', enrolledAt42);
+    const course = new CourseOverviewPage(page);
+    const leave = new LeaveCourseDialog(page);
+    await course.open(path);
+
+    await course.leave.click();
+
+    await expect(leave.title).toHaveText('Leave Imago Dei in an Age of Machines?');
+    await expect(leave.dialog).toHaveAccessibleDescription(
+      'The course leaves My learning and you stop getting its updates. We keep your progress (10 of 24 lessons), so if you enrol again you carry on from there.',
+    );
+    await expect(leave.stay).toBeFocused();
+
+    await leave.stay.click();
+
+    await expect(leave.dialog).toHaveCount(0);
+    await expect(course.leave).toBeFocused();
+    expect(
+      api.requestsTo('DELETE', '/courses/imago-dei-in-an-age-of-machines/enrolment'),
+    ).toHaveLength(0);
+  });
+
+  // L2-027 AC3 · dialog AC-9
+  test('leaving says progress is kept, and the course goes back to Enrol', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', enrolledAt42);
+    const release = api.hold('DELETE', '/courses/imago-dei-in-an-age-of-machines/enrolment', {
+      keepUntil: '2027-10-13',
+      resumeAt: '3.2',
+    });
+    const course = new CourseOverviewPage(page);
+    const leave = new LeaveCourseDialog(page);
+    await course.open(path);
+    await course.leave.click();
+
+    await leave.leave.click();
+
+    await expect(leave.leaving).toHaveAttribute('aria-busy', 'true');
+    await expect(leave.stay).toBeDisabled();
+    await page.keyboard.press('Escape');
+    await expect(leave.dialog).toBeVisible();
+
+    release();
+
+    await expect(leave.title).toHaveText('You’ve left Imago Dei in an Age of Machines');
+    await expect(leave.alertTitle).toHaveText('You’ve left the course');
+    await expect(leave.alert).toContainText(
+      'Your progress is kept until Wed, Oct 13, 2027, so enrolling again before then picks up at lesson 3.2.',
+    );
+    await expect(leave.explore).toHaveAttribute('href', '/explore?type=course');
+    await expect(leave.myLearning).toHaveAttribute('href', '/my-learning');
+
+    await leave.close.click();
+
+    await expect(leave.dialog).toHaveCount(0);
+    await expect(course.enrol).toBeVisible();
+    await expect(course.leave).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · dialog AC-10
+  test('a leave that fails says nothing changed and offers another try', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', enrolledAt42);
+    api.fail('DELETE', '/courses/imago-dei-in-an-age-of-machines/enrolment', 500);
+    const course = new CourseOverviewPage(page);
+    const leave = new LeaveCourseDialog(page);
+    await course.open(path);
+    await course.leave.click();
+
+    await leave.leave.click();
+
+    await expect(leave.alertTitle).toHaveText('We couldn’t remove the course');
+    await expect(leave.alert).toContainText(
+      'Nothing has changed: you’re still enrolled. Check your connection and try again.',
+    );
+
+    api.respond('DELETE', '/courses/imago-dei-in-an-age-of-machines/enrolment', {
+      keepUntil: '2027-10-13',
+      resumeAt: '3.2',
+    });
+    await leave.tryAgain.click();
+
+    await expect(leave.alertTitle).toHaveText('You’ve left the course');
   });
 });
