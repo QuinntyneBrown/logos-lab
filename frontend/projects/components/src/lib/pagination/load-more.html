@@ -1,0 +1,9 @@
+@if (!complete()) {
+  <button llButton variant="quiet" size="lg" type="button" [busy]="busy()" (click)="more.emit()">
+    {{ moreLabel() }}
+  </button>
+}
+<div class="pager__meter" aria-hidden="true" [style.--ll-pager-progress]="progress()">
+  <span></span>
+</div>
+<p class="pager__text" aria-live="polite">{{ summary() }}</p>

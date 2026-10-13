@@ -35,6 +35,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/topic/topic-page').then((m) => m.TopicPage),
   },
   {
+    path: 'events',
+    title: $localize`:@@events.pageTitle:Events - Logos Lab`,
+    loadComponent: () => import('./pages/events/events-page').then((m) => m.EventsPage),
+  },
+  {
     path: 'experts',
     title: $localize`:@@experts.pageTitle:Experts - Logos Lab`,
     loadComponent: () => import('./pages/experts/experts-page').then((m) => m.ExpertsPage),
