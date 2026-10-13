@@ -1,0 +1,60 @@
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
+  <div class="wrap event">
+    @if (event(); as event) {
+      @if (head(); as head) {
+        <nav
+          llBreadcrumb
+          label="Breadcrumb"
+          i18n-label="@@topic.crumb.label"
+          top="md"
+          [items]="trail()"
+        ></nav>
+        <header
+          llEventHead
+          [title]="event.title"
+          [day]="head.day"
+          [month]="head.month"
+          [datetime]="event.startsAt"
+          [when]="head.when"
+          [where]="head.where"
+          [hosts]="head.hosts"
+        ></header>
+      }
+      <div class="stack stack--lg">
+        <section aria-labelledby="about-title">
+          <h2 class="section__title" id="about-title" i18n="@@eventPage.about">About</h2>
+          <ll-prose>
+            @for (paragraph of event.description; track $index) {
+              <p>{{ paragraph }}</p>
+            }
+          </ll-prose>
+          @if (event.topics.length) {
+            <ul llChips label="Topics" i18n-label="@@article.topics">
+              @for (topic of event.topics; track topic.slug) {
+                <li>
+                  <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+        <section aria-labelledby="host-title">
+          <h2 class="section__title" id="host-title" i18n="@@eventPage.host">Host</h2>
+          <ul llPersonList stacked>
+            @for (host of event.hosts; track $index) {
+              <li
+                llPerson
+                [name]="host.name"
+                [path]="host.slug ? '/experts/' + host.slug : ''"
+                [photoUrl]="host.photoUrl"
+                [meta]="host.meta ? [host.meta] : []"
+              ></li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  </div>
+}
