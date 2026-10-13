@@ -24,6 +24,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/experts/experts-page').then((m) => m.ExpertsPage),
   },
   {
+    path: 'experts/:slug',
+    title: $localize`:@@expert.routeTitle:Expert - Logos Lab`,
+    loadComponent: () =>
+      import('./pages/expert-profile/expert-profile-page').then((m) => m.ExpertProfilePage),
+  },
+  {
     path: 'search',
     title: $localize`:@@search.pageTitle:Search - Logos Lab`,
     loadComponent: () =>

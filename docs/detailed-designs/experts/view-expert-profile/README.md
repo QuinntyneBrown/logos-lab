@@ -71,6 +71,39 @@ the Logos Lab database.
   attributed to them with no profile link.
 - The bio keeps only paragraphs, bold, italic and links.
 
+### Profile page decisions
+
+These settle what the design left open when `ExpertProfilePage` was built against the mocks in
+`docs/mocks/pages/expert-profile/`. Following an expert is a separate feature (follow-expert); the
+Follow button, the follower toggle and their dialogs are not part of this page yet, and the header
+shows the follower count only.
+
+- **Route and title.** `/experts/:slug`; the browser title is "Dr. Abena Mensah - Logos Lab" once the
+  profile is known and "Expert - Logos Lab" until then.
+- **Contract.** `ExpertsApi.getProfile(slug)` calls `GET /api/v1/experts/{slug}` and returns
+  `ExpertProfile`: `slug`, `name`, `photoUrl`, `title`, `affiliation`, `bioHtml` (already sanitized),
+  `followerCount`, `itemCount`, `expertise` (`{ slug, name }`), `links` (`{ label, url }`, `https`
+  only, at most 5) and `counts` (`{ type, count }`, only types with items). `ExpertsApi.getContent(slug,
+  type, page)` calls `GET /api/v1/experts/{slug}/content?type=&page=` and returns `ExpertContent`:
+  `items`, `total`, `page` and `pageCount`. An unknown slug answers `404`.
+- **Header.** A breadcrumb "Experts › Dr. Abena Mensah"; the photo (its alternative text is the
+  name), the name as the page's heading, "Associate Professor of Systematic Theology, Kingsgate
+  Theological College" and the facts "1,284 followers" and "7 published items".
+- **About.** A visually hidden heading "About Dr. Abena Mensah" and the bio. The bio is rendered with
+  Angular's own HTML sanitizer on top of the server's, so a script or an event handler in it is
+  removed.
+- **Aside.** "Areas of expertise" lists chips that link to the topic pages; "Elsewhere" lists the
+  external links. Each opens in a new tab with `rel="noopener noreferrer"` and visually hidden text
+  " (external site, opens in a new tab)".
+- **Published.** "Published on Logos Lab" holds tabs, one for each type that has items, in the order
+  Courses, Modules, Videos, Articles, Collections, Events, each with its count; one shared panel shows
+  the selected type's cards. The first tab is selected on arrival. A type with more than 24 items
+  pages with a pager named for the tab.
+- **States.** While the profile loads the header, the text and the chips are skeletons and the
+  content shows three skeleton cards ("Loading published content…"). A profile with nothing
+  published shows "Nothing published yet" in place of the tabs. A failed request shows the heading
+  "We couldn't load this profile" with "Try again". An unknown slug shows the not-found page.
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |

@@ -1,0 +1,46 @@
+// The prose block of docs/design-system/assets/components.css. The text is HTML the component does
+// not own, so its rules reach into it with ::ng-deep.
+:host {
+  display: block;
+}
+.prose {
+  max-width: var(--layout-narrow);
+  display: grid;
+  gap: var(--space-5);
+}
+.prose--article {
+  max-width: var(--layout-measure-article);
+}
+:host ::ng-deep .prose {
+  h2 {
+    font: var(--text-h2);
+    font-size: var(--font-size-2xl);
+    margin-top: var(--space-6);
+  }
+  h3 {
+    font: var(--text-h3);
+    margin-top: var(--space-4);
+  }
+  p,
+  li {
+    color: var(--color-fg-muted);
+    font: var(--text-body-lg);
+    overflow-wrap: break-word;
+  }
+  ul,
+  ol {
+    padding-left: var(--space-6);
+    display: grid;
+    gap: var(--space-2);
+  }
+  > :first-child {
+    margin-top: 0;
+  }
+  strong {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg-default);
+  }
+  a {
+    overflow-wrap: anywhere;
+  }
+}

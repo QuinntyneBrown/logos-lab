@@ -1,0 +1,5 @@
+@if (html() !== null) {
+  <div class="prose" [class.prose--article]="variant() === 'article'" [innerHTML]="html()"></div>
+} @else {
+  <div class="prose" [class.prose--article]="variant() === 'article'"><ng-content /></div>
+}

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prose — Component requirements rendering</title>
+<meta name="description" content="Every variant and state of prose, in light and dark, keyed to the acceptance criteria in prose.md.">
+<meta name="crd:component" content="prose">
+<!-- The real design-system styles: what renders here is the component, not a picture of it. -->
+<link rel="stylesheet" href="../../design-system/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../design-system/assets/ds.css">
+<style>
+/* CRD page chrome only. Never restyle the component here. */
+.crd-shell { max-width: 80rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+.crd-bar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.crd-ac { font: var(--text-overline); color: var(--color-fg-muted); display: block; margin-top: var(--space-2); }
+.crd-frames { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; }
+.crd-frame { margin: 0; border: var(--border-width-hairline) dashed var(--color-border-default); padding: var(--space-3); max-width: 100%; overflow: auto; }
+.crd-frame iframe { display: block; border: 0; max-width: 100%; }
+
+/* Specimen only, not product CSS: prose D-1 (elements the design-system CSS does not style yet) */
+.prose h4 { font: var(--text-h4); color: var(--color-fg-default); margin-top: var(--space-4); }
+.prose hr { border: 0; border-top: var(--border-width-hairline) solid var(--color-border-default); margin-block: var(--space-4); width: 100%; }
+.prose code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-bg-surface-sunken); border-radius: var(--radius-xs); padding-inline: var(--space-1); }
+.prose pre { overflow-x: auto; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); font: var(--text-code); color: var(--color-fg-default); }
+.prose pre code { background: none; padding: 0; }
+.prose .table-wrap { max-width: 100%; }
+/* Specimen only, not product CSS: prose D-5 (gaps between the design-system CSS and the mocks and L2) */
+.prose { overflow-wrap: anywhere; }
+.prose h2, .prose h3, .prose h4 { text-wrap: balance; }
+.prose figure img { height: auto; }
+.prose [id] { scroll-margin-top: var(--space-8); }
+@media (max-width: 29.99rem) { .prose .ref { white-space: normal; } }
+
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="crd-shell">
+  <header class="ds-header">
+    <div class="crd-bar">
+      <p class="ds-kicker">Component requirements · rendering</p>
+      <button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button>
+    </div>
+    <h1>Prose</h1>
+    <p class="ds-lead">Text a person wrote, set in a calm reading column, rendered from sanitized HTML or projected markup. Requirements: <a href="prose.md">prose.md</a>. Design system: <a href="../../design-system/components/prose.html">prose</a>.</p>
+    <div class="ds-meta"><span class="ds-pill">Selector <code>ll-prose</code></span><span class="ds-pill">Status: planned</span><span class="ds-pill">Traces to L2-021, L2-045, L2-046, L2-105, L2-120, L2-123, L2-125, L2-126, L2-127, L2-129, L2-130, L2-134, L2-147, L2-150</span></div>
+    <ul class="ds-toc"><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#security">Security</a></li><li><a href="#themes">Both themes</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#contrast">Contrast</a></li><li><a href="#tokens">Tokens</a></li></ul>
+  </header>
+  <section class="ds-section" id="variants"><h2>Variants</h2><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose">
+  <p>Abena Mensah is a theologian who writes about what it means to be human. Dr. Mensah's work in <em>theological anthropology</em> asks how the church's teaching that we are made in the image of God should shape the way we build and use machines that speak and reason.</p>
+  <p>Dr. Mensah teaches systematic theology, leads the Imago Dei cohort on Logos Lab each autumn, and preaches regularly in congregations across the Maritimes and Ontario. The book <strong>Made, Not Manufactured</strong> came out in 2025. Read the <a href="https://kingsgate.example.ca/faculty/mensah" target="_blank" rel="noopener noreferrer">Faculty page<span class="vh"> (external site, opens in a new tab)</span></a> or the <a href="#">expert directory</a>.</p>
+</div></div></div><div class="ds-example__caption"><span>Default variant: the expert bio from <code>html</code>, with an external link carrying <code>externalLabel</code>. <span class="crd-ac">AC-1, AC-9, AC-10</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose prose--article">
+  <p>Augustine never saw a computer. But few writers have thought harder about what it is to remember, to pay attention and to be distracted, and those are exactly the things large language models seem to do.</p>
+  <h2 id="what-a-model-remembers">What a model “remembers”</h2>
+  <p>A language model is trained on a vast body of text and learns which words tend to follow which. When it answers, it is not recalling an experience. It is predicting, very well, what a plausible answer would look like.<sup><a href="#fn-1" id="fnref-1" aria-describedby="fn-1">1</a></sup></p>
+  <p>That difference matters. The psalmist asks, <span class="ref">Psalm 8:4 <span class="muted">(NRSV)</span></span>, “what are human beings that you are mindful of them?” God's remembering is personal. A model's “memory” is statistical. Paul closes the argument at <span class="ref">1 Corinthians 15:51–57 <span class="muted">(NRSV)</span></span>.</p>
+  <blockquote><p>“A store of data is not a self. Augustine would have said that a self is a memory turned toward love.”</p></blockquote>
+  <h2 id="attention">Attention, then and now</h2>
+  <p>The garden in Milan where he heard a child's voice say <em lang="la">tolle, lege</em>, “take up and read”, is a story about attention redirected. Our tools are built to hold attention.</p>
+  <figure><img src="../../mocks/assets/photos/coffee-together.jpg" alt="Hands holding three cups of coffee together over a wooden table." width="1200" height="800" loading="lazy" decoding="async"><figcaption>What we share at the table is more than the sum of what we can do.</figcaption></figure>
+  <h3>Three questions to take with you</h3>
+  <ul><li>What do I hope a chatbot will remember for me, and what should I remember myself?</li><li>Where does my attention go when I reach for a screen?</li><li>How would I describe the difference between being known and being predicted?</li></ul>
+  <ol><li id="fn-1">Dr. Joel Santos explains this well in <a href="#">Inside a Neural Network in Ten Minutes</a>. <a href="#fnref-1" aria-label="Back to reference 1">↩</a></li></ol>
+</div></div></div><div class="ds-example__caption"><span>Article variant: the article body after sanitization and enhancement (footnote ids, lazy image). <span class="crd-ac">AC-2, AC-12, AC-13, AC-14, AC-15, AC-16, AC-27</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose">
+  <h2 id="who">Who we are</h2>
+  <p>Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. This policy explains what personal data we collect, why, where it's kept and the choices you have.</p>
+  <h2 id="retention">How long we keep it</h2>
+  <div class="table-wrap" tabindex="0" role="region" aria-label="Retention schedule">
+    <table class="data-table">
+      <caption class="vh">Retention schedule</caption>
+      <thead><tr><th scope="col">Data</th><th scope="col">How long</th></tr></thead>
+      <tbody><tr><th scope="row">Unverified accounts</th><td>30 days, then deleted</td></tr><tr><th scope="row">Request logs</th><td>90 days</td></tr><tr><th scope="row">Audit logs</th><td>7 years</td></tr><tr><th scope="row">Backups</th><td>Age out within 35 days</td></tr></tbody>
+    </table>
+  </div>
+  <h2 id="contact">Questions</h2>
+  <p>Write to <a href="mailto:help@logoslab.ca">help@logoslab.ca</a>. We answer privacy questions within 30 days.</p>
+</div></div></div><div class="ds-example__caption"><span>Default variant: a policy version, with a table that scrolls in its own focusable region. <span class="crd-ac">AC-17, AC-20</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose prose--article">
+  <p>Logos Lab is for everyone who wants to think carefully about faith and artificial intelligence, including people who use a screen reader, magnification, voice control, captions or only a keyboard.</p>
+  <h2>How we check</h2>
+  <ul>
+    <li>Every page and every state is scanned automatically with axe-core before each release.</li>
+    <li><strong>Some learning modules</strong> are interactive packages built outside Logos Lab.</li>
+  </ul>
+</div></div></div><div class="ds-example__caption"><span>Slot mode: page-written text, <code>html</code> is null. <span class="crd-ac">AC-3</span></span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose">
+  <h2>1. Speak as you would in a church hall</h2><p>Disagree with ideas, not people. Assume the best of others, ask before you assume, and leave room for people still working things out.</p>
+  <h2>2. Stay on the subject</h2><p>Keep comments to the piece or the cohort you are in. Questions are welcome; promotion of products, services or fundraising is not.</p>
+</div></div></div><div class="ds-example__caption"><span>Default variant in the community-guidelines dialog. <span class="crd-ac">AC-22, AC-26</span></span></div></div></section>
+  <section class="ds-section" id="sizes"><h2>Sizes</h2><p class="ds-na">One size. The column fills its container up to the measure: <code>--layout-narrow</code> (default) or <code>--layout-measure-article</code> (article). <span class="crd-ac">AC-19, AC-20</span></p></section>
+  <section class="ds-section" id="states"><h2>States</h2><h3>Links</h3><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose"><p>Read <a href="#">how we protect your workspace</a> for the detail, or visit the <a href="#" data-state="hover">hovered link</a> and the <a href="#" data-state="focus">focused link</a>. Remove anyone who leaves the team from <strong>Settings › People</strong>.</p></div></div></div><div class="ds-example__caption"><span>Default, hover and focus links (forced with <code>data-state</code>). <span class="crd-ac">AC-11</span></span></div></div><h3>Loading</h3><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose prose--article" aria-hidden="true">
+  <span class="skeleton skeleton--block"></span>
+  <div><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text is-short"></span></div>
+  <div><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text is-short"></span></div>
+</div></div></div><div class="ds-example__caption"><span>Loading: projected skeleton, <code>aria-hidden</code>, same column width as the loaded article. <span class="crd-ac">AC-4</span></span></div></div><h3>Quotation</h3><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose"><blockquote><p>“The image is not a trait we possess; it is a calling we receive.”</p></blockquote></div></div></div><div class="ds-example__caption"><span>Block quote with the thick rule. <span class="crd-ac">AC-16</span></span></div></div><h3>Long strings and references</h3><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose">
+  <p>Read the full notes at <a href="#">https://logoslab.example.ca/articles/what-augustine-might-say-about-large-language-models/notes/memory-attention-and-the-restless-heart/extended-bibliography</a> before the cohort meets.</p>
+  <p>Paul closes at <span class="ref">1 Corinthians 15:51–57 <span class="muted">(NRSV)</span></span>.</p>
+</div></div></div><div class="ds-example__caption"><span>A 120-character address wraps; a long Scripture reference stays on one line from SM and may wrap below it (D-5). <span class="crd-ac">AC-18, AC-23</span></span></div></div><h3>Elements the design-system CSS does not style yet</h3><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose">
+  <h2>Reading notes</h2>
+  <h3>Sources</h3>
+  <h4>Primary texts</h4>
+  <p>Book X of the <em>Confessions</em> repays slow reading. Press <kbd>Tab</kbd> to reach each link, or run <code>npm run lint</code> before pushing.</p>
+  <hr>
+  <pre><code>Augustine, Confessions X.8.12: "I come to the fields and vast palaces of memory, where are the treasures of countless images."</code></pre>
+</div></div></div><div class="ds-example__caption"><span>Required (D-1): <code>h4</code>, <code>kbd</code>, <code>code</code>, <code>hr</code>, <code>pre</code>. <span class="crd-ac">D-1</span></span></div></div><h3>Translated external link</h3><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="wrap" style="padding-block: var(--space-6)"><div class="prose"><p>Lisez la <a href="https://kingsgate.example.ca/faculty/mensah" target="_blank" rel="noopener noreferrer">page du corps professoral<span class="vh"> (site externe, s'ouvre dans un nouvel onglet)</span></a>.</p></div></div></div><div class="ds-example__caption"><span>French build: the hidden text is the <code>externalLabel</code> string and nothing in English. <span class="crd-ac">AC-28</span></span></div></div></section>
+  <section class="ds-section" id="security"><h2>Security contract</h2>
+    <p>Input <code>html</code> goes through Angular's <code>[innerHTML]</code> and its built-in sanitizer, never <code>bypassSecurityTrustHtml</code>, never as a template. Each row is a string, what a test sees after rendering, and the criterion.</p>
+    <div class="ds-table-wrap"><table class="ds-table">
+      <thead><tr><th scope="col">String in <code>html</code></th><th scope="col">Rendered result</th><th scope="col">Criterion</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;p onclick="window.pwned = 1"&gt;Hello&lt;/p&gt;&lt;script&gt;window.pwned = 2&lt;/script&gt;</code></td><td>Paragraph "Hello" with no <code>onclick</code>; no <code>script</code>; <code>window.pwned</code> undefined</td><td>AC-5</td></tr>
+        <tr><td><code>&lt;a href="javascript:window.pwned = 3"&gt;Read the guidelines&lt;/a&gt;</code></td><td><code>href</code> starts with <code>unsafe:</code>; nothing runs</td><td>AC-6</td></tr>
+        <tr><td><code>style</code> attribute, <code>iframe</code>, <code>id="admin"</code></td><td>All three removed</td><td>AC-7</td></tr>
+        <tr><td><code>&lt;p&gt;{{ 7 * 7 }} and &lt;ll-button&gt;Pay&lt;/ll-button&gt;&lt;/p&gt;</code></td><td>Literal text "{{ 7 * 7 }} and "; no button is created</td><td>AC-8</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+  <section class="ds-section" id="themes"><h2>Both themes</h2><div class="ds-themes"><div data-theme="light"><div class="wrap"><div class="prose prose--article">
+  <p>Augustine never saw a computer. But few writers have thought harder about what it is to remember, to pay attention and to be distracted, and those are exactly the things large language models seem to do.</p>
+  <h2 id="what-a-model-remembers">What a model “remembers”</h2>
+  <p>A language model is trained on a vast body of text and learns which words tend to follow which. When it answers, it is not recalling an experience. It is predicting, very well, what a plausible answer would look like.<sup><a href="#fn-1" id="fnref-1" aria-describedby="fn-1">1</a></sup></p>
+  <p>That difference matters. The psalmist asks, <span class="ref">Psalm 8:4 <span class="muted">(NRSV)</span></span>, “what are human beings that you are mindful of them?” God's remembering is personal. A model's “memory” is statistical. Paul closes the argument at <span class="ref">1 Corinthians 15:51–57 <span class="muted">(NRSV)</span></span>.</p>
+  <blockquote><p>“A store of data is not a self. Augustine would have said that a self is a memory turned toward love.”</p></blockquote>
+  <h2 id="attention">Attention, then and now</h2>
+  <p>The garden in Milan where he heard a child's voice say <em lang="la">tolle, lege</em>, “take up and read”, is a story about attention redirected. Our tools are built to hold attention.</p>
+  <figure><img src="../../mocks/assets/photos/coffee-together.jpg" alt="Hands holding three cups of coffee together over a wooden table." width="1200" height="800" loading="lazy" decoding="async"><figcaption>What we share at the table is more than the sum of what we can do.</figcaption></figure>
+  <h3>Three questions to take with you</h3>
+  <ul><li>What do I hope a chatbot will remember for me, and what should I remember myself?</li><li>Where does my attention go when I reach for a screen?</li><li>How would I describe the difference between being known and being predicted?</li></ul>
+  <ol><li id="fn-1">Dr. Joel Santos explains this well in <a href="#">Inside a Neural Network in Ten Minutes</a>. <a href="#fnref-1" aria-label="Back to reference 1">↩</a></li></ol>
+</div></div></div><div data-theme="dark"><div class="wrap"><div class="prose prose--article">
+  <p>Augustine never saw a computer. But few writers have thought harder about what it is to remember, to pay attention and to be distracted, and those are exactly the things large language models seem to do.</p>
+  <h2 id="what-a-model-remembers">What a model “remembers”</h2>
+  <p>A language model is trained on a vast body of text and learns which words tend to follow which. When it answers, it is not recalling an experience. It is predicting, very well, what a plausible answer would look like.<sup><a href="#fn-1" id="fnref-1" aria-describedby="fn-1">1</a></sup></p>
+  <p>That difference matters. The psalmist asks, <span class="ref">Psalm 8:4 <span class="muted">(NRSV)</span></span>, “what are human beings that you are mindful of them?” God's remembering is personal. A model's “memory” is statistical. Paul closes the argument at <span class="ref">1 Corinthians 15:51–57 <span class="muted">(NRSV)</span></span>.</p>
+  <blockquote><p>“A store of data is not a self. Augustine would have said that a self is a memory turned toward love.”</p></blockquote>
+  <h2 id="attention">Attention, then and now</h2>
+  <p>The garden in Milan where he heard a child's voice say <em lang="la">tolle, lege</em>, “take up and read”, is a story about attention redirected. Our tools are built to hold attention.</p>
+  <figure><img src="../../mocks/assets/photos/coffee-together.jpg" alt="Hands holding three cups of coffee together over a wooden table." width="1200" height="800" loading="lazy" decoding="async"><figcaption>What we share at the table is more than the sum of what we can do.</figcaption></figure>
+  <h3>Three questions to take with you</h3>
+  <ul><li>What do I hope a chatbot will remember for me, and what should I remember myself?</li><li>Where does my attention go when I reach for a screen?</li><li>How would I describe the difference between being known and being predicted?</li></ul>
+  <ol><li id="fn-1">Dr. Joel Santos explains this well in <a href="#">Inside a Neural Network in Ten Minutes</a>. <a href="#fnref-1" aria-label="Back to reference 1">↩</a></li></ol>
+</div></div></div></div><span class="crd-ac">AC-21</span></section>
+  <section class="ds-section" id="responsive"><h2>Responsive</h2>
+    <!-- Component CSS uses viewport media queries, so each frame is a real viewport. -->
+    <div class="crd-frames"><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-18, AC-23</span><iframe title="320 pixel wide frame, light theme" width="320" height="720" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;style&gt;
+/* Specimen only, not product CSS: prose D-1 (elements the design-system CSS does not style yet) */
+.prose h4 { font: var(--text-h4); color: var(--color-fg-default); margin-top: var(--space-4); }
+.prose hr { border: 0; border-top: var(--border-width-hairline) solid var(--color-border-default); margin-block: var(--space-4); width: 100%; }
+.prose code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-bg-surface-sunken); border-radius: var(--radius-xs); padding-inline: var(--space-1); }
+.prose pre { overflow-x: auto; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); font: var(--text-code); color: var(--color-fg-default); }
+.prose pre code { background: none; padding: 0; }
+.prose .table-wrap { max-width: 100%; }
+/* Specimen only, not product CSS: prose D-5 (gaps between the design-system CSS and the mocks and L2) */
+.prose { overflow-wrap: anywhere; }
+.prose h2, .prose h3, .prose h4 { text-wrap: balance; }
+.prose figure img { height: auto; }
+.prose [id] { scroll-margin-top: var(--space-8); }
+@media (max-width: 29.99rem) { .prose .ref { white-space: normal; } }
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block: var(--space-4)&quot;&gt;&lt;div class=&quot;prose prose--article&quot;&gt;&lt;h2&gt;What a model “remembers”&lt;/h2&gt;&lt;p&gt;That difference matters. The psalmist asks, &lt;span class=&quot;ref&quot;&gt;Psalm 8:4 &lt;span class=&quot;muted&quot;&gt;(NRSV)&lt;/span&gt;&lt;/span&gt;, “what are human beings that you are mindful of them?” Paul closes at &lt;span class=&quot;ref&quot;&gt;1 Corinthians 15:51–57 &lt;span class=&quot;muted&quot;&gt;(NRSV)&lt;/span&gt;&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;Read &lt;a href=&quot;#&quot;&gt;https://logoslab.example.ca/articles/what-augustine-might-say-about-large-language-models/notes/extended-bibliography&lt;/a&gt; before Thursday.&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;“A store of data is not a self.”&lt;/p&gt;&lt;/blockquote&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">360 px · dark · AC-18, AC-23</span><iframe title="360 pixel wide frame, dark theme" width="360" height="720" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;dark&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;style&gt;
+/* Specimen only, not product CSS: prose D-1 (elements the design-system CSS does not style yet) */
+.prose h4 { font: var(--text-h4); color: var(--color-fg-default); margin-top: var(--space-4); }
+.prose hr { border: 0; border-top: var(--border-width-hairline) solid var(--color-border-default); margin-block: var(--space-4); width: 100%; }
+.prose code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-bg-surface-sunken); border-radius: var(--radius-xs); padding-inline: var(--space-1); }
+.prose pre { overflow-x: auto; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); font: var(--text-code); color: var(--color-fg-default); }
+.prose pre code { background: none; padding: 0; }
+.prose .table-wrap { max-width: 100%; }
+/* Specimen only, not product CSS: prose D-5 (gaps between the design-system CSS and the mocks and L2) */
+.prose { overflow-wrap: anywhere; }
+.prose h2, .prose h3, .prose h4 { text-wrap: balance; }
+.prose figure img { height: auto; }
+.prose [id] { scroll-margin-top: var(--space-8); }
+@media (max-width: 29.99rem) { .prose .ref { white-space: normal; } }
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block: var(--space-4)&quot;&gt;&lt;div class=&quot;prose prose--article&quot;&gt;&lt;h2&gt;What a model “remembers”&lt;/h2&gt;&lt;p&gt;That difference matters. The psalmist asks, &lt;span class=&quot;ref&quot;&gt;Psalm 8:4 &lt;span class=&quot;muted&quot;&gt;(NRSV)&lt;/span&gt;&lt;/span&gt;, “what are human beings that you are mindful of them?” Paul closes at &lt;span class=&quot;ref&quot;&gt;1 Corinthians 15:51–57 &lt;span class=&quot;muted&quot;&gt;(NRSV)&lt;/span&gt;&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;Read &lt;a href=&quot;#&quot;&gt;https://logoslab.example.ca/articles/what-augustine-might-say-about-large-language-models/notes/extended-bibliography&lt;/a&gt; before Thursday.&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;“A store of data is not a self.”&lt;/p&gt;&lt;/blockquote&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">768 px · light · AC-19, AC-20</span><iframe title="768 pixel wide frame, light theme" width="768" height="720" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;style&gt;
+/* Specimen only, not product CSS: prose D-1 (elements the design-system CSS does not style yet) */
+.prose h4 { font: var(--text-h4); color: var(--color-fg-default); margin-top: var(--space-4); }
+.prose hr { border: 0; border-top: var(--border-width-hairline) solid var(--color-border-default); margin-block: var(--space-4); width: 100%; }
+.prose code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-bg-surface-sunken); border-radius: var(--radius-xs); padding-inline: var(--space-1); }
+.prose pre { overflow-x: auto; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); font: var(--text-code); color: var(--color-fg-default); }
+.prose pre code { background: none; padding: 0; }
+.prose .table-wrap { max-width: 100%; }
+/* Specimen only, not product CSS: prose D-5 (gaps between the design-system CSS and the mocks and L2) */
+.prose { overflow-wrap: anywhere; }
+.prose h2, .prose h3, .prose h4 { text-wrap: balance; }
+.prose figure img { height: auto; }
+.prose [id] { scroll-margin-top: var(--space-8); }
+@media (max-width: 29.99rem) { .prose .ref { white-space: normal; } }
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block: var(--space-4)&quot;&gt;&lt;div class=&quot;prose prose--article&quot;&gt;&lt;h2&gt;What a model “remembers”&lt;/h2&gt;&lt;p&gt;That difference matters. The psalmist asks, &lt;span class=&quot;ref&quot;&gt;Psalm 8:4 &lt;span class=&quot;muted&quot;&gt;(NRSV)&lt;/span&gt;&lt;/span&gt;, “what are human beings that you are mindful of them?” Paul closes at &lt;span class=&quot;ref&quot;&gt;1 Corinthians 15:51–57 &lt;span class=&quot;muted&quot;&gt;(NRSV)&lt;/span&gt;&lt;/span&gt;.&lt;/p&gt;&lt;p&gt;Read &lt;a href=&quot;#&quot;&gt;https://logoslab.example.ca/articles/what-augustine-might-say-about-large-language-models/notes/extended-bibliography&lt;/a&gt; before Thursday.&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;“A store of data is not a self.”&lt;/p&gt;&lt;/blockquote&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure><figure class="crd-frame"><span class="crd-ac">320 px · light · AC-17</span><iframe title="320 pixel wide frame, light theme" width="320" height="720" srcdoc="&lt;!doctype html&gt;&lt;html lang=&quot;en-CA&quot; data-theme=&quot;light&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/fonts/fonts.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/tokens/tokens.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;../../design-system/assets/components.css&quot;&gt;&lt;style&gt;
+/* Specimen only, not product CSS: prose D-1 (elements the design-system CSS does not style yet) */
+.prose h4 { font: var(--text-h4); color: var(--color-fg-default); margin-top: var(--space-4); }
+.prose hr { border: 0; border-top: var(--border-width-hairline) solid var(--color-border-default); margin-block: var(--space-4); width: 100%; }
+.prose code { font-family: var(--font-family-mono); font-size: var(--font-size-sm); background: var(--color-bg-surface-sunken); border-radius: var(--radius-xs); padding-inline: var(--space-1); }
+.prose pre { overflow-x: auto; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); font: var(--text-code); color: var(--color-fg-default); }
+.prose pre code { background: none; padding: 0; }
+.prose .table-wrap { max-width: 100%; }
+/* Specimen only, not product CSS: prose D-5 (gaps between the design-system CSS and the mocks and L2) */
+.prose { overflow-wrap: anywhere; }
+.prose h2, .prose h3, .prose h4 { text-wrap: balance; }
+.prose figure img { height: auto; }
+.prose [id] { scroll-margin-top: var(--space-8); }
+@media (max-width: 29.99rem) { .prose .ref { white-space: normal; } }
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;wrap&quot; style=&quot;padding-block: var(--space-4)&quot;&gt;&lt;div class=&quot;prose&quot;&gt;
+  &lt;h2 id=&quot;who&quot;&gt;Who we are&lt;/h2&gt;
+  &lt;p&gt;Logos Lab is an expert-curated place to learn where Christian faith meets artificial intelligence. This policy explains what personal data we collect, why, where it&#x27;s kept and the choices you have.&lt;/p&gt;
+  &lt;h2 id=&quot;retention&quot;&gt;How long we keep it&lt;/h2&gt;
+  &lt;div class=&quot;table-wrap&quot; tabindex=&quot;0&quot; role=&quot;region&quot; aria-label=&quot;Retention schedule&quot;&gt;
+    &lt;table class=&quot;data-table&quot;&gt;
+      &lt;caption class=&quot;vh&quot;&gt;Retention schedule&lt;/caption&gt;
+      &lt;thead&gt;&lt;tr&gt;&lt;th scope=&quot;col&quot;&gt;Data&lt;/th&gt;&lt;th scope=&quot;col&quot;&gt;How long&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+      &lt;tbody&gt;&lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Unverified accounts&lt;/th&gt;&lt;td&gt;30 days, then deleted&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Request logs&lt;/th&gt;&lt;td&gt;90 days&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Audit logs&lt;/th&gt;&lt;td&gt;7 years&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th scope=&quot;row&quot;&gt;Backups&lt;/th&gt;&lt;td&gt;Age out within 35 days&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+  &lt;h2 id=&quot;contact&quot;&gt;Questions&lt;/h2&gt;
+  &lt;p&gt;Write to &lt;a href=&quot;mailto:help@logoslab.ca&quot;&gt;help@logoslab.ca&lt;/a&gt;. We answer privacy questions within 30 days.&lt;/p&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe></figure></div>
+    <p class="ds-na">Browser zoom to 400 % at 1280 px and the WCAG text-spacing overrides are measured in the browser, not drawn: the column reflows to one column and clips nothing. <span class="crd-ac">AC-24, AC-25</span></p>
+  </section>
+  <section class="ds-section" id="contrast"><h2>Contrast</h2><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Heading, strong, quote</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Heading, strong, quote</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Paragraph</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Paragraph</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Paragraph in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Paragraph in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Link</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Link</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Caption</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Caption</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-canvas" data-min="3"></span></div><div class="ds-pair" data-theme="dark"><span>Dark: Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-canvas" data-min="3"></span></div></div><span class="crd-ac">AC-22</span></section>
+  <section class="ds-section" id="tokens"><h2>Tokens</h2><div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Paragraph, list item</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Heading, strong, quote</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Link</td><td><code>--color-fg-link</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-link" data-swatch></i><span data-token="--color-fg-link"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-link" data-swatch></i><span data-token="--color-fg-link"></span></span></td></tr><tr><td>Link hover</td><td><code>--color-fg-link-hover</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-link-hover" data-swatch></i><span data-token="--color-fg-link-hover"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-link-hover" data-swatch></i><span data-token="--color-fg-link-hover"></span></span></td></tr><tr><td>Caption</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr><tr><td>Quote rule</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr><tr><td>Focus ring</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr><tr><td>Code fill</td><td><code>--color-bg-surface-sunken</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-sunken" data-swatch></i><span data-token="--color-bg-surface-sunken"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-sunken" data-swatch></i><span data-token="--color-bg-surface-sunken"></span></span></td></tr></tbody></table></div></section>
+  <footer class="ds-footer"><span>Logos Lab component requirements · <a href="README.md">index</a></span><a href="#top">Back to top</a></footer>
+</main>
+<script src="../../design-system/assets/ds.js"></script>
+</body>
+</html>

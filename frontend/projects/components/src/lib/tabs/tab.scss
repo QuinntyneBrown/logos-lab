@@ -1,6 +1,7 @@
 // The .tab rules of the tabs block of docs/design-system/assets/components.css; the host is the .tab.
 :host {
   position: relative;
+  border: 0;
   flex: none;
   display: inline-flex;
   align-items: center;
@@ -23,10 +24,12 @@
   background: var(--color-bg-subtle);
   color: var(--color-fg-default);
 }
-:host([aria-current='page']) {
+:host([aria-current='page']),
+:host([aria-selected='true']) {
   color: var(--color-fg-default);
 }
-:host([aria-current='page'])::after {
+:host([aria-current='page'])::after,
+:host([aria-selected='true'])::after {
   content: '';
   position: absolute;
   left: var(--space-4);
@@ -38,10 +41,16 @@
 :host(.tab--pill) {
   border-radius: var(--radius-full);
 }
-:host(.tab--pill[aria-current='page']) {
+:host(.tab--pill[aria-current='page']),
+:host(.tab--pill[aria-selected='true']) {
   background: var(--color-accent-subtle);
   color: var(--color-fg-accent);
 }
-:host(.tab--pill[aria-current='page'])::after {
+:host(.tab--pill[aria-current='page'])::after,
+:host(.tab--pill[aria-selected='true'])::after {
   display: none;
+}
+:host(:disabled) {
+  color: var(--color-fg-disabled);
+  cursor: not-allowed;
 }
