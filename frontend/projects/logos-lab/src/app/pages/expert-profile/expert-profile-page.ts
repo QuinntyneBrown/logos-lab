@@ -38,6 +38,7 @@ import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
 import { FollowDialogs } from '../../dialogs/follow-dialogs';
 import { SignInPrompt } from '../../dialogs/sign-in-prompt';
+import { unfollowExpertData } from '../../dialogs/unfollow/unfollow-expert-data';
 import { clockTime } from '../../content/clock-time';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
@@ -148,7 +149,7 @@ export class ExpertProfilePage {
       });
     } else if (this.following()) {
       void this.followDialogs
-        .confirmUnfollow({ expertId: profile.id, expertName: profile.name })
+        .confirmUnfollow(unfollowExpertData(this.followsApi, profile.id, profile.name))
         .then((result) => {
           if (!result) return;
           this.following.set(false);

@@ -16,7 +16,19 @@ export class HttpFollowsApi implements FollowsApi {
     return this.http.delete<FollowResult>(this.expertUrl(expertId));
   }
 
+  followCollection(collectionId: string): Observable<FollowResult> {
+    return this.http.put<FollowResult>(this.collectionUrl(collectionId), null);
+  }
+
+  unfollowCollection(collectionId: string): Observable<FollowResult> {
+    return this.http.delete<FollowResult>(this.collectionUrl(collectionId));
+  }
+
   private expertUrl(expertId: string): string {
     return `/api/v1/me/follows/experts/${encodeURIComponent(expertId)}`;
+  }
+
+  private collectionUrl(collectionId: string): string {
+    return `/api/v1/me/follows/collections/${encodeURIComponent(collectionId)}`;
   }
 }

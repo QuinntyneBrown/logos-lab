@@ -1,0 +1,250 @@
+@if (notFound()) {
+  <ll-not-found-page />
+} @else {
+  <div class="wrap collection">
+    @if (collection(); as collection) {
+      <nav
+        llBreadcrumb
+        label="Breadcrumb"
+        i18n-label="@@topic.crumb.label"
+        top="md"
+        [items]="trail()"
+      ></nav>
+      <ll-page-header
+        top="md"
+        [eyebrow]="eyebrow()"
+        [heading]="collection.title"
+        [sub]="collection.description"
+        actions="side"
+      >
+        @if (session.member() !== undefined) {
+          <button
+            llButton
+            slot="actions"
+            [variant]="following() ? 'quiet' : 'primary'"
+            [pressed]="following()"
+            (click)="press()"
+          >
+            @if (following()) {
+              <svg llIcon name="check" size="sm"></svg>
+              <ng-container i18n="@@collection.following">Following</ng-container>
+            } @else {
+              <ng-container i18n="@@collection.follow">Follow</ng-container>
+            }
+          </button>
+        }
+        @if (followStatus().kind === 'followed') {
+          <p llInlineStatus slot="actions" tone="success" live="polite">
+            <ng-container i18n="@@collection.follow.done"
+              >Following. You'll get one notification whenever items are added.</ng-container
+            >
+          </p>
+        }
+        @if (followStatus().kind === 'unfollowed') {
+          <p llInlineStatus slot="actions" tone="success" live="polite">
+            <ng-container i18n="@@collection.unfollow.done"
+              >Unfollowed. You can follow again at any time.</ng-container
+            >
+          </p>
+        }
+      </ll-page-header>
+      @if (followStatus().kind === 'failed') {
+        <ll-alert
+          class="collection__follow-alert"
+          tone="danger"
+          heading="We couldn't follow just now"
+          i18n-heading="@@collection.follow.failed.title"
+        >
+          <ng-container i18n="@@collection.follow.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      }
+      @if (progressFailed()) {
+        <ll-alert
+          class="collection__notice"
+          tone="warning"
+          role="status"
+          heading="Your progress isn't showing right now"
+          i18n-heading="@@collection.progress.failed.title"
+        >
+          <ng-container i18n="@@collection.progress.failed.body"
+            >The items are all here, but we couldn't load which ones you've finished. Your progress
+            is safe and will show again shortly.</ng-container
+          >
+          <button
+            llButton
+            slot="actions"
+            variant="quiet"
+            size="sm"
+            type="button"
+            (click)="retry()"
+            i18n="@@collection.progress.failed.retry"
+          >
+            Try again
+          </button>
+        </ll-alert>
+      }
+      <div class="two-col collection__body">
+        <section aria-labelledby="items-title">
+          @if (progress() && rows().length) {
+            <section
+              llCard
+              heading="Your progress"
+              i18n-heading="@@collection.progress.title"
+              headingId="progress-title"
+              class="collection__progress"
+            >
+              <ll-progress-bar
+                [value]="progressValue()"
+                label="Collection progress"
+                i18n-label="@@collection.progress.label"
+              />
+              <p class="field__help">{{ progressSummary() }}</p>
+            </section>
+          }
+          <h2 class="vh" id="items-title" i18n="@@collection.items.title">Items</h2>
+          @if (rows().length) {
+            <ol
+              class="content-grid content-grid--rows"
+              aria-label="Items in order"
+              i18n-aria-label="@@collection.items.label"
+            >
+              @for (row of rows(); track row.id) {
+                <li>
+                  <ll-content-card
+                    variant="row"
+                    [type]="row.type"
+                    [typeLabel]="row.typeLabel"
+                    [title]="row.title"
+                    [path]="row.path"
+                    [author]="row.author"
+                    [meta]="row.meta"
+                    [duration]="row.duration"
+                    [coverUrl]="row.coverUrl"
+                    [statuses]="row.statuses"
+                    [progress]="row.progress"
+                  />
+                </li>
+              }
+            </ol>
+          } @else {
+            <ll-empty-state
+              heading="Nothing to show in this collection right now"
+              i18n-heading="@@collection.empty.title"
+              icon="collection"
+              [headingLevel]="2"
+            >
+              {{ emptyText() }}
+              <a
+                llButton
+                slot="actions"
+                routerLink="/explore"
+                [queryParams]="{ type: 'collection' }"
+                i18n="@@collection.empty.action"
+                >Browse other collections</a
+              >
+            </ll-empty-state>
+          }
+        </section>
+        <aside
+          class="stack"
+          aria-label="About this collection"
+          i18n-aria-label="@@collection.aside"
+        >
+          <section
+            llCard
+            heading="Curated by"
+            i18n-heading="@@collection.curator"
+            headingId="curator-title"
+          >
+            <p class="cluster collection__curator">
+              <ll-avatar
+                [name]="collection.curator.name"
+                [photoUrl]="collection.curator.photoUrl"
+              />
+              @if (collection.curator.slug) {
+                <a [routerLink]="'/experts/' + collection.curator.slug">{{
+                  collection.curator.name
+                }}</a>
+              } @else {
+                <span>{{ collection.curator.name }}</span>
+              }
+            </p>
+            <dl llDescriptionList variant="inline">
+              <div>
+                <dt i18n="@@collection.fact.items">Items</dt>
+                <dd>{{ itemTotal() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@collection.fact.length">Length</dt>
+                <dd>{{ length() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@collection.fact.updated">Updated</dt>
+                <dd>{{ updated() }}</dd>
+              </div>
+              <div>
+                <dt i18n="@@collection.fact.followers">Followers</dt>
+                <dd>{{ followers() }}</dd>
+              </div>
+            </dl>
+          </section>
+        </aside>
+      </div>
+    } @else if (failed()) {
+      <div class="collection__failure">
+        <h1 class="vh" i18n="@@collection.crumb.collection">Collection</h1>
+        <ll-empty-state
+          tone="error"
+          heading="We couldn't load this collection"
+          i18n-heading="@@collection.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@collection.failed.text"
+            >This is on our side. Try again in a moment, or browse the other
+            collections.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@collection.failed.retry"
+          >
+            Try again
+          </button>
+        </ll-empty-state>
+        <p class="collection__help">
+          <ng-container i18n="@@collection.failed.help">Still not working? Write to</ng-container>
+          <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+        </p>
+      </div>
+    } @else {
+      <ll-page-header
+        top="md"
+        heading="Collection"
+        i18n-heading="@@collection.crumb.collection"
+        busy="all"
+      />
+      <div class="two-col collection__body">
+        <section aria-labelledby="items-title">
+          <h2 class="vh" id="items-title" i18n="@@collection.items.title">Items</h2>
+          <div class="content-grid content-grid--rows" aria-busy="true">
+            <p class="vh" role="status" i18n="@@collection.loading">Loading items…</p>
+            @for (n of placeholders; track n) {
+              <ll-skeleton-card />
+            }
+          </div>
+        </section>
+        <aside class="stack" aria-hidden="true">
+          <span llSkeleton shape="block"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+        </aside>
+      </div>
+    }
+  </div>
+}

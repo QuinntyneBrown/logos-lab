@@ -1,0 +1,47 @@
+// The facts block of docs/design-system/assets/components.css, with the narrow-width rule of the
+// description-list CRD (D-7): an inline group stacks below 40rem.
+:host {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+}
+:host ::ng-deep {
+  > div {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+  dt {
+    font: var(--text-overline);
+    letter-spacing: var(--letter-spacing-wide);
+    text-transform: uppercase;
+    color: var(--color-fg-subtle);
+    overflow-wrap: anywhere;
+  }
+  dd {
+    margin: 0;
+    font: var(--text-body);
+    color: var(--color-fg-default);
+    overflow-wrap: anywhere;
+  }
+  dd.is-empty {
+    color: var(--color-fg-subtle);
+  }
+  .skeleton--text {
+    margin-top: 0;
+  }
+}
+:host(.facts--inline) ::ng-deep > div {
+  padding-block: var(--space-2);
+  border-bottom: var(--border-width-hairline) solid var(--color-border-default);
+}
+@media (min-width: 40rem) {
+  :host(.facts--inline) ::ng-deep > div {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: baseline;
+  }
+}
+:host(.facts--columns) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--space-40)), 1fr));
+  gap: var(--space-6);
+}

@@ -1,6 +1,6 @@
 <ll-dialog
   size="sm"
-  [heading]="title"
+  [heading]="data.title"
   headingId="unfollow-title"
   closeLabel="Close"
   i18n-closeLabel="@@dialog.close"
@@ -13,10 +13,10 @@
       heading="We couldn't unfollow just now"
       i18n-heading="@@unfollow.failed.title"
     >
-      {{ failedBody }}
+      {{ data.failedBody }}
     </ll-alert>
   }
-  <p id="unfollow-desc">{{ description }}</p>
+  <p id="unfollow-desc">{{ data.description }}</p>
   <button
     llButton
     slot="footer"

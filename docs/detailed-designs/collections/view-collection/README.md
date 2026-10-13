@@ -59,6 +59,40 @@ Logos Lab database.
 - An archived or hidden item is omitted, and the count excludes it.
 - A signed-in learner sees each item's completion state and a summary such as "4 of 12 completed".
 
+## Decisions for the web build
+
+- **Contract.** `CollectionsApi.getCollection(slug)` returns `Collection`: `id`, `slug`, `title`,
+  `description`, `coverUrl` (or `null`), `curator` (an expert, or Logos Lab), `items` (visible items in
+  position order, each a `ContentSummary` with its optional `note`), `itemCount`, `totalMinutes` (`null`
+  when no item has a duration), `updatedAt` (`YYYY-MM-DD`), `followerCount` and `following` (`false` for
+  a visitor). A `404` problem means no published collection has that slug. `getMyProgress(collectionId)`
+  returns `CollectionProgress`: `completed`, `total` and one entry per item with its `state`
+  (`not-started`, `in-progress`, `completed` or `not-passed`), a `percent` for in-progress items and the
+  `score` and `passMark` of a scored item that was not passed.
+- **Header.** The eyebrow reads "Collection · 8 items · about 10 hours", and just "Collection · 0 items"
+  when empty. The breadcrumb is "Collections" (the catalogue filtered to collections) then the title.
+  The page header carries the Follow toggle.
+- **Items.** An ordered list of row cards. The type line is the position and the type ("1 · Article"). A
+  signed-in member's rows show the state as a badge ("Completed", "Not started", "Not passed · 64%, pass
+  mark 80%") or a progress bar with "In progress". A visitor's rows show none of these.
+- **Progress.** Requested only for a signed-in member, after the page shows. The summary card "Your
+  progress" shows the bar and "3 of 8 completed". If the request fails the items stay without marks and
+  a warning notice says "Your progress isn't showing right now" with "Try again"; the page is otherwise
+  unchanged.
+- **Aside.** The cover, then "Curated by" with the curator linked to their profile (plain text for Logos
+  Lab) and the facts: Items, Length ("About 10 hours", "None yet" when empty), Updated and Followers.
+- **Follow.** Same behaviour as an expert follow (`follow-expert`): the toggle, the status "Following.
+  You'll get one notification whenever items are added.", the count in Followers going up or down by
+  one, the sign-in prompt for a visitor, a danger alert on failure. Pressing "Following" opens the
+  shared unfollow dialog, with the collection's own words. The follow routes are
+  `PUT` and `DELETE /api/v1/me/follows/collections/{collectionId}`, answering the new follower count.
+- **Empty.** When every item is archived or hidden, the list gives way to "Nothing to show in this
+  collection right now" with a link to browse other collections, and no progress summary.
+- **Loading and failure.** As the other pages: a busy header and skeleton rows announcing "Loading
+  items…" once, an error with "Try again" and the help address, and the not-found page for a `404`.
+- **Unfollow dialog.** The dialog takes its title, description and failure text, and the call that
+  removes the follow, from its opener, so experts and collections share it.
+
 ## Requirements
 
 | L2 ID | Refines (L1) | Requirement |

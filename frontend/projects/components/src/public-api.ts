@@ -4,6 +4,8 @@ export * from './lib/button/button';
 export * from './lib/button/button-size';
 export * from './lib/button/button-variant';
 export * from './lib/button/icon-button';
+export * from './lib/description-list/description-list';
+export * from './lib/description-list/description-list-variant';
 export * from './lib/dialog/dialog';
 export * from './lib/dialog/dialog-icon-tone';
 export * from './lib/dialog/dialog-size';

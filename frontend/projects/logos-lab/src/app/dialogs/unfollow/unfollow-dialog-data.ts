@@ -1,5 +1,13 @@
-/** Who the member is about to stop following. */
+import { FollowResult } from '@logos-lab/api';
+import { Observable } from 'rxjs';
+
+/** What the unfollow dialog says and does: experts and collections share it. */
 export interface UnfollowDialogData {
-  readonly expertId: string;
-  readonly expertName: string;
+  /** "Unfollow Dr. Abena Mensah?". */
+  readonly title: string;
+  readonly description: string;
+  /** Said under the failure alert's title. */
+  readonly failedBody: string;
+  /** Removes the follow; the dialog closes with the follower count it answers with. */
+  readonly unfollow: () => Observable<FollowResult>;
 }
