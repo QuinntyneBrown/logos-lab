@@ -50,67 +50,105 @@
           </div>
         </header>
       }
-      <div class="stack stack--lg">
-        <section aria-labelledby="about-title">
-          <h2 class="section__title" id="about-title" i18n="@@eventPage.about">About</h2>
-          <ll-prose>
-            @for (paragraph of event.description; track $index) {
-              <p>{{ paragraph }}</p>
+      <div class="two-col">
+        <div class="stack stack--lg">
+          <section aria-labelledby="about-title">
+            <h2 class="section__title" id="about-title" i18n="@@eventPage.about">About</h2>
+            <ll-prose>
+              @for (paragraph of event.description; track $index) {
+                <p>{{ paragraph }}</p>
+              }
+            </ll-prose>
+            @if (event.topics.length) {
+              <ul llChips label="Topics" i18n-label="@@article.topics">
+                @for (topic of event.topics; track topic.slug) {
+                  <li>
+                    <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
+                  </li>
+                }
+              </ul>
             }
-          </ll-prose>
-          @if (event.topics.length) {
-            <ul llChips label="Topics" i18n-label="@@article.topics">
-              @for (topic of event.topics; track topic.slug) {
-                <li>
-                  <a llChip size="sm" [routerLink]="'/topics/' + topic.slug">{{ topic.name }}</a>
-                </li>
+          </section>
+          @if (agenda().length) {
+            <section aria-labelledby="agenda-title">
+              <h2 class="section__title" id="agenda-title" i18n="@@eventPage.agenda">Agenda</h2>
+              <ol llTimeline>
+                @for (item of agenda(); track $index) {
+                  <li>
+                    <time [attr.datetime]="item.startsAt">{{ item.time }}</time>
+                    <p>{{ item.text }}</p>
+                  </li>
+                }
+              </ol>
+              <p class="field__help">{{ zoneNote() }}</p>
+            </section>
+          }
+          @if (event.venue; as venue) {
+            <section aria-labelledby="where-title">
+              <h2 class="section__title" id="where-title" i18n="@@eventPage.where">Where</h2>
+              <address class="event__venue">
+                <strong>{{ venue.name }}</strong>
+                <br />{{ venue.address }}
+              </address>
+              <p class="event__maps">
+                <a class="link-standalone" [href]="mapsLink(venue)">
+                  <ng-container i18n="@@eventPage.mapsLink">Open in your maps app</ng-container>
+                  <svg llIcon name="arrow-right" size="sm"></svg>
+                </a>
+              </p>
+            </section>
+          }
+          <section aria-labelledby="host-title">
+            <h2 class="section__title" id="host-title" i18n="@@eventPage.host">Host</h2>
+            <ul llPersonList stacked>
+              @for (host of event.hosts; track $index) {
+                <li
+                  llPerson
+                  [name]="host.name"
+                  [path]="host.slug ? '/experts/' + host.slug : ''"
+                  [photoUrl]="host.photoUrl"
+                  [meta]="host.meta ? [host.meta] : []"
+                ></li>
               }
             </ul>
-          }
-        </section>
-        @if (agenda().length) {
-          <section aria-labelledby="agenda-title">
-            <h2 class="section__title" id="agenda-title" i18n="@@eventPage.agenda">Agenda</h2>
-            <ol llTimeline>
-              @for (item of agenda(); track $index) {
-                <li>
-                  <time [attr.datetime]="item.startsAt">{{ item.time }}</time>
-                  <p>{{ item.text }}</p>
-                </li>
-              }
-            </ol>
-            <p class="field__help">{{ zoneNote() }}</p>
           </section>
-        }
-        @if (event.venue; as venue) {
-          <section aria-labelledby="where-title">
-            <h2 class="section__title" id="where-title" i18n="@@eventPage.where">Where</h2>
-            <address class="event__venue">
-              <strong>{{ venue.name }}</strong>
-              <br />{{ venue.address }}
-            </address>
-            <p class="event__maps">
-              <a class="link-standalone" [href]="mapsLink(venue)">
-                <ng-container i18n="@@eventPage.mapsLink">Open in your maps app</ng-container>
-                <svg llIcon name="arrow-right" size="sm"></svg>
-              </a>
-            </p>
-          </section>
-        }
-        <section aria-labelledby="host-title">
-          <h2 class="section__title" id="host-title" i18n="@@eventPage.host">Host</h2>
-          <ul llPersonList stacked>
-            @for (host of event.hosts; track $index) {
-              <li
-                llPerson
-                [name]="host.name"
-                [path]="host.slug ? '/experts/' + host.slug : ''"
-                [photoUrl]="host.photoUrl"
-                [meta]="host.meta ? [host.meta] : []"
-              ></li>
+        </div>
+        @if (panel(); as panel) {
+          <aside
+            llRsvpPanel
+            [heading]="panel.heading"
+            [text]="panel.text"
+            [note]="panel.note"
+            [places]="panel.places"
+          >
+            @if (panel.status) {
+              <span llInlineStatus slot="status" tone="warning">{{ panel.status }}</span>
             }
-          </ul>
-        </section>
+            @if (panel.signIn) {
+              <a
+                llButton
+                variant="primary"
+                block
+                routerLink="/sign-in"
+                [queryParams]="returnQuery()"
+                i18n="@@eventPage.signIn.action"
+                >Sign in to register</a
+              >
+              <a
+                llButton
+                variant="text"
+                block
+                routerLink="/register"
+                [queryParams]="returnQuery()"
+                i18n="@@eventPage.createAccount"
+                >Create an account</a
+              >
+            }
+            @if (panel.help) {
+              <p class="field__help" slot="help">{{ panel.help }}</p>
+            }
+          </aside>
+        }
       </div>
     }
   </div>

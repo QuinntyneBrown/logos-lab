@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EVENTS_API, EventAttendance, EventVenue } from '@logos-lab/api';
 import {
   Breadcrumb,
@@ -22,14 +22,18 @@ import {
   EventHead,
   Icon,
   Person,
+  InlineStatus,
   PersonList,
   Prose,
+  RsvpPanel,
   Timeline,
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { eventDay, eventTime, eventWhen } from '../../content/event-when';
 import { viewerZone } from '../../content/viewer-zone';
+import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
+import { toEventPanel } from './to-event-panel';
 import { EventPageState } from './event-page-state';
 
 @Component({
@@ -45,8 +49,10 @@ import { EventPageState } from './event-page-state';
     Icon,
     NotFoundPage,
     Person,
+    InlineStatus,
     PersonList,
     Prose,
+    RsvpPanel,
     Timeline,
   ],
   templateUrl: './event-page.html',
@@ -56,6 +62,8 @@ import { EventPageState } from './event-page-state';
 export class EventPage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EVENTS_API);
+  private readonly session = inject(Session);
+  private readonly router = inject(Router);
   private readonly params = toSignal(inject(ActivatedRoute).paramMap, { requireSync: true });
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
 
@@ -137,6 +145,12 @@ export class EventPage {
   protected mapsLink(venue: EventVenue): string {
     return `geo:0,0?q=${encodeURIComponent(venue.address)}`;
   }
+
+  protected readonly returnQuery = computed(() => ({ returnUrl: this.router.url }));
+  protected readonly panel = computed(() => {
+    const event = this.event();
+    return event ? toEventPanel(event, this.session.member() === null, this.locale) : null;
+  });
 
   protected readonly head = computed(() => {
     const event = this.event();

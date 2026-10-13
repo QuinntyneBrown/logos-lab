@@ -12,6 +12,15 @@ export class EventPage {
   readonly aboutText: Locator;
   readonly topics: Locator;
   readonly hosts: Locator;
+  readonly panel: Locator;
+  readonly panelTitle: Locator;
+  readonly panelText: Locator;
+  readonly panelStatus: Locator;
+  readonly places: Locator;
+  readonly placesText: Locator;
+  readonly panelHelp: Locator;
+  readonly signIn: Locator;
+  readonly createAccount: Locator;
   readonly where: Locator;
   readonly venueName: Locator;
   readonly venueAddress: Locator;
@@ -40,6 +49,15 @@ export class EventPage {
     this.venueName = this.where.locator('strong');
     this.venueAddress = this.where.locator('address');
     this.mapsLink = this.where.getByRole('link', { name: 'Open in your maps app' });
+    this.panel = main.locator('aside.rsvp');
+    this.panelTitle = this.panel.locator('.rsvp__title');
+    this.panelText = this.panel.locator('p.rsvp__text');
+    this.panelStatus = this.panel.locator('.inline-status');
+    this.places = this.panel.getByRole('progressbar', { name: 'Places taken' });
+    this.placesText = this.panel.locator('.rsvp__meter p');
+    this.panelHelp = this.panel.locator('p.field__help');
+    this.signIn = this.panel.getByRole('link', { name: 'Sign in to register' });
+    this.createAccount = this.panel.getByRole('link', { name: 'Create an account' });
     this.hosts = main.getByRole('region', { name: 'Host' }).locator('li.person');
   }
 

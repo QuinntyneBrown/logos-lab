@@ -22,4 +22,9 @@ export interface EventPageModel {
   readonly agenda: readonly EventAgendaItem[];
   /** Where it happens; `null` for an online event. */
   readonly venue: EventVenue | null;
+  readonly registeredCount: number;
+  /** The most people it takes; `null` when there is no limit. */
+  readonly capacity: number | null;
+  /** How many people are waiting for a place. */
+  readonly waitlistCount: number;
 }

@@ -1,4 +1,10 @@
-import { creativityEveningPage, eventPage, liveQaPage } from '../data/event-pages';
+import { members } from '../data/members';
+import {
+  creativityEveningPage,
+  eventPage,
+  liveQaPage,
+  policyWorkshopPage,
+} from '../data/event-pages';
 import { expect, test } from '../fixtures/test';
 import { EventPage } from '../pages/event.page';
 
@@ -163,6 +169,90 @@ test.describe('Event page', () => {
     await event.open(path);
 
     await expect(event.where).toHaveCount(0);
+  });
+
+  // L2-053 AC1 · rsvp-panel AC-2
+  test('a visitor is asked to sign in or create an account, returning to the event', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panelTitle).toHaveText('Sign in to register');
+    await expect(event.panelText).toHaveText(
+      'Registration is free with a Logos Lab account. After you sign in, we bring you back here to finish.',
+    );
+    await expect(event.signIn).toHaveAttribute(
+      'href',
+      '/sign-in?returnUrl=%2Fevents%2Flive-qa-imago-dei-and-machine-personhood',
+    );
+    await expect(event.createAccount).toHaveAttribute(
+      'href',
+      '/register?returnUrl=%2Fevents%2Flive-qa-imago-dei-and-machine-personhood',
+    );
+    await expect(event.places).toHaveAttribute('aria-valuenow', '62');
+    await expect(event.placesText).toHaveText('311 registered · 189 places left');
+  });
+
+  // L2-052 AC1 · rsvp-panel AC-1
+  test('a member who has not registered sees the places left and how the join link works', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/events/by-slug/live-qa-imago-dei-and-machine-personhood', liveQaPage);
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panelTitle).toHaveText('Register for this event');
+    await expect(event.panelText).toHaveText(
+      "Free for members. We'll email you a calendar file and remind you a day and an hour before.",
+    );
+    await expect(event.placesText).toHaveText('311 registered · 189 places left');
+    await expect(event.panelHelp).toHaveText(
+      'The join link is shown only to registered members, from 15 minutes before the start.',
+    );
+    await expect(event.signIn).toHaveCount(0);
+  });
+
+  // L2-054 AC1 · rsvp-panel AC-4
+  test('a full event says so, and how the waitlist works', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond(
+      'GET',
+      '/events/by-slug/workshop-writing-an-ai-policy-for-your-church',
+      policyWorkshopPage,
+    );
+    const event = new EventPage(page);
+
+    await event.open('/events/workshop-writing-an-ai-policy-for-your-church');
+
+    await expect(event.panelTitle).toHaveText('This event is full');
+    await expect(event.panelStatus).toHaveText('2 people on the waitlist');
+    await expect(event.places).toHaveAttribute('aria-valuenow', '100');
+    await expect(event.placesText).toHaveText('40 registered · no places left');
+    await expect(event.panel).toContainText(
+      'If someone cancels more than 2 hours before the start, the first person waiting gets the place automatically and an email.',
+    );
+  });
+
+  // L2-052 AC1
+  test('an event with no capacity limit shows no places meter', async ({ page, api }) => {
+    api.respond(
+      'GET',
+      '/events/by-slug/live-qa-imago-dei-and-machine-personhood',
+      eventPage({ capacity: null }),
+    );
+    const event = new EventPage(page);
+
+    await event.open(path);
+
+    await expect(event.panelTitle).toHaveText('Sign in to register');
+    await expect(event.places).toHaveCount(0);
   });
 });
 

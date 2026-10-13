@@ -61,3 +61,18 @@ export const creativityEveningPage = eventPage({
   registeredCount: 87,
   capacity: 120,
 });
+
+/** The hybrid workshop that is full, with two people waiting. */
+export const policyWorkshopPage = eventPage({
+  id: 'e-policy-workshop',
+  slug: 'workshop-writing-an-ai-policy-for-your-church',
+  title: 'Workshop: Writing an AI Policy for Your Church',
+  attendance: 'hybrid',
+  startsAt: '2026-11-07T15:00:00Z',
+  endsAt: '2026-11-07T17:30:00Z',
+  venue: creativityEveningPage.venue,
+  agenda: [],
+  registeredCount: 40,
+  capacity: 40,
+  waitlistCount: 2,
+});

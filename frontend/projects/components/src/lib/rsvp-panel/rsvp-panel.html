@@ -1,0 +1,20 @@
+@if (headingLevel() === 3) {
+  <h3 class="rsvp__title" [id]="titleId()">{{ heading() }}</h3>
+} @else {
+  <h2 class="rsvp__title" [id]="titleId()">{{ heading() }}</h2>
+}
+<ng-content select="[slot=status]" />
+@if (text(); as text) {
+  <p class="rsvp__text">{{ text }}</p>
+}
+@if (places(); as places) {
+  <div class="rsvp__meter">
+    <ll-progress-bar [value]="percent()" [label]="places.label" />
+    <p>{{ places.text }}</p>
+  </div>
+}
+@if (note(); as note) {
+  <p class="rsvp__text">{{ note }}</p>
+}
+<div class="rsvp__actions"><ng-content /></div>
+<ng-content select="[slot=help]" />
