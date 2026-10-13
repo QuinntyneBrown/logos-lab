@@ -151,4 +151,62 @@ test.describe('Experts directory', () => {
     await expect(experts.search).toHaveValue('');
     await expect(experts.topic).toHaveValue('');
   });
+
+  // L2-127 AC3 · skeleton AC-1, person-list AC-9
+  test('while the experts load, the list is busy and announces it once', async ({ page, api }) => {
+    const release = api.hold('GET', '/experts', expertDirectory());
+    const experts = new ExpertsPage(page);
+
+    await experts.open();
+
+    await expect(experts.count).toHaveText('Loading experts…');
+    await expect(experts.loadingMessage).toHaveText('Loading experts…');
+    await expect(experts.skeletonRows).toHaveCount(6);
+
+    release();
+
+    await expect(experts.rows).toHaveCount(24);
+    await expect(experts.skeletonRows).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('a directory that fails to load keeps the filters and offers another try', async ({
+    page,
+    api,
+  }) => {
+    api.fail('GET', '/experts', 500);
+    const experts = new ExpertsPage(page);
+
+    await experts.open('/experts?topic=philosophy-of-mind');
+
+    await expect(experts.count).toHaveText('Experts unavailable');
+    await expect(experts.emptyTitle).toHaveText("We couldn't load the experts");
+    await expect(page).toHaveURL('/experts?topic=philosophy-of-mind');
+
+    api.respond('GET', '/experts', expertDirectory({ total: 2, pageCount: 1 }));
+    await experts.tryAgain.click();
+
+    await expect(experts.rows).toHaveCount(24);
+    await expect(experts.emptyTitle).toHaveCount(0);
+  });
+
+  // L2-022 · empty-state AC-1
+  test('with no experts yet, the page says so and points to the catalogue', async ({
+    page,
+    api,
+  }) => {
+    api.respond(
+      'GET',
+      '/experts',
+      expertDirectory({ experts: [], total: 0, totalExperts: 0, pageCount: 0, topics: [] }),
+    );
+    const experts = new ExpertsPage(page);
+
+    await experts.open();
+
+    await expect(experts.count).toHaveText('No experts yet');
+    await expect(experts.emptyTitle).toHaveText('Our first experts are finishing their profiles');
+    await expect(experts.emptyAction('Browse the catalogue')).toHaveAttribute('href', '/explore');
+    await expect(experts.rows).toHaveCount(0);
+  });
 });

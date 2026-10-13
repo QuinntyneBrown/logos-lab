@@ -46,6 +46,15 @@
       </ll-select>
     </div>
   </div>
+  @if (loading()) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.loading">Loading experts…</p>
+  } @else if (failed()) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.failed">Experts unavailable</p>
+  } @else if (nobodyYet()) {
+    <p llToolbarCount class="experts__count" i18n="@@experts.count.empty">
+      <strong>No experts</strong> yet
+    </p>
+  }
   @if (range(); as range) {
     @if (range.note && !range.paged) {
       <p llToolbarCount class="experts__count" i18n="@@experts.count.note">
@@ -81,17 +90,71 @@
       </button>
     </ll-empty-state>
   }
-  <ul llPersonList>
-    @for (row of rows(); track row.path) {
-      <li
-        llPerson
-        [name]="row.name"
-        [path]="row.path"
-        [photoUrl]="row.photoUrl"
-        [meta]="row.meta"
-      ></li>
-    }
-  </ul>
+  @if (failed()) {
+    <ll-empty-state
+      tone="error"
+      heading="We couldn't load the experts"
+      i18n-heading="@@experts.failed.title"
+      icon="attention"
+      [headingLevel]="2"
+    >
+      <ng-container i18n="@@experts.failed.text"
+        >This is on our side. Try again in a moment.</ng-container
+      >
+      <button
+        llButton
+        variant="primary"
+        type="button"
+        slot="actions"
+        (click)="retry()"
+        i18n="@@experts.failed.retry"
+      >
+        Try again
+      </button>
+    </ll-empty-state>
+    <p class="experts__help">
+      <ng-container i18n="@@experts.failed.help">Still not working? Write to</ng-container>
+      <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+    </p>
+  } @else if (nobodyYet()) {
+    <ll-empty-state
+      heading="Our first experts are finishing their profiles"
+      i18n-heading="@@experts.empty.title"
+      icon="search"
+      [headingLevel]="2"
+    >
+      <ng-container i18n="@@experts.empty.text"
+        >Profiles appear here as soon as they're complete. In the meantime, the catalogue shows
+        what's been published.</ng-container
+      >
+      <a
+        llButton
+        variant="primary"
+        slot="actions"
+        routerLink="/explore"
+        i18n="@@experts.empty.action"
+        >Browse the catalogue</a
+      >
+    </ll-empty-state>
+  }
+  @if (loading() || rows().length) {
+    <ul llPersonList [loadingLabel]="loading() ? loadingLabel : null">
+      @if (loading()) {
+        @for (n of placeholders; track n) {
+          <li llPerson loading></li>
+        }
+      }
+      @for (row of rows(); track row.path) {
+        <li
+          llPerson
+          [name]="row.name"
+          [path]="row.path"
+          [photoUrl]="row.photoUrl"
+          [meta]="row.meta"
+        ></li>
+      }
+    </ul>
+  }
   @if (pageCount() > 1) {
     <nav
       llPagination

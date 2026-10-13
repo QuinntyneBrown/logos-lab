@@ -1,7 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  LOCALE_ID,
+  signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
-import { EXPERTS_API, ExpertsQuery } from '@logos-lab/api';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EXPERTS_API, ExpertDirectory, ExpertsQuery } from '@logos-lab/api';
 import { FormError } from '@logos-lab/components';
 import {
   Button,
@@ -18,8 +26,9 @@ import {
   ToolbarCount,
   ToolbarTools,
 } from '@logos-lab/components';
-import { switchMap } from 'rxjs';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
+import { ExpertsState } from './experts-state';
 
 /** Experts on a directory page (the API's fixed page size). */
 const PAGE_SIZE = 24;
@@ -33,6 +42,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 @Component({
   selector: 'll-experts-page',
   imports: [
+    RouterLink,
     Button,
     EmptyState,
     FormField,
@@ -85,12 +95,46 @@ export class ExpertsPage {
     },
     { equal: (a, b) => a.q === b.q && a.topic === b.topic && a.page === b.page },
   );
-  private readonly directory = toSignal(
-    toObservable(this.query).pipe(switchMap((query) => this.api.listExperts(query))),
+  private readonly attempt = signal(0);
+  private readonly state = toSignal(
+    toObservable(computed(() => ({ query: this.query(), attempt: this.attempt() }))).pipe(
+      switchMap(({ query }) =>
+        this.api.listExperts(query).pipe(
+          map((directory): ExpertsState => ({ kind: 'loaded', directory })),
+          catchError(() => of<ExpertsState>({ kind: 'failed' })),
+          startWith<ExpertsState>({ kind: 'loading' }),
+        ),
+      ),
+    ),
+    { initialValue: { kind: 'loading' } as ExpertsState },
+  );
+  protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+  private readonly directory = computed(() => {
+    const state = this.state();
+    return state.kind === 'loaded' ? state.directory : null;
+  });
+
+  /** The last topic options and total seen, so the toolbar and header hold while a request is out. */
+  private readonly last = linkedSignal<ExpertsState, ExpertDirectory | null>({
+    source: this.state,
+    computation: (state, previous) =>
+      state.kind === 'loaded' ? state.directory : (previous?.value ?? null),
+  });
+  protected readonly placeholders = [0, 1, 2, 3, 4, 5];
+  protected readonly loadingLabel = $localize`:@@experts.loading:Loading experts…`;
+
+  /** True when nobody is listed at all, whatever the filters. */
+  protected readonly nobodyYet = computed(
+    () => this.directory()?.totalExperts === 0 && this.directory()?.total === 0,
   );
 
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
+  }
+
   protected readonly sub = computed(() => {
-    const total = this.directory()?.totalExperts;
+    const total = this.last()?.totalExperts;
     if (total === undefined) return '';
     const count = new Intl.NumberFormat(this.locale).format(total);
     return plural(this.locale, total, {
@@ -118,7 +162,7 @@ export class ExpertsPage {
     }),
   );
 
-  protected readonly topics = computed(() => this.directory()?.topics ?? []);
+  protected readonly topics = computed(() => this.last()?.topics ?? []);
   protected readonly topicName = computed(
     () => this.topics().find((topic) => topic.slug === this.query().topic)?.name ?? null,
   );
@@ -143,7 +187,7 @@ export class ExpertsPage {
   /** Nothing matched the search and topic that were asked for. */
   protected readonly noMatches = computed(() => {
     const directory = this.directory();
-    if (!directory || directory.total > 0) return null;
+    if (!directory || directory.total > 0 || directory.totalExperts === 0) return null;
     const q = this.query().q;
     const topic = this.topicName();
     const total = new Intl.NumberFormat(this.locale).format(directory.totalExperts);

@@ -17,6 +17,9 @@ export class ExpertsPage {
   readonly emptyTitle: Locator;
   readonly emptyState: Locator;
   readonly clearFilters: Locator;
+  readonly loadingMessage: Locator;
+  readonly skeletonRows: Locator;
+  readonly tryAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -35,6 +38,9 @@ export class ExpertsPage {
     this.emptyState = main.locator('.empty');
     this.emptyTitle = main.locator('.empty__title');
     this.clearFilters = this.emptyState.getByRole('button', { name: 'Clear filters' });
+    this.loadingMessage = main.locator('[aria-busy="true"] [role="status"]');
+    this.skeletonRows = main.locator('li.person[aria-hidden="true"]');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
   }
 
   async open(path = '/experts'): Promise<void> {
@@ -45,6 +51,11 @@ export class ExpertsPage {
   /** Picks a topic by its visible name: "Philosophy of mind". */
   async chooseTopic(name: string): Promise<void> {
     await this.topic.selectOption({ label: name });
+  }
+
+  /** A link among the empty state's actions, such as "Browse the catalogue". */
+  emptyAction(name: string): Locator {
+    return this.emptyState.getByRole('link', { name });
   }
 
   /** Types a name into the search field and submits it. */
