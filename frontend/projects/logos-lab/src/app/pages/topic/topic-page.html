@@ -1,5 +1,5 @@
-@if (topic(); as topic) {
-  <div class="wrap topic">
+<div class="wrap topic">
+  @if (topic(); as topic) {
     <nav
       llBreadcrumb
       label="Breadcrumb"
@@ -36,45 +36,122 @@
         </ul>
       </section>
     }
-    <section class="page-block" aria-labelledby="content-title">
+  } @else {
+    <ll-page-header
+      top="md"
+      heading="Loading topic…"
+      i18n-heading="@@topic.loading"
+      busy="all"
+      busyMessage="Loading topic…"
+      i18n-busyMessage="@@topic.loading"
+    />
+    <section class="page-block" aria-labelledby="experts-title">
       <div class="section__head topic__head">
-        <p class="eyebrow" i18n="@@topic.items.eyebrow">Newest first</p>
-        <h2 class="section__title" id="content-title" i18n="@@topic.items.title">
-          Published in this topic
+        <h2 class="section__title" id="experts-title" i18n="@@topic.experts.title">
+          Experts in this topic
         </h2>
       </div>
+      <ul llPersonList loadingLabel="Loading experts…" i18n-loadingLabel="@@topic.experts.loading">
+        @for (n of placeholderPeople; track n) {
+          <li llPerson loading></li>
+        }
+      </ul>
+    </section>
+  }
+  <section class="page-block" aria-labelledby="content-title">
+    <div class="section__head topic__head">
+      <p class="eyebrow" i18n="@@topic.items.eyebrow">Newest first</p>
+      <h2 class="section__title" id="content-title" i18n="@@topic.items.title">
+        Published in this topic
+      </h2>
+    </div>
+    @if (failedItems()) {
+      <ll-empty-state
+        tone="error"
+        heading="We couldn't load this topic's items"
+        i18n-heading="@@topic.failed.title"
+        icon="attention"
+        [headingLevel]="2"
+      >
+        <ng-container i18n="@@topic.failed.text"
+          >This is on our side. Try again in a moment, or browse the whole catalogue.</ng-container
+        >
+        <button
+          llButton
+          variant="primary"
+          type="button"
+          slot="actions"
+          (click)="retry()"
+          i18n="@@topic.failed.retry"
+        >
+          Try again
+        </button>
+      </ll-empty-state>
+      <p class="topic__help">
+        <ng-container i18n="@@topic.failed.help">Still not working? Write to</ng-container>
+        <a href="mailto:help@logoslab.ca">help&#64;logoslab.ca</a>.
+      </p>
+    } @else if (noItems()) {
+      <ll-empty-state
+        heading="Nothing published in this topic yet"
+        i18n-heading="@@topic.empty.title"
+        icon="search"
+        [headingLevel]="2"
+      >
+        {{ emptyText() }}
+        <a
+          llButton
+          variant="primary"
+          slot="actions"
+          routerLink="/explore"
+          i18n="@@topic.empty.action"
+          >Browse the catalogue</a
+        >
+      </ll-empty-state>
+    } @else {
       @if (range(); as range) {
         <p llToolbarCount class="topic__count" i18n="@@topic.count">
           Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
           <strong>{{ range.total }}</strong> {{ range.noun }}
         </p>
+      } @else {
+        <p llToolbarCount class="topic__count" i18n="@@topic.count.loading">Loading…</p>
       }
-      <div class="content-grid">
-        @for (card of cards(); track card.id) {
-          <ll-content-card
-            [type]="card.type"
-            [typeLabel]="card.typeLabel"
-            [title]="card.title"
-            [path]="card.path"
-            [author]="card.author"
-            [meta]="card.meta"
-            [duration]="card.duration"
-            [coverUrl]="card.coverUrl"
-          />
+      @if (loadingItems()) {
+        <div class="content-grid" aria-busy="true">
+          <p class="vh" role="status">{{ loadingItemsLabel() }}</p>
+          @for (n of placeholders; track n) {
+            <ll-skeleton-card />
+          }
+        </div>
+      } @else {
+        <div class="content-grid">
+          @for (card of cards(); track card.id) {
+            <ll-content-card
+              [type]="card.type"
+              [typeLabel]="card.typeLabel"
+              [title]="card.title"
+              [path]="card.path"
+              [author]="card.author"
+              [meta]="card.meta"
+              [duration]="card.duration"
+              [coverUrl]="card.coverUrl"
+            />
+          }
+        </div>
+        @if (pageCount() > 1) {
+          <nav
+            llPagination
+            [label]="pagerLabels().label"
+            [page]="page()"
+            [pageCount]="pageCount()"
+            [summary]="pagerSummary()"
+            [pageLabel]="pagerLabels().page"
+            [previousLabel]="pagerLabels().previous"
+            [nextLabel]="pagerLabels().next"
+          ></nav>
         }
-      </div>
-      @if (pageCount() > 1) {
-        <nav
-          llPagination
-          [label]="pagerLabels().label"
-          [page]="page()"
-          [pageCount]="pageCount()"
-          [summary]="pagerSummary()"
-          [pageLabel]="pagerLabels().page"
-          [previousLabel]="pagerLabels().previous"
-          [nextLabel]="pagerLabels().next"
-        ></nav>
       }
-    </section>
-  </div>
-}
+    }
+  </section>
+</div>

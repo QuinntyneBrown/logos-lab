@@ -15,6 +15,12 @@ export class TopicPage {
   readonly cards: Locator;
   readonly pager: Locator;
   readonly pagerText: Locator;
+  readonly loadingMessages: Locator;
+  readonly skeletonCards: Locator;
+  readonly skeletonPeople: Locator;
+  readonly emptyTitle: Locator;
+  readonly emptyState: Locator;
+  readonly tryAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -30,6 +36,12 @@ export class TopicPage {
     this.cards = main.locator('.content-card');
     this.pager = main.getByRole('navigation', { name: /^Pages of / });
     this.pagerText = this.pager.locator('.pager__text');
+    this.loadingMessages = main.locator('[aria-busy="true"] [role="status"], [role="status"].vh');
+    this.skeletonCards = main.locator('.skeleton-card');
+    this.skeletonPeople = main.locator('li.person[aria-hidden="true"]');
+    this.emptyState = main.locator('.empty');
+    this.emptyTitle = main.locator('.empty__title');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
   }
 
   async open(path: string): Promise<void> {

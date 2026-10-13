@@ -57,3 +57,14 @@ export function topicContent(overrides: Partial<Record<string, unknown>> = {}) {
     ...overrides,
   };
 }
+
+/** A topic nothing is published in yet: docs/mocks/pages/topic/empty. */
+export const liturgyAndWorship = {
+  slug: 'liturgy-and-worship',
+  name: 'Liturgy and worship',
+  description:
+    'Prayer, song and the shape of gathered worship when screens, streams and software are part of the room.',
+  itemCount: 0,
+  byLogosLab: false,
+  experts: [],
+};

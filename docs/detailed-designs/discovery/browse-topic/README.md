@@ -78,9 +78,10 @@ These settle what the design left open when `TopicPage` was built against the mo
   `/experts/{slug}` and "Church historian · 4 items here". A topic with no experts omits the section.
 - **Items.** The section "Published in this topic" (eyebrow "Newest first") shows the count line
   "Showing 1–24 of 41 items", the cards, and the pager named "Pages of Theology of technology".
-- **States.** While the topic loads the heading reads "Loading topic…" with skeleton lines. While its
-  items load the sub says "Loading items…", the experts and the cards show skeletons and the status
-  messages are "Loading experts…" and "Loading items in Theology of technology…". An empty topic
+- **States.** While the topic loads the heading reads "Loading topic…" with skeleton lines and the
+  experts show three skeleton rows ("Loading experts…"). While its items load the sub says "Loading
+  items…", the count line says "Loading…" and the cards show skeletons ("Loading items in Theology of
+  technology…"). An empty topic
   shows "Nothing published in this topic yet" with "Browse the catalogue". A failed items request
   keeps the header and says "We couldn't load this topic's items" with "Try again". An unknown slug
   shows the not-found page and the browser title "Page not found - Logos Lab". A failed topic request

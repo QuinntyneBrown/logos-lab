@@ -1,5 +1,5 @@
 import { catalogueItems } from '../data/catalogue';
-import { theologyOfTechnology, topicContent } from '../data/topics';
+import { liturgyAndWorship, theologyOfTechnology, topicContent } from '../data/topics';
 import { expect, test } from '../fixtures/test';
 import { TopicPage } from '../pages/topic.page';
 
@@ -62,5 +62,86 @@ test.describe('Topic page', () => {
     await expect(topic.pagerText).toHaveText('Page 2 of 2');
     await expect(topic.count).toHaveText('Showing 25–41 of 41 items');
     await expect(topic.cards).toHaveCount(17);
+  });
+
+  // L2-127 AC3 · skeleton AC-1, person-list AC-9
+  test('while the topic and its items load, each part is busy and announces it once', async ({
+    page,
+    api,
+  }) => {
+    const releaseTopic = api.hold('GET', '/topics/theology-of-technology', theologyOfTechnology);
+    const releaseContent = api.hold(
+      'GET',
+      '/topics/theology-of-technology/content',
+      topicContent(),
+    );
+    const topic = new TopicPage(page);
+
+    await topic.open('/topics/theology-of-technology');
+
+    await expect(topic.heading).toHaveText('Loading topic…');
+    await expect(topic.skeletonPeople).toHaveCount(3);
+
+    releaseTopic();
+
+    await expect(topic.heading).toHaveText('Theology of technology');
+    await expect(topic.sub).toHaveText('Loading items…');
+    await expect(topic.count).toHaveText('Loading…');
+    await expect(topic.skeletonCards).toHaveCount(6);
+    await expect(
+      topic.loadingMessages.filter({ hasText: 'Loading items in Theology of technology…' }),
+    ).toHaveCount(1);
+    await expect(topic.expertRows).toHaveCount(5);
+
+    releaseContent();
+
+    await expect(topic.cards).toHaveCount(24);
+    await expect(topic.skeletonCards).toHaveCount(0);
+  });
+
+  // L2-005 AC3 · empty-state AC-1
+  test('a topic with nothing published says so and points to the catalogue', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/topics/liturgy-and-worship', liturgyAndWorship);
+    api.respond(
+      'GET',
+      '/topics/liturgy-and-worship/content',
+      topicContent({ items: [], total: 0, pageCount: 0 }),
+    );
+    const topic = new TopicPage(page);
+
+    await topic.open('/topics/liturgy-and-worship');
+
+    await expect(topic.sub).toHaveText('No published items yet.');
+    await expect(topic.emptyTitle).toHaveText('Nothing published in this topic yet');
+    await expect(topic.emptyState).toContainText(
+      'Nothing has been published in Liturgy and worship yet.',
+    );
+    await expect(
+      topic.emptyState.getByRole('link', { name: 'Browse the catalogue' }),
+    ).toHaveAttribute('href', '/explore');
+    await expect(topic.experts).toHaveCount(0);
+    await expect(topic.pager).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('items that fail to load keep the header and offer another try', async ({ page, api }) => {
+    api.respond('GET', '/topics/theology-of-technology', theologyOfTechnology);
+    api.fail('GET', '/topics/theology-of-technology/content', 500);
+    const topic = new TopicPage(page);
+
+    await topic.open('/topics/theology-of-technology');
+
+    await expect(topic.heading).toHaveText('Theology of technology');
+    await expect(topic.expertRows).toHaveCount(5);
+    await expect(topic.emptyTitle).toHaveText("We couldn't load this topic's items");
+
+    api.respond('GET', '/topics/theology-of-technology/content', topicContent());
+    await topic.tryAgain.click();
+
+    await expect(topic.cards).toHaveCount(24);
+    await expect(topic.emptyTitle).toHaveCount(0);
   });
 });
