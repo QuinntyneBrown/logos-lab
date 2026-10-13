@@ -84,4 +84,23 @@ test.describe('Search results', () => {
       '/experts/abena-mensah',
     );
   });
+
+  // L2-127 AC3 · skeleton AC-1, page-header AC-4
+  test('while searching, the results are busy and announce it once', async ({ page, api }) => {
+    const release = api.hold('GET', '/search?q=personhood', personhoodResults());
+    const results = new SearchResultsPage(page);
+
+    await results.open('/search?q=personhood');
+
+    await expect(results.heading).toHaveText('Results for “personhood”');
+    await expect(results.sub).toHaveText('Searching…');
+    await expect(results.search).toHaveValue('personhood');
+    await expect(results.loadingMessage()).toHaveText('Searching for “personhood”…');
+    await expect(results.skeletonCards()).toHaveCount(4);
+
+    release();
+
+    await expect(results.tabs.first()).toHaveText('All 14');
+    await expect(results.skeletonCards()).toHaveCount(0);
+  });
 });

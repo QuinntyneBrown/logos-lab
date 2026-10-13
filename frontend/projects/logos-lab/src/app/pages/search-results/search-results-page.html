@@ -39,6 +39,15 @@
     </nav>
   }
 
+  @if (loading()) {
+    <div class="content-grid content-grid--rows search-results__loading" aria-busy="true">
+      <p class="vh" role="status">{{ loadingLabel() }}</p>
+      @for (n of placeholderCards; track n) {
+        <ll-skeleton-card />
+      }
+    </div>
+  }
+
   @for (group of groups(); track group.type) {
     <section class="page-block" [attr.aria-labelledby]="group.headingId">
       <div class="section__head search-results__head">

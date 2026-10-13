@@ -11,12 +11,14 @@ import {
   Person,
   PersonList,
   Search,
+  SkeletonCard,
   Tab,
   Tabs,
 } from '@logos-lab/components';
-import { map, switchMap } from 'rxjs';
+import { map, startWith, switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
 import { SearchNavigation } from '../../search-navigation';
+import { SearchResultsState } from './search-results-state';
 import { toSearchGroups, toSearchTabs } from './search-views';
 
 @Component({
@@ -31,6 +33,7 @@ import { toSearchGroups, toSearchTabs } from './search-views';
     Person,
     PersonList,
     Search,
+    SkeletonCard,
     Tab,
     Tabs,
   ],
@@ -46,15 +49,29 @@ export class SearchResultsPage {
 
   protected readonly query = computed(() => (this.params().get('q') ?? '').trim());
 
-  private readonly loaded = toSignal(
+  private readonly state = toSignal(
     toObservable(this.query).pipe(
       switchMap((query) =>
-        this.searchApi.search(query).pipe(map((results) => ({ query, results }))),
+        this.searchApi.search(query).pipe(
+          map((results): SearchResultsState => ({ kind: 'loaded', results })),
+          startWith<SearchResultsState>({ kind: 'loading' }),
+        ),
       ),
     ),
+    { initialValue: { kind: 'loading' } as SearchResultsState },
   );
 
-  private readonly results = computed(() => this.loaded()?.results ?? null);
+  protected readonly loading = computed(() => this.state().kind === 'loading');
+  private readonly results = computed(() => {
+    const state = this.state();
+    return state.kind === 'loaded' ? state.results : null;
+  });
+
+  /** Skeleton placeholders while searching. */
+  protected readonly placeholderCards = [0, 1, 2, 3];
+  protected readonly loadingLabel = computed(
+    () => $localize`:@@search.loading:Searching for “${this.query()}:query:”…`,
+  );
 
   protected readonly heading = computed(
     () =>
@@ -62,6 +79,7 @@ export class SearchResultsPage {
   );
 
   protected readonly sub = computed(() => {
+    if (this.loading()) return $localize`:@@search.sub.loading:Searching…`;
     const results = this.results();
     if (!results) return '';
     const format = new Intl.NumberFormat(this.locale);
