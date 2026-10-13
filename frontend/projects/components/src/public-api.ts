@@ -82,3 +82,6 @@ export * from './lib/chip/chip-size';
 export * from './lib/chip/chips';
 export * from './lib/search-filter-toolbar/search-filter-toolbar';
 export * from './lib/search-filter-toolbar/toolbar-count';
+export * from './lib/search-filter-toolbar/filter-group';
+export * from './lib/search-filter-toolbar/filter-option';
+export * from './lib/search-filter-toolbar/filter-panel';

@@ -1,0 +1,30 @@
+// The .filter rules of the search-filter-toolbar block of docs/design-system/assets/components.css;
+// the host is the .filter fieldset.
+:host {
+  display: block;
+  margin: 0;
+  padding: var(--space-6) 0;
+  border: 0;
+  border-top: var(--border-width-hairline) solid var(--color-border-default);
+  min-width: 0;
+}
+.filter__legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: var(--space-4);
+  font: var(--text-overline);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.filter__legend + * {
+  clear: both;
+}
+.filter__list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

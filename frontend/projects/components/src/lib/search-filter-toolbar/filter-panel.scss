@@ -1,0 +1,29 @@
+// The .filters rules of the search-filter-toolbar block of docs/design-system/assets/components.css.
+// The panel shows beside the results from LG; below LG the filters dialog replaces it (CRD D-6).
+:host {
+  display: none;
+}
+@media (min-width: 64rem) {
+  :host {
+    display: block;
+  }
+  .filters {
+    position: sticky;
+    top: var(--space-6);
+  }
+}
+.filters {
+  margin: 0;
+  border: 0;
+  color: var(--color-fg-default);
+}
+.filters__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.filters__title {
+  font: var(--text-h4);
+}

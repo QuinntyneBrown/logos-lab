@@ -82,3 +82,23 @@ export function cataloguePage(overrides: Partial<Record<string, unknown>> = {}) 
     ...overrides,
   };
 }
+
+/** The 24 courses of the catalogue, newest first. */
+export const catalogueCourses = [
+  content.imagoDei,
+  content.faithWork,
+  ...Array.from({ length: 22 }, (_, i) => ({
+    id: `c-more-${i + 1}`,
+    type: 'course',
+    title: `Faith and Technology, Unit ${i + 1}`,
+    slug: `faith-and-technology-unit-${i + 1}`,
+    author: people.abena,
+    lessonCount: 8 + i,
+    durationMinutes: 120 + i * 5,
+  })),
+];
+
+/** GET /api/v1/catalogue?type=course: docs/mocks/pages/explore/selected. */
+export function coursesPage() {
+  return cataloguePage({ items: catalogueCourses, total: 24, pageCount: 1 });
+}

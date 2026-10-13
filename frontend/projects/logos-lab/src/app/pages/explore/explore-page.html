@@ -7,25 +7,42 @@
     [sub]="sub()"
   />
   @if (range(); as range) {
-    <div llToolbar>
-      <p llToolbarCount i18n="@@explore.count">
-        Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
-        <strong>{{ range.total }}</strong> items, newest first
-      </p>
-    </div>
-    <div class="content-grid">
-      @for (card of cards(); track card.id) {
-        <ll-content-card
-          [type]="card.type"
-          [typeLabel]="card.typeLabel"
-          [title]="card.title"
-          [path]="card.path"
-          [author]="card.author"
-          [meta]="card.meta"
-          [duration]="card.duration"
-          [coverUrl]="card.coverUrl"
-        />
-      }
+    <div class="sidebar-layout">
+      <ll-filter-panel heading="Filters" i18n-heading="@@explore.filters.title">
+        <fieldset llFilterGroup label="Type" i18n-label="@@explore.filters.type" name="type">
+          @for (option of typeOptions(); track option.value) {
+            <li
+              llFilterOption
+              [label]="option.label"
+              [count]="option.count"
+              [checked]="option.checked"
+              (changed)="toggleType(option.value, $event)"
+            ></li>
+          }
+        </fieldset>
+      </ll-filter-panel>
+      <div>
+        <div llToolbar>
+          <p llToolbarCount i18n="@@explore.count">
+            Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
+            <strong>{{ range.total }}</strong> {{ noun() }}, newest first
+          </p>
+        </div>
+        <div class="content-grid">
+          @for (card of cards(); track card.id) {
+            <ll-content-card
+              [type]="card.type"
+              [typeLabel]="card.typeLabel"
+              [title]="card.title"
+              [path]="card.path"
+              [author]="card.author"
+              [meta]="card.meta"
+              [duration]="card.duration"
+              [coverUrl]="card.coverUrl"
+            />
+          }
+        </div>
+      </div>
     </div>
   }
 </div>

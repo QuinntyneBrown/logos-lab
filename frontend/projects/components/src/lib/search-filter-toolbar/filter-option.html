@@ -1,0 +1,14 @@
+<label llCheck>
+  <input
+    class="check__box"
+    type="checkbox"
+    [attr.name]="name"
+    [checked]="checked()"
+    [disabled]="disabled()"
+    (change)="changed.emit($any($event.target).checked)"
+  />
+  <span>{{ label() }}</span>
+  @if (countText(); as count) {
+    <span class="check__count">{{ count }}</span>
+  }
+</label>
