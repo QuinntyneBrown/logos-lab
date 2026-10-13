@@ -1,3 +1,4 @@
+import { catalogueItems } from '../data/catalogue';
 import { theologyOfTechnology, topicContent } from '../data/topics';
 import { expect, test } from '../fixtures/test';
 import { TopicPage } from '../pages/topic.page';
@@ -35,5 +36,31 @@ test.describe('Topic page', () => {
     await expect(topic.count).toHaveText('Showing 1–24 of 41 items');
     await expect(topic.cards).toHaveCount(24);
     await expect(topic.card(0).titleLink).toHaveText('Imago Dei in an Age of Machines');
+  });
+
+  // L2-005 AC1 · pagination AC-1
+  test('the items are paged, 24 to a page, and the pager is named for the topic', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/topics/theology-of-technology', theologyOfTechnology);
+    api.respond('GET', '/topics/theology-of-technology/content', topicContent());
+    api.respond(
+      'GET',
+      '/topics/theology-of-technology/content?page=2',
+      topicContent({ page: 2, items: catalogueItems.slice(0, 17) }),
+    );
+    const topic = new TopicPage(page);
+    await topic.open('/topics/theology-of-technology');
+
+    await expect(topic.pager).toHaveAttribute('aria-label', 'Pages of Theology of technology');
+    await expect(topic.pagerText).toHaveText('Page 1 of 2');
+
+    await topic.goToPage(2);
+
+    await expect(page).toHaveURL('/topics/theology-of-technology?page=2');
+    await expect(topic.pagerText).toHaveText('Page 2 of 2');
+    await expect(topic.count).toHaveText('Showing 25–41 of 41 items');
+    await expect(topic.cards).toHaveCount(17);
   });
 });

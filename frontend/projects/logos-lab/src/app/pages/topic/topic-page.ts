@@ -15,6 +15,7 @@ import {
   BreadcrumbItem,
   ContentCard,
   PageHeader,
+  Pagination,
   Person,
   PersonList,
   ToolbarCount,
@@ -29,7 +30,7 @@ const PAGE_SIZE = 24;
 
 @Component({
   selector: 'll-topic-page',
-  imports: [Breadcrumb, ContentCard, PageHeader, Person, PersonList, ToolbarCount],
+  imports: [Breadcrumb, ContentCard, PageHeader, Pagination, Person, PersonList, ToolbarCount],
   templateUrl: './topic-page.html',
   styleUrl: './topic-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,15 +38,39 @@ const PAGE_SIZE = 24;
 export class TopicPage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(TOPICS_API);
-  private readonly params = toSignal(inject(ActivatedRoute).paramMap, { requireSync: true });
+  private readonly route = inject(ActivatedRoute);
+  private readonly params = toSignal(this.route.paramMap, { requireSync: true });
+  private readonly query = toSignal(this.route.queryParamMap, { requireSync: true });
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
+  /** The page of items, from 1; anything that is not a positive whole number is the first. */
+  protected readonly page = computed(() => {
+    const page = Number(this.query().get('page'));
+    return Number.isInteger(page) && page >= 1 ? page : 1;
+  });
 
   protected readonly topic = toSignal(
     toObservable(this.slug).pipe(switchMap((slug) => this.api.getTopic(slug))),
   );
   private readonly content = toSignal(
-    toObservable(this.slug).pipe(switchMap((slug) => this.api.getTopicContent(slug, 1))),
+    toObservable(computed(() => ({ slug: this.slug(), page: this.page() }))).pipe(
+      switchMap(({ slug, page }) => this.api.getTopicContent(slug, page)),
+    ),
   );
+
+  protected readonly pageCount = computed(() => this.content()?.pageCount ?? 0);
+  protected readonly pagerLabels = computed(() => ({
+    label: $localize`:@@topic.pager.label:Pages of ${this.topic()?.name ?? ''}:name:`,
+    // The pager fills in the number, so the translation keeps the placeholder.
+    page: $localize`:@@topic.pager.page:Page ${'{page}'}:page:`,
+    previous: $localize`:@@topic.pager.previous:Previous page`,
+    next: $localize`:@@topic.pager.next:Next page`,
+  }));
+  protected readonly pagerSummary = computed(() => {
+    const format = new Intl.NumberFormat(this.locale);
+    const page = format.format(this.page());
+    const count = format.format(this.pageCount());
+    return $localize`:@@topic.pager.summary:Page ${page}:page: of ${count}:count:`;
+  });
 
   constructor() {
     const title = inject(Title);

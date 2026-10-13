@@ -13,6 +13,8 @@ export class TopicPage {
   readonly expertRows: Locator;
   readonly count: Locator;
   readonly cards: Locator;
+  readonly pager: Locator;
+  readonly pagerText: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -26,11 +28,17 @@ export class TopicPage {
     this.expertRows = this.experts.locator('li.person');
     this.count = main.locator('.toolbar__count');
     this.cards = main.locator('.content-card');
+    this.pager = main.getByRole('navigation', { name: /^Pages of / });
+    this.pagerText = this.pager.locator('.pager__text');
   }
 
   async open(path: string): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  async goToPage(number: number): Promise<void> {
+    await this.pager.getByRole('link', { name: `Page ${number}`, exact: true }).click();
   }
 
   card(index: number): ContentCard {

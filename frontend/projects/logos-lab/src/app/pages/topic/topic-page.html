@@ -63,6 +63,18 @@
           />
         }
       </div>
+      @if (pageCount() > 1) {
+        <nav
+          llPagination
+          [label]="pagerLabels().label"
+          [page]="page()"
+          [pageCount]="pageCount()"
+          [summary]="pagerSummary()"
+          [pageLabel]="pagerLabels().page"
+          [previousLabel]="pagerLabels().previous"
+          [nextLabel]="pagerLabels().next"
+        ></nav>
+      }
     </section>
   </div>
 }
