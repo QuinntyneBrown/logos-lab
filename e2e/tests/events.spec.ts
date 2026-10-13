@@ -1,4 +1,4 @@
-import { eventList, pastEvents, upcomingEvents } from '../data/events-listing';
+import { eventList, laterEvents, pastEvents, upcomingEvents } from '../data/events-listing';
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { EventsPage } from '../pages/events.page';
@@ -293,5 +293,78 @@ test.describe('Events listing', () => {
     await expect(page).toHaveURL('/events');
     await expect(events.pills).toHaveCount(0);
     await expect(events.count).toHaveText('9 upcoming events, soonest first');
+  });
+
+  // L2-051 AC1 · pagination AC-14, AC-17, AC-21, AC-22, AC-25
+  test('the list grows in place, a batch at a time, until every event is shown', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events', eventList({ total: 9, totalEvents: 9, nextCursor: 'c2' }));
+    const release = api.hold(
+      'GET',
+      '/events?cursor=c2',
+      eventList({ events: laterEvents(6), total: 9, totalEvents: 9, nextCursor: null }),
+    );
+    const events = new EventsPage(page);
+    await events.open();
+
+    await expect(events.count).toHaveText('9 upcoming events, soonest first');
+    await expect(events.rows).toHaveCount(3);
+    await expect(events.showMore).toHaveText('Show 6 more events');
+    await expect(events.moreText).toHaveText('3 of 9 upcoming events');
+    await expect(events.moreMeter).toHaveCSS('--ll-pager-progress', '33%');
+
+    await events.showMore.click();
+
+    await expect(events.showMore).toHaveAttribute('aria-busy', 'true');
+    await expect(events.showMore).toHaveAttribute('aria-disabled', 'true');
+    await expect(events.rows).toHaveCount(3);
+
+    release();
+
+    await expect(events.rows).toHaveCount(9);
+    await expect(events.showMore).toHaveCount(0);
+    await expect(events.moreText).toHaveText('All 9 upcoming events shown');
+    await expect(events.row(3).getByRole('link')).toBeFocused();
+    expect(api.queriesTo('GET', '/events')).toEqual(['', '?cursor=c2']);
+  });
+
+  // L2-051 AC1 · pagination AC-14
+  test('the button never promises more than a batch of 12', async ({ page, api }) => {
+    api.respond('GET', '/events', eventList({ total: 40, totalEvents: 40, nextCursor: 'c2' }));
+    const events = new EventsPage(page);
+
+    await events.open();
+
+    await expect(events.showMore).toHaveText('Show 12 more events');
+    await expect(events.moreText).toHaveText('3 of 40 upcoming events');
+  });
+
+  // L2-051 AC1, L2-141 · pagination AC-21
+  test('a batch that fails leaves the list as it was and can be tried again', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/events', eventList({ total: 9, totalEvents: 9, nextCursor: 'c2' }));
+    api.fail('GET', '/events?cursor=c2', 500);
+    const events = new EventsPage(page);
+    await events.open();
+
+    await events.showMore.click();
+
+    await expect(events.moreFailed).toBeVisible();
+    await expect(events.rows).toHaveCount(3);
+    await expect(events.showMore).toBeEnabled();
+
+    api.respond(
+      'GET',
+      '/events?cursor=c2',
+      eventList({ events: laterEvents(6), total: 9, totalEvents: 9, nextCursor: null }),
+    );
+    await events.showMore.click();
+
+    await expect(events.rows).toHaveCount(9);
+    await expect(events.moreFailed).toHaveCount(0);
   });
 });

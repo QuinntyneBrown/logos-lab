@@ -4,7 +4,7 @@
 |---|---|
 | Selector | `nav[llPagination]`, `div[llLoadMore]` |
 | Library path | `frontend/projects/components/src/lib/pagination/` |
-| Status | planned |
+| Status | built |
 | Traces to | L2-002, L2-005, L2-022, L2-051, L2-071, L2-089, L2-095, L2-099, L2-120, L2-126, L2-127, L2-129, L2-130, L2-132, L2-134, L2-150 |
 | Design system | [`pagination.html`](../../design-system/components/pagination.html) (the design-system "pager") |
 | Source mocks | [`pages/explore/default`](../../mocks/pages/explore/default.html), [`pages/explore/partial`](../../mocks/pages/explore/partial.html), [`pages/topic/default`](../../mocks/pages/topic/default.html), [`pages/topic/long`](../../mocks/pages/topic/long.html), [`pages/experts/default`](../../mocks/pages/experts/default.html), [`pages/experts/long`](../../mocks/pages/experts/long.html), [`pages/experts/invalid`](../../mocks/pages/experts/invalid.html), [`pages/admin-users/default`](../../mocks/pages/admin-users/default.html), [`pages/admin-users/long`](../../mocks/pages/admin-users/long.html), [`pages/admin-users/invalid`](../../mocks/pages/admin-users/invalid.html), [`pages/admin-audit/default`](../../mocks/pages/admin-audit/default.html), [`pages/admin-audit/long`](../../mocks/pages/admin-audit/long.html), [`pages/moderation-audit/long`](../../mocks/pages/moderation-audit/long.html), [`pages/events/default`](../../mocks/pages/events/default.html), [`pages/events/long`](../../mocks/pages/events/long.html), [`pages/saved/long`](../../mocks/pages/saved/long.html), [`pages/saved/limit`](../../mocks/pages/saved/limit.html) |

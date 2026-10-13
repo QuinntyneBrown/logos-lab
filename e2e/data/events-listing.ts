@@ -80,5 +80,30 @@ export const pastEvents = [
   },
 ];
 
+/** More online events after the first three, one a week, as a later batch holds them. */
+export function laterEvents(count: number) {
+  return Array.from({ length: count }, (_, i) => {
+    const week = i + 2;
+    const day = String(10 + week).padStart(2, '0');
+    return {
+      id: `e-later-${i + 1}`,
+      title: `Reading group, week ${week}`,
+      slug: `reading-group-week-${week}`,
+      startsAt: `2026-11-${day}T18:00:00Z`,
+      endsAt: `2026-11-${day}T19:00:00Z`,
+      attendance: 'online',
+      venue: null,
+      registeredCount: 12,
+      placesLeft: null,
+      full: false,
+      waitlistOpen: false,
+      hosts: ['Logos Lab'],
+      happeningNow: false,
+      hasRecording: false,
+      registration: null,
+    };
+  });
+}
+
 /** The home page's three events with their listing extras, to adjust one at a time. */
 export const upcomingEvents = upcoming;

@@ -16,6 +16,10 @@ export class EventsPage {
   readonly recording: Locator;
   readonly pills: Locator;
   readonly count: Locator;
+  readonly showMore: Locator;
+  readonly moreText: Locator;
+  readonly moreMeter: Locator;
+  readonly moreFailed: Locator;
   readonly emptyState: Locator;
   readonly emptyTitle: Locator;
   readonly clearFilters: Locator;
@@ -39,6 +43,10 @@ export class EventsPage {
     this.emptyState = main.locator('.empty');
     this.emptyTitle = main.locator('.empty__title');
     this.clearFilters = this.emptyState.getByRole('button', { name: 'Clear filters' });
+    this.showMore = main.getByRole('button', { name: /^Show \d+ more events$/ });
+    this.moreText = main.locator('.pager__text');
+    this.moreMeter = main.locator('.pager__meter');
+    this.moreFailed = main.getByRole('alert').filter({ hasText: "couldn't show more events" });
     this.count = main.locator('.toolbar__count');
     this.rows = main.locator('li.event');
   }

@@ -1,10 +1,15 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
+  Injector,
   linkedSignal,
   LOCALE_ID,
+  signal,
+  viewChildren,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,6 +17,7 @@ import {
   EVENTS_API,
   EventAttendance,
   EventList as EventListResponse,
+  EventListItem,
   EventListQuery,
   EventListTab,
 } from '@logos-lab/api';
@@ -26,6 +32,7 @@ import {
   EventRow,
   Icon,
   InlineStatus,
+  LoadMore,
   PageHeader,
   SearchFilterToolbar,
   Select,
@@ -36,8 +43,12 @@ import {
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toEventListingRow } from '../../content/event-listing-row';
 import { viewerZone } from '../../content/viewer-zone';
+import { plural } from '../../content/plural';
 import { EventsPill } from './events-pill';
 import { EventsState } from './events-state';
+
+/** Events a batch holds; the last one may hold fewer. */
+const BATCH_SIZE = 12;
 
 /** A topic or host slug: lower-case words joined by hyphens. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -56,6 +67,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     EventRow,
     Icon,
     InlineStatus,
+    LoadMore,
     PageHeader,
     SearchFilterToolbar,
     Select,
@@ -71,6 +83,7 @@ export class EventsPage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EVENTS_API);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
   private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
   /** Anything but `past` in the address is the upcoming events. */
@@ -141,15 +154,92 @@ export class EventsPage {
   protected readonly total = computed(() =>
     new Intl.NumberFormat(this.locale).format(this.list()?.total ?? 0),
   );
+  /** The events on show: the first batch, then each one the member asked for. */
+  private readonly batches = linkedSignal<
+    EventsState,
+    { events: readonly EventListItem[]; nextCursor: string | null }
+  >({
+    source: this.state,
+    computation: (state) =>
+      state.kind === 'loaded'
+        ? { events: state.list.events, nextCursor: state.list.nextCursor }
+        : { events: [], nextCursor: null },
+  });
+  protected readonly loadingMore = signal(false);
+  protected readonly moreFailed = signal(false);
+  private readonly rowElements = viewChildren(EventRow, { read: ElementRef });
+
   protected readonly rows = computed(() => {
     const past = this.listedTab() === 'past';
-    return (this.list()?.events ?? []).map((event) =>
+    return this.batches().events.map((event) =>
       toEventListingRow(event, this.locale, new Date(), past),
     );
   });
   protected readonly happeningNow = computed(
-    () => (this.list()?.events ?? []).filter((event) => event.happeningNow).length,
+    () => this.batches().events.filter((event) => event.happeningNow).length,
   );
+
+  /** The list needed batches: more are waiting, or the member has already asked for one. */
+  protected readonly batched = computed(
+    () =>
+      this.batches().nextCursor !== null ||
+      this.batches().events.length > (this.list()?.events.length ?? 0),
+  );
+  protected readonly moreLabel = computed(() => {
+    const list = this.list();
+    const next = Math.min(BATCH_SIZE, (list?.total ?? 0) - this.batches().events.length);
+    const count = new Intl.NumberFormat(this.locale).format(next);
+    return plural(this.locale, next, {
+      one: $localize`:@@events.more.one:Show ${count}:count: more event`,
+      other: $localize`:@@events.more.other:Show ${count}:count: more events`,
+    });
+  });
+  protected readonly moreSummary = computed(() => {
+    const total = this.list()?.total ?? 0;
+    const format = new Intl.NumberFormat(this.locale);
+    const shown = format.format(this.batches().events.length);
+    const all = format.format(total);
+    if (this.batches().events.length >= total) {
+      return this.listedTab() === 'past'
+        ? $localize`:@@events.shown.all.past:All ${all}:count: past events shown`
+        : $localize`:@@events.shown.all.upcoming:All ${all}:count: upcoming events shown`;
+    }
+    return this.listedTab() === 'past'
+      ? $localize`:@@events.shown.past:${shown}:shown: of ${all}:count: past events`
+      : $localize`:@@events.shown.upcoming:${shown}:shown: of ${all}:count: upcoming events`;
+  });
+
+  /** Asks for the next batch and appends it, then moves focus to its first event. */
+  protected loadMore(): void {
+    const cursor = this.batches().nextCursor;
+    const state = this.state();
+    if (!cursor || this.loadingMore()) return;
+    this.loadingMore.set(true);
+    this.moreFailed.set(false);
+    this.api.listEvents({ ...this.query(), cursor }).subscribe({
+      next: (batch) => {
+        // The member changed the filters while the batch was coming: it belongs to the old list.
+        if (this.state() !== state) {
+          this.loadingMore.set(false);
+          return;
+        }
+        const first = this.batches().events.length;
+        this.batches.update((b) => ({
+          events: [...b.events, ...batch.events],
+          nextCursor: batch.nextCursor,
+        }));
+        this.loadingMore.set(false);
+        afterNextRender(
+          () => this.rowElements()[first]?.nativeElement.querySelector('a')?.focus(),
+          { injector: this.injector },
+        );
+      },
+      error: () => {
+        this.loadingMore.set(false);
+        if (this.state() === state) this.moreFailed.set(true);
+      },
+    });
+  }
 
   private readonly recordingLabel = $localize`:@@events.recording:Recording available`;
   /** The filters that are on, in the order the toolbar offers them. */

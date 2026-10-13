@@ -177,4 +177,22 @@
       }
     </ul>
   }
+  @if (batched()) {
+    <div
+      llLoadMore
+      [shown]="rows().length"
+      [total]="list()?.total ?? 0"
+      [moreLabel]="moreLabel()"
+      [summary]="moreSummary()"
+      [busy]="loadingMore()"
+      (more)="loadMore()"
+    ></div>
+    @if (moreFailed()) {
+      <p llInlineStatus tone="danger" live="assertive" class="events__more-failed">
+        <ng-container i18n="@@events.more.failed"
+          >We couldn't show more events. Try again.</ng-container
+        >
+      </p>
+    }
+  }
 </div>
