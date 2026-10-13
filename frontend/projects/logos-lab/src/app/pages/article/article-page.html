@@ -40,11 +40,51 @@
             >
           }
         </p>
+        @if (session.member() !== undefined) {
+          <button
+            llButton
+            slot="actions"
+            variant="quiet"
+            [pressed]="saved()"
+            [busy]="saveBusy()"
+            (click)="toggleSave()"
+          >
+            <svg llIcon name="bookmark" size="sm"></svg>
+            @if (saved()) {
+              <ng-container i18n="@@article.save.on">Saved</ng-container>
+            } @else {
+              <ng-container i18n="@@article.save.off">Save</ng-container>
+            }
+          </button>
+        }
+        <p class="vh" slot="actions" role="status">{{ saveAnnouncement() }}</p>
         <a llButton slot="actions" variant="quiet" routerLink="." fragment="comments">
           <svg llIcon name="message" size="sm"></svg>
           {{ commentsLabel() }}
         </a>
       </ll-page-header>
+      @if (saveStatus().kind === 'failed') {
+        <ll-alert
+          class="article-page__save-alert"
+          tone="danger"
+          heading="We couldn't save this just now"
+          i18n-heading="@@article.save.failed.title"
+        >
+          <ng-container i18n="@@article.save.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      } @else if (saveStatus().kind === 'full') {
+        <ll-alert
+          class="article-page__save-alert"
+          tone="warning"
+          role="alert"
+          heading="Saved is full"
+          i18n-heading="@@article.save.full.title"
+        >
+          {{ saveFullBody() }}
+        </ll-alert>
+      }
       @if (article.correction; as correction) {
         <ll-alert class="article-page__correction" role="note" [heading]="correctionTitle()">
           {{ correction.note }}

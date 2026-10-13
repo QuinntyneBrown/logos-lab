@@ -37,6 +37,7 @@ import {
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
 import { FollowDialogs } from '../../dialogs/follow-dialogs';
+import { SignInPrompt } from '../../dialogs/sign-in-prompt';
 import { clockTime } from '../../content/clock-time';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
@@ -80,6 +81,7 @@ export class ExpertProfilePage {
   private readonly api = inject(EXPERTS_API);
   private readonly followsApi = inject(FOLLOWS_API);
   private readonly followDialogs = inject(FollowDialogs);
+  private readonly signInPrompt = inject(SignInPrompt);
   protected readonly session = inject(Session);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -139,7 +141,7 @@ export class ExpertProfilePage {
     if (!profile || this.followBusy()) return;
     if (this.session.member() === null) {
       const name = profile.name;
-      void this.followDialogs.askToSignIn({
+      void this.signInPrompt.ask({
         title: $localize`:@@expert.signIn.title:Sign in to follow ${name}:name:`,
         description: $localize`:@@expert.signIn.description:Following is free. Sign in, or create an account in about a minute, and we'll bring you straight back to ${name}:name:.`,
         returnUrl: this.router.url,

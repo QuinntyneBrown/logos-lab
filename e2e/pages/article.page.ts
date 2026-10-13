@@ -17,6 +17,10 @@ export class ArticlePage {
   readonly related: Locator;
   readonly commentsLink: Locator;
   readonly comments: Locator;
+  readonly save: Locator;
+  readonly saveStatus: Locator;
+  readonly saveAlert: Locator;
+  readonly saveAlertTitle: Locator;
   readonly relatedCards: Locator;
   readonly correctionTitle: Locator;
 
@@ -39,6 +43,11 @@ export class ArticlePage {
       .locator('.page-head__actions')
       .getByRole('link', { name: /comments?$/ });
     this.comments = main.getByRole('region', { name: /^Comments/ });
+    const actions = main.locator('.page-head__actions');
+    this.save = actions.getByRole('button', { name: /^Save(d)?$/ });
+    this.saveStatus = actions.getByRole('status');
+    this.saveAlert = main.locator('.article-page__save-alert');
+    this.saveAlertTitle = this.saveAlert.locator('.alert__title');
     this.relatedCards = this.related.locator('.content-card');
     this.correctionTitle = this.correction.locator('.alert__title');
   }

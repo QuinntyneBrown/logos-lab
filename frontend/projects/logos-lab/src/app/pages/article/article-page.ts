@@ -5,13 +5,14 @@ import {
   computed,
   effect,
   inject,
+  linkedSignal,
   LOCALE_ID,
   signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ARTICLES_API, RELATED_CONTENT_API } from '@logos-lab/api';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ARTICLES_API, RELATED_CONTENT_API, SAVED_ITEMS_API } from '@logos-lab/api';
 import {
   Alert,
   Avatar,
@@ -29,9 +30,11 @@ import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
 import { plural } from '../../content/plural';
 import { publicationDay } from '../../content/publication-day';
+import { SignInPrompt } from '../../dialogs/sign-in-prompt';
 import { Session } from '../../session';
 import { NotFoundPage } from '../not-found/not-found-page';
 import { ArticleState } from './article-state';
+import { SaveStatus } from './save-status';
 
 @Component({
   selector: 'll-article-page',
@@ -58,6 +61,9 @@ export class ArticlePage {
   private readonly api = inject(ARTICLES_API);
   private readonly relatedApi = inject(RELATED_CONTENT_API);
   protected readonly session = inject(Session);
+  private readonly savedApi = inject(SAVED_ITEMS_API);
+  private readonly signInPrompt = inject(SignInPrompt);
+  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly attempt = signal(0);
@@ -101,6 +107,66 @@ export class ArticlePage {
     ),
     { initialValue: [] },
   );
+
+  /** Whether the member saved the article: the page's answer until they press the button. */
+  protected readonly saved = linkedSignal(() => this.article()?.saved ?? false);
+  protected readonly saveBusy = signal(false);
+  protected readonly saveStatus = linkedSignal<SaveStatus>(() => {
+    this.article();
+    return { kind: 'none' };
+  });
+
+  /** The save button: a visitor is asked to sign in, a member saves or removes. */
+  protected toggleSave(): void {
+    const article = this.article();
+    const member = this.session.member();
+    if (!article || member === undefined || this.saveBusy()) return;
+    if (member === null) {
+      const returnUrl = this.router.url;
+      void this.signInPrompt.ask({
+        title: $localize`:@@article.signIn.title:Sign in to save this article`,
+        description: $localize`:@@article.signIn.description:Saving is free. Sign in, or create an account in about a minute, and we'll bring you straight back to this article.`,
+        returnUrl,
+      });
+      return;
+    }
+    const removing = this.saved();
+    this.saveBusy.set(true);
+    this.saveStatus.set({ kind: 'none' });
+    const request = removing
+      ? this.savedApi.unsave('article', article.id)
+      : this.savedApi.save('article', article.id);
+    request.subscribe({
+      next: () => {
+        this.saveBusy.set(false);
+        this.saved.set(!removing);
+        this.saveStatus.set({ kind: removing ? 'removed' : 'saved' });
+      },
+      error: (error: unknown) => {
+        this.saveBusy.set(false);
+        const full =
+          error instanceof HttpErrorResponse &&
+          error.status === 409 &&
+          (error.error as { code?: string } | null)?.code === 'saved-limit-reached';
+        this.saveStatus.set({ kind: full ? 'full' : 'failed' });
+      },
+    });
+  }
+
+  protected readonly saveAnnouncement = computed(() => {
+    switch (this.saveStatus().kind) {
+      case 'saved':
+        return $localize`:@@article.save.saved:Saved`;
+      case 'removed':
+        return $localize`:@@article.save.removed:Removed from Saved`;
+      default:
+        return '';
+    }
+  });
+  protected readonly saveFullBody = computed(() => {
+    const title = this.article()?.title ?? '';
+    return $localize`:@@article.save.full.body:You have 1,000 saved items, the most Saved can hold, so we couldn't save ${title}:title:. Remove something you've finished with, then save it again.`;
+  });
 
   constructor() {
     const title = inject(Title);

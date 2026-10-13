@@ -4,6 +4,7 @@ import { members } from '../data/members';
 import { people } from '../data/people';
 import { expect, test } from '../fixtures/test';
 import { ArticlePage } from '../pages/article.page';
+import { SignInRequiredDialog } from '../pages/sign-in-required.dialog';
 
 const path = '/articles/what-augustine-might-say-about-large-language-models';
 
@@ -212,5 +213,126 @@ test.describe('Article page', () => {
 
     await expect(article.comments).toBeVisible();
     await expect(article.comments).not.toContainText('Sign in to join the conversation');
+  });
+
+  // L2-045 AC4 · L2-071 AC1, AC2 · button AC-1
+  test('a member saves the article, and pressing again removes it', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.respond('PUT', `/me/saved-items/article/${augustineArticle.id}`, undefined, 204);
+    api.respond('DELETE', `/me/saved-items/article/${augustineArticle.id}`, undefined, 204);
+    const article = new ArticlePage(page);
+    await article.open(path);
+    await expect(article.save).toHaveText('Save');
+    await expect(article.save).toHaveAttribute('aria-pressed', 'false');
+
+    await article.save.click();
+
+    await expect(article.save).toHaveText('Saved');
+    await expect(article.save).toHaveAttribute('aria-pressed', 'true');
+    await expect(article.saveStatus).toHaveText('Saved');
+
+    await article.save.click();
+
+    await expect(article.save).toHaveText('Save');
+    await expect(article.save).toHaveAttribute('aria-pressed', 'false');
+    await expect(article.saveStatus).toHaveText('Removed from Saved');
+    expect(api.requestsTo('PUT', `/me/saved-items/article/${augustineArticle.id}`)).toHaveLength(1);
+    expect(api.requestsTo('DELETE', `/me/saved-items/article/${augustineArticle.id}`)).toHaveLength(
+      1,
+    );
+  });
+
+  // L2-071 AC1
+  test('an article the member already saved opens as Saved', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, { ...augustineArticle, saved: true });
+    const article = new ArticlePage(page);
+
+    await article.open(path);
+
+    await expect(article.save).toHaveText('Saved');
+    await expect(article.save).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  // L2-127 AC3 · button AC-4
+  test('while a save is sent the button is busy', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    const release = api.hold(
+      'PUT',
+      `/me/saved-items/article/${augustineArticle.id}`,
+      undefined,
+      204,
+    );
+    const article = new ArticlePage(page);
+    await article.open(path);
+
+    await article.save.click();
+
+    await expect(article.save).toHaveAttribute('aria-busy', 'true');
+
+    release();
+
+    await expect(article.save).toHaveText('Saved');
+    await expect(article.save).not.toHaveAttribute('aria-busy', 'true');
+  });
+
+  // L2-015 AC1 · dialog AC-1
+  test('a visitor who presses Save is asked to sign in and returned to the article', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    const article = new ArticlePage(page);
+    const prompt = new SignInRequiredDialog(page);
+    await article.open(path);
+
+    await article.save.click();
+
+    await expect(prompt.title).toHaveText('Sign in to save this article');
+    await expect(prompt.dialog).toHaveAccessibleDescription(/^Saving is free\./);
+    await expect(prompt.signIn).toHaveAttribute(
+      'href',
+      `/sign-in?returnUrl=${encodeURIComponent(path)}`,
+    );
+    expect(api.requestsTo('PUT', `/me/saved-items/article/${augustineArticle.id}`)).toHaveLength(0);
+
+    await prompt.close.click();
+
+    await expect(prompt.dialog).toHaveCount(0);
+    await expect(article.save).toBeFocused();
+  });
+
+  // L2-141 AC2 · alert AC-1
+  test('a save that fails says so and keeps the article unsaved', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.fail('PUT', `/me/saved-items/article/${augustineArticle.id}`, 500);
+    const article = new ArticlePage(page);
+    await article.open(path);
+
+    await article.save.click();
+
+    await expect(article.saveAlertTitle).toHaveText("We couldn't save this just now");
+    await expect(article.save).toHaveText('Save');
+    await expect(article.save).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  // L2-071 AC4 · alert AC-1
+  test('a member whose Saved is full is told so', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', `/articles/${augustineArticle.slug}`, augustineArticle);
+    api.fail('PUT', `/me/saved-items/article/${augustineArticle.id}`, 409, 'saved-limit-reached');
+    const article = new ArticlePage(page);
+    await article.open(path);
+
+    await article.save.click();
+
+    await expect(article.saveAlertTitle).toHaveText('Saved is full');
+    await expect(article.saveAlert).toContainText(
+      `You have 1,000 saved items, the most Saved can hold, so we couldn't save ${augustineArticle.title}.`,
+    );
+    await expect(article.save).toHaveText('Save');
   });
 });
