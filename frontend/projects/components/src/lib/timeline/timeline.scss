@@ -1,6 +1,7 @@
 // The timeline block of docs/design-system/assets/components.css. The entries are the page's own
 // `li` elements, so their rules reach through the host.
-:host {
+// `:host(.timeline)` outweighs the foundations' `ol[class]` reset, which would drop the padding.
+:host(.timeline) {
   position: relative;
   display: grid;
   gap: var(--space-5);

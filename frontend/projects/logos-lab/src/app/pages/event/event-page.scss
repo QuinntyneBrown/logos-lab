@@ -17,3 +17,13 @@
 .event {
   padding-bottom: var(--space-16);
 }
+.event .section__title {
+  margin-bottom: var(--space-4);
+}
+.event .section__title + .field__help,
+.event ol + .field__help {
+  margin-top: var(--space-3);
+}
+.event ul[llChips] {
+  margin-top: var(--space-6);
+}
