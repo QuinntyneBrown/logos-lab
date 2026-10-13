@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TOPICS_API } from '@logos-lab/api';
 import {
@@ -27,8 +28,10 @@ import {
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { catalogueNoun } from '../../content/catalogue-noun';
 import { toContentCard } from '../../content/content-card-view';
+import { NotFoundPage } from '../not-found/not-found-page';
 import { plural } from '../../content/plural';
 import { TopicContentState } from './topic-content-state';
+import { TopicState } from './topic-state';
 
 /** Items on a topic page (the API's fixed page size). */
 const PAGE_SIZE = 24;
@@ -47,6 +50,7 @@ const PAGE_SIZE = 24;
     PersonList,
     SkeletonCard,
     ToolbarCount,
+    NotFoundPage,
   ],
   templateUrl: './topic-page.html',
   styleUrl: './topic-page.scss',
@@ -67,9 +71,30 @@ export class TopicPage {
     return Number.isInteger(page) && page >= 1 ? page : 1;
   });
 
-  protected readonly topic = toSignal(
-    toObservable(this.slug).pipe(switchMap((slug) => this.api.getTopic(slug))),
+  private readonly topicState = toSignal(
+    toObservable(computed(() => ({ slug: this.slug(), attempt: this.attempt() }))).pipe(
+      switchMap(({ slug }) =>
+        this.api.getTopic(slug).pipe(
+          map((topic): TopicState => ({ kind: 'loaded', topic })),
+          catchError((error: unknown) =>
+            of<TopicState>({
+              kind:
+                error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'failed',
+            }),
+          ),
+          startWith<TopicState>({ kind: 'loading' }),
+        ),
+      ),
+    ),
+    { initialValue: { kind: 'loading' } as TopicState },
   );
+
+  protected readonly topic = computed(() => {
+    const state = this.topicState();
+    return state.kind === 'loaded' ? state.topic : null;
+  });
+  protected readonly notFound = computed(() => this.topicState().kind === 'not-found');
+  protected readonly topicFailed = computed(() => this.topicState().kind === 'failed');
 
   private readonly state = toSignal(
     toObservable(
@@ -101,6 +126,8 @@ export class TopicPage {
     effect(() => {
       const name = this.topic()?.name;
       if (name) title.setTitle($localize`:@@topic.pageTitle:${name}:name: - Logos Lab`);
+      else if (this.notFound())
+        title.setTitle($localize`:@@notFound.pageTitle:Page not found - Logos Lab`);
     });
   }
 

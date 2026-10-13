@@ -144,4 +144,35 @@ test.describe('Topic page', () => {
     await expect(topic.cards).toHaveCount(24);
     await expect(topic.emptyTitle).toHaveCount(0);
   });
+
+  // L2-005 AC2 · error-page AC-1
+  test('a topic that does not exist shows the not-found page', async ({ page, api }) => {
+    api.fail('GET', '/topics/no-such-topic', 404, 'not-found');
+    api.fail('GET', '/topics/no-such-topic/content', 404, 'not-found');
+    const topic = new TopicPage(page);
+
+    await topic.open('/topics/no-such-topic');
+
+    await expect(topic.heading).toHaveText("We can't find that page");
+    await expect(page).toHaveTitle('Page not found - Logos Lab');
+    await expect(topic.cards).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('a topic that fails to load offers another try', async ({ page, api }) => {
+    api.fail('GET', '/topics/theology-of-technology', 500);
+    api.respond('GET', '/topics/theology-of-technology/content', topicContent());
+    const topic = new TopicPage(page);
+
+    await topic.open('/topics/theology-of-technology');
+
+    await expect(topic.heading).toHaveText('Topic');
+    await expect(topic.emptyTitle).toHaveText("We couldn't load this topic");
+
+    api.respond('GET', '/topics/theology-of-technology', theologyOfTechnology);
+    await topic.tryAgain.click();
+
+    await expect(topic.heading).toHaveText('Theology of technology');
+    await expect(topic.cards).toHaveCount(24);
+  });
 });
