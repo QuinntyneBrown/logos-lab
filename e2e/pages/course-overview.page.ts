@@ -32,6 +32,12 @@ export class CourseOverviewPage {
   readonly archived: Locator;
   readonly archivedTitle: Locator;
   readonly cohort: Locator;
+  readonly save: Locator;
+  readonly saveStatus: Locator;
+  readonly saveAlertTitle: Locator;
+  readonly loadingMessages: Locator;
+  readonly emptyTitle: Locator;
+  readonly tryAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -67,6 +73,12 @@ export class CourseOverviewPage {
     this.archived = main.locator('.course__archived');
     this.archivedTitle = this.archived.locator('.alert__title');
     this.cohort = main.getByRole('region', { name: 'Your cohort' });
+    this.save = actions.getByRole('button', { name: /^Save(d)?$/ });
+    this.saveStatus = actions.getByRole('status');
+    this.saveAlertTitle = main.locator('.course__save-alert .alert__title');
+    this.loadingMessages = main.locator('[aria-busy="true"] [role="status"], [role="status"].vh');
+    this.emptyTitle = main.locator('.empty__title');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
   }
 
   /** The names of the sections with their counts: "1. Beginnings4 lessons". */

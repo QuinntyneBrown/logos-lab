@@ -515,4 +515,105 @@ test.describe('Course overview', () => {
 
     await expect(leave.alertTitle).toHaveText('You’ve left the course');
   });
+
+  // L2-071 AC1, AC2 · button AC-1
+  test('a member who is not enrolled can save the course and take it back', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    api.respond('PUT', '/me/saved-items/course/c-imago-dei', undefined, 204);
+    api.respond('DELETE', '/me/saved-items/course/c-imago-dei', undefined, 204);
+    const course = new CourseOverviewPage(page);
+    await course.open(path);
+    await expect(course.save).toHaveText('Save');
+    await expect(course.save).toHaveAttribute('aria-pressed', 'false');
+
+    await course.save.click();
+
+    await expect(course.save).toHaveText('Saved');
+    await expect(course.save).toHaveAttribute('aria-pressed', 'true');
+    await expect(course.saveStatus).toHaveText('Saved');
+
+    await course.save.click();
+
+    await expect(course.save).toHaveText('Save');
+    await expect(course.saveStatus).toHaveText('Removed from Saved');
+  });
+
+  // L2-071 AC1
+  test('a course the member already saved opens as Saved, and a visitor has no Save', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', {
+      ...imagoDeiCourse,
+      saved: true,
+    });
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    const course = new CourseOverviewPage(page);
+    await course.open(path);
+    await expect(course.save).toHaveText('Saved');
+    await expect(course.save).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  // L2-071 AC4 · alert AC-1
+  test('a save that fails, or that Saved cannot hold, says so', async ({ page, api }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines/me', notEnrolled);
+    api.fail('PUT', '/me/saved-items/course/c-imago-dei', 500);
+    const course = new CourseOverviewPage(page);
+    await course.open(path);
+
+    await course.save.click();
+
+    await expect(course.saveAlertTitle).toHaveText("We couldn't save this just now");
+    await expect(course.save).toHaveText('Save');
+
+    api.fail('PUT', '/me/saved-items/course/c-imago-dei', 409, 'saved-limit-reached');
+    await course.save.click();
+
+    await expect(course.saveAlertTitle).toHaveText('Saved is full');
+  });
+
+  // L2-127 AC3 · skeleton AC-1
+  test('while the course loads the page is busy and announces it once', async ({ page, api }) => {
+    const release = api.hold('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.heading).toHaveText('Course');
+    await expect(course.loadingMessages).toHaveText(['Loading the course…']);
+
+    release();
+
+    await expect(course.heading).toHaveText('Imago Dei in an Age of Machines');
+  });
+
+  // L2-141 AC2 · empty-state AC-2
+  test('a course that fails to load offers another try and the way to support', async ({
+    page,
+    api,
+  }) => {
+    api.fail('GET', '/courses/imago-dei-in-an-age-of-machines', 500);
+    const course = new CourseOverviewPage(page);
+
+    await course.open(path);
+
+    await expect(course.emptyTitle).toHaveText('We couldn’t load this course');
+    await expect(course.shell.main.getByRole('link', { name: 'Contact support' })).toHaveAttribute(
+      'href',
+      'mailto:help@logoslab.ca',
+    );
+
+    api.respond('GET', '/courses/imago-dei-in-an-age-of-machines', imagoDeiCourse);
+    await course.tryAgain.click();
+
+    await expect(course.heading).toHaveText('Imago Dei in an Age of Machines');
+  });
 });

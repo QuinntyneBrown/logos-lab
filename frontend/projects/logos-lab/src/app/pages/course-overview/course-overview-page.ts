@@ -12,7 +12,13 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { COURSES_API, CourseLevel, MyCourseState, RELATED_CONTENT_API } from '@logos-lab/api';
+import {
+  COURSES_API,
+  CourseLevel,
+  MyCourseState,
+  RELATED_CONTENT_API,
+  SAVED_ITEMS_API,
+} from '@logos-lab/api';
 import {
   Alert,
   Avatar,
@@ -26,12 +32,18 @@ import {
   CourseOutline,
   CourseOutlineSectionToggle,
   DescriptionList,
+  EmptyState,
   Hero,
+  Icon,
   List,
   ProgressBar,
+  Skeleton,
+  SkeletonCard,
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { readSaveFailure } from '../../content/read-save-failure';
+import { SaveStatus } from '../../content/save-status';
 import { approximateLength } from '../../content/approximate-length';
 import { CourseDialogs } from '../../dialogs/course-dialogs';
 import { VerifyEmailPrompt } from '../../dialogs/verify-email-prompt';
@@ -58,10 +70,14 @@ import { MyStateStatus } from './my-state-status';
     ContentCard,
     CourseOutline,
     DescriptionList,
+    EmptyState,
     Hero,
+    Icon,
     List,
     NotFoundPage,
     ProgressBar,
+    Skeleton,
+    SkeletonCard,
   ],
   templateUrl: './course-overview-page.html',
   styleUrl: './course-overview-page.scss',
@@ -76,6 +92,7 @@ export class CourseOverviewPage {
   private readonly router = inject(Router);
   private readonly verifyEmailPrompt = inject(VerifyEmailPrompt);
   private readonly courseDialogs = inject(CourseDialogs);
+  private readonly savedApi = inject(SAVED_ITEMS_API);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly attempt = signal(0);
   protected readonly slug = computed(() => this.params().get('slug') ?? '');
@@ -206,6 +223,54 @@ export class CourseOverviewPage {
       },
     });
   }
+
+  /** Whether the member saved the course: the page's answer until they press the button. */
+  protected readonly saved = linkedSignal(() => this.course()?.saved ?? false);
+  protected readonly saveBusy = signal(false);
+  protected readonly saveStatus = linkedSignal<SaveStatus>(() => {
+    this.course();
+    return { kind: 'none' };
+  });
+  protected readonly saveAnnouncement = computed(() => {
+    switch (this.saveStatus().kind) {
+      case 'saved':
+        return $localize`:@@course.save.saved:Saved`;
+      case 'removed':
+        return $localize`:@@course.save.removed:Removed from Saved`;
+      default:
+        return '';
+    }
+  });
+  protected readonly saveFullBody = computed(() => {
+    const status = this.saveStatus();
+    const title = status.kind === 'full' ? status.title : '';
+    return $localize`:@@course.save.full.body:You have 1,000 saved items, the most Saved can hold, so we couldn't save ${title}:title:. Remove something you've finished with, then save it again.`;
+  });
+
+  /** Saves the course, or takes it back out of Saved. */
+  protected toggleSave(): void {
+    const course = this.course();
+    if (!course || this.saveBusy()) return;
+    const removing = this.saved();
+    this.saveBusy.set(true);
+    this.saveStatus.set({ kind: 'none' });
+    const request = removing
+      ? this.savedApi.unsave('course', course.id)
+      : this.savedApi.save('course', course.id);
+    request.subscribe({
+      next: () => {
+        this.saveBusy.set(false);
+        this.saved.set(!removing);
+        this.saveStatus.set({ kind: removing ? 'removed' : 'saved' });
+      },
+      error: (error: unknown) => {
+        this.saveBusy.set(false);
+        this.saveStatus.set(readSaveFailure(error, course.title));
+      },
+    });
+  }
+
+  protected readonly placeholders = [0, 1, 2];
 
   /** Asks first, then leaves the course and shows what was kept. */
   protected leaveCourse(): void {

@@ -16,6 +16,14 @@
 .course__progress-help {
   margin-top: var(--space-2);
 }
+.course__failure {
+  padding-block: var(--space-12) var(--space-16);
+}
+.course__skeleton {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-10);
+}
 .course__body {
   padding-top: var(--space-4);
 }

@@ -108,6 +108,22 @@
                   <ng-container i18n="@@course.enrol">Enrol</ng-container>
                 }
               </button>
+              <button
+                llButton
+                variant="quiet"
+                type="button"
+                [pressed]="saved()"
+                [busy]="saveBusy()"
+                (click)="toggleSave()"
+              >
+                <svg llIcon name="bookmark" size="sm"></svg>
+                @if (saved()) {
+                  <ng-container i18n="@@course.save.on">Saved</ng-container>
+                } @else {
+                  <ng-container i18n="@@course.save.off">Save</ng-container>
+                }
+              </button>
+              <p class="vh" role="status">{{ saveAnnouncement() }}</p>
             }
           }
         </div>
@@ -119,6 +135,28 @@
           }
         </div>
       </ll-hero>
+      @if (saveStatus().kind === 'failed') {
+        <ll-alert
+          class="course__alert course__save-alert"
+          tone="danger"
+          heading="We couldn't save this just now"
+          i18n-heading="@@course.save.failed.title"
+        >
+          <ng-container i18n="@@course.save.failed.body"
+            >Check your connection and try again.</ng-container
+          >
+        </ll-alert>
+      } @else if (saveStatus().kind === 'full') {
+        <ll-alert
+          class="course__alert course__save-alert"
+          tone="warning"
+          role="alert"
+          heading="Saved is full"
+          i18n-heading="@@course.save.full.title"
+        >
+          {{ saveFullBody() }}
+        </ll-alert>
+      }
       @if (enrolFailed()) {
         <ll-alert
           class="course__alert"
@@ -260,6 +298,58 @@
           </div>
         </section>
       }
+    } @else if (failed()) {
+      <div class="course__failure">
+        <h1 class="vh" i18n="@@course.crumb.course">Course</h1>
+        <ll-empty-state
+          tone="error"
+          heading="We couldn’t load this course"
+          i18n-heading="@@course.failed.title"
+          icon="attention"
+          [headingLevel]="2"
+        >
+          <ng-container i18n="@@course.failed.text"
+            >Something went wrong on our side. Your enrolment and progress are safe. Try again in a
+            moment, or write to help&#64;logoslab.ca if it keeps happening.</ng-container
+          >
+          <button
+            llButton
+            variant="primary"
+            type="button"
+            slot="actions"
+            (click)="retry()"
+            i18n="@@course.failed.retry"
+          >
+            Try again
+          </button>
+          <a
+            llButton
+            variant="text"
+            slot="actions"
+            href="mailto:help@logoslab.ca"
+            i18n="@@course.failed.support"
+            >Contact support</a
+          >
+        </ll-empty-state>
+      </div>
+    } @else {
+      <div aria-busy="true">
+        <p class="vh" role="status" i18n="@@course.loading">Loading the course…</p>
+        <h1 class="vh" i18n="@@course.crumb.course">Course</h1>
+        <div class="course__skeleton" aria-hidden="true">
+          <span llSkeleton shape="text-short"></span>
+          <span llSkeleton shape="title"></span>
+          <span llSkeleton shape="title"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text"></span>
+          <span llSkeleton shape="text-short"></span>
+          <div class="content-grid">
+            @for (n of placeholders; track n) {
+              <ll-skeleton-card />
+            }
+          </div>
+        </div>
+      </div>
     }
   </div>
 }
