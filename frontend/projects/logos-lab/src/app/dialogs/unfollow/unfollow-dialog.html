@@ -1,0 +1,48 @@
+<ll-dialog
+  size="sm"
+  [heading]="title"
+  headingId="unfollow-title"
+  closeLabel="Close"
+  i18n-closeLabel="@@dialog.close"
+  [closeDisabled]="busy()"
+  (closeRequested)="keep()"
+>
+  @if (failed()) {
+    <ll-alert
+      tone="danger"
+      heading="We couldn't unfollow just now"
+      i18n-heading="@@unfollow.failed.title"
+    >
+      {{ failedBody }}
+    </ll-alert>
+  }
+  <p id="unfollow-desc">{{ description }}</p>
+  <button
+    llButton
+    slot="footer"
+    variant="quiet"
+    type="button"
+    cdkFocusInitial
+    [disabled]="busy()"
+    (click)="keep()"
+    i18n="@@unfollow.keep"
+  >
+    Keep following
+  </button>
+  <button
+    llButton
+    slot="footer"
+    variant="primary"
+    type="button"
+    [busy]="busy()"
+    (click)="unfollow()"
+  >
+    @if (busy()) {
+      <ng-container i18n="@@unfollow.busy">Unfollowing…</ng-container>
+    } @else if (failed()) {
+      <ng-container i18n="@@unfollow.retry">Try again</ng-container>
+    } @else {
+      <ng-container i18n="@@unfollow.confirm">Unfollow</ng-container>
+    }
+  </button>
+</ll-dialog>

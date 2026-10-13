@@ -2,6 +2,8 @@ import { abenaMensah, expertArticles, expertContent, meiLinChen } from '../data/
 import { members } from '../data/members';
 import { expect, test } from '../fixtures/test';
 import { ExpertProfilePage } from '../pages/expert-profile.page';
+import { SignInRequiredDialog } from '../pages/sign-in-required.dialog';
+import { UnfollowDialog } from '../pages/unfollow.dialog';
 
 test.describe('Expert profile', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
@@ -316,5 +318,154 @@ test.describe('Expert profile', () => {
     await expect(profile.follow).toBeFocused();
 
     expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(1);
+  });
+
+  // L2-015 AC1 · dialog AC-1
+  test('a visitor who presses Follow is asked to sign in and sent nothing', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/experts/abena-mensah', abenaMensah);
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    const profile = new ExpertProfilePage(page);
+    const prompt = new SignInRequiredDialog(page);
+    await profile.open('/experts/abena-mensah');
+
+    await profile.follow.click();
+
+    await expect(prompt.title).toHaveText('Sign in to follow Dr. Abena Mensah');
+    await expect(prompt.dialog).toHaveAccessibleDescription(/^Following is free\./);
+    await expect(prompt.signIn).toHaveAttribute(
+      'href',
+      '/sign-in?returnUrl=%2Fexperts%2Fabena-mensah',
+    );
+    await expect(prompt.createAccount).toHaveAttribute(
+      'href',
+      '/register?returnUrl=%2Fexperts%2Fabena-mensah',
+    );
+    expect(api.requestsTo('PUT', '/me/follows/experts/e-abena-mensah')).toHaveLength(0);
+
+    await prompt.close.click();
+
+    await expect(prompt.dialog).toHaveCount(0);
+    await expect(profile.follow).toBeFocused();
+    await expect(profile.follow).toHaveText('Follow');
+  });
+
+  // L2-024 AC3 · dialog AC-2
+  test('pressing Following asks first, and Keep following leaves the follow alone', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', { ...abenaMensah, following: true });
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    const profile = new ExpertProfilePage(page);
+    const unfollow = new UnfollowDialog(page);
+    await profile.open('/experts/abena-mensah');
+    await expect(profile.follow).toHaveText('Following');
+    await expect(profile.follow).toHaveAttribute('aria-pressed', 'true');
+
+    await profile.follow.click();
+
+    await expect(unfollow.title).toHaveText('Unfollow Dr. Abena Mensah?');
+    await expect(unfollow.dialog).toHaveAccessibleDescription(
+      "You'll stop getting notifications when Dr. Abena Mensah publishes or announces an event. You can follow again at any time.",
+    );
+    await expect(unfollow.keepFollowing).toBeFocused();
+
+    await unfollow.keepFollowing.click();
+
+    await expect(unfollow.dialog).toHaveCount(0);
+    await expect(profile.follow).toBeFocused();
+    await expect(profile.follow).toHaveText('Following');
+    expect(api.requestsTo('DELETE', '/me/follows/experts/e-abena-mensah')).toHaveLength(0);
+  });
+
+  // L2-024 AC3 · dialog AC-2
+  test('confirming Unfollow stops the follow and the count goes down by one', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', {
+      ...abenaMensah,
+      following: true,
+      followerCount: 1285,
+    });
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    api.respond('DELETE', '/me/follows/experts/e-abena-mensah', { followerCount: 1284 });
+    const profile = new ExpertProfilePage(page);
+    const unfollow = new UnfollowDialog(page);
+    await profile.open('/experts/abena-mensah');
+    await profile.follow.click();
+
+    await unfollow.unfollow.click();
+
+    await expect(unfollow.dialog).toHaveCount(0);
+    await expect(profile.follow).toHaveText('Follow');
+    await expect(profile.follow).toHaveAttribute('aria-pressed', 'false');
+    await expect(profile.follow).toBeFocused();
+    await expect(profile.facts.first()).toHaveText('1,284 followers');
+    await expect(profile.followStatus).toHaveText('Unfollowed. You can follow again at any time.');
+  });
+
+  // L2-127 AC3 · dialog AC-3
+  test('while Unfollow is sent the dialog is busy and cannot be dismissed', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', { ...abenaMensah, following: true });
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    const release = api.hold('DELETE', '/me/follows/experts/e-abena-mensah', {
+      followerCount: 1283,
+    });
+    const profile = new ExpertProfilePage(page);
+    const unfollow = new UnfollowDialog(page);
+    await profile.open('/experts/abena-mensah');
+    await profile.follow.click();
+
+    await unfollow.unfollow.click();
+
+    await expect(unfollow.unfollow).toHaveText('Unfollowing…');
+    await expect(unfollow.unfollow).toHaveAttribute('aria-busy', 'true');
+    await expect(unfollow.keepFollowing).toBeDisabled();
+    await expect(unfollow.close).toBeDisabled();
+    await page.keyboard.press('Escape');
+    await expect(unfollow.dialog).toBeVisible();
+
+    release();
+
+    await expect(unfollow.dialog).toHaveCount(0);
+  });
+
+  // L2-141 AC2 · dialog AC-4, alert AC-1
+  test('an unfollow that fails keeps the dialog open and offers another try', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/me', members.miriam);
+    api.respond('GET', '/experts/abena-mensah', { ...abenaMensah, following: true });
+    api.respond('GET', '/experts/abena-mensah/content?type=course', expertContent());
+    api.fail('DELETE', '/me/follows/experts/e-abena-mensah', 500);
+    const profile = new ExpertProfilePage(page);
+    const unfollow = new UnfollowDialog(page);
+    await profile.open('/experts/abena-mensah');
+    await profile.follow.click();
+
+    await unfollow.unfollow.click();
+
+    await expect(unfollow.alertTitle).toHaveText("We couldn't unfollow just now");
+    await expect(unfollow.alert).toContainText(
+      "You're still following Dr. Abena Mensah. Check your connection and try again.",
+    );
+    await expect(unfollow.tryAgain).toBeVisible();
+
+    api.respond('DELETE', '/me/follows/experts/e-abena-mensah', { followerCount: 1283 });
+    await unfollow.tryAgain.click();
+
+    await expect(unfollow.dialog).toHaveCount(0);
+    await expect(profile.follow).toHaveText('Follow');
   });
 });

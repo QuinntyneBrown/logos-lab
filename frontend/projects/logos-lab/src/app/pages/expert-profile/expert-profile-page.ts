@@ -36,6 +36,7 @@ import {
 } from '@logos-lab/components';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { toContentCard } from '../../content/content-card-view';
+import { FollowDialogs } from '../../dialogs/follow-dialogs';
 import { clockTime } from '../../content/clock-time';
 import { CONTENT_TYPES } from '../../content/content-types';
 import { plural } from '../../content/plural';
@@ -78,6 +79,7 @@ export class ExpertProfilePage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EXPERTS_API);
   private readonly followsApi = inject(FOLLOWS_API);
+  private readonly followDialogs = inject(FollowDialogs);
   protected readonly session = inject(Session);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -131,13 +133,36 @@ export class ExpertProfilePage {
     return $localize`:@@expert.follow.paused.body:You've followed and unfollowed ${name}:name: more than 10 times in a minute, so Follow is paused. You can try again at ${time}:time:.`;
   });
 
-  /** Follows the expert and shows the count the server answers with. */
-  protected follow(): void {
+  /** The follow button: a visitor is asked to sign in, a follower is asked to confirm, anyone else follows. */
+  protected press(): void {
     const profile = this.profile();
     if (!profile || this.followBusy()) return;
+    if (this.session.member() === null) {
+      const name = profile.name;
+      void this.followDialogs.askToSignIn({
+        title: $localize`:@@expert.signIn.title:Sign in to follow ${name}:name:`,
+        description: $localize`:@@expert.signIn.description:Following is free. Sign in, or create an account in about a minute, and we'll bring you straight back to ${name}:name:.`,
+        returnUrl: this.router.url,
+      });
+    } else if (this.following()) {
+      void this.followDialogs
+        .confirmUnfollow({ expertId: profile.id, expertName: profile.name })
+        .then((result) => {
+          if (!result) return;
+          this.following.set(false);
+          this.followerCount.set(result.followerCount);
+          this.followStatus.set({ kind: 'unfollowed' });
+        });
+    } else {
+      this.follow(profile.id);
+    }
+  }
+
+  /** Follows the expert and shows the count the server answers with. */
+  private follow(expertId: string): void {
     this.followBusy.set(true);
     this.followStatus.set({ kind: 'none' });
-    this.followsApi.followExpert(profile.id).subscribe({
+    this.followsApi.followExpert(expertId).subscribe({
       next: (result) => {
         this.followBusy.set(false);
         this.following.set(true);

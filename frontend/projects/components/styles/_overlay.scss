@@ -15,6 +15,32 @@
   height: 100dvh;
 }
 
+// The modal dialog (docs/specs/components/dialog.md): centred with room around it from 40rem, a
+// bottom sheet below. The panel is a flex column so a tall body scrolls inside the dialog.
+.ll-dialog-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100vw;
+  max-height: calc(100dvh - var(--space-4));
+  .cdk-dialog-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+@media (min-width: 40rem) {
+  .ll-dialog-panel {
+    padding: var(--space-6);
+    max-height: 100dvh;
+  }
+}
+@media (max-width: 39.99rem) {
+  .cdk-global-overlay-wrapper:has(> .ll-dialog-panel) {
+    align-items: flex-end !important; // the CDK sets align-items inline
+  }
+}
+
 .ll-drawer-panel--bottom {
   width: 100vw;
   max-height: 86vh;

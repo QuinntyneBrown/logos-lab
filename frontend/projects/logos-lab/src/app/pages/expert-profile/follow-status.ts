@@ -2,5 +2,6 @@
 export type FollowStatus =
   | { readonly kind: 'none' }
   | { readonly kind: 'followed' }
+  | { readonly kind: 'unfollowed' }
   | { readonly kind: 'failed' }
   | { readonly kind: 'paused'; readonly until: Date };
