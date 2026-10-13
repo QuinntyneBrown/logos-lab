@@ -1,0 +1,75 @@
+// The select block of docs/design-system/assets/components.css. An inline select never overflows its
+// row: the pill shrinks and the text ends in an ellipsis (select CRD D-2).
+:host {
+  display: contents;
+}
+.select {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  white-space: nowrap;
+  gap: var(--space-3);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
+.select__wrap {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+.select__control {
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-10) 0 var(--space-4);
+  border-radius: var(--radius-full);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  font: var(--text-label);
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.select__control:hover:not(:disabled) {
+  border-color: var(--color-fg-default);
+  background: var(--color-bg-subtle);
+}
+.select__control:active:not(:disabled) {
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 var(--border-width-hairline) var(--color-focus-ring);
+  background: var(--color-bg-surface);
+}
+.select__control[aria-invalid='true'],
+.select__control[aria-invalid='true']:hover:not(:disabled) {
+  border-color: var(--color-danger-solid);
+  background: var(--color-danger-bg);
+}
+.select__control:disabled {
+  color: var(--color-fg-disabled);
+  background: var(--color-bg-subtle);
+  cursor: not-allowed;
+}
+.select__control:has(option[value='']:checked) {
+  color: var(--color-fg-subtle);
+}
+.select__control.select--sm {
+  min-height: var(--control-height-sm);
+  font-size: var(--font-size-sm);
+}
+.select__control.select--lg {
+  min-height: var(--control-height-lg);
+}
+.select__chev {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  translate: 0 -50%;
+  pointer-events: none;
+  color: var(--color-fg-subtle);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .select__control {
+    transition: border-color var(--duration-base) var(--ease-standard);
+  }
+}

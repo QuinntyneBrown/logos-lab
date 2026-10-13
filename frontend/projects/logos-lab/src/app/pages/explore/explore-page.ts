@@ -12,7 +12,9 @@ import {
   FilterPanel,
   PageHeader,
   SearchFilterToolbar,
+  Select,
   ToolbarCount,
+  ToolbarTools,
 } from '@logos-lab/components';
 import { switchMap } from 'rxjs';
 import { catalogueNoun } from '../../content/catalogue-noun';
@@ -59,7 +61,9 @@ const NO_FILTERS: Pick<
     FilterPanel,
     PageHeader,
     SearchFilterToolbar,
+    Select,
     ToolbarCount,
+    ToolbarTools,
   ],
   templateUrl: './explore-page.html',
   styleUrl: './explore-page.scss',
@@ -200,6 +204,13 @@ export class ExplorePage {
       : noun;
   });
 
+  /** How the list is ordered, as the count line ends. */
+  protected readonly sortNote = computed(() =>
+    this.query().sort === 'popular'
+      ? $localize`:@@explore.sort.popular.note:most popular first`
+      : $localize`:@@explore.sort.newest.note:newest first`,
+  );
+
   protected readonly range = computed(() => {
     const page = this.catalogue();
     if (!page) return null;
@@ -216,6 +227,10 @@ export class ExplorePage {
     const query = this.query();
     const selected = (query[key] as readonly string[]).filter((entry) => entry !== value);
     this.apply({ ...query, [key]: checked ? [...selected, value] : selected });
+  }
+
+  protected setSort(value: string): void {
+    this.apply({ ...this.query(), sort: value === 'popular' ? 'popular' : 'newest' });
   }
 
   protected clearAll(): void {

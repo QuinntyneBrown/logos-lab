@@ -10,6 +10,7 @@ export class ExplorePage {
   readonly count: Locator;
   readonly cards: Locator;
   readonly filters: Locator;
+  readonly sort: Locator;
   readonly pills: Locator;
   readonly clearAllInPills: Locator;
   readonly clearAllInPanel: Locator;
@@ -23,6 +24,7 @@ export class ExplorePage {
     this.count = main.locator('.toolbar__count');
     this.cards = main.locator('.content-card');
     this.filters = main.getByRole('complementary', { name: 'Filters' });
+    this.sort = main.getByLabel('Sort by');
     const active = main.getByRole('list', { name: 'Active filters' });
     this.pills = active.locator('.pill');
     this.clearAllInPills = active.getByRole('button', { name: 'Clear all' });
@@ -32,6 +34,11 @@ export class ExplorePage {
   async open(path = '/explore'): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  /** Picks a sort by its visible name: "Most popular". */
+  async sortBy(name: string): Promise<void> {
+    await this.sort.selectOption({ label: name });
   }
 
   /** Removes an active filter by its pill text: "Type: Course". */

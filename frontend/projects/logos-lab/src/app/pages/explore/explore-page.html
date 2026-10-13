@@ -92,13 +92,28 @@
         <ng-template #countLine>
           <p llToolbarCount i18n="@@explore.count">
             Showing <strong>{{ range.from }}–{{ range.to }}</strong> of
-            <strong>{{ range.total }}</strong> {{ noun() }}, newest first
+            <strong>{{ range.total }}</strong> {{ noun() }}, {{ sortNote() }}
           </p>
+        </ng-template>
+        <ng-template #tools>
+          <div llToolbarTools>
+            <ll-select
+              label="Sort by"
+              i18n-label="@@explore.sort.label"
+              name="sort"
+              [value]="query().sort"
+              (valueChange)="setSort($event)"
+            >
+              <option value="newest" i18n="@@explore.sort.newest">Newest</option>
+              <option value="popular" i18n="@@explore.sort.popular">Most popular</option>
+            </ll-select>
+          </div>
         </ng-template>
         <div llToolbar [stacked]="pills().length > 0">
           @if (pills().length) {
             <div class="cluster cluster--between">
               <ng-container [ngTemplateOutlet]="countLine" />
+              <ng-container [ngTemplateOutlet]="tools" />
             </div>
             <ul
               llActiveFilters
@@ -119,6 +134,7 @@
             </ul>
           } @else {
             <ng-container [ngTemplateOutlet]="countLine" />
+            <ng-container [ngTemplateOutlet]="tools" />
           }
         </div>
         <div class="content-grid">

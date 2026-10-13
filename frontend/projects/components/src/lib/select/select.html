@@ -1,0 +1,30 @@
+<ng-template #controlTemplate>
+  <span class="select__wrap">
+    <select
+      #control
+      class="select__control"
+      [class.select--sm]="size() === 'sm'"
+      [class.select--lg]="size() === 'lg'"
+      [attr.id]="controlId()"
+      [attr.name]="name()"
+      [disabled]="disabled()"
+      [required]="required()"
+      [attr.aria-invalid]="invalid() || null"
+      [attr.aria-describedby]="describedBy()"
+      (change)="choose()"
+    >
+      <ng-content />
+    </select>
+    <svg llIcon name="chevron-down" size="sm" class="select__chev"></svg>
+  </span>
+</ng-template>
+@if (label(); as label) {
+  <!-- The label wraps the native select, which the shared template renders (select CRD D-3). -->
+  <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+  <label class="select">
+    <span>{{ label }}</span>
+    <ng-container [ngTemplateOutlet]="controlTemplate" />
+  </label>
+} @else {
+  <ng-container [ngTemplateOutlet]="controlTemplate" />
+}

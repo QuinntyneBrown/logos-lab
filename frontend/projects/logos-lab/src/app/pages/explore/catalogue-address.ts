@@ -15,7 +15,7 @@ export function readCatalogueQuery(params: ParamMap): CatalogueQuery {
     levels: CATALOGUE_LEVELS.filter((level) => params.getAll('level').includes(level)),
     contributors: slugs('contributor'),
     durations: CATALOGUE_DURATIONS.filter((value) => params.getAll('duration').includes(value)),
-    sort: 'newest',
+    sort: params.get('sort') === 'popular' ? 'popular' : 'newest',
     page: 1,
   };
 }
@@ -30,5 +30,6 @@ export function catalogueAddress(query: CatalogueQuery): Params {
   if (query.levels.length) params['level'] = canonical(query.levels, CATALOGUE_LEVELS);
   if (query.contributors.length) params['contributor'] = query.contributors;
   if (query.durations.length) params['duration'] = canonical(query.durations, CATALOGUE_DURATIONS);
+  if (query.sort !== 'newest') params['sort'] = query.sort;
   return params;
 }

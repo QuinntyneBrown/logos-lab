@@ -107,3 +107,8 @@ export function coursesPage() {
 export function coursesAndVideosPage() {
   return cataloguePage({ items: catalogueItems.slice(0, 6), total: 110, pageCount: 5 });
 }
+
+/** GET /api/v1/catalogue?sort=popular: the same items, most engaged with first. */
+export function popularPage() {
+  return cataloguePage({ items: [...catalogueItems].reverse() });
+}

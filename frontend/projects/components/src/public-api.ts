@@ -87,3 +87,6 @@ export * from './lib/search-filter-toolbar/filter-option';
 export * from './lib/search-filter-toolbar/filter-panel';
 export * from './lib/search-filter-toolbar/active-filter';
 export * from './lib/search-filter-toolbar/active-filters';
+export * from './lib/search-filter-toolbar/toolbar-tools';
+export * from './lib/select/select';
+export * from './lib/select/select-size';

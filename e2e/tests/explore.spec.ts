@@ -1,4 +1,4 @@
-import { cataloguePage, coursesAndVideosPage, coursesPage } from '../data/catalogue';
+import { cataloguePage, coursesAndVideosPage, coursesPage, popularPage } from '../data/catalogue';
 import { expect, test } from '../fixtures/test';
 import { ExplorePage } from '../pages/explore.page';
 
@@ -206,5 +206,51 @@ test.describe('Explore', () => {
     await expect(explore.pills).toHaveText(['Type: Course']);
     await expect(explore.checkedOptions('Level')).toHaveCount(0);
     expect(api.queriesTo('GET', '/catalogue')).toEqual(['?type=course']);
+  });
+
+  // L2-002 AC6 · select AC-1
+  test('sorting by most popular asks for it and says so', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    api.respond('GET', '/catalogue?sort=popular', popularPage());
+    const explore = new ExplorePage(page);
+    await explore.open();
+    await expect(explore.sort).toHaveValue('newest');
+
+    await explore.sortBy('Most popular');
+
+    await expect(page).toHaveURL('/explore?sort=popular');
+    await expect(explore.sort).toHaveValue('popular');
+    await expect(explore.count).toHaveText('Showing 1–24 of 212 items, most popular first');
+    await expect(explore.card(0).titleLink).toHaveText('Notes on Faith and Technology, Part 12');
+  });
+
+  // L2-002 AC3, AC6 · select AC-2
+  test('an address with a sort opens sorted, and an unknown sort is ignored', async ({
+    page,
+    api,
+  }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+
+    await explore.open('/explore?sort=popular');
+    await expect(explore.sort).toHaveValue('popular');
+    await expect(explore.count).toContainText('most popular first');
+
+    await explore.open('/explore?sort=random');
+    await expect(explore.sort).toHaveValue('newest');
+    await expect(explore.count).toContainText('newest first');
+    expect(api.queriesTo('GET', '/catalogue')).toEqual(['?sort=popular', '']);
+  });
+
+  // L2-002 AC2, AC6
+  test('sorting keeps the filters that are on', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    await explore.open('/explore?type=course');
+
+    await explore.sortBy('Most popular');
+
+    await expect(page).toHaveURL('/explore?type=course&sort=popular');
+    await expect(explore.pills).toHaveText(['Type: Course']);
   });
 });
