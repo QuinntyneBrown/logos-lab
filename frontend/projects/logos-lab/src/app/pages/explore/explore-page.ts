@@ -1,12 +1,23 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  LOCALE_ID,
+  signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CATALOGUE_API, CatalogueQuery } from '@logos-lab/api';
+import { CATALOGUE_API, CatalogueFacets, CatalogueQuery } from '@logos-lab/api';
 import {
   ActiveFilter,
   ActiveFilters,
+  Alert,
+  Button,
   ContentCard,
+  EmptyState,
   FilterGroup,
   FilterOption,
   FilterPanel,
@@ -14,10 +25,11 @@ import {
   Pagination,
   SearchFilterToolbar,
   Select,
+  SkeletonCard,
   ToolbarCount,
   ToolbarTools,
 } from '@logos-lab/components';
-import { switchMap } from 'rxjs';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { catalogueNoun } from '../../content/catalogue-noun';
 import {
   CATALOGUE_DURATIONS,
@@ -31,6 +43,7 @@ import { plural } from '../../content/plural';
 import { catalogueAddress, readCatalogueQuery } from './catalogue-address';
 import { ExploreOption } from './explore-option';
 import { ExplorePill } from './explore-pill';
+import { ExploreState } from './explore-state';
 import { FilterKey } from './filter-key';
 
 /** Items on a catalogue page (the API's fixed page size). */
@@ -56,7 +69,10 @@ const NO_FILTERS: Pick<
     NgTemplateOutlet,
     ActiveFilter,
     ActiveFilters,
+    Alert,
+    Button,
     ContentCard,
+    EmptyState,
     FilterGroup,
     FilterOption,
     FilterPanel,
@@ -64,6 +80,7 @@ const NO_FILTERS: Pick<
     Pagination,
     SearchFilterToolbar,
     Select,
+    SkeletonCard,
     ToolbarCount,
     ToolbarTools,
   ],
@@ -73,28 +90,57 @@ const NO_FILTERS: Pick<
 })
 export class ExplorePage {
   protected readonly optionLimit = OPTION_LIMIT;
+  /** Skeleton cards shown while the catalogue loads. */
+  protected readonly placeholders = [0, 1, 2, 3, 4, 5];
 
   private readonly locale = inject(LOCALE_ID);
   private readonly router = inject(Router);
   private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
+  private readonly attempt = signal(0);
 
   /** What the address asks for; it is the only state of the page. */
   protected readonly query = computed(() => readCatalogueQuery(this.params()));
   private readonly catalogueApi = inject(CATALOGUE_API);
-  private readonly catalogue = toSignal(
-    toObservable(this.query).pipe(switchMap((query) => this.catalogueApi.browse(query))),
+  private readonly state = toSignal(
+    toObservable(computed(() => ({ query: this.query(), attempt: this.attempt() }))).pipe(
+      switchMap(({ query }) =>
+        this.catalogueApi.browse(query).pipe(
+          map((page): ExploreState => ({ kind: 'loaded', page })),
+          catchError(() => of<ExploreState>({ kind: 'failed' })),
+          startWith<ExploreState>({ kind: 'loading' }),
+        ),
+      ),
+    ),
+    { initialValue: { kind: 'loading' } as ExploreState },
   );
+
+  protected readonly loading = computed(() => this.state().kind === 'loading');
+  protected readonly failed = computed(() => this.state().kind === 'failed');
+  private readonly catalogue = computed(() => {
+    const state = this.state();
+    return state.kind === 'loaded' ? state.page : null;
+  });
+  protected readonly loaded = computed(() => this.catalogue() !== null);
+  protected readonly degraded = computed(() => this.catalogue()?.searchDegraded ?? false);
+
+  /** The last option lists seen, so the panel keeps its options while a request is out. */
+  protected readonly facets = linkedSignal<ExploreState, CatalogueFacets | null>({
+    source: this.state,
+    computation: (state, previous) =>
+      state.kind === 'loaded' ? state.page.facets : (previous?.value ?? null),
+  });
 
   protected readonly cards = computed(
     () => this.catalogue()?.items.map((item) => toContentCard(item, this.locale)) ?? [],
   );
 
   private readonly experts = computed(
-    () =>
-      this.catalogue()?.facets.contributors.filter((entry) => entry.value !== 'logos-lab') ?? [],
+    () => this.facets()?.contributors.filter((entry) => entry.value !== 'logos-lab') ?? [],
   );
 
   protected readonly sub = computed(() => {
+    if (!this.facets())
+      return $localize`:@@explore.sub.unknown:Every published course, module, video, article, collection and event, from our experts and the Logos Lab editors.`;
     const experts = this.experts().length;
     const count = new Intl.NumberFormat(this.locale).format(experts);
     return plural(this.locale, experts, {
@@ -104,7 +150,7 @@ export class ExplorePage {
   });
 
   protected readonly typeOptions = computed<readonly ExploreOption[]>(() =>
-    (this.catalogue()?.facets.types ?? []).map((facet) => ({
+    (this.facets()?.types ?? []).map((facet) => ({
       value: facet.value,
       label: contentTypeLabel(facet.value),
       count: facet.count,
@@ -113,7 +159,7 @@ export class ExplorePage {
   );
 
   protected readonly topicOptions = computed<readonly ExploreOption[]>(() =>
-    (this.catalogue()?.facets.topics ?? []).map((facet) => ({
+    (this.facets()?.topics ?? []).map((facet) => ({
       value: facet.value,
       label: facet.label,
       count: facet.count,
@@ -131,7 +177,7 @@ export class ExplorePage {
   );
 
   protected readonly contributorOptions = computed<readonly ExploreOption[]>(() =>
-    (this.catalogue()?.facets.contributors ?? []).map((facet) => ({
+    (this.facets()?.contributors ?? []).map((facet) => ({
       value: facet.value,
       label: facet.label,
       count: null,
@@ -252,6 +298,11 @@ export class ExplorePage {
 
   protected clearAll(): void {
     this.apply({ ...this.query(), ...NO_FILTERS, page: 1 });
+  }
+
+  /** Asks again for the same address. */
+  protected retry(): void {
+    this.attempt.update((n) => n + 1);
   }
 
   private apply(query: CatalogueQuery): void {

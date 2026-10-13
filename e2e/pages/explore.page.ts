@@ -12,6 +12,13 @@ export class ExplorePage {
   readonly filters: Locator;
   readonly sort: Locator;
   readonly pager: Locator;
+  readonly loadingMessage: Locator;
+  readonly skeletonCards: Locator;
+  readonly emptyTitle: Locator;
+  readonly emptyState: Locator;
+  readonly tryAgain: Locator;
+  readonly warning: Locator;
+  readonly checkAgain: Locator;
   readonly pagerText: Locator;
   readonly pagerLinks: Locator;
   readonly pills: Locator;
@@ -29,6 +36,13 @@ export class ExplorePage {
     this.filters = main.getByRole('complementary', { name: 'Filters' });
     this.sort = main.getByLabel('Sort by');
     this.pager = main.getByRole('navigation', { name: 'Pages of the catalogue' });
+    this.loadingMessage = main.locator('[aria-busy="true"] [role="status"]');
+    this.skeletonCards = main.locator('.skeleton-card');
+    this.emptyState = main.locator('.empty');
+    this.emptyTitle = main.locator('.empty__title');
+    this.tryAgain = main.getByRole('button', { name: 'Try again' });
+    this.warning = main.locator('.alert--warning');
+    this.checkAgain = main.getByRole('button', { name: 'Check again' });
     this.pagerText = this.pager.locator('.pager__text');
     this.pagerLinks = this.pager.getByRole('link');
     const active = main.getByRole('list', { name: 'Active filters' });

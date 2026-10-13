@@ -1,3 +1,11 @@
 .explore {
   padding-bottom: var(--space-16);
 }
+.explore__notice {
+  margin-bottom: var(--space-6);
+}
+.explore__help {
+  margin-top: var(--space-4);
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}

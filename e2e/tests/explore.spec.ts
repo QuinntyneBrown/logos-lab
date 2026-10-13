@@ -310,4 +310,67 @@ test.describe('Explore', () => {
     await expect(explore.pagerText).toHaveText('Page 1 of 9');
     expect(api.queriesTo('GET', '/catalogue')).toEqual(['', '']);
   });
+
+  // L2-127 AC3 · skeleton AC-1, search-filter-toolbar AC-26
+  test('while the catalogue loads, the page is busy and announces it once', async ({
+    page,
+    api,
+  }) => {
+    const release = api.hold('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+
+    await explore.open();
+
+    await expect(explore.count).toHaveText('Loading the catalogue…');
+    await expect(explore.sort).toBeDisabled();
+    await expect(explore.loadingMessage).toHaveText('Loading the catalogue…');
+    await expect(explore.skeletonCards).toHaveCount(6);
+    await expect(explore.pager).toHaveCount(0);
+
+    release();
+
+    await expect(explore.cards).toHaveCount(24);
+    await expect(explore.skeletonCards).toHaveCount(0);
+    await expect(explore.sort).toBeEnabled();
+  });
+
+  // L2-141 AC2 · empty-state AC-2, search-filter-toolbar AC-27
+  test('a catalogue that fails keeps the address and offers another try', async ({ page, api }) => {
+    api.fail('GET', '/catalogue', 500);
+    const explore = new ExplorePage(page);
+
+    await explore.open('/explore?type=course');
+
+    await expect(explore.count).toHaveText('Results unavailable');
+    await expect(explore.sort).toBeDisabled();
+    await expect(explore.emptyTitle).toHaveText("We couldn't load the catalogue");
+    await expect(explore.emptyState).toContainText('your filters are kept');
+    await expect(page).toHaveURL('/explore?type=course');
+
+    api.respond('GET', '/catalogue', coursesPage());
+    await explore.tryAgain.click();
+
+    await expect(explore.cards).toHaveCount(24);
+    await expect(explore.emptyTitle).toHaveCount(0);
+    await expect(explore.pills).toHaveText(['Type: Course']);
+  });
+
+  // L2-141 AC3 · alert AC-1
+  test('when keyword search is limited, browsing still shows everything', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage({ searchDegraded: true }));
+    const explore = new ExplorePage(page);
+
+    await explore.open();
+
+    await expect(explore.warning).toContainText('Search is limited for now');
+    await expect(explore.warning).toContainText(
+      'Keyword search is having trouble, so results may be incomplete. Browsing and filters here still show everything published.',
+    );
+    await expect(explore.cards).toHaveCount(24);
+
+    api.respond('GET', '/catalogue', cataloguePage());
+    await explore.checkAgain.click();
+
+    await expect(explore.warning).toHaveCount(0);
+  });
 });
