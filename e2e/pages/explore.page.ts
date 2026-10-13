@@ -49,13 +49,23 @@ export class ExplorePage {
     return this.group(group).getByRole('checkbox', { name: new RegExp(`^${label}\\b`) });
   }
 
+  /** The options of a group that are on. */
+  checkedOptions(group: string): Locator {
+    return this.group(group).getByRole('checkbox', { checked: true });
+  }
+
+  /** The "Show all 12 topics" button of the panel. */
+  showAll(name: string): Locator {
+    return this.filters.getByRole('button', { name });
+  }
+
   async choose(group: string, label: string): Promise<void> {
     await this.option(group, label).check();
   }
 
   /** The visible names of a group's options, with their counts: "Course 24". */
   optionNames(group: string): Locator {
-    return this.group(group).locator('label');
+    return this.group(group).locator('label').filter({ visible: true });
   }
 
   card(index: number): ContentCard {

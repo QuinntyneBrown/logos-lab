@@ -1,8 +1,9 @@
 <label llCheck>
   <input
+    #box
     class="check__box"
     type="checkbox"
-    [attr.name]="name"
+    [attr.name]="name()"
     [checked]="checked()"
     [disabled]="disabled()"
     (change)="changed.emit($any($event.target).checked)"

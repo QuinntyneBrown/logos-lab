@@ -108,4 +108,103 @@ test.describe('Explore', () => {
     await expect(page).toHaveURL('/explore');
     await expect(explore.pills).toHaveCount(0);
   });
+
+  // L2-002 AC7 · search-filter-toolbar AC-17, AC-21
+  test('the panel also offers topic, level, contributor and length', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+
+    await explore.open();
+
+    await expect(explore.optionNames('Topic')).toHaveText(
+      [
+        'Theology of technology 41',
+        'AI ethics 37',
+        'Church and ministry 33',
+        'The image of God and personhood 28',
+        'Formation and education 22',
+        'Work and vocation 19',
+      ],
+      { useInnerText: true },
+    );
+    await expect(explore.optionNames('Level')).toHaveText(
+      ['Introductory', 'Intermediate', 'Advanced'],
+      { useInnerText: true },
+    );
+    await expect(explore.optionNames('Contributor')).toHaveCount(6);
+    await expect(explore.optionNames('Contributor').first()).toHaveText('Logos Lab');
+    await expect(explore.optionNames('Length')).toHaveText(
+      ['Under 15 min', '15 to 60 min', 'Over 60 min'],
+      { useInnerText: true },
+    );
+
+    await explore.showAll('Show all 12 topics').click();
+
+    await expect(explore.optionNames('Topic')).toHaveCount(12);
+    await expect(explore.showAll('Show all 12 topics')).toHaveCount(0);
+    await expect(explore.showAll('Show all 38 experts')).toBeVisible();
+  });
+
+  // L2-002 AC2, AC7 · search-filter-toolbar AC-12, AC-16
+  test('filters from every group combine in the address', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+    await explore.open();
+
+    await explore.choose('Type', 'Video');
+    await explore.choose('Topic', 'AI ethics');
+
+    await expect(page).toHaveURL('/explore?type=video&topic=ai-ethics');
+    await expect(explore.pills).toHaveText(['Type: Video', 'Topic: AI ethics']);
+
+    await explore.choose('Level', 'Intermediate');
+    await explore.choose('Contributor', 'Logos Lab');
+    await explore.choose('Length', 'Over 60 min');
+
+    await expect(page).toHaveURL(
+      '/explore?type=video&topic=ai-ethics&level=intermediate&contributor=logos-lab&duration=over-60',
+    );
+    await expect(explore.pills).toHaveText([
+      'Type: Video',
+      'Topic: AI ethics',
+      'Level: Intermediate',
+      'Contributor: Logos Lab',
+      'Length: Over 60 min',
+    ]);
+    await expect(explore.count).toHaveText(
+      'Showing 1–24 of 212 videos that match all 5 filters, newest first',
+    );
+  });
+
+  // L2-002 AC3 · search-filter-toolbar AC-12
+  test('an address with filters opens with them applied', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+
+    await explore.open(
+      '/explore?type=video&topic=ai-ethics&level=intermediate&contributor=thomas-hale&duration=over-60',
+    );
+
+    await expect(explore.option('Type', 'Video')).toBeChecked();
+    await expect(explore.option('Topic', 'AI ethics')).toBeChecked();
+    await expect(explore.option('Level', 'Intermediate')).toBeChecked();
+    await expect(explore.option('Contributor', 'Rev. Dr. Thomas Hale')).toBeChecked();
+    await expect(explore.option('Length', 'Over 60 min')).toBeChecked();
+    await expect(explore.pills).toHaveCount(5);
+    expect(api.queriesTo('GET', '/catalogue')).toEqual([
+      '?type=video&topic=ai-ethics&level=intermediate&contributor=thomas-hale&duration=over-60',
+    ]);
+  });
+
+  // L2-002 AC4 · search-filter-toolbar AC-13
+  test('an unknown filter value is ignored and the rest still apply', async ({ page, api }) => {
+    api.respond('GET', '/catalogue', cataloguePage());
+    const explore = new ExplorePage(page);
+
+    await explore.open('/explore?type=podcast&type=course&level=expert&duration=forever');
+
+    await expect(explore.pills).toHaveText(['Type: Course']);
+    await expect(explore.checkedOptions('Level')).toHaveCount(0);
+    expect(api.queriesTo('GET', '/catalogue')).toEqual(['?type=course']);
+  });
 });

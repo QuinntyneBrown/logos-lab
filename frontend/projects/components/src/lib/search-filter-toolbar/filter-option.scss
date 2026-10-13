@@ -2,3 +2,7 @@
   display: block;
   list-style: none;
 }
+// An option behind "Show all" stays out of the layout and the accessibility tree.
+:host([hidden]) {
+  display: none;
+}
