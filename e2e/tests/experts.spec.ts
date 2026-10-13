@@ -1,4 +1,4 @@
-import { expertDirectory } from '../data/experts-directory';
+import { expertDirectory, expertPage } from '../data/experts-directory';
 import { expect, test } from '../fixtures/test';
 import { ExpertsPage } from '../pages/experts.page';
 
@@ -29,5 +29,26 @@ test.describe('Experts directory', () => {
     );
     await expect(experts.row(0)).toContainText('8 published items');
     await expect(experts.row(0).getByRole('link')).toHaveAttribute('href', '/experts/lucia-ortega');
+  });
+
+  // L2-022 AC1 · pagination AC-1
+  test('the directory is paged, 24 to a page', async ({ page, api }) => {
+    api.respond('GET', '/experts', expertDirectory());
+    api.respond(
+      'GET',
+      '/experts?page=2',
+      expertDirectory({ page: 2, experts: expertPage.slice(0, 14) }),
+    );
+    const experts = new ExpertsPage(page);
+    await experts.open();
+
+    await expect(experts.pagerText).toHaveText('Page 1 of 2');
+
+    await experts.goToPage(2);
+
+    await expect(page).toHaveURL('/experts?page=2');
+    await expect(experts.pagerText).toHaveText('Page 2 of 2');
+    await expect(experts.count).toHaveText('Showing 25–38 of 38 experts');
+    await expect(experts.rows).toHaveCount(14);
   });
 });

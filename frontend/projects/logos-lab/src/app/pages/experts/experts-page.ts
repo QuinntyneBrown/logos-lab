@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { EXPERTS_API, ExpertsQuery } from '@logos-lab/api';
-import { PageHeader, Person, PersonList, ToolbarCount } from '@logos-lab/components';
+import { PageHeader, Pagination, Person, PersonList, ToolbarCount } from '@logos-lab/components';
 import { switchMap } from 'rxjs';
 import { plural } from '../../content/plural';
 
@@ -10,7 +11,7 @@ const PAGE_SIZE = 24;
 
 @Component({
   selector: 'll-experts-page',
-  imports: [PageHeader, Person, PersonList, ToolbarCount],
+  imports: [PageHeader, Pagination, Person, PersonList, ToolbarCount],
   templateUrl: './experts-page.html',
   styleUrl: './experts-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,9 +19,13 @@ const PAGE_SIZE = 24;
 export class ExpertsPage {
   private readonly locale = inject(LOCALE_ID);
   private readonly api = inject(EXPERTS_API);
+  private readonly params = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
   /** What the address asks for. */
-  protected readonly query = computed<ExpertsQuery>(() => ({ q: '', topic: null, page: 1 }));
+  protected readonly query = computed<ExpertsQuery>(() => {
+    const page = Number(this.params().get('page'));
+    return { q: '', topic: null, page: Number.isInteger(page) && page >= 1 ? page : 1 };
+  });
   private readonly directory = toSignal(
     toObservable(this.query).pipe(switchMap((query) => this.api.listExperts(query))),
   );
@@ -53,6 +58,21 @@ export class ExpertsPage {
       };
     }),
   );
+
+  protected readonly pageCount = computed(() => this.directory()?.pageCount ?? 0);
+  protected readonly pagerLabels = {
+    label: $localize`:@@experts.pager.label:Pages of experts`,
+    // The pager fills in the number, so the translation keeps the placeholder.
+    page: $localize`:@@experts.pager.page:Page ${'{page}'}:page:`,
+    previous: $localize`:@@experts.pager.previous:Previous page`,
+    next: $localize`:@@experts.pager.next:Next page`,
+  };
+  protected readonly pagerSummary = computed(() => {
+    const format = new Intl.NumberFormat(this.locale);
+    const page = format.format(this.query().page);
+    const count = format.format(this.pageCount());
+    return $localize`:@@experts.pager.summary:Page ${page}:page: of ${count}:count:`;
+  });
 
   protected readonly range = computed(() => {
     const directory = this.directory();

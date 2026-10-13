@@ -10,6 +10,8 @@ export class ExpertsPage {
   readonly rows: Locator;
   readonly search: Locator;
   readonly topic: Locator;
+  readonly pager: Locator;
+  readonly pagerText: Locator;
 
   constructor(private readonly page: Page) {
     this.shell = new AppShell(page);
@@ -21,11 +23,17 @@ export class ExpertsPage {
     this.rows = main.locator('li.person');
     this.search = main.getByRole('searchbox', { name: 'Search experts by name' });
     this.topic = main.getByLabel('Topic');
+    this.pager = main.getByRole('navigation', { name: 'Pages of experts' });
+    this.pagerText = this.pager.locator('.pager__text');
   }
 
   async open(path = '/experts'): Promise<void> {
     await this.page.goto(path);
     await this.heading.waitFor();
+  }
+
+  async goToPage(number: number): Promise<void> {
+    await this.pager.getByRole('link', { name: `Page ${number}`, exact: true }).click();
   }
 
   /** One expert's row, by position. */
